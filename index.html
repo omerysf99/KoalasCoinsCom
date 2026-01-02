@@ -8,411 +8,190 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --tg-bg: #000; --primary: #007aff; --accent: #fcd535; }
-        * { -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--tg-bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
-
-        /* --- PC BLOCKER --- */
-        #guard { position: fixed; inset: 0; background: #000; z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        /* --- LOADING SCREEN --- */
-        #check-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spin-box { position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
-        .spin-border { position: absolute; inset: 0; border: 3px solid rgba(255,255,255,0.05); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .line { width: 270px; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 14px 20px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; opacity: 0; transform: translateY(15px); transition: 0.7s; }
-        .line.active { opacity: 1; transform: translateY(0); }
-
-        /* --- MAIN UI --- */
-        #app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s; background: radial-gradient(circle at top, #001f3f 0%, #000 70%); }
-        .balance-text { font-size: 5.5rem; font-weight: 800; font-style: italic; letter-spacing: -4px; line-height: 1; }
-        .earn-btn { background: linear-gradient(135deg, #fcd535, #f3ba2f); color: #000; padding: 20px; border-radius: 24px; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(252, 213, 53, 0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* --- CEX GRID --- */
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .cex-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 22px; padding: 18px 5px; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; position: relative; }
-        .cex-box img { width: 44px; height: 44px; border-radius: 12px; }
-        .cex-box.selected { border-color: var(--primary); background: rgba(0,122,255,0.1); transform: scale(1.05); }
-        .check-v { position: absolute; top: 8px; right: 8px; color: var(--primary); font-size: 10px; display: none; }
-        .cex-box.selected .check-v { display: block; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- MODALS --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
+        /* --- DOGS STYLE CHECKING SCREEN --- */
+        #dogs-loader {
+            position: fixed; inset: 0; background: #000; z-index: 100000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .dogs-logo-anim {
+            width: 120px; height: 120px; border-radius: 40px; margin-bottom: 40px;
+            animation: pulseDogs 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseDogs {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .loader-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
+        .loader-sub { color: #888; font-size: 14px; margin-bottom: 40px; }
+
+        .stat-row {
+            width: 280px; display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #111; opacity: 0; transform: translateY(10px);
+            transition: 0.5s ease;
+        }
+        .stat-row.active { opacity: 1; transform: translateY(0); }
+        .stat-label { color: #888; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        .stat-value { color: #fff; font-weight: 900; font-style: italic; }
+
+        /* --- MAIN APP UI --- */
+        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s ease; }
+        
+        .hero-balance {
+            padding: 60px 20px; text-align: center;
+            background: radial-gradient(circle at top, #111 0%, #000 100%);
+        }
+        .balance-num { font-size: 80px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 10px; }
+        .balance-label { color: #888; font-weight: 900; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; }
+
+        /* Borsa Grid */
+        .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
+        .cex-card {
+            background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px;
+            padding: 20px 10px; text-align: center; transition: 0.3s;
+        }
+        .cex-card img { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; }
+        .cex-card span { font-size: 10px; font-weight: 900; color: #555; }
+        .cex-card.selected { border-color: #007aff; background: #00152a; }
+        .cex-card.selected span { color: #007aff; }
+
+        /* Butonlar */
+        .btn-primary { 
+            background: #fff; color: #000; width: calc(100% - 40px); margin: 0 20px 15px;
+            padding: 18px; border-radius: 20px; font-weight: 900; font-size: 16px;
+        }
+        .btn-wallet {
+            background: #111; color: #fff; border: 1px solid #222; width: calc(100% - 40px); 
+            margin: 0 20px; padding: 18px; border-radius: 20px; font-weight: 900; display: flex; 
+            align-items: center; justify-content: center; gap: 10px;
+        }
+
+        /* Modallar */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
         .modal.active { display: flex; }
-        .m-card { background: #111; border: 1px solid #222; border-radius: 40px; width: 100%; max-width: 340px; padding: 40px; text-align: center; }
-        .bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 20px 0; overflow: hidden; display: none; }
-        .fill { width: 0%; height: 100%; background: var(--accent); transition: 2.5s linear; }
+        .m-content { background: #111; padding: 40px; border-radius: 30px; width: 100%; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="guard">
-        <i class="fa-solid fa-mobile-screen text-6xl text-yellow-500 mb-6"></i>
-        <h1 class="text-2xl font-black italic mb-2 uppercase">MOBILE ONLY</h1>
-        <p class="text-zinc-500 font-bold px-10">Please open this app on your Telegram mobile app.</p>
+    <div id="dogs-loader">
+        <img src="Koalas.jpg" class="dogs-logo-anim">
+        <h1 class="loader-title">Who are you?</h1>
+        <p class="loader-sub">Analysing your profile...</p>
+
+        <div class="space-y-1">
+            <div id="row1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="val1">...</span></div>
+            <div id="row2" class="stat-row"><span class="stat-label">Telegram Premium</span><span class="stat-value" id="val2">...</span></div>
+            <div id="row3" class="stat-row"><span class="stat-label">Activity Level</span><span class="stat-value" id="val3">...</span></div>
+        </div>
     </div>
 
-    <div id="check-screen">
-        <div class="spin-box"><div class="spin-border"></div><img src="Koalas.jpg" class="w-16 h-16 rounded-full"></div>
-        <p class="text-zinc-600 font-black tracking-widest text-[10px] uppercase mb-10">Analysing Profile</p>
-        <div id="l1" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Account Age</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l2" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Activity</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l3" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">OG Status</span><span class="v font-black italic text-sm">...</span></div>
-    </div>
-
-    <div id="reward-ui" class="hidden fixed inset-0 bg-black z-[150000] flex flex-col items-center justify-center p-10 text-center">
-        <div id="reward-num" class="balance-text mb-4">0</div>
-        <p class="text-zinc-500 font-black italic tracking-widest mb-12 uppercase">$KOALA ALLOCATED</p>
-        <button onclick="goApp()" class="w-full bg-white text-black py-5 rounded-3xl font-black text-lg">START ARCADE</button>
-    </div>
-
-    <div id="app">
-        <div class="pt-20 pb-10 text-center">
-            <div class="relative inline-block mb-6">
-                <img src="Koalas.jpg" class="w-24 h-24 rounded-[35px] border-4 border-black mx-auto shadow-2xl">
-                <div class="absolute -bottom-2 -right-2 bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center border-4 border-black"><i class="fa-solid fa-check text-[10px]"></i></div>
-            </div>
-            <h1 id="b-val" class="balance-text">0</h1>
-            <p class="text-zinc-500 font-black text-[10px] tracking-[0.4em] uppercase italic">$KOALA BALANCE</p>
+    <div id="main-app">
+        <div class="hero-balance">
+            <h2 id="final-bal" class="balance-num">0</h2>
+            <p class="balance-label">$KOALA EARNED</p>
         </div>
 
-        <div class="px-6 space-y-10">
-            <button onclick="showM('m-ad')" class="earn-btn"><i class="fa-solid fa-circle-play text-xl"></i> EARN +1 KOALA</button>
-            
-            <div class="space-y-3">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Web3 Identity</p>
-                <button onclick="handleW()" id="w-btn" class="w-full bg-zinc-900 border border-white/5 h-16 rounded-2xl font-black text-sm flex items-center justify-center gap-3"><i class="fa-solid fa-wallet text-blue-500"></i> CONNECT WALLET</button>
-            </div>
+        <button onclick="openModal('m-ad')" class="btn-primary">EARN MORE</button>
+        
+        <button id="w-btn" onclick="openModal('m-wallet')" class="btn-wallet">
+            <i class="fa-solid fa-wallet text-blue-500"></i> CONNECT WALLET
+        </button>
 
-            <div class="space-y-4 pb-20">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Exchange Partner</p>
-                <div class="grid-3">
-                    <div class="cex-box" onclick="setEx(this,'Binance')"><i class="fa-solid fa-check check-v"></i><img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'"><span class="font-black italic text-[9px]">BINANCE</span></div>
-                    <div class="cex-box" onclick="setEx(this,'OKX')"><i class="fa-solid fa-check check-v"></i><img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'"><span class="font-black italic text-[9px]">OKX</span></div>
-                    <div class="cex-box" onclick="setEx(this,'Bitget')"><i class="fa-solid fa-check check-v"></i><img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'"><span class="font-black italic text-[9px]">BITGET</span></div>
+        <div class="mt-10">
+            <p class="px-6 mb-4 text-[10px] font-black text-zinc-600 tracking-widest">EXCHANGE PARTNERS</p>
+            <div class="cex-grid">
+                <div class="cex-card" onclick="selectCex(this, 'Binance')">
+                    <img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'">
+                    <span>BINANCE</span>
+                </div>
+                <div class="cex-card" onclick="selectCex(this, 'OKX')">
+                    <img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'">
+                    <span>OKX</span>
+                </div>
+                <div class="cex-card" onclick="selectCex(this, 'Bitget')">
+                    <img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'">
+                    <span>BITGET</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="m-ad" class="modal"><div class="m-card"><div class="text-6xl mb-6">📺</div><h2 class="text-xl font-black italic uppercase">Video Reward</h2><div id="a-box" class="bar"><div id="a-fill" class="fill"></div></div><button id="a-btn" onclick="runAd()" class="w-full bg-white text-black py-4 rounded-2xl font-black mt-6 mb-4">WATCH AD</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Not Now</button></div></div>
-    <div id="m-w" class="modal"><div class="m-card"><h2 class="text-xl font-black italic uppercase mb-6">Link Wallet</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 rounded-2xl py-5 px-4 text-center text-blue-400 font-mono text-xs mb-6 outline-none"><button onclick="saveW()" class="w-full bg-white text-black py-4 rounded-2xl font-black mb-4">SAVE</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Close</button></div></div>
-    <div id="m-a" class="modal"><div class="m-card"><div id="a-ico" class="text-5xl mb-4"></div><p id="a-txt" class="text-white font-bold mb-8 px-4 text-sm"></p><button onclick="closeM()" class="w-full bg-white text-black py-4 rounded-2xl font-black">OK</button></div></div>
+    <div id="m-ad" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6">Watch & Earn</h2><button onclick="watchAd()" class="btn-primary w-full mx-0 mb-4">START VIDEO</button><button onclick="closeModal('m-ad')" class="text-zinc-500 font-bold">Close</button></div></div>
+    <div id="m-wallet" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6">Link Address</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-center text-blue-500 mb-6"><button onclick="saveWallet()" class="btn-primary w-full mx-0">SAVE</button></div></div>
 
     <script>
-        let bal = 0;
-        const isM = () => /Android|iPhone|iPad/i.test(navigator.userAgent) && window.innerWidth < 1024;
+        let balance = 0;
 
         window.onload = () => {
-            if(!isM()) { document.getElementById('guard').style.display='flex'; document.getElementById('check-screen').style.display='none'; return; }
-            const steps = [{id:'l1',v:'4.2 Years',t:1500},{id:'l2',v:'Active',t:3500},{id:'l3',v:'Elite OG',t:5500}];
-            steps.forEach(s => {
+            // DOGS Tarzı veri akışı (Checking)
+            const stats = [
+                {id: 'row1', valId: 'val1', text: '4.8 YEARS', time: 1500},
+                {id: 'row2', valId: 'val2', text: 'YES', time: 3500},
+                {id: 'row3', valId: 'val3', text: 'HIGH', time: 5500}
+            ];
+
+            stats.forEach(s => {
                 setTimeout(() => {
-                    const el = document.getElementById(s.id); el.classList.add('active');
-                    setTimeout(() => { el.querySelector('.v').innerText=s.v; el.querySelector('.v').classList.add('text-blue-500'); }, 400);
-                }, s.t);
+                    document.getElementById(s.id).classList.add('active');
+                    setTimeout(() => {
+                        document.getElementById(s.valId).innerText = s.text;
+                        document.getElementById(s.valId).style.color = "#007aff";
+                    }, 400);
+                }, s.time);
             });
+
+            // 7 Saniye Dolunca Arayüzü Getir
             setTimeout(() => {
-                bal = Math.floor(Math.random()*7000)+3000;
-                document.getElementById('check-screen').style.display='none';
-                document.getElementById('reward-ui').classList.remove('hidden');
-                document.getElementById('reward-num').innerText = bal.toLocaleString();
-            }, 7000);
-            if(localStorage.getItem('k_w')) upW(localStorage.getItem('k_w'));
+                balance = Math.floor(Math.random() * 5000) + 2500;
+                document.getElementById('dogs-loader').style.display = 'none';
+                
+                const app = document.getElementById('main-app');
+                app.style.display = 'block';
+                setTimeout(() => app.style.opacity = '1', 50);
+                
+                document.getElementById('final-bal').innerText = balance.toLocaleString();
+            }, 7500);
+
+            // Kayıtlı cüzdan varsa kontrol
+            const savedW = localStorage.getItem('k_w');
+            if(savedW) updateWalletUI(savedW);
         };
 
-        function goApp() { document.getElementById('reward-ui').style.display='none'; document.getElementById('app').style.display='block'; setTimeout(()=>document.getElementById('app').style.opacity='1',50); document.getElementById('b-val').innerText=bal.toLocaleString(); }
-        function runAd() {
-            const b=document.getElementById('a-btn'), box=document.getElementById('a-box'), f=document.getElementById('a-fill');
-            b.disabled=true; b.innerText="LOADING..."; box.style.display="block"; setTimeout(()=>f.style.width="100%",100);
-            setTimeout(() => { bal++; document.getElementById('b-val').innerText=bal.toLocaleString(); closeM(); f.style.width="0%"; box.style.display="none"; b.disabled=false; b.innerText="WATCH AD"; alertM("+1 $KOALA Earned!","fa-coins text-yellow-500"); }, 2700);
+        function selectCex(el, name) {
+            document.querySelectorAll('.cex-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            localStorage.setItem('k_c', name);
         }
-        function saveW() { const v=document.getElementById('w-in').value.trim(); if(v.length>15){ localStorage.setItem('k_w',v); upW(v); closeM(); alertM("Wallet Linked!","fa-circle-check text-green-500"); } }
-        function upW(a) { const b=document.getElementById('w-btn'); b.innerHTML=`<i class="fa-solid fa-circle-check text-green-500"></i> ${a.slice(0,4)}...${a.slice(-4)}`; b.style.color="#007aff"; }
-        function setEx(e,n) { document.querySelectorAll('.cex-box').forEach(c=>c.classList.remove('selected')); e.classList.add('selected'); localStorage.setItem('k_c',n); alertM(n+" Selected!","fa-building-columns text-blue-500"); }
-        function handleW() { if(localStorage.getItem('k_w')) alertM("Already linked.","fa-wallet text-blue-500"); else showM('m-w'); }
-        function alertM(t,i) { document.getElementById('a-txt').innerText=t; document.getElementById('a-ico').innerHTML=`<i class="fa-solid ${i}"></i>`; showM('m-a'); }
-        function showM(i) { document.getElementById(i).classList.add('active'); }
-        function closeM() { document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active')); }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --tg-bg: #000; --primary: #007aff; --accent: #fcd535; }
-        * { -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--tg-bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- PC BLOCKER --- */
-        #guard { position: fixed; inset: 0; background: #000; z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        /* --- LOADING SCREEN --- */
-        #check-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spin-box { position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
-        .spin-border { position: absolute; inset: 0; border: 3px solid rgba(255,255,255,0.05); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .line { width: 270px; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 14px 20px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; opacity: 0; transform: translateY(15px); transition: 0.7s; }
-        .line.active { opacity: 1; transform: translateY(0); }
-
-        /* --- MAIN UI --- */
-        #app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s; background: radial-gradient(circle at top, #001f3f 0%, #000 70%); }
-        .balance-text { font-size: 5.5rem; font-weight: 800; font-style: italic; letter-spacing: -4px; line-height: 1; }
-        .earn-btn { background: linear-gradient(135deg, #fcd535, #f3ba2f); color: #000; padding: 20px; border-radius: 24px; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(252, 213, 53, 0.2); }
-        
-        /* --- CEX GRID --- */
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .cex-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 22px; padding: 18px 5px; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; position: relative; }
-        .cex-box img { width: 44px; height: 44px; border-radius: 12px; }
-        .cex-box.selected { border-color: var(--primary); background: rgba(0,122,255,0.1); transform: scale(1.05); }
-        .check-v { position: absolute; top: 8px; right: 8px; color: var(--primary); font-size: 10px; display: none; }
-        .cex-box.selected .check-v { display: block; }
-
-        /* --- MODALS --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
-        .modal.active { display: flex; }
-        .m-card { background: #111; border: 1px solid #222; border-radius: 40px; width: 100%; max-width: 340px; padding: 40px; text-align: center; }
-        .bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 20px 0; overflow: hidden; display: none; }
-        .fill { width: 0%; height: 100%; background: var(--accent); transition: 2.5s linear; }
-    </style>
-</head>
-<body>
-
-    <div id="guard">
-        <i class="fa-solid fa-mobile-screen text-6xl text-yellow-500 mb-6"></i>
-        <h1 class="text-2xl font-black italic mb-2 uppercase">MOBILE ONLY</h1>
-        <p class="text-zinc-500 font-bold px-10">Please open this app on your Telegram mobile app.</p>
-    </div>
-
-    <div id="check-screen">
-        <div class="spin-box"><div class="spin-border"></div><img src="Koalas.jpg" class="w-16 h-16 rounded-full"></div>
-        <p class="text-zinc-600 font-black tracking-widest text-[10px] uppercase mb-10">Analysing Profile</p>
-        <div id="l1" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Account Age</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l2" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Activity</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l3" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">OG Status</span><span class="v font-black italic text-sm">...</span></div>
-    </div>
-
-    <div id="reward-ui" class="hidden fixed inset-0 bg-black z-[150000] flex flex-col items-center justify-center p-10 text-center">
-        <div id="reward-num" class="balance-text mb-4">0</div>
-        <p class="text-zinc-500 font-black italic tracking-widest mb-12 uppercase">$KOALA ALLOCATED</p>
-        <button onclick="goApp()" class="w-full bg-white text-black py-5 rounded-3xl font-black text-lg">START ARCADE</button>
-    </div>
-
-    <div id="app">
-        <div class="pt-20 pb-10 text-center">
-            <div class="relative inline-block mb-6">
-                <img src="Koalas.jpg" class="w-24 h-24 rounded-[35px] border-4 border-black mx-auto shadow-2xl">
-                <div class="absolute -bottom-2 -right-2 bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center border-4 border-black"><i class="fa-solid fa-check text-[10px]"></i></div>
-            </div>
-            <h1 id="b-val" class="balance-text">0</h1>
-            <p class="text-zinc-500 font-black text-[10px] tracking-[0.4em] uppercase italic">$KOALA BALANCE</p>
-        </div>
-
-        <div class="px-6 space-y-10">
-            <button onclick="showM('m-ad')" class="earn-btn"><i class="fa-solid fa-circle-play text-xl"></i> EARN +1 KOALA</button>
-            
-            <div class="space-y-3">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Web3 Identity</p>
-                <button onclick="handleW()" id="w-btn" class="w-full bg-zinc-900 border border-white/5 h-16 rounded-2xl font-black text-sm flex items-center justify-center gap-3"><i class="fa-solid fa-wallet text-blue-500"></i> CONNECT WALLET</button>
-            </div>
-
-            <div class="space-y-4 pb-20">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Exchange Partner</p>
-                <div class="grid-3">
-                    <div class="cex-box" onclick="setEx(this,'Binance')"><i class="fa-solid fa-check check-v"></i><img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'"><span class="font-black italic text-[9px]">BINANCE</span></div>
-                    <div class="cex-box" onclick="setEx(this,'OKX')"><i class="fa-solid fa-check check-v"></i><img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'"><span class="font-black italic text-[9px]">OKX</span></div>
-                    <div class="cex-box" onclick="setEx(this,'Bitget')"><i class="fa-solid fa-check check-v"></i><img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'"><span class="font-black italic text-[9px]">BITGET</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="m-ad" class="modal"><div class="m-card"><div class="text-6xl mb-6">📺</div><h2 class="text-xl font-black italic uppercase">Video Reward</h2><div id="a-box" class="bar"><div id="a-fill" class="fill"></div></div><button id="a-btn" onclick="runAd()" class="w-full bg-white text-black py-4 rounded-2xl font-black mt-6 mb-4">WATCH AD</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Not Now</button></div></div>
-    <div id="m-w" class="modal"><div class="m-card"><h2 class="text-xl font-black italic uppercase mb-6">Link Wallet</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 rounded-2xl py-5 px-4 text-center text-blue-400 font-mono text-xs mb-6 outline-none"><button onclick="saveW()" class="w-full bg-white text-black py-4 rounded-2xl font-black mb-4">SAVE</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Close</button></div></div>
-    <div id="m-a" class="modal"><div class="m-card"><div id="a-ico" class="text-5xl mb-4"></div><p id="a-txt" class="text-white font-bold mb-8 px-4 text-sm"></p><button onclick="closeM()" class="w-full bg-white text-black py-4 rounded-2xl font-black">OK</button></div></div>
-
-    <script>
-        let bal = 0;
-        const isM = () => /Android|iPhone|iPad/i.test(navigator.userAgent) && window.innerWidth < 1024;
-
-        window.onload = () => {
-            if(!isM()) { document.getElementById('guard').style.display='flex'; document.getElementById('check-screen').style.display='none'; return; }
-            const steps = [{id:'l1',v:'4.2 Years',t:1500},{id:'l2',v:'Active',t:3500},{id:'l3',v:'Elite OG',t:5500}];
-            steps.forEach(s => {
-                setTimeout(() => {
-                    const el = document.getElementById(s.id); el.classList.add('active');
-                    setTimeout(() => { el.querySelector('.v').innerText=s.v; el.querySelector('.v').classList.add('text-blue-500'); }, 400);
-                }, s.t);
-            });
-            setTimeout(() => {
-                bal = Math.floor(Math.random()*7000)+3000;
-                document.getElementById('check-screen').style.display='none';
-                document.getElementById('reward-ui').classList.remove('hidden');
-                document.getElementById('reward-num').innerText = bal.toLocaleString();
-            }, 7000);
-            if(localStorage.getItem('k_w')) upW(localStorage.getItem('k_w'));
-        };
-
-        function goApp() { document.getElementById('reward-ui').style.display='none'; document.getElementById('app').style.display='block'; setTimeout(()=>document.getElementById('app').style.opacity='1',50); document.getElementById('b-val').innerText=bal.toLocaleString(); }
-        function runAd() {
-            const b=document.getElementById('a-btn'), box=document.getElementById('a-box'), f=document.getElementById('a-fill');
-            b.disabled=true; b.innerText="LOADING..."; box.style.display="block"; setTimeout(()=>f.style.width="100%",100);
-            setTimeout(() => { bal++; document.getElementById('b-val').innerText=bal.toLocaleString(); closeM(); f.style.width="0%"; box.style.display="none"; b.disabled=false; b.innerText="WATCH AD"; alertM("+1 $KOALA Earned!","fa-coins text-yellow-500"); }, 2700);
+        function saveWallet() {
+            const val = document.getElementById('w-in').value;
+            if(val.length > 10) {
+                localStorage.setItem('k_w', val);
+                updateWalletUI(val);
+                closeModal('m-wallet');
+            }
         }
-        function saveW() { const v=document.getElementById('w-in').value.trim(); if(v.length>15){ localStorage.setItem('k_w',v); upW(v); closeM(); alertM("Wallet Linked!","fa-circle-check text-green-500"); } }
-        function upW(a) { const b=document.getElementById('w-btn'); b.innerHTML=`<i class="fa-solid fa-circle-check text-green-500"></i> ${a.slice(0,4)}...${a.slice(-4)}`; b.style.color="#007aff"; }
-        function setEx(e,n) { document.querySelectorAll('.cex-box').forEach(c=>c.classList.remove('selected')); e.classList.add('selected'); localStorage.setItem('k_c',n); alertM(n+" Selected!","fa-building-columns text-blue-500"); }
-        function handleW() { if(localStorage.getItem('k_w')) alertM("Already linked.","fa-wallet text-blue-500"); else showM('m-w'); }
-        function alertM(t,i) { document.getElementById('a-txt').innerText=t; document.getElementById('a-ico').innerHTML=`<i class="fa-solid ${i}"></i>`; showM('m-a'); }
-        function showM(i) { document.getElementById(i).classList.add('active'); }
-        function closeM() { document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active')); }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --tg-bg: #000; --primary: #007aff; --accent: #fcd535; }
-        * { -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--tg-bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- PC BLOCKER --- */
-        #guard { position: fixed; inset: 0; background: #000; z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        /* --- LOADING SCREEN --- */
-        #check-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spin-box { position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
-        .spin-border { position: absolute; inset: 0; border: 3px solid rgba(255,255,255,0.05); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .line { width: 270px; background: #0c0c0c; border: 1px solid #1a1a1a; padding: 14px 20px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; opacity: 0; transform: translateY(15px); transition: 0.7s; }
-        .line.active { opacity: 1; transform: translateY(0); }
-
-        /* --- MAIN UI --- */
-        #app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s; background: radial-gradient(circle at top, #001f3f 0%, #000 70%); }
-        .balance-text { font-size: 5.5rem; font-weight: 800; font-style: italic; letter-spacing: -4px; line-height: 1; }
-        .earn-btn { background: linear-gradient(135deg, #fcd535, #f3ba2f); color: #000; padding: 20px; border-radius: 24px; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(252, 213, 53, 0.2); }
-        
-        /* --- CEX GRID --- */
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .cex-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 22px; padding: 18px 5px; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; position: relative; }
-        .cex-box img { width: 44px; height: 44px; border-radius: 12px; }
-        .cex-box.selected { border-color: var(--primary); background: rgba(0,122,255,0.1); transform: scale(1.05); }
-        .check-v { position: absolute; top: 8px; right: 8px; color: var(--primary); font-size: 10px; display: none; }
-        .cex-box.selected .check-v { display: block; }
-
-        /* --- MODALS --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
-        .modal.active { display: flex; }
-        .m-card { background: #111; border: 1px solid #222; border-radius: 40px; width: 100%; max-width: 340px; padding: 40px; text-align: center; }
-        .bar { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 20px 0; overflow: hidden; display: none; }
-        .fill { width: 0%; height: 100%; background: var(--accent); transition: 2.5s linear; }
-    </style>
-</head>
-<body>
-
-    <div id="guard">
-        <i class="fa-solid fa-mobile-screen text-6xl text-yellow-500 mb-6"></i>
-        <h1 class="text-2xl font-black italic mb-2 uppercase">MOBILE ONLY</h1>
-        <p class="text-zinc-500 font-bold px-10">Please open this app on your Telegram mobile app.</p>
-    </div>
-
-    <div id="check-screen">
-        <div class="spin-box"><div class="spin-border"></div><img src="Koalas.jpg" class="w-16 h-16 rounded-full"></div>
-        <p class="text-zinc-600 font-black tracking-widest text-[10px] uppercase mb-10">Analysing Profile</p>
-        <div id="l1" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Account Age</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l2" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">Activity</span><span class="v font-black italic text-sm">...</span></div>
-        <div id="l3" class="line"><span class="text-zinc-500 font-bold text-[10px] uppercase">OG Status</span><span class="v font-black italic text-sm">...</span></div>
-    </div>
-
-    <div id="reward-ui" class="hidden fixed inset-0 bg-black z-[150000] flex flex-col items-center justify-center p-10 text-center">
-        <div id="reward-num" class="balance-text mb-4">0</div>
-        <p class="text-zinc-500 font-black italic tracking-widest mb-12 uppercase">$KOALA ALLOCATED</p>
-        <button onclick="goApp()" class="w-full bg-white text-black py-5 rounded-3xl font-black text-lg">START ARCADE</button>
-    </div>
-
-    <div id="app">
-        <div class="pt-20 pb-10 text-center">
-            <div class="relative inline-block mb-6">
-                <img src="Koalas.jpg" class="w-24 h-24 rounded-[35px] border-4 border-black mx-auto shadow-2xl">
-                <div class="absolute -bottom-2 -right-2 bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center border-4 border-black"><i class="fa-solid fa-check text-[10px]"></i></div>
-            </div>
-            <h1 id="b-val" class="balance-text">0</h1>
-            <p class="text-zinc-500 font-black text-[10px] tracking-[0.4em] uppercase italic">$KOALA BALANCE</p>
-        </div>
-
-        <div class="px-6 space-y-10">
-            <button onclick="showM('m-ad')" class="earn-btn"><i class="fa-solid fa-circle-play text-xl"></i> EARN +1 KOALA</button>
-            
-            <div class="space-y-3">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Web3 Identity</p>
-                <button onclick="handleW()" id="w-btn" class="w-full bg-zinc-900 border border-white/5 h-16 rounded-2xl font-black text-sm flex items-center justify-center gap-3"><i class="fa-solid fa-wallet text-blue-500"></i> CONNECT WALLET</button>
-            </div>
-
-            <div class="space-y-4 pb-20">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest px-2">Exchange Partner</p>
-                <div class="grid-3">
-                    <div class="cex-box" onclick="setEx(this,'Binance')"><i class="fa-solid fa-check check-v"></i><img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'"><span class="font-black italic text-[9px]">BINANCE</span></div>
-                    <div class="cex-box" onclick="setEx(this,'OKX')"><i class="fa-solid fa-check check-v"></i><img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'"><span class="font-black italic text-[9px]">OKX</span></div>
-                    <div class="cex-box" onclick="setEx(this,'Bitget')"><i class="fa-solid fa-check check-v"></i><img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'"><span class="font-black italic text-[9px]">BITGET</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="m-ad" class="modal"><div class="m-card"><div class="text-6xl mb-6">📺</div><h2 class="text-xl font-black italic uppercase">Video Reward</h2><div id="a-box" class="bar"><div id="a-fill" class="fill"></div></div><button id="a-btn" onclick="runAd()" class="w-full bg-white text-black py-4 rounded-2xl font-black mt-6 mb-4">WATCH AD</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Not Now</button></div></div>
-    <div id="m-w" class="modal"><div class="m-card"><h2 class="text-xl font-black italic uppercase mb-6">Link Wallet</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 rounded-2xl py-5 px-4 text-center text-blue-400 font-mono text-xs mb-6 outline-none"><button onclick="saveW()" class="w-full bg-white text-black py-4 rounded-2xl font-black mb-4">SAVE</button><button onclick="closeM()" class="text-zinc-600 font-bold text-xs uppercase">Close</button></div></div>
-    <div id="m-a" class="modal"><div class="m-card"><div id="a-ico" class="text-5xl mb-4"></div><p id="a-txt" class="text-white font-bold mb-8 px-4 text-sm"></p><button onclick="closeM()" class="w-full bg-white text-black py-4 rounded-2xl font-black">OK</button></div></div>
-
-    <script>
-        let bal = 0;
-        const isM = () => /Android|iPhone|iPad/i.test(navigator.userAgent) && window.innerWidth < 1024;
-
-        window.onload = () => {
-            if(!isM()) { document.getElementById('guard').style.display='flex'; document.getElementById('check-screen').style.display='none'; return; }
-            const steps = [{id:'l1',v:'4.2 Years',t:1500},{id:'l2',v:'Active',t:3500},{id:'l3',v:'Elite OG',t:5500}];
-            steps.forEach(s => {
-                setTimeout(() => {
-                    const el = document.getElementById(s.id); el.classList.add('active');
-                    setTimeout(() => { el.querySelector('.v').innerText=s.v; el.querySelector('.v').classList.add('text-blue-500'); }, 400);
-                }, s.t);
-            });
-            setTimeout(() => {
-                bal = Math.floor(Math.random()*7000)+3000;
-                document.getElementById('check-screen').style.display='none';
-                document.getElementById('reward-ui').classList.remove('hidden');
-                document.getElementById('reward-num').innerText = bal.toLocaleString();
-            }, 7000);
-            if(localStorage.getItem('k_w')) upW(localStorage.getItem('k_w'));
-        };
-
-        function goApp() { document.getElementById('reward-ui').style.display='none'; document.getElementById('app').style.display='block'; setTimeout(()=>document.getElementById('app').style.opacity='1',50); document.getElementById('b-val').innerText=bal.toLocaleString(); }
-        function runAd() {
-            const b=document.getElementById('a-btn'), box=document.getElementById('a-box'), f=document.getElementById('a-fill');
-            b.disabled=true; b.innerText="LOADING..."; box.style.display="block"; setTimeout(()=>f.style.width="100%",100);
-            setTimeout(() => { bal++; document.getElementById('b-val').innerText=bal.toLocaleString(); closeM(); f.style.width="0%"; box.style.display="none"; b.disabled=false; b.innerText="WATCH AD"; alertM("+1 $KOALA Earned!","fa-coins text-yellow-500"); }, 2700);
+        function updateWalletUI(addr) {
+            document.getElementById('w-btn').innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> ${addr.slice(0,4)}...${addr.slice(-4)}`;
         }
-        function saveW() { const v=document.getElementById('w-in').value.trim(); if(v.length>15){ localStorage.setItem('k_w',v); upW(v); closeM(); alertM("Wallet Linked!","fa-circle-check text-green-500"); } }
-        function upW(a) { const b=document.getElementById('w-btn'); b.innerHTML=`<i class="fa-solid fa-circle-check text-green-500"></i> ${a.slice(0,4)}...${a.slice(-4)}`; b.style.color="#007aff"; }
-        function setEx(e,n) { document.querySelectorAll('.cex-box').forEach(c=>c.classList.remove('selected')); e.classList.add('selected'); localStorage.setItem('k_c',n); alertM(n+" Selected!","fa-building-columns text-blue-500"); }
-        function handleW() { if(localStorage.getItem('k_w')) alertM("Already linked.","fa-wallet text-blue-500"); else showM('m-w'); }
-        function alertM(t,i) { document.getElementById('a-txt').innerText=t; document.getElementById('a-ico').innerHTML=`<i class="fa-solid ${i}"></i>`; showM('m-a'); }
-        function showM(i) { document.getElementById(i).classList.add('active'); }
-        function closeM() { document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active')); }
+
+        function watchAd() {
+            balance++;
+            document.getElementById('final-bal').innerText = balance.toLocaleString();
+            closeModal('m-ad');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     </script>
 </body>
 </html>
