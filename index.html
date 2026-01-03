@@ -11,16 +11,16 @@
         
         body { background-color: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; touch-action: manipulation; user-select: none; }
 
-        /* --- 1. CHECKING EKRANI --- */
+        /* --- 1. CHECKING EKRANI (image_2faea3.png) --- */
         #checking-screen {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .baby-banner { width: 85%; max-width: 400px; border-radius: 30px; margin-bottom: 40px; }
         .progress-container { width: 250px; height: 4px; background: #111; border-radius: 10px; overflow: hidden; }
-        #progress-fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 3s linear; }
+        #progress-fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 3.5s linear; }
 
-        /* --- 2. CONGRATS EKRANI (Görseldeki Tasarım) --- */
+        /* --- 2. CONGRATS EKRANI (image_fddba9.png Tasarımı) --- */
         #congrats-screen {
             position: fixed; inset: 0; background: #000; z-index: 9000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -30,11 +30,11 @@
         .main-title { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
         .sub-title { font-size: 16px; color: #888; font-weight: 600; margin-bottom: 60px; }
         .coin-box { width: 100px; height: 100px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; margin-bottom: 20px; }
-        .coin-box img { width: 60%; border-radius: 50%; }
+        .coin-box img { width: 80%; border-radius: 50%; }
         .amount-text { font-size: 65px; font-weight: 900; letter-spacing: -2px; margin-bottom: 80px; }
-        .claim-btn { background: #fff; color: #000; width: 100%; max-width: 400px; padding: 22px; border-radius: 25px; font-size: 18px; font-weight: 900; position: absolute; bottom: 40px; }
+        .claim-btn { background: #fff; color: #000; width: 90%; max-width: 400px; padding: 22px; border-radius: 25px; font-size: 18px; font-weight: 900; position: absolute; bottom: 40px; }
 
-        /* --- 3. OYUN ARAYÜZÜ --- */
+        /* --- 3. ANA OYUN ARAYÜZÜ --- */
         #game-app { display: none; flex-direction: column; height: 100vh; padding: 20px; opacity: 0; transition: opacity 0.5s; }
         .balance-box { text-align: center; margin-top: 40px; }
         .bal-label { font-size: 10px; font-weight: 900; color: #555; letter-spacing: 4px; text-transform: uppercase; }
@@ -58,7 +58,7 @@
 <body>
 
     <div id="checking-screen">
-        <img src="image_2faea3.png" class="baby-banner" alt="Checking">
+        <img src="image_2faea3.png" class="baby-banner" alt="Analyzing">
         <p class="mb-4 font-bold text-zinc-400">Analyzing your $KOALA profile...</p>
         <div class="progress-container">
             <div id="progress-fill"></div>
@@ -71,10 +71,10 @@
         <p class="sub-title">The wait is over—you've earned your reward</p>
         
         <div class="coin-box">
-            <img src="koalas.jpg" alt="Coin">
+            <img src="koalas.jpg" alt="Airdrop Coin">
         </div>
         <p class="text-zinc-500 font-black text-sm mb-2">$KOATS</p>
-        <div id="airdrop-val" class="amount-text">682.73</div>
+        <div id="airdrop-val" class="amount-text">550.51</div>
 
         <button class="claim-btn" onclick="goToGame()">Claim airdrop</button>
     </div>
@@ -112,32 +112,38 @@
         let energy = 1000;
         const maxEnergy = 1000;
 
-        // Akış Yönetimi
+        // Sayfa Akış Kontrolü
         window.onload = () => {
             const fill = document.getElementById('progress-fill');
-            fill.style.width = '100%';
+            // Barı başlat
+            setTimeout(() => { fill.style.width = '100%'; }, 100);
 
-            // 3 saniye sonra congrats ekranına geç
+            // 4 saniye sonra analiz ekranını kapat, tebrik ekranını aç
             setTimeout(() => {
-                document.getElementById('checking-screen').style.display = 'none';
-                document.getElementById('congrats-screen').style.display = 'flex';
-                
-                // Rastgele airdrop miktarı belirle (600-800 arası)
-                const randomAirdrop = (Math.random() * (800 - 600) + 600).toFixed(2);
-                document.getElementById('airdrop-val').innerText = randomAirdrop;
-                score = parseFloat(randomAirdrop);
-            }, 3200);
+                document.getElementById('checking-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('checking-screen').style.display = 'none';
+                    document.getElementById('congrats-screen').style.display = 'flex';
+                }, 500);
+            }, 3800);
         };
 
         function goToGame() {
-            document.getElementById('congrats-screen').style.display = 'none';
-            const app = document.getElementById('game-app');
-            app.style.display = 'flex';
-            setTimeout(() => app.style.opacity = '1', 50);
-            updateUI();
+            document.getElementById('congrats-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('congrats-screen').style.display = 'none';
+                const app = document.getElementById('game-app');
+                app.style.display = 'flex';
+                setTimeout(() => app.style.opacity = '1', 50);
+                
+                // Congrats ekranındaki bakiyeyi ana oyuna aktar
+                const initialAirdrop = parseFloat(document.getElementById('airdrop-val').innerText);
+                score = initialAirdrop;
+                updateUI();
+            }, 500);
         }
 
-        // Tıklama Motoru
+        // Tıklama Sistemi
         const tapBtn = document.getElementById('tap-btn');
         tapBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
@@ -152,7 +158,7 @@
             energy -= 5;
             updateUI();
             
-            // Uçan sayı
+            // Puan animasyonu
             const p = document.createElement('div');
             p.className = 'float-text';
             p.innerText = '+1';
@@ -161,7 +167,7 @@
             document.body.appendChild(p);
             setTimeout(() => p.remove(), 800);
             
-            // Titreşim
+            // Titreşim (Mobil cihazlar için)
             if(navigator.vibrate) navigator.vibrate(10);
         }
 
@@ -171,7 +177,7 @@
             document.getElementById('energy-bar').style.width = `${(energy/maxEnergy)*100}%`;
         }
 
-        // Enerji Yenileme
+        // Enerji Yenileme (Saniyede +2)
         setInterval(() => {
             if (energy < maxEnergy) {
                 energy = Math.min(energy + 2, maxEnergy);
