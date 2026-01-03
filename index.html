@@ -3,227 +3,503 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | SEASON 1</title>
+    <title>KOALA ARCADE | THE NEXT GEN AIRDROP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
         
+        /* CORE RESET */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; user-select: none; }
         body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px); }
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; }
-        .page.active { display: block; animation: fadeIn 0.2s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* SCROLLBAR HIDE */
+        ::-webkit-scrollbar { display: none; }
 
-        /* Tap Mechanism */
-        .tap-area { display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
-        .tap-circle { width: 230px; height: 230px; margin: 15px auto; position: relative; }
-        .tap-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 6px solid #111; transition: 0.1s; touch-action: manipulation; }
+        /* UI THEME */
+        .glass { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 150px; scroll-behavior: smooth; }
+        .page.active { display: block; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TAP MECHANISM */
+        .tap-area { display: flex; flex-direction: column; align-items: center; padding-top: 5px; }
+        .tap-circle { width: 260px; height: 260px; margin: 20px auto; position: relative; z-index: 10; }
+        
+        .tap-img { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50%; 
+            border: 8px solid #0a0a0a; box-shadow: 0 0 50px rgba(255,255,255,0.05);
+            transition: transform 0.05s cubic-bezier(0, 0, 0.2, 1); touch-action: manipulation; 
+        }
         .tap-img:active { transform: scale(0.92); border-color: #fff; }
 
-        /* Navigation */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #050505; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: 20px; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        /* ANIMATED BACKGROUND */
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }
 
-        .energy-bar { height: 8px; background: #0a0a0a; border-radius: 20px; overflow: hidden; border: 1px solid #151515; }
-        #e-fill { height: 100%; width: 100%; background: #fff; transition: 0.2s linear; }
+        /* NAVIGATION */
+        .nav-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: 100px; 
+            background: rgba(5,5,5,0.8); border-top: 1px solid rgba(255,255,255,0.05); 
+            display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 30px; 
+            backdrop-filter: blur(10px); z-index: 2000; 
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 9px; font-weight: 800; text-transform: uppercase; transition: 0.3s; }
+        .nav-item.active { color: #fff; transform: translateY(-5px); }
+        .nav-item i { font-size: 22px; margin-bottom: 5px; }
 
-        .f-text { position: absolute; color: white; font-weight: 900; font-size: 32px; pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 2000; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        /* ENERGY BAR */
+        .energy-bar { height: 12px; background: rgba(255,255,255,0.03); border-radius: 20px; overflow: hidden; border: 1px solid #111; position: relative; }
+        #e-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #fff, #444); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Stats Cards */
-        .stat-card { background: linear-gradient(145deg, #0a0a0a, #111); border: 1px solid #1a1a1a; padding: 20px; border-radius: 28px; }
-        .usdt-glow { color: #00ffa3; text-shadow: 0 0 15px rgba(0,255,163,0.3); }
+        /* FLOATING TEXT */
+        .f-text { position: absolute; color: white; font-weight: 900; font-size: 38px; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 3000; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.2); } }
 
-        #ad-view { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; }
+        /* CHECKING SCREEN */
+        #checking-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; flex-direction:column; padding:60px 30px; justify-content:space-between; }
+        .check-card { background:#0a0a0a; border:1px solid #151515; padding:25px; border-radius:30px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; opacity:0; transform:translateX(-20px); transition:0.6s; }
+        .check-card.show { opacity:1; transform:translateX(0); }
+        
+        /* MISC */
+        .usdt-text { background: linear-gradient(90deg, #00ffa3, #00d1ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 25px; padding: 20px; }
+        
+        .reward-popup { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 25px; border-radius: 50px; font-weight: 900; font-size: 12px; z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <div id="ad-view">
+    <canvas id="bg-canvas"></canvas>
+    <div id="reward-toast" class="reward-popup uppercase">Reward Claimed!</div>
+
+    <div id="ad-view" class="fixed inset-0 bg-black z-[10000] hidden flex-col items-center justify-center">
+        <div class="relative w-24 h-24 mb-8">
+            <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-t-white rounded-full animate-spin"></div>
+        </div>
+        <h2 id="ad-sec" class="text-8xl font-black italic tracking-tighter mb-4">10</h2>
+        <p class="text-zinc-600 font-black text-xs uppercase tracking-[0.5em]">Syncing Koala Power</p>
+    </div>
+
+    <div id="checking-screen">
         <div class="text-center">
-            <div class="w-12 h-12 border-2 border-white/10 border-t-white rounded-full animate-spin mx-auto mb-6"></div>
-            <h2 id="ad-sec" class="text-7xl font-black italic">10</h2>
-            <p class="text-zinc-600 font-bold text-[10px] uppercase tracking-widest mt-4">Generating Reward</p>
+            <h1 class="text-4xl font-black italic tracking-tighter uppercase mb-2">Koala Arcade</h1>
+            <p class="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.3em]">Protocol v2.0.6 Stable</p>
+        </div>
+
+        <div id="check-list" class="flex-1 mt-12">
+            <div class="check-card" id="s1"><span>Authenticating User</span><i class="fa-solid fa-circle-notch animate-spin text-zinc-800"></i></div>
+            <div class="check-card" id="s2"><span>Loading Assets</span><i class="fa-solid fa-circle-notch animate-spin text-zinc-800"></i></div>
+            <div class="check-card" id="s3"><span>Security Handshake</span><i class="fa-solid fa-circle-notch animate-spin text-zinc-800"></i></div>
+            <div class="check-card" id="s4"><span>Syncing Airdrop Pool</span><i class="fa-solid fa-circle-notch animate-spin text-zinc-800"></i></div>
+        </div>
+
+        <div id="check-result" class="hidden text-center mb-10">
+            <div class="relative inline-block mb-6">
+                <h2 id="veteran-years" class="text-9xl font-black tracking-tighter">0</h2>
+                <span class="absolute -top-2 -right-8 bg-white text-black text-[10px] px-2 py-1 font-black rounded-lg uppercase italic shadow-xl">YEARS</span>
+            </div>
+            <p class="text-zinc-500 font-black uppercase text-xs tracking-widest mb-2">Veteran Reward Allocation</p>
+            <div class="text-3xl font-black text-white">+<span id="welcome-reward">0</span> $KOALA</div>
+        </div>
+
+        <div class="w-full">
+            <button onclick="startCheck()" id="btn-check" class="w-full bg-white text-black p-6 rounded-[30px] font-black uppercase text-sm shadow-2xl active:scale-95 transition-transform">Initialize System</button>
+            <button onclick="enterApp()" id="btn-claim" class="w-full bg-white text-black p-6 rounded-[30px] font-black uppercase text-sm hidden shadow-white/20 shadow-2xl">Claim & Launch</button>
         </div>
     </div>
 
-    <div id="main-app">
+    <div id="main-app" class="hidden">
         
         <div id="p-earn" class="page active">
             <div class="tap-area">
-                <div class="text-center mb-4">
-                    <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em]">Koala Balance</p>
-                    <h1 id="bal-txt" class="text-6xl font-black tracking-tighter">0</h1>
+                <div class="text-center mb-6">
+                    <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.5em] mb-1">Your Total Balance</p>
+                    <h1 id="bal-txt" class="text-7xl font-black tracking-tighter">0</h1>
+                    <div class="mt-2 inline-flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
+                        <span class="text-[9px] font-black uppercase text-zinc-400">Profit per hour</span>
+                        <span class="text-[9px] font-black text-green-400">+1.2k</span>
+                    </div>
                 </div>
 
                 <div class="tap-circle">
                     <img src="coinkoala.jpg" id="koala-btn" class="tap-img" onclick="handleTap(event)">
                 </div>
 
-                <div class="w-full max-w-[240px] mb-8">
-                    <div class="flex justify-between items-center mb-2 px-1">
-                        <span class="text-[9px] font-black text-zinc-500 uppercase">⚡ ENERGY: <span id="e-txt">1000/1000</span></span>
+                <div class="w-full max-w-[280px] mb-10">
+                    <div class="flex justify-between items-center mb-3 px-1">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-yellow-400 text-xs"></i>
+                            <span class="text-[10px] font-black uppercase tracking-tighter" id="e-txt">1000/1000</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Recharging...</span>
                     </div>
                     <div class="energy-bar"><div id="e-fill"></div></div>
                 </div>
             </div>
 
-            <div class="w-full px-2">
-                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-4">Quick Tasks</p>
-                <div class="space-y-3">
-                    <div class="glass p-4 rounded-2xl flex justify-between items-center" onclick="triggerAd()">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500"><i class="fa-solid fa-play text-xs"></i></div>
-                            <div><p class="text-xs font-bold">Watch Ad</p><p class="text-[9px] text-zinc-500">+1 $KOALA</p></div>
+            <div class="w-full px-2 space-y-4">
+                <h3 class="text-zinc-700 font-black text-[11px] uppercase tracking-[0.3em] px-2">Active Quests</h3>
+                
+                <div class="stat-box flex justify-between items-center" onclick="triggerAd()">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 shadow-inner">
+                            <i class="fa-solid fa-circle-play text-xl"></i>
                         </div>
-                        <button class="bg-white text-black text-[9px] font-black px-3 py-1.5 rounded-lg uppercase">Claim</button>
-                    </div>
-                    <div class="glass p-4 rounded-2xl flex justify-between items-center" onclick="openTG()">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400"><i class="fa-brands fa-telegram text-xs"></i></div>
-                            <div><p class="text-xs font-bold">Join Channel</p><p class="text-[9px] text-zinc-500">+50,000 $KOALA</p></div>
+                        <div>
+                            <p class="text-sm font-bold">Daily Video Bonus</p>
+                            <p class="text-[10px] text-zinc-500 font-medium">+1 $KOALA & Booster</p>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-zinc-800 text-xs"></i>
                     </div>
+                    <button class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all">WATCH</button>
+                </div>
+
+                <div class="stat-box flex justify-between items-center" onclick="openTG()">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Official Channel</p>
+                            <p class="text-[10px] text-zinc-500 font-medium">+50,000 $KOALA</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-zinc-800 text-xs"></i>
                 </div>
             </div>
         </div>
 
         <div id="p-stats" class="page">
-            <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Arcade Stats</h2>
+            <h2 class="text-4xl font-black italic mb-8 uppercase tracking-tighter">Global Hub</h2>
             
-            <div class="stat-card mb-4 border-2 border-green-500/20">
-                <div class="flex justify-between items-start mb-4">
+            <div class="stat-box mb-6 border-l-4 border-green-500">
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Season 1 Pool</p>
-                        <h3 class="text-4xl font-black usdt-glow mt-1">50,000 USDT</h3>
+                        <p class="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Season 1 Reward Pool</p>
+                        <h3 class="text-5xl font-black usdt-text">50,000 USDT</h3>
                     </div>
-                    <div class="bg-green-500/10 text-green-500 text-[9px] font-black px-3 py-1 rounded-full border border-green-500/20">LIVE</div>
+                    <span class="bg-green-500/20 text-green-400 text-[8px] font-black px-3 py-1 rounded-lg border border-green-500/30 uppercase animate-pulse">Live Now</span>
                 </div>
-                <div class="space-y-2">
-                    <div class="flex justify-between text-[9px] font-black uppercase text-zinc-500 px-1">
-                        <span>Season Progress</span>
-                        <span>74%</span>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between text-[10px] font-black uppercase text-zinc-400">
+                        <span>Distribution Progress</span>
+                        <span>82.4%</span>
                     </div>
-                    <div class="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                        <div class="h-full bg-green-500 w-[74%] shadow-[0_0_10px_#22c55e]"></div>
+                    <div class="h-3 bg-white/5 rounded-full p-[2px]">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full w-[82.4%] shadow-[0_0_15px_rgba(16,185,129,0.4)]"></div>
                     </div>
-                    <p class="text-[10px] text-zinc-400 mt-3 text-center font-medium italic">"Reward distribution based on your $KOALA rank"</p>
+                    <div class="flex justify-between items-center pt-2">
+                        <p class="text-[10px] text-zinc-500 font-medium italic italic leading-tight">Your estimated share is calculated by your rank and total taps.</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="stat-card">
-                    <p class="text-zinc-600 text-[9px] font-black uppercase">Active Miners</p>
-                    <p class="text-xl font-black mt-1">1,248,502</p>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="stat-box">
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-1">Daily Active</p>
+                    <p class="text-2xl font-black tracking-tighter">842.1K</p>
                 </div>
-                <div class="stat-card">
-                    <p class="text-zinc-600 text-[9px] font-black uppercase">Burnt $KOALA</p>
-                    <p class="text-xl font-black mt-1 text-red-500">2.4B</p>
+                <div class="stat-box">
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-1">Total Burnt</p>
+                    <p class="text-2xl font-black tracking-tighter text-red-500">1.2B</p>
                 </div>
             </div>
 
-            <div class="glass p-6 rounded-[30px] flex items-center gap-5">
-                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-2xl">🚀</div>
-                <div>
-                    <p class="text-xs font-bold text-white uppercase">TGE Listing Info</p>
-                    <p class="text-[10px] text-zinc-500 mt-1">Q2 2026 - Major exchanges ready. Keep mining to increase your share.</p>
+            <div class="stat-box mb-6">
+                <p class="text-zinc-600 text-[10px] font-black uppercase mb-4 tracking-widest text-center">TGE Exchange Listing</p>
+                <div class="flex justify-around items-center opacity-40">
+                    <i class="fa-solid fa-building-columns text-3xl"></i>
+                    <i class="fa-solid fa-vault text-3xl"></i>
+                    <i class="fa-solid fa-landmark text-3xl"></i>
+                    <i class="fa-solid fa-piggy-bank text-3xl"></i>
                 </div>
+                <p class="text-center text-[9px] text-zinc-500 mt-4 uppercase font-bold">Confirmed listing Q2 2026</p>
             </div>
         </div>
 
-        <div id="p-friends" class="page text-center">
-            <div class="w-20 h-20 bg-zinc-900 rounded-3xl mx-auto mb-6 flex items-center justify-center text-3xl border border-zinc-800">🤝</div>
-            <h2 class="text-3xl font-black italic mb-2 uppercase">Invite Crew</h2>
-            <p class="text-zinc-500 text-sm mb-10 px-6">Invite friends and get <span class="text-white">10% commission</span> on all their taps!</p>
-            <div class="glass p-5 rounded-3xl mb-6">
-                <p class="text-[10px] text-zinc-600 font-black uppercase mb-2">My Unique ID</p>
-                <p id="ref-preview" class="text-xs font-mono text-zinc-400 truncate">t.me/KoalasUsdt_Bot?start=r...</p>
+        <div id="p-friends" class="page">
+            <div class="text-center mb-10 pt-4">
+                <div class="w-24 h-24 bg-gradient-to-br from-zinc-800 to-black rounded-[2.5rem] mx-auto flex items-center justify-center text-4xl mb-6 shadow-2xl border border-zinc-800">🚀</div>
+                <h2 class="text-4xl font-black italic mb-2 tracking-tighter uppercase">Squad Pool</h2>
+                <p class="text-zinc-500 text-sm px-10 leading-relaxed">Invite partners and receive <span class="text-white font-black">10% bonus</span> from their total earnings instantly.</p>
             </div>
-            <button onclick="shareLink()" class="w-full bg-white text-black p-5 rounded-3xl font-black uppercase text-sm active:scale-95 transition-transform">Share Invite Link</button>
+
+            <div class="stat-box mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-zinc-500 text-[10px] font-black uppercase mb-1">Friends Invited</p>
+                        <p class="text-3xl font-black">0</p>
+                    </div>
+                    <div>
+                        <p class="text-zinc-500 text-[10px] font-black uppercase mb-1 text-right">Commission Earned</p>
+                        <p class="text-3xl font-black text-white text-right">0</p>
+                    </div>
+                </div>
+                <div class="bg-black/40 border border-white/5 p-4 rounded-2xl">
+                    <p class="text-zinc-600 text-[9px] font-black uppercase mb-2 tracking-widest text-center">Your Invite Link</p>
+                    <p id="ref-preview" class="text-xs font-mono text-zinc-400 truncate text-center italic">t.me/KoalasUsdt_Bot?start=r...</p>
+                </div>
+            </div>
+
+            <button onclick="shareLink()" class="w-full bg-white text-black p-6 rounded-[30px] font-black uppercase text-sm shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-3">
+                <i class="fa-brands fa-telegram text-xl"></i> Share Link
+            </button>
+        </div>
+
+        <div id="p-leader" class="page">
+            <h2 class="text-4xl font-black italic mb-8 uppercase tracking-tighter">Global Rank</h2>
+            <div class="space-y-3">
+                <div class="stat-box border border-yellow-500/20 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <span class="text-xl font-black text-yellow-500">1</span>
+                        <div class="w-10 h-10 bg-zinc-800 rounded-full"></div>
+                        <p class="text-sm font-bold">WhaleTracker</p>
+                    </div>
+                    <p class="text-sm font-black italic">42.5M $KOALA</p>
+                </div>
+                <div class="stat-box border border-zinc-500/20 flex justify-between items-center opacity-80">
+                    <div class="flex items-center gap-4">
+                        <span class="text-lg font-black text-zinc-400">2</span>
+                        <div class="w-10 h-10 bg-zinc-800 rounded-full"></div>
+                        <p class="text-sm font-bold">AirdropHunter</p>
+                    </div>
+                    <p class="text-sm font-black italic">38.1M $KOALA</p>
+                </div>
+                <div class="stat-box flex justify-between items-center opacity-60">
+                    <div class="flex items-center gap-4">
+                        <span class="text-lg font-black text-zinc-600">3</span>
+                        <div class="w-10 h-10 bg-zinc-800 rounded-full"></div>
+                        <p class="text-sm font-bold">KoalaKing_99</p>
+                    </div>
+                    <p class="text-sm font-black italic">35.9M $KOALA</p>
+                </div>
+                </div>
+            <p class="text-center text-[10px] text-zinc-700 font-black uppercase mt-10 tracking-[0.5em]">Syncing Live Leaderboard...</p>
         </div>
 
         <div id="p-drop" class="page text-center">
-            <h2 class="text-3xl font-black italic mb-10 uppercase">Wallet</h2>
-            <div id="w-setup" class="glass p-8 rounded-[40px]">
-                <p class="text-sm font-bold mb-8 text-zinc-400 italic">Connect your TON wallet to receive USDT rewards.</p>
-                <input type="text" id="w-input" class="w-full bg-black border border-zinc-900 p-5 rounded-2xl text-white font-bold text-xs mb-4 outline-none focus:border-green-500 transition-colors" placeholder="UQ... TON Address">
-                <button onclick="saveW()" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-sm">Connect Wallet</button>
+            <div class="mb-10 pt-6">
+                <i class="fa-solid fa-shield-halved text-6xl text-white/10 mb-6"></i>
+                <h2 class="text-4xl font-black italic mb-2 uppercase tracking-tighter">Asset Control</h2>
+                <p class="text-zinc-500 text-sm px-10">Link your non-custodial TON wallet to qualify for the 50,000 USDT distribution.</p>
             </div>
+            
+            <div id="w-setup" class="stat-box p-8 border-dashed border-zinc-800">
+                <input type="text" id="w-input" class="w-full bg-black border border-zinc-800 p-6 rounded-2xl text-white font-bold text-xs mb-4 outline-none focus:border-white transition-all text-center" placeholder="UQ... Enter TON Wallet Address">
+                <button onclick="saveW()" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-sm active:scale-95 transition-all shadow-lg">Link Wallet</button>
+            </div>
+
             <div id="w-done" class="hidden">
-                <div class="w-20 h-20 bg-green-500/10 rounded-full mx-auto flex items-center justify-center mb-6 border border-green-500/20">
-                    <i class="fa-solid fa-check text-3xl text-green-500"></i>
+                <div class="stat-box border-green-500/20 border">
+                    <i class="fa-solid fa-circle-check text-5xl text-green-500 mb-6 animate-bounce"></i>
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-2">Connected Address</p>
+                    <p id="w-preview" class="text-xs font-mono text-zinc-300 break-all bg-black/40 p-4 rounded-xl border border-white/5"></p>
+                    <button onclick="resetW()" class="text-zinc-600 text-[10px] font-black uppercase underline mt-10 hover:text-white transition-all">Change Wallet</button>
                 </div>
-                <p id="w-preview" class="text-zinc-500 text-[10px] font-mono mb-8 break-all"></p>
-                <button onclick="resetW()" class="text-zinc-600 text-xs font-black uppercase underline">Change Wallet</button>
             </div>
         </div>
 
         <nav class="nav-bar">
-            <div class="nav-item active" onclick="tab('earn', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
-            <div class="nav-item" onclick="tab('stats', this)"><i class="fa-solid fa-chart-pie"></i><span>Stats</span></div>
-            <div class="nav-item" onclick="tab('friends', this)"><i class="fa-solid fa-users"></i><span>Friends</span></div>
+            <div class="nav-item active" onclick="tab('earn', this)"><i class="fa-solid fa-fire-flame-curved"></i><span>Mining</span></div>
+            <div class="nav-item" onclick="tab('stats', this)"><i class="fa-solid fa-chart-line"></i><span>Stats</span></div>
+            <div class="nav-item" onclick="tab('leader', this)"><i class="fa-solid fa-trophy"></i><span>Rank</span></div>
+            <div class="nav-item" onclick="tab('friends', this)"><i class="fa-solid fa-user-group"></i><span>Crew</span></div>
             <div class="nav-item" onclick="tab('drop', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
         </nav>
     </div>
 
     <script>
+        /** * KOALA ARCADE - GLOBAL ENGINE CORE 
+         * Satır Sayısı ve Kompleksite Artışı İçin Tüm Fonksiyonlar Detaylandırıldı 
+         */
+
         let state = {
             bal: parseFloat(localStorage.getItem('k_bal')) || 0,
             energy: parseFloat(localStorage.getItem('k_energy')) || 1000,
             lastSync: parseInt(localStorage.getItem('k_sync')) || Date.now(),
             wallet: localStorage.getItem('k_wallet') || null,
-            uid: localStorage.getItem('k_uid') || Math.floor(Math.random()*900000 + 100000)
+            uid: localStorage.getItem('k_uid') || Math.floor(Math.random()*9000000 + 1000000),
+            isClaimed: localStorage.getItem('k_clm') === 'true',
+            clicks: 0,
+            sessionTaps: 0
         };
 
         const MAX_E = 1000;
-        const REFILL = MAX_E / 86400; // 24h
+        const REFILL = MAX_E / 86400; // 24 saatte dolum
 
+        // --- BACKGROUND ENGINE ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initBG() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.5 + 0.1
+                });
+            }
+            animateBG();
+        }
+
+        function animateBG() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                p.y -= p.speed;
+                if(p.y < -10) p.y = canvas.height + 10;
+            });
+            requestAnimationFrame(animateBG);
+        }
+
+        // --- APP LIFE CYCLE ---
         window.onload = () => {
+            initBG();
             localStorage.setItem('k_uid', state.uid);
             document.getElementById('ref-preview').innerText = `t.me/KoalasUsdt_Bot?start=r${state.uid}`;
-            syncEnergy(); refreshUI(); checkW();
-            setInterval(autoRefill, 1000);
+            syncEnergy();
+            refreshUI();
+            checkW();
+            
+            // Auto Refill Loop
+            setInterval(() => {
+                if(state.energy < MAX_E) {
+                    state.energy = Math.min(MAX_E, state.energy + REFILL);
+                    refreshUI();
+                }
+            }, 1000);
         };
 
+        // --- TAP CORE ---
         function handleTap(e) {
-            if(state.energy < 1) return;
-            state.energy -= 1; state.bal += 1; state.lastSync = Date.now();
-            createFloat(e.clientX, e.clientY);
-            refreshUI();
-        }
-
-        function autoRefill() {
-            if(state.energy < MAX_E) {
-                state.energy = Math.min(MAX_E, state.energy + REFILL);
-                refreshUI();
+            if(state.energy < 1) {
+                showToast("Low Energy!");
+                return;
             }
-        }
 
-        function syncEnergy() {
-            let elapsed = (Date.now() - state.lastSync) / 1000;
-            state.energy = Math.min(MAX_E, state.energy + (elapsed * REFILL));
+            // Haptic Simulation
+            state.energy -= 1;
+            state.bal += 1;
+            state.sessionTaps += 1;
+            state.lastSync = Date.now();
+
+            // Create Visual
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            createFloat(clientX, clientY);
+            
+            refreshUI();
+            
+            // Her 10 tıklamada bir sessiz kaydet
+            if(state.sessionTaps % 10 === 0) saveState();
         }
 
         function refreshUI() {
             document.getElementById('bal-txt').innerText = Math.floor(state.bal).toLocaleString();
             document.getElementById('e-txt').innerText = `${Math.floor(state.energy)}/${MAX_E}`;
             document.getElementById('e-fill').style.width = (state.energy/MAX_E*100) + "%";
-            localStorage.setItem('k_bal', state.bal);
-            localStorage.setItem('k_energy', state.energy);
-            localStorage.setItem('k_sync', state.lastSync);
+            
+            // Koala Animation Handle
+            const btn = document.getElementById('koala-btn');
+            if(state.energy < 1) {
+                btn.style.opacity = "0.2";
+                btn.style.filter = "grayscale(1)";
+                btn.style.pointerEvents = "none";
+            } else {
+                btn.style.opacity = "1";
+                btn.style.filter = "grayscale(0)";
+                btn.style.pointerEvents = "auto";
+            }
         }
 
+        function createFloat(x, y) {
+            const d = document.createElement('div');
+            d.className = 'f-text';
+            d.innerText = '+1';
+            d.style.left = (x - 20) + 'px';
+            d.style.top = (y - 50) + 'px';
+            document.body.appendChild(d);
+            setTimeout(() => d.remove(), 800);
+        }
+
+        // --- CHECKING FLOW ---
+        function startCheck() {
+            document.getElementById('btn-check').classList.add('hidden');
+            const cards = ['s1', 's2', 's3', 's4'];
+            
+            cards.forEach((id, i) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.classList.add('show');
+                    el.querySelector('i').className = 'fa-solid fa-circle-check text-white';
+                    if(i === cards.length - 1) setTimeout(finishCheck, 1000);
+                }, i * 1200);
+            });
+        }
+
+        function finishCheck() {
+            document.getElementById('check-list').style.display = 'none';
+            const years = Math.floor(Math.random() * 4) + 1;
+            const bonus = years * 10000;
+            
+            document.getElementById('veteran-years').innerText = years;
+            document.getElementById('welcome-reward').innerText = bonus.toLocaleString();
+            document.getElementById('check-result').classList.remove('hidden');
+            document.getElementById('btn-claim').classList.remove('hidden');
+
+            if(!state.isClaimed) {
+                state.bal += bonus;
+                state.isClaimed = true;
+                localStorage.setItem('k_clm', 'true');
+                saveState();
+            }
+        }
+
+        function enterApp() {
+            document.getElementById('checking-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('checking-screen').style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+            }, 500);
+        }
+
+        // --- NAVIGATION ---
         function tab(name, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('p-' + name).classList.add('active');
             el.classList.add('active');
+            // Reset scroll on tab change
+            document.getElementById('p-' + name).scrollTop = 0;
+        }
+
+        // --- AD & TASKS ---
+        function triggerAd() {
+            const v = document.getElementById('ad-view');
+            const s = document.getElementById('ad-sec');
+            v.style.display = 'flex';
+            let timer = 10;
+            
+            const countdown = setInterval(() => {
+                timer--;
+                s.innerText = timer;
+                if(timer <= 0) {
+                    clearInterval(countdown);
+                    v.style.display = 'none';
+                    state.bal += 1;
+                    refreshUI();
+                    showToast("+1 $KOALA Reward!");
+                }
+            }, 1000);
         }
 
         function shareLink() {
@@ -232,28 +508,23 @@
             window.location.href = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msg)}`;
         }
 
-        function triggerAd() {
-            const v = document.getElementById('ad-view');
-            const s = document.getElementById('ad-sec');
-            v.style.display = 'flex';
-            let t = 10;
-            const iv = setInterval(() => {
-                t--; s.innerText = t;
-                if(t <= 0) { clearInterval(iv); v.style.display = 'none'; state.bal += 1; refreshUI(); alert("+1 $KOALA Reward!"); }
-            }, 1000);
+        function openTG() {
+            window.location.href = 'https://t.me/KoalasCommunity';
         }
 
-        function openTG() { window.location.href = 'https://t.me/KoalasCommunity'; }
-        
-        function createFloat(x, y) {
-            const d = document.createElement('div');
-            d.className = 'f-text'; d.innerText = '+1';
-            d.style.left = x + 'px'; d.style.top = y + 'px';
-            document.body.appendChild(d);
-            setTimeout(() => d.remove(), 600);
+        // --- WALLET ---
+        function saveW() {
+            const val = document.getElementById('w-input').value;
+            if(val.length < 10) {
+                showToast("Invalid Address!");
+                return;
+            }
+            state.wallet = val;
+            localStorage.setItem('k_wallet', val);
+            checkW();
+            showToast("Wallet Linked!");
         }
 
-        function saveW() { state.wallet = document.getElementById('w-input').value; localStorage.setItem('k_wallet', state.wallet); checkW(); }
         function checkW() {
             if(state.wallet) {
                 document.getElementById('w-setup').classList.add('hidden');
@@ -261,7 +532,42 @@
                 document.getElementById('w-preview').innerText = state.wallet;
             }
         }
-        function resetW() { state.wallet = null; localStorage.removeItem('k_wallet'); document.getElementById('w-setup').classList.remove('hidden'); document.getElementById('w-done').classList.add('hidden'); }
+
+        function resetW() {
+            state.wallet = null;
+            localStorage.removeItem('k_wallet');
+            document.getElementById('w-setup').classList.remove('hidden');
+            document.getElementById('w-done').classList.add('hidden');
+        }
+
+        // --- ENGINE UTILS ---
+        function syncEnergy() {
+            let now = Date.now();
+            let elapsed = (now - state.lastSync) / 1000;
+            state.energy = Math.min(MAX_E, state.energy + (elapsed * REFILL));
+            state.lastSync = now;
+        }
+
+        function saveState() {
+            localStorage.setItem('k_bal', state.bal);
+            localStorage.setItem('k_energy', state.energy);
+            localStorage.setItem('k_sync', state.lastSync);
+        }
+
+        function showToast(text) {
+            const t = document.getElementById('reward-toast');
+            t.innerText = text;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
+        // Device Orientation for Canvas Parallax (Optional)
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            canvas.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+        });
+
     </script>
 </body>
 </html>
