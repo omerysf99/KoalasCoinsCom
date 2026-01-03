@@ -19,82 +19,90 @@
         }
 
         .dogs-logo-anim {
-            width: 120px; height: 120px; border-radius: 40px; margin-bottom: 40px;
-            animation: pulseDogs 1.5s ease-in-out infinite;
+            width: 130px; height: 130px; border-radius: 45px; margin-bottom: 35px;
+            object-fit: cover; box-shadow: 0 0 30px rgba(255,255,255,0.05);
+            animation: pulseDogs 1.8s ease-in-out infinite;
         }
 
         @keyframes pulseDogs {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
         }
 
-        .loader-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
-        .loader-sub { color: #888; font-size: 14px; margin-bottom: 40px; }
+        .loader-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; letter-spacing: -1px; }
+        .loader-sub { color: #666; font-size: 14px; margin-bottom: 45px; font-weight: 600; }
 
         .stat-row {
-            width: 280px; display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #111; opacity: 0; transform: translateY(10px);
-            transition: 0.5s ease;
+            width: 290px; display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid #111; opacity: 0; transform: translateY(15px);
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .stat-row.active { opacity: 1; transform: translateY(0); }
-        .stat-label { color: #888; font-size: 13px; font-weight: 700; text-transform: uppercase; }
-        .stat-value { color: #fff; font-weight: 900; font-style: italic; }
+        .stat-label { color: #888; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { color: #fff; font-weight: 900; font-style: italic; font-size: 15px; }
 
         /* --- MAIN APP UI --- */
-        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s ease; }
+        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1.2s ease; }
         
         .hero-balance {
-            padding: 60px 20px; text-align: center;
-            background: radial-gradient(circle at top, #111 0%, #000 100%);
+            padding: 40px 20px 30px; text-align: center;
+            background: linear-gradient(to bottom, #0a0a0a, #000);
         }
-        .balance-num { font-size: 80px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 10px; }
+        .main-avatar {
+            width: 100px; height: 100px; border-radius: 35px; margin: 0 auto 20px;
+            border: 4px solid #111; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .balance-num { font-size: 75px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 8px; }
         .balance-label { color: #888; font-weight: 900; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; }
 
         /* Borsa Grid */
         .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
         .cex-card {
-            background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px;
-            padding: 20px 10px; text-align: center; transition: 0.3s;
+            background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 22px;
+            padding: 22px 10px; text-align: center; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
-        .cex-card img { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; }
-        .cex-card span { font-size: 10px; font-weight: 900; color: #555; }
-        .cex-card.selected { border-color: #007aff; background: #00152a; }
+        .cex-card img { width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 12px; }
+        .cex-card span { font-size: 9px; font-weight: 900; color: #555; letter-spacing: 1px; }
+        .cex-card.selected { border-color: #007aff; background: rgba(0,122,255,0.05); transform: translateY(-3px); }
         .cex-card.selected span { color: #007aff; }
 
         /* Butonlar */
         .btn-primary { 
             background: #fff; color: #000; width: calc(100% - 40px); margin: 0 20px 15px;
-            padding: 18px; border-radius: 20px; font-weight: 900; font-size: 16px;
+            padding: 20px; border-radius: 22px; font-weight: 900; font-size: 16px;
+            box-shadow: 0 10px 20px rgba(255,255,255,0.05);
         }
         .btn-wallet {
-            background: #111; color: #fff; border: 1px solid #222; width: calc(100% - 40px); 
-            margin: 0 20px; padding: 18px; border-radius: 20px; font-weight: 900; display: flex; 
-            align-items: center; justify-content: center; gap: 10px;
+            background: #0d0d0d; color: #fff; border: 1px solid #1a1a1a; width: calc(100% - 40px); 
+            margin: 0 20px; padding: 20px; border-radius: 22px; font-weight: 900; display: flex; 
+            align-items: center; justify-content: center; gap: 12px; transition: 0.2s;
         }
 
         /* Modallar */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; backdrop-filter: blur(8px); }
         .modal.active { display: flex; }
-        .m-content { background: #111; padding: 40px; border-radius: 30px; width: 100%; text-align: center; }
+        .m-content { background: #111; padding: 40px 30px; border-radius: 35px; width: 100%; text-align: center; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
     <div id="dogs-loader">
-        <img src="Koalas.jpg" class="dogs-logo-anim">
+        <img src="babykoalas.jpg" class="dogs-logo-anim" onerror="this.src='https://via.placeholder.com/130?text=Baby'">
         <h1 class="loader-title">Who are you?</h1>
         <p class="loader-sub">Analysing your profile...</p>
 
         <div class="space-y-1">
             <div id="row1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="val1">...</span></div>
-            <div id="row2" class="stat-row"><span class="stat-label">Telegram Premium</span><span class="stat-value" id="val2">...</span></div>
-            <div id="row3" class="stat-row"><span class="stat-label">Activity Level</span><span class="stat-value" id="val3">...</span></div>
+            <div id="row2" class="stat-row"><span class="stat-label">Premium Status</span><span class="stat-value" id="val2">...</span></div>
+            <div id="row3" class="stat-row"><span class="stat-label">Koala Rank</span><span class="stat-value" id="val3">...</span></div>
         </div>
     </div>
 
     <div id="main-app">
         <div class="hero-balance">
+            <img src="koalas.jpg" class="main-avatar" onerror="this.src='https://via.placeholder.com/100?text=Koala'">
             <h2 id="final-bal" class="balance-num">0</h2>
             <p class="balance-label">$KOALA EARNED</p>
         </div>
@@ -106,7 +114,7 @@
         </button>
 
         <div class="mt-10">
-            <p class="px-6 mb-4 text-[10px] font-black text-zinc-600 tracking-widest">EXCHANGE PARTNERS</p>
+            <p class="px-8 mb-4 text-[10px] font-black text-zinc-600 tracking-[0.3em] uppercase">Partner Exchange</p>
             <div class="cex-grid">
                 <div class="cex-card" onclick="selectCex(this, 'Binance')">
                     <img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'">
@@ -124,33 +132,35 @@
         </div>
     </div>
 
-    <div id="m-ad" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6">Watch & Earn</h2><button onclick="watchAd()" class="btn-primary w-full mx-0 mb-4">START VIDEO</button><button onclick="closeModal('m-ad')" class="text-zinc-500 font-bold">Close</button></div></div>
-    <div id="m-wallet" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6">Link Address</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-center text-blue-500 mb-6"><button onclick="saveWallet()" class="btn-primary w-full mx-0">SAVE</button></div></div>
+    <div id="m-ad" class="modal"><div class="m-content"><div class="text-5xl mb-6">📺</div><h2 class="text-xl font-black mb-2">Daily Video</h2><p class="text-zinc-500 text-sm mb-8 font-bold">Watch to get +1 $KOALA</p><button onclick="watchAd()" class="btn-primary w-full mx-0 mb-4">START VIDEO</button><button onclick="closeModal('m-ad')" class="text-zinc-500 font-bold text-xs uppercase tracking-widest">Close</button></div></div>
+    
+    <div id="m-wallet" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6 uppercase italic">Link Address</h2><input type="text" id="w-in" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-8 outline-none"><button onclick="saveWallet()" class="btn-primary w-full mx-0">SAVE ADDRESS</button></div></div>
 
     <script>
         let balance = 0;
 
         window.onload = () => {
-            // DOGS Tarzı veri akışı (Checking)
+            // DOGS Tarzı Veri Akışı
             const stats = [
-                {id: 'row1', valId: 'val1', text: '4.8 YEARS', time: 1500},
-                {id: 'row2', valId: 'val2', text: 'YES', time: 3500},
-                {id: 'row3', valId: 'val3', text: 'HIGH', time: 5500}
+                {id: 'row1', valId: 'val1', text: '4.2 YEARS', time: 1500},
+                {id: 'row2', valId: 'val2', text: 'ACTIVE', time: 3500},
+                {id: 'row3', valId: 'val3', text: 'ELITE OG', time: 5500}
             ];
 
             stats.forEach(s => {
                 setTimeout(() => {
                     document.getElementById(s.id).classList.add('active');
                     setTimeout(() => {
-                        document.getElementById(s.valId).innerText = s.text;
-                        document.getElementById(s.valId).style.color = "#007aff";
+                        const valEl = document.getElementById(s.valId);
+                        valEl.innerText = s.text;
+                        valEl.style.color = "#007aff";
                     }, 400);
-                }, s.time);
+                }, s.t || s.time);
             });
 
-            // 7 Saniye Dolunca Arayüzü Getir
+            // 7.5 Saniye Dolunca Arayüzü Getir
             setTimeout(() => {
-                balance = Math.floor(Math.random() * 5000) + 2500;
+                balance = Math.floor(Math.random() * 6000) + 2000;
                 document.getElementById('dogs-loader').style.display = 'none';
                 
                 const app = document.getElementById('main-app');
@@ -160,7 +170,6 @@
                 document.getElementById('final-bal').innerText = balance.toLocaleString();
             }, 7500);
 
-            // Kayıtlı cüzdan varsa kontrol
             const savedW = localStorage.getItem('k_w');
             if(savedW) updateWalletUI(savedW);
         };
@@ -172,8 +181,8 @@
         }
 
         function saveWallet() {
-            const val = document.getElementById('w-in').value;
-            if(val.length > 10) {
+            const val = document.getElementById('w-in').value.trim();
+            if(val.length > 15) {
                 localStorage.setItem('k_w', val);
                 updateWalletUI(val);
                 closeModal('m-wallet');
@@ -181,7 +190,8 @@
         }
 
         function updateWalletUI(addr) {
-            document.getElementById('w-btn').innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> ${addr.slice(0,4)}...${addr.slice(-4)}`;
+            document.getElementById('w-btn').innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> ${addr.slice(0,4)}...${addr.slice(-4)}`;
+            document.getElementById('w-btn').style.color = "#007aff";
         }
 
         function watchAd() {
