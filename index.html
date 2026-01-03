@@ -3,199 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | MINER HIRE</title>
+    <title>KOALA ARCADE | MINING & AIRDROP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         :root { --bg: #000; --white: #fff; --grey: #111; --accent: #34c759; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
 
-        /* Sayfalar */
         .page { display: none; height: 100vh; flex-direction: column; padding: 20px 20px 140px; animation: fadeIn 0.4s ease; overflow-y: auto; }
         .page.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Kartlar & Butonlar */
-        .card { background: var(--grey); border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; margin-bottom: 16px; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; cursor: pointer; transition: 0.2s; }
+        .card { background: var(--grey); border-radius: 28px; padding: 20px; border: 1px solid #1a1a1a; margin-bottom: 16px; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; width: 100%; text-align: center; cursor: pointer; }
         .btn-main:active { transform: scale(0.96); }
-        .btn-main:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* Reklam İzleme Overlay */
-        #ad-overlay {
-            display: none; position: fixed; inset: 0; background: #000; z-index: 5000;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px;
-        }
+        /* Reklam Overlay */
+        #ad-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 5000; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 
         /* Alt Menü */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
         .nav-item i { font-size: 20px; margin-bottom: 4px; }
 
-        .koala-img-container { width: 200px; height: 200px; background: #fff; border-radius: 50px; margin: 20px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; position: relative; }
-        .koala-img-container img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
-
-        ::-webkit-scrollbar { display: none; }
+        .koala-img { width: 180px; height: 180px; background: #fff; border-radius: 40px; margin: 20px auto; transform: rotate(-2deg); border: 4px solid #111; }
+        
+        /* Borsa Seçim */
+        .ex-item { background: #151515; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <div id="p-check" class="page active items-center justify-center text-center">
-            <h2 class="text-2xl font-black mb-10 italic uppercase">Checking Account</h2>
-            <div class="space-y-4 w-64 text-left">
-                <div id="s1" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Account Age</div>
-                <div id="s2" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Active Status</div>
-                <div id="s3" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Calculating Reward</div>
-            </div>
-            <button onclick="runCheck()" id="btn-run" class="btn-main mt-12 w-64">START CHECK</button>
-        </div>
-
-        <div id="p-home" class="page">
-            <div class="flex justify-between items-center mb-8">
-                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Koala Arcade v2</div>
-                <div class="bg-zinc-900 px-3 py-1 rounded-full text-[9px] font-black text-zinc-400 uppercase">Miner lvl <span id="miner-lv">1</span></div>
-            </div>
-            
-            <div class="text-center flex-1">
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.4em] mb-2">Total Balance</p>
-                <h2 class="text-6xl font-black mb-10 italic tracking-tighter" id="bal-txt">0.00</h2>
+        <div id="p-home" class="page active">
+            <div class="text-center">
+                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2 mt-10">Balance</p>
+                <h2 class="text-5xl font-black mb-10 italic" id="bal-txt">0.00</h2>
                 
-                <div class="koala-img-container"><img src="coinkoala.jpg"></div>
+                <div class="koala-img overflow-hidden"><img src="coinkoala.jpg" class="w-full h-full object-cover grayscale"></div>
 
-                <div class="card mt-10 text-left flex justify-between items-center border-l-4 border-l-yellow-500">
+                <div class="card mt-10 flex justify-between items-center text-left">
                     <div>
-                        <p class="text-[10px] text-zinc-500 font-black uppercase">Current Speed</p>
-                        <p class="text-2xl font-black text-white italic"><span id="speed-txt">128.50</span> <span class="text-xs text-zinc-600">$KOALA/h</span></p>
+                        <p class="text-[10px] text-zinc-500 font-black uppercase">Profit per Hour</p>
+                        <p class="text-2xl font-black text-white italic">+<span id="speed-txt">128.50</span> <span class="text-xs text-zinc-600">$KOALA</span></p>
                     </div>
-                    <i class="fa-solid fa-bolt-lightning text-yellow-500 text-2xl animate-pulse"></i>
+                    <i class="fa-solid fa-bolt text-yellow-500 text-xl"></i>
+                </div>
+                
+                <div id="boost-status" class="text-[10px] font-bold text-green-500 uppercase mt-2 hidden">
+                    <i class="fa-solid fa-clock"></i> Boost Active: +<span id="boost-val">0</span>/h
                 </div>
             </div>
         </div>
 
         <div id="p-hire" class="page">
-            <h2 class="text-4xl font-black mb-2 italic uppercase">Hire Miner</h2>
-            <p class="text-zinc-600 text-[10px] font-black mb-8 uppercase tracking-widest">Watch ads to boost your farm</p>
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Boost</h2>
+            <p class="text-zinc-500 text-[10px] font-black mb-8 uppercase tracking-widest">Watch ads to increase hourly profit</p>
 
-            <div class="card relative overflow-hidden">
-                <div class="flex items-center gap-5 mb-6">
-                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-black text-2xl">
-                        <i class="fa-solid fa-video"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-black text-lg">Hızlı Takviye</h4>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase">Anında +5,000 $KOALA & +10 Speed</p>
+            <div class="card">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 bg-white text-black rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-play"></i></div>
+                    <div class="text-left">
+                        <h4 class="font-black text-lg">Watch & Earn</h4>
+                        <p class="text-[10px] text-zinc-500 font-bold">+1.00 $KOALA/h (24h Duration)</p>
                     </div>
                 </div>
-                <button onclick="startAd()" class="btn-main !py-4 !text-sm">REKLAM İZLE & KİRALA</button>
+                <button onclick="watchAd()" class="btn-main !py-4 !text-sm uppercase italic">Rent Miner (AD)</button>
             </div>
 
-            <div class="card bg-zinc-900/20 border-zinc-800">
-                <p class="text-[10px] text-zinc-500 font-black uppercase mb-4">Aktif İşçilerin</p>
-                <div id="miner-list" class="text-xs font-bold text-zinc-400 italic">
-                    Şu an sadece temel madenci aktif.
-                </div>
+            <div class="card border-dashed border-zinc-800 bg-transparent">
+                <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Active Boosts</p>
+                <div id="boost-list" class="text-xs text-zinc-600 italic">No active boosters yet.</div>
             </div>
         </div>
 
-        <div id="p-frens" class="page text-center">
-            <h2 class="text-4xl font-black mb-10 italic uppercase">Ekip</h2>
-            <div class="card py-10">
-                <p class="text-xs text-zinc-500 mb-8">Davet ettiğin her kişi için 25.000 $KOALA kazanırsın.</p>
-                <button onclick="alert('Link kopyalandı!')" class="btn-main">DAVET LİNKİNİ AL</button>
+        <div id="p-airdrop" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Airdrop</h2>
+            <p class="text-zinc-500 text-[10px] font-black mb-10 uppercase tracking-widest">Connect your exchange</p>
+
+            <div id="ex-section">
+                <div class="ex-item" onclick="setEx('Binance')"><i class="fa-solid fa-building-columns text-orange-400"></i> <span class="font-bold flex-1">Binance</span> <i class="fa-solid fa-chevron-right text-zinc-700"></i></div>
+                <div class="ex-item" onclick="setEx('OKX')"><i class="fa-solid fa-building-columns text-white"></i> <span class="font-bold flex-1">OKX</span> <i class="fa-solid fa-chevron-right text-zinc-700"></i></div>
+                <div class="ex-item" onclick="setEx('Bitget')"><i class="fa-solid fa-building-columns text-blue-400"></i> <span class="font-bold flex-1">Bitget</span> <i class="fa-solid fa-chevron-right text-zinc-700"></i></div>
+            </div>
+
+            <div id="wallet-connected" class="card hidden">
+                <p class="text-[10px] text-green-500 font-black uppercase mb-1">Status: Verified</p>
+                <h4 id="ex-name-disp" class="text-xl font-black italic uppercase mb-4">BINANCE</h4>
+                <div class="bg-black p-3 rounded-lg text-[10px] font-mono text-zinc-500 break-all">
+                    UQAr...39fXz
+                </div>
+                <button onclick="location.reload()" class="mt-4 text-[10px] text-zinc-700 underline uppercase">Change Wallet</button>
             </div>
         </div>
 
         <div id="ad-overlay">
-            <div class="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin mb-6"></div>
-            <h3 class="text-2xl font-black italic mb-2 uppercase">Reklam İzleniyor...</h3>
-            <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">Ödülün yükleniyor <span id="ad-timer">15</span>s</p>
-            <p class="mt-10 text-[10px] text-zinc-700 italic">Video Player Provider: KoalaAds SDK</p>
+            <div class="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4"></div>
+            <p class="font-black italic uppercase tracking-widest">Watching Advertisement...</p>
+            <p class="text-[10px] text-zinc-500 mt-2" id="ad-timer">15 seconds left</p>
         </div>
 
-        <nav id="bottom-nav" class="nav-bar" style="display: none;">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>FARM</span></div>
-            <div class="nav-item" onclick="nav('hire', this)"><i class="fa-solid fa-hammer"></i><span>KİRALA</span></div>
-            <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>Farm</span></div>
+            <div class="nav-item" onclick="nav('hire', this)"><i class="fa-solid fa-bolt"></i><span>Boost</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
-        let data = {
-            bal: parseFloat(localStorage.getItem('k_v9_bal')) || 0,
-            speed: parseFloat(localStorage.getItem('k_v9_speed')) || 128.50,
-            lv: parseInt(localStorage.getItem('k_v9_lv')) || 1,
-            on: localStorage.getItem('k_v9_on') === 'true'
+        let state = {
+            bal: parseFloat(localStorage.getItem('koala_bal')) || 0,
+            baseSpeed: 128.50,
+            boosts: JSON.parse(localStorage.getItem('koala_boosts')) || [],
+            ex: localStorage.getItem('koala_ex') || ''
         };
 
-        // ANALİZ SİSTEMİ
-        function runCheck() {
-            document.getElementById('btn-run').disabled = true;
-            let s = ['s1', 's2', 's3'];
-            s.forEach((id, i) => {
-                setTimeout(() => {
-                    document.getElementById(id).style.color = "#fff";
-                    if(i === 2) {
-                        data.bal += 25000; // Başlangıç hediyesi
-                        data.on = true;
-                        setTimeout(() => {
-                            document.getElementById('p-check').classList.remove('active');
-                            document.getElementById('p-home').classList.add('active');
-                            document.getElementById('bottom-nav').style.display = 'flex';
-                            save();
-                        }, 1000);
-                    }
-                }, i * 1000);
-            });
-        }
-
-        // MADENCİLİK
+        // MADENCİLİK DÖNGÜSÜ
         setInterval(() => {
-            if(data.on) {
-                data.bal += (data.speed / 3600);
-                updateUI();
-                save();
-            }
+            const currentSpeed = calculateTotalSpeed();
+            state.bal += (currentSpeed / 3600);
+            updateUI();
+            save();
+            checkBoostExpiries();
         }, 1000);
 
-        // REKLAM SİSTEMİ (MADENCİ KİRALAMA)
-        function startAd() {
+        function calculateTotalSpeed() {
+            let boostPower = state.boosts.length; // Her boost +1
+            return state.baseSpeed + boostPower;
+        }
+
+        function watchAd() {
             const overlay = document.getElementById('ad-overlay');
-            const timerTxt = document.getElementById('ad-timer');
             overlay.style.display = 'flex';
+            let time = 15;
             
-            let timeLeft = 15;
-            let interval = setInterval(() => {
-                timeLeft--;
-                timerTxt.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(interval);
-                    finishAd();
+            const timer = setInterval(() => {
+                time--;
+                document.getElementById('ad-timer').innerText = time + " seconds left";
+                if(time <= 0) {
+                    clearInterval(timer);
+                    overlay.style.display = 'none';
+                    addBoost();
                 }
             }, 1000);
         }
 
-        function finishAd() {
-            data.bal += 5000; // Reklam ödülü
-            data.speed += 10.0; // Hız artışı
-            data.lv += 1; // Seviye artışı
-            
-            document.getElementById('ad-overlay').style.display = 'none';
-            document.getElementById('miner-list').innerHTML = `<p class="text-green-500">✓ Kiralık madenci aktif (+${(data.lv-1)*10} Speed)</p>`;
-            
-            updateUI();
+        function addBoost() {
+            const now = new Date().getTime();
+            const expiry = now + (24 * 60 * 60 * 1000); // 24 Saat
+            state.boosts.push({ id: now, expiry: expiry });
             save();
-            alert("Tebrikler! Madenci kiralandı: +5,000 $KOALA ve +10 Hız eklendi.");
+            updateUI();
+            alert("Success! Your hourly profit increased by +1.00 for 24 hours.");
+        }
+
+        function checkBoostExpiries() {
+            const now = new Date().getTime();
+            const originalLength = state.boosts.length;
+            state.boosts = state.boosts.filter(b => b.expiry > now);
+            if(state.boosts.length !== originalLength) {
+                save();
+                updateUI();
+            }
+        }
+
+        function setEx(name) {
+            state.ex = name;
+            save();
+            updateUI();
+            alert(name + " wallet connected successfully!");
         }
 
         function updateUI() {
-            document.getElementById('bal-txt').innerText = data.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-            document.getElementById('speed-txt').innerText = data.speed.toFixed(2);
-            document.getElementById('miner-lv').innerText = data.lv;
+            document.getElementById('bal-txt').innerText = state.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const totalSpeed = calculateTotalSpeed();
+            document.getElementById('speed-txt').innerText = totalSpeed.toFixed(2);
+            
+            // Boost UI
+            const boostVal = state.boosts.length;
+            const boostStatus = document.getElementById('boost-status');
+            if(boostVal > 0) {
+                boostStatus.classList.remove('hidden');
+                document.getElementById('boost-val').innerText = boostVal;
+                document.getElementById('boost-list').innerText = boostVal + " active miners kired for 24h.";
+            } else {
+                boostStatus.classList.add('hidden');
+                document.getElementById('boost-list').innerText = "No active boosters yet.";
+            }
+
+            // Airdrop UI
+            if(state.ex) {
+                document.getElementById('ex-section').classList.add('hidden');
+                document.getElementById('wallet-connected').classList.remove('hidden');
+                document.getElementById('ex-name-disp').innerText = state.ex;
+            }
         }
 
         function nav(p, el) {
@@ -206,23 +210,12 @@
         }
 
         function save() {
-            localStorage.setItem('k_v9_bal', data.bal);
-            localStorage.setItem('k_v9_speed', data.speed);
-            localStorage.setItem('k_v9_lv', data.lv);
-            localStorage.setItem('k_v9_on', data.on);
+            localStorage.setItem('koala_bal', state.bal);
+            localStorage.setItem('koala_boosts', JSON.stringify(state.boosts));
+            localStorage.setItem('koala_ex', state.ex);
         }
 
-        window.onload = () => {
-            if(data.on) {
-                document.getElementById('p-check').classList.remove('active');
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('bottom-nav').style.display = 'flex';
-                updateUI();
-                if(data.lv > 1) {
-                    document.getElementById('miner-list').innerHTML = `<p class="text-green-500">✓ Kiralık madenci aktif (+${(data.lv-1)*10} Speed)</p>`;
-                }
-            }
-        };
+        window.onload = updateUI;
     </script>
 </body>
 </html>
