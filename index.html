@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | PRO EDITION</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -23,37 +23,33 @@
         body { background: #000; color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         .sync { font-family: 'Syncopate', sans-serif; }
 
-        /* Sayfa Yapısı */
         .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
         .page.active { display: flex; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Kart Stilleri */
-        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 12px; }
-        .neon-border { border-color: var(--neon); box-shadow: 0 0 15px rgba(57, 255, 20, 0.1); }
-
-        /* Combo Kartları */
-        .combo-grid { display: grid; grid-cols: 3; gap: 10px; margin-bottom: 20px; }
-        .combo-slot { height: 80px; background: rgba(255,255,255,0.02); border: 2px dashed #222; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .combo-slot.filled { border-style: solid; border-color: var(--neon); color: var(--neon); }
-
-        .item-card { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 15px; border-radius: 20px; text-align: center; transition: 0.2s; }
-        .item-card:active { transform: scale(0.95); background: #111; }
+        /* Kartlar */
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 18px; margin-bottom: 12px; transition: 0.2s; }
+        .card:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
 
         /* Borsa Resimleri */
-        .ex-img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
-        
+        .ex-img { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; filter: grayscale(1); transition: 0.3s; }
+        .selected .ex-img { filter: grayscale(0); border: 2px solid var(--neon); }
+
         /* Butonlar */
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
-        .btn-claim { background: var(--neon); color: #000; padding: 8px 15px; border-radius: 12px; font-size: 11px; font-weight: 900; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
+        .btn-claim { background: var(--neon); color: #000; padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 900; }
+        .btn-done { background: #111; color: #444; }
 
         /* Navigasyon */
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 80px; background: rgba(10,10,10,0.9); backdrop-filter: blur(20px); border-radius: 25px; border: 1px solid var(--border); display: flex; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; gap: 4px; }
-        .nav-item.active { color: var(--neon); }
+        .nav-item.active { color: #fff; }
+        .nav-item.active i { color: var(--neon); }
 
-        .koala-box { width: 160px; height: 160px; margin: 0 auto; border-radius: 40px; overflow: hidden; border: 4px solid #111; }
-        .koala-box img { width: 100%; height: 100%; object-fit: cover; }
+        .koala-frame { width: 180px; height: 180px; margin: 0 auto; border-radius: 50px; overflow: hidden; border: 4px solid #0a0a0a; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .koala-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+        .section-title { font-size: 10px; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; margin-left: 4px; }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -63,115 +59,90 @@
 <div id="app" class="h-full flex flex-col">
 
     <div id="p-home" class="page active">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-2 bg-[#111] px-4 py-2 rounded-full border border-white/5">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-black tracking-widest uppercase">Live Alpha</span>
-            </div>
-            <i class="fa-solid fa-gear text-zinc-700"></i>
+        <div class="text-center mt-6 mb-10">
+            <p class="sync text-[10px] text-zinc-600 mb-1 uppercase tracking-[5px]">Total Koala</p>
+            <h1 id="bal-txt" class="sync text-6xl font-bold tracking-tighter">0.00</h1>
         </div>
 
-        <div class="text-center mb-8">
-            <p class="sync text-[10px] text-zinc-500 mb-1 uppercase tracking-[4px]">Balance</p>
-            <h1 id="bal-txt" class="sync text-5xl font-bold tracking-tighter">0.00</h1>
+        <div class="koala-frame mb-10"><img src="coinkoala.jpg"></div>
+
+        <h3 class="section-title">Watch & Earn</h3>
+        <div class="card flex justify-between items-center" onclick="watchAd()">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-xl"><i class="fa-solid fa-play"></i></div>
+                <div><p class="font-black text-sm">Video Reklam</p><p class="text-[10px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+            </div>
+            <div class="btn-claim">İZLE</div>
         </div>
 
-        <div class="card neon-border">
-            <div class="flex justify-between items-center mb-4">
-                <p class="sync text-[11px] text-white">Daily Combo</p>
-                <span id="combo-status" class="text-[9px] font-bold text-zinc-500">0/3 SEÇİLDİ</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2 mb-4">
-                <div id="slot-0" class="combo-slot">?</div>
-                <div id="slot-1" class="combo-slot">?</div>
-                <div id="slot-2" class="combo-slot">?</div>
-            </div>
-            <p class="text-[9px] text-zinc-500 text-center uppercase font-bold">Doğru 3 kartı bul ve 50.00 $KOALA kazan!</p>
-        </div>
-
-        <div class="space-y-3">
-            <div class="card flex justify-between items-center !py-4" onclick="watchAd()">
+        <h3 class="section-title mt-4">Social Tasks</h3>
+        <div id="task-list" class="space-y-3">
+            <div class="card flex justify-between items-center" onclick="doTask('t1', 5.0)">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center"><i class="fa-solid fa-play text-xs"></i></div>
-                    <div><p class="font-black text-xs uppercase">Video Ad</p><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-xl text-blue-400"><i class="fa-brands fa-telegram"></i></div>
+                    <div><p class="font-black text-sm">Join Channel</p><p class="text-[10px] text-zinc-500 font-bold">+5.00 $KOALA</p></div>
                 </div>
-                <div class="btn-claim">İZLE</div>
+                <div id="t1-btn" class="btn-claim">YAP</div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="item-card" onclick="selectCombo(0, '🍌')">
-                    <span class="text-2xl">🍌</span>
-                    <p class="text-[10px] font-bold mt-2">Banana</p>
+            <div class="card flex justify-between items-center" onclick="doTask('t2', 5.0)">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-xl text-white"><i class="fa-brands fa-x-twitter"></i></div>
+                    <div><p class="font-black text-sm">Follow on X</p><p class="text-[10px] text-zinc-500 font-bold">+5.00 $KOALA</p></div>
                 </div>
-                <div class="item-card" onclick="selectCombo(1, '🥥')">
-                    <span class="text-2xl">🥥</span>
-                    <p class="text-[10px] font-bold mt-2">Coconut</p>
-                </div>
-                <div class="item-card" onclick="selectCombo(2, '🌳')">
-                    <span class="text-2xl">🌳</span>
-                    <p class="text-[10px] font-bold mt-2">Eucalyptus</p>
-                </div>
-                <div class="item-card" onclick="selectCombo(3, '💎')">
-                    <span class="text-2xl">💎</span>
-                    <p class="text-[10px] font-bold mt-2">Diamond</p>
-                </div>
+                <div id="t2-btn" class="btn-claim">YAP</div>
             </div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h2 class="sync text-3xl font-bold mt-6 mb-2">FRIENDS</h2>
-        <p class="text-zinc-500 text-xs font-bold mb-10 uppercase tracking-widest">Davet et, birlikte kazan.</p>
-
-        <div class="card text-center py-10 bg-gradient-to-b from-white/5 to-transparent">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Davet Başına Bonus</p>
-            <h3 class="sync text-4xl font-bold">+10,000</h3>
-            <p class="text-[9px] text-zinc-600 font-bold mt-4 uppercase">Sınır yok, ne kadar çok arkadaş o kadar çok Koala!</p>
+        <h2 class="sync text-3xl font-bold mt-6 mb-8">FRIENDS</h2>
+        <div class="card text-center py-12 border-dashed border-zinc-800">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-widest">Referral Bonus</p>
+            <h3 class="sync text-5xl font-bold">+10,000</h3>
+            <p class="text-[10px] text-zinc-600 mt-6 font-bold uppercase">Her davet ettiğin kişi için kazan!</p>
         </div>
 
-        <div class="flex-1 mt-6 overflow-y-auto pr-2" id="ref-list">
+        <h3 class="section-title mt-8">Davet Ettiklerin</h3>
+        <div id="ref-list" class="space-y-2 flex-1 overflow-y-auto">
             </div>
 
-        <div onclick="shareRef()" class="btn-main mt-4">Arkadaşlarını Çağır</div>
+        <div onclick="copyLink()" class="btn-main mt-4 shadow-xl shadow-white/5">Link Kopyala</div>
     </div>
 
     <div id="p-airdrop" class="page">
-        <h2 class="sync text-3xl font-bold mt-6 mb-8">AIRDROP</h2>
+        <h2 class="sync text-3xl font-bold mt-6 mb-8 text-white">AIRDROP</h2>
         
-        <div class="mb-10">
-            <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 tracking-widest">Borsa Entegrasyonu</h3>
-            <div class="space-y-3">
-                <div class="card flex items-center justify-between !py-4" id="ex-Binance" onclick="setEx('Binance')">
-                    <div class="flex items-center gap-4"><img src="binance.jpg" class="ex-img grayscale"><span class="sync text-[10px]">Binance</span></div>
-                    <i class="fa-solid fa-circle-check text-zinc-900"></i>
-                </div>
-                <div class="card flex items-center justify-between !py-4" id="ex-OKX" onclick="setEx('OKX')">
-                    <div class="flex items-center gap-4"><img src="okx.jpg" class="ex-img grayscale"><span class="sync text-[10px]">OKX</span></div>
-                    <i class="fa-solid fa-circle-check text-zinc-900"></i>
-                </div>
-                <div class="card flex items-center justify-between !py-4" id="ex-Bitget" onclick="setEx('Bitget')">
-                    <div class="flex items-center gap-4"><img src="bitget.jpg" class="ex-img grayscale"><span class="sync text-[10px]">Bitget</span></div>
-                    <i class="fa-solid fa-circle-check text-zinc-900"></i>
-                </div>
+        <h3 class="section-title">Borsa Seçimi</h3>
+        <div class="space-y-3">
+            <div class="card flex items-center justify-between" id="ex-Binance" onclick="setExchange('Binance')">
+                <div class="flex items-center gap-4"><img src="binance.jpg" class="ex-img"><span class="sync text-xs">Binance</span></div>
+                <i class="fa-solid fa-circle-check text-zinc-900"></i>
+            </div>
+            <div class="card flex items-center justify-between" id="ex-OKX" onclick="setExchange('OKX')">
+                <div class="flex items-center gap-4"><img src="okx.jpg" class="ex-img"><span class="sync text-xs">OKX</span></div>
+                <i class="fa-solid fa-circle-check text-zinc-900"></i>
+            </div>
+            <div class="card flex items-center justify-between" id="ex-Bitget" onclick="setExchange('Bitget')">
+                <div class="flex items-center gap-4"><img src="bitget.jpg" class="ex-img"><span class="sync text-xs">Bitget</span></div>
+                <i class="fa-solid fa-circle-check text-zinc-900"></i>
             </div>
         </div>
 
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 tracking-widest">Status</h3>
-        <div class="card border-dashed">
-            <p class="text-[10px] text-zinc-500 font-bold uppercase mb-1">Listeleme Durumu</p>
-            <p class="text-xs font-black text-white italic">BEKLEMEDE (PHASE 1)</p>
+        <div class="mt-12 p-6 bg-[#0a0a0a] rounded-[30px] border border-white/5">
+            <p class="text-[10px] text-zinc-600 font-black uppercase tracking-widest mb-2">Airdrop Status</p>
+            <p class="text-sm font-bold text-zinc-400">Puanlar biriktiriliyor. Listeleme sonrası borsa cüzdanınıza aktarılacaktır.</p>
         </div>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="tab('home', this)"><i class="fa-solid fa-coins"></i><span>KAZAN</span></div>
-        <div class="nav-item" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>FRIENDS</span></div>
-        <div class="nav-item" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
+        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>KAZAN</span></div>
+        <div class="nav-item" onclick="nav('ref', this)"><i class="fa-solid fa-user-group"></i><span>REF</span></div>
+        <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
     </nav>
 </div>
 
 <script>
-    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
         authDomain: "koalascombom.firebaseapp.com",
@@ -183,113 +154,91 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // State
-    let uid = localStorage.getItem('k_uid') || 'ID' + Math.floor(Math.random()*90000+10000);
+    let uid = localStorage.getItem('k_uid') || 'U' + Math.floor(Math.random()*90000+10000);
     localStorage.setItem('k_uid', uid);
 
     let u = {
         bal: 0,
         ex: '',
         refs: [],
-        combo: [], // Mevcut seçilenler
-        comboDone: false // Bugün tamamladı mı?
+        tasks: [] // Tamamlanan görev idleri
     };
 
-    // Doğru Combo Şifresi (Sistem her gün bunu değiştirebilir)
-    const CORRECT_COMBO = ['🍌', '🌳', '💎'];
-
-    async function load() {
-        const doc = await db.collection("users").doc(uid).get();
-        if(doc.exists) u = {...u, ...doc.data()};
+    async function start() {
+        const snap = await db.collection("users").doc(uid).get();
+        if(snap.exists) u = {...u, ...snap.data()};
         render();
     }
 
     function watchAd() {
         u.bal += 1.0;
         save(); render();
-        alert("Success! +1.00 Koala");
+        alert("Harika! 1.00 Koala eklendi.");
     }
 
-    function selectCombo(idx, emoji) {
-        if(u.comboDone) return alert("Bugünkü combo ödülünü zaten aldın!");
-        if(u.combo.length >= 3) u.combo = []; // Sıfırla
-        
-        u.combo.push(emoji);
-        render();
-
-        if(u.combo.length === 3) {
-            checkCombo();
-        }
+    function doTask(id, reward) {
+        if(u.tasks.includes(id)) return;
+        u.bal += reward;
+        u.tasks.push(id);
+        save(); render();
+        alert(`Görev tamamlandı! +${reward} Koala.`);
     }
 
-    function checkCombo() {
-        const isCorrect = JSON.stringify(u.combo) === JSON.stringify(CORRECT_COMBO);
-        if(isCorrect) {
-            u.bal += 50.0;
-            u.comboDone = true;
-            alert("TEBRİKLER! Doğru Combo. +50.00 $KOALA kazandın.");
-        } else {
-            alert("Yanlış dizilim! Tekrar dene.");
-            u.combo = [];
-        }
+    function setExchange(name) {
+        u.ex = name;
         save(); render();
     }
 
-    function setEx(name) { u.ex = name; save(); render(); }
-
-    function shareRef() {
+    function copyLink() {
         const link = window.location.origin + "?ref=" + uid;
         navigator.clipboard.writeText(link);
-        alert("Referans linki kopyalandı! Arkadaşına gönder.");
+        alert("Link kopyalandı! Arkadaşlarına gönder.");
     }
 
     function render() {
-        // Bakiye
         document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
         
-        // Combo UI
-        for(let i=0; i<3; i++) {
-            const slot = document.getElementById('slot-' + i);
-            if(u.combo[i]) {
-                slot.innerText = u.combo[i];
-                slot.classList.add('filled');
-            } else {
-                slot.innerText = '?';
-                slot.classList.remove('filled');
+        // Görev Butonları
+        u.tasks.forEach(tid => {
+            const btn = document.getElementById(tid + '-btn');
+            if(btn) {
+                btn.innerText = 'OK';
+                btn.className = 'btn-claim btn-done';
             }
-        }
-        document.getElementById('combo-status').innerText = `${u.combo.length}/3 SEÇİLDİ`;
+        });
 
         // Borsa UI
-        document.querySelectorAll('.ex-img').forEach(img => img.classList.add('grayscale'));
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
         document.querySelectorAll('.fa-circle-check').forEach(i => i.style.color = '#111');
         if(u.ex) {
-            const card = document.getElementById('ex-' + u.ex);
-            card.querySelector('img').classList.remove('grayscale');
-            card.querySelector('i').style.color = '#39ff14';
+            const el = document.getElementById('ex-' + u.ex);
+            if(el) {
+                el.classList.add('selected');
+                el.querySelector('i').style.color = '#39ff14';
+            }
         }
 
         // Ref List
         let rH = '';
         u.refs.forEach(r => {
-            rH += `<div class="card !py-3 flex justify-between items-center opacity-60">
-                <span class="text-[10px] font-bold">Ref: ${r}</span>
+            rH += `<div class="card !py-3 flex justify-between items-center opacity-50">
+                <span class="text-[10px] font-bold">User: ${r}</span>
                 <span class="text-[10px] text-[#39ff14] font-black">+10,000</span>
             </div>`;
         });
-        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 text-[10px] text-zinc-800 font-bold uppercase">Henüz arkadaşın yok</p>';
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 text-[10px] text-zinc-800 font-bold uppercase">Henüz davet yok</p>';
     }
 
     async function save() { await db.collection("users").doc(uid).set(u); }
 
-    function tab(id, el) {
+    function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
 
-    window.onload = load;
+    window.onload = start;
 </script>
 </body>
 </html>
