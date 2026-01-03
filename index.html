@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | EXCHANGE CONNECT</title>
+    <title>KOALA ARCADE | OFFICIAL MINER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        :root { --bg: #000; --white: #fff; --grey: #111; --accent: #34c759; }
+        :root { --bg: #000; --white: #fff; --grey: #111; --accent: #34c759; --ton: #0088cc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
 
-        .page { display: none; height: 100vh; flex-direction: column; padding: 24px 20px 140px; animation: fadeIn 0.4s ease; }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 20px 20px 140px; animation: fadeIn 0.4s ease; overflow-y: auto; }
         .page.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--grey); border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; }
-        .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; }
+        .card { background: var(--grey); border-radius: 28px; padding: 20px; border: 1px solid #1a1a1a; margin-bottom: 16px; }
+        .btn-white { background: #fff; color: #000; padding: 16px; border-radius: 20px; font-weight: 900; width: 100%; text-align: center; cursor: pointer; }
         .btn-white:active { transform: scale(0.96); }
 
-        /* Borsa Seçici Modal */
+        /* Borsa Modal */
         #exchange-modal { 
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
             z-index: 2000; align-items: center; justify-content: center; padding: 20px;
@@ -30,25 +30,34 @@
         .exchange-option { 
             background: #151515; padding: 16px; border-radius: 20px; 
             display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
-            border: 1px solid #222; transition: 0.2s;
+            border: 1px solid #222;
         }
-        .ex-img { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
 
-        /* Input Alanı */
         .address-input {
             background: #000; border: 1px solid #333; border-radius: 16px;
             padding: 15px; width: 100%; color: #fff; font-family: monospace;
             font-size: 13px; margin-top: 20px; outline: none; text-align: center;
         }
-        .address-input:focus { border-color: #555; }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; }
+        /* Roadmap Stili */
+        .roadmap-item { position: relative; padding-left: 35px; margin-bottom: 25px; }
+        .roadmap-line { position: absolute; left: 10px; top: 20px; bottom: -10px; width: 2px; background: #1a1a1a; }
+        .roadmap-item:last-child .roadmap-line { display: none; }
+        .roadmap-dot { 
+            position: absolute; left: 0; top: 0; width: 22px; height: 22px; 
+            border-radius: 50%; background: #111; border: 2px solid #222;
+            display: flex; align-items: center; justify-content: center; font-size: 10px;
+        }
+        .roadmap-item.active .roadmap-dot { background: var(--white); border-color: var(--white); color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .roadmap-item.check .roadmap-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; backdrop-filter: blur(10px); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
         .nav-item i { font-size: 20px; margin-bottom: 4px; }
 
-        .koala-box { width: 220px; height: 220px; background: #fff; border-radius: 50px; margin: 30px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; }
-        .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+        .koala-avatar { width: 200px; height: 200px; background: #fff; border-radius: 45px; margin: 20px auto; transform: rotate(-2deg); overflow: hidden; border: 4px solid #111; }
+        .koala-avatar img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -57,172 +66,183 @@
 
     <div id="app">
         <div id="p-home" class="page active">
-            <div class="flex justify-between items-center mb-10">
-                <div class="text-[10px] font-black text-zinc-500 italic">KOALA NETWORK</div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black uppercase">Aktif</span></div>
-            </div>
-            <div class="text-center flex-1 flex flex-col justify-center">
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">Bakiyen</p>
-                <h2 class="text-6xl font-black mb-10 italic" id="main-bal">0.00</h2>
-                <div class="koala-box"><img src="coinkoala.jpg"></div>
-                <div class="mt-12 card flex justify-between items-center text-left">
-                    <div><p class="text-[10px] text-zinc-500 font-black uppercase">Üretim Gücü</p><p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p></div>
-                    <i class="fa-solid fa-bolt text-yellow-500 text-xl"></i>
+            <div class="flex justify-between items-center mb-6">
+                <div class="text-[10px] font-black text-zinc-500 tracking-widest uppercase">Koala Arcade v1.0</div>
+                <div class="bg-white/5 px-3 py-1 rounded-full flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black">MINING</span>
                 </div>
             </div>
-        </div>
-
-        <div id="p-airdrop" class="page">
-            <h2 class="text-4xl font-black mb-10 italic uppercase text-center">Airdrop</h2>
-
-            <div class="card text-center py-10 mb-6 border-dashed border-zinc-800">
-                <div id="ex-off">
-                    <i class="fa-solid fa-building-columns text-4xl mb-6 text-zinc-800"></i>
-                    <p class="text-xs text-zinc-400 mb-8 px-10">Ödül listelemesi için borsanı bağla ve TON adresini gir.</p>
-                    <button onclick="openExModal()" class="btn-white !text-sm">BORSA BAĞLA</button>
-                </div>
+            
+            <div class="text-center">
+                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">Total Balance</p>
+                <h2 class="text-6xl font-black mb-8 italic tracking-tighter" id="main-bal">0.00</h2>
+                <div class="koala-avatar"><img src="coinkoala.jpg"></div>
                 
-                <div id="ex-on" style="display: none;">
-                    <div class="flex flex-col items-center">
-                        <img id="connected-ex-img" src="" class="w-16 h-16 rounded-2xl mb-3 border border-white/10">
-                        <h4 id="connected-ex-name" class="text-xl font-black italic">BORSA</h4>
-                        <div class="bg-black/50 p-3 rounded-xl mt-4 w-full">
-                            <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Kayıtlı TON Adresi</p>
-                            <p id="connected-addr" class="text-[10px] font-mono text-zinc-300 break-all"></p>
-                        </div>
-                        <button onclick="disconnectEx()" class="mt-6 text-[10px] font-black text-zinc-600 uppercase underline">Bağlantıyı Değiştir</button>
+                <div class="card mt-8 flex justify-between items-center text-left">
+                    <div>
+                        <p class="text-[10px] text-zinc-500 font-black uppercase">Mining Power</p>
+                        <p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p>
+                    </div>
+                    <div class="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center text-xl shadow-lg">
+                        <i class="fa-solid fa-bolt"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="exchange-modal">
-            <div id="step-1" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="font-black text-xl italic uppercase">Borsa Seç</h3>
-                    <button onclick="closeExModal()" class="text-zinc-500"><i class="fa-solid fa-xmark"></i></button>
+        <div id="p-airdrop" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Airdrop</h2>
+            <p class="text-zinc-500 text-[10px] font-black mb-8 uppercase tracking-[0.3em]">Borsa ve Yol Haritası</p>
+
+            <div class="card text-center py-8 mb-4">
+                <div id="ex-off">
+                    <i class="fa-solid fa-building-columns text-3xl mb-4 text-zinc-800"></i>
+                    <p class="text-xs text-zinc-400 mb-6 px-8">Listeleme için borsanı bağla ve TON adresini kaydet.</p>
+                    <button onclick="openExModal()" class="btn-white !py-3 !text-sm">BORSA BAĞLA</button>
                 </div>
-                
-                <div class="exchange-option" onclick="selectEx('Binance', 'binance.jpg')">
-                    <img src="binance.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
-                    <span class="font-black text-white">Binance</span>
-                </div>
-                
-                <div class="exchange-option" onclick="selectEx('OKX', 'okx.jpg')">
-                    <img src="okx.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
-                    <span class="font-black text-white">OKX</span>
-                </div>
-                
-                <div class="exchange-option" onclick="selectEx('Bitget', 'bitget.jpg')">
-                    <img src="bitget.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
-                    <span class="font-black text-white">Bitget</span>
+                <div id="ex-on" style="display: none;">
+                    <div class="flex items-center gap-4 text-left px-2">
+                        <img id="connected-ex-img" src="" class="w-12 h-12 rounded-xl">
+                        <div class="flex-1 overflow-hidden">
+                            <h4 id="connected-ex-name" class="font-black italic text-lg leading-none mb-1">BORSA</h4>
+                            <p id="connected-addr" class="text-[10px] font-mono text-zinc-500 truncate"></p>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-green-500"></i>
+                    </div>
                 </div>
             </div>
 
-            <div id="step-2" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5" style="display: none;">
-                <div class="text-center mb-6">
-                    <img id="temp-ex-img" src="" class="w-16 h-16 rounded-2xl mx-auto mb-4">
-                    <h3 id="temp-ex-name" class="font-black text-xl italic uppercase">BORSA</h3>
-                    <p class="text-xs text-zinc-500 mt-2 italic">Lütfen borsadaki TON (Cüzdan) adresini yapıştır.</p>
+            <div class="card">
+                <h4 class="text-[11px] font-black text-white uppercase mb-8 tracking-widest italic">Checking Roadmap</h4>
+                
+                <div class="roadmap-item check">
+                    <div class="roadmap-line"></div>
+                    <div class="roadmap-dot"><i class="fa-solid fa-check"></i></div>
+                    <p class="text-sm font-black mb-1">Madencilik Başlatıldı</p>
+                    <p class="text-[10px] text-zinc-500 uppercase font-bold">Durum: Tamamlandı</p>
                 </div>
-                
-                <input type="text" id="ton-address-input" class="address-input" placeholder="UQ... veya EQA...">
-                
-                <div class="flex gap-2 mt-6">
-                    <button onclick="showStep(1)" class="w-1/3 bg-zinc-900 text-white font-bold rounded-2xl py-4 text-xs">GERİ</button>
-                    <button onclick="finishConnection()" class="w-2/3 btn-white !text-xs !py-4">ADRESİ KAYDET</button>
+
+                <div class="roadmap-item active">
+                    <div class="roadmap-line"></div>
+                    <div class="roadmap-dot"><i class="fa-solid fa-spinner animate-spin"></i></div>
+                    <p class="text-sm font-black mb-1">Borsa Bağlantıları</p>
+                    <p class="text-[10px] text-zinc-500 uppercase font-bold">Durum: Kontrol Ediliyor</p>
+                </div>
+
+                <div class="roadmap-item">
+                    <div class="roadmap-line"></div>
+                    <div class="roadmap-dot">3</div>
+                    <p class="text-sm font-black mb-1 text-zinc-500">Snapshot (Ekran Görüntüsü)</p>
+                    <p class="text-[10px] text-zinc-700 uppercase font-bold">Durum: Beklemede</p>
+                </div>
+
+                <div class="roadmap-item">
+                    <div class="roadmap-dot">4</div>
+                    <p class="text-sm font-black mb-1 text-zinc-500">Token Dağıtımı (TGE)</p>
+                    <p class="text-[10px] text-zinc-700 uppercase font-bold">Durum: Kilitli</p>
                 </div>
             </div>
         </div>
 
-        <div id="p-tasks" class="page"><h2 class="text-2xl font-black mb-6 italic">GÖREVLER</h2><div class="card"><p class="text-sm font-bold">Kanal Görevi</p><p class="text-xs text-green-500">Tamamlandı</p></div></div>
-        <div id="p-frens" class="page text-center"><h2 class="text-2xl font-black mb-6 italic">EKİP</h2><div class="card py-10"><i class="fa-solid fa-users text-4xl mb-4 text-zinc-800"></i><p class="text-xs text-zinc-500">Henüz ekip üyesi yok.</p></div></div>
+        <div id="exchange-modal">
+            <div id="step-1" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[35px] p-8 border border-white/5">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="font-black text-xl italic uppercase">Borsa Seç</h3>
+                    <i class="fa-solid fa-xmark text-zinc-600" onclick="closeExModal()"></i>
+                </div>
+                <div class="exchange-option" onclick="selectEx('Binance', 'binance.jpg')">
+                    <img src="binance.jpg" class="w-10 h-10 rounded-lg mr-3" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black">Binance</span>
+                </div>
+                <div class="exchange-option" onclick="selectEx('OKX', 'okx.jpg')">
+                    <img src="okx.jpg" class="w-10 h-10 rounded-lg mr-3" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black">OKX</span>
+                </div>
+                <div class="exchange-option" onclick="selectEx('Bitget', 'bitget.jpg')">
+                    <img src="bitget.jpg" class="w-10 h-10 rounded-lg mr-3" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black">Bitget</span>
+                </div>
+            </div>
+
+            <div id="step-2" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[35px] p-8 border border-white/5" style="display: none;">
+                <div class="text-center mb-6">
+                    <img id="temp-ex-img" src="" class="w-16 h-16 rounded-2xl mx-auto mb-4 border border-white/10">
+                    <h3 id="temp-ex-name" class="font-black text-xl italic uppercase">BORSA</h3>
+                    <p class="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest font-bold">TON Yatırma Adresi</p>
+                </div>
+                <input type="text" id="ton-address-input" class="address-input" placeholder="UQ... veya EQA...">
+                <div class="flex gap-2 mt-8">
+                    <button onclick="showStep(1)" class="w-1/3 bg-zinc-900 text-white font-bold rounded-2xl py-4 text-xs">GERİ</button>
+                    <button onclick="finishConnection()" class="w-2/3 btn-white !text-xs !py-4">KAYDET</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-tasks" class="page"><h2 class="text-3xl font-black mb-6 italic uppercase">Görevler</h2><div class="card flex justify-between items-center"><div><p class="font-bold">Telegram Kanalı</p><p class="text-xs text-green-500">+15,000 $KOALA</p></div><a href="https://t.me/koalascommunity" class="bg-white text-black px-4 py-2 rounded-lg font-bold text-xs">GİT</a></div></div>
+        <div id="p-frens" class="page text-center"><h2 class="text-3xl font-black mb-6 italic uppercase">Ekip</h2><div class="card py-10"><i class="fa-solid fa-user-group text-4xl mb-4 text-zinc-800"></i><p class="text-xs text-zinc-500">Arkadaşlarını davet ederek daha hızlı kaz.</p></div></div>
 
         <nav id="bottom-nav" class="nav-bar">
             <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>MADEN</span></div>
-            <div class="nav-item" onclick="nav('tasks', this)"><i class="fa-solid fa-bolt"></i><span>GÖREV</span></div>
+            <div class="nav-item" onclick="nav('tasks', this)"><i class="fa-solid fa-list-check"></i><span>GÖREV</span></div>
             <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
             <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
         </nav>
     </div>
 
     <script>
-        let userData = {
-            bal: parseFloat(localStorage.getItem('koala_bal_v5')) || 15500.00,
-            exName: localStorage.getItem('koala_ex_name_v5') || '',
-            exImg: localStorage.getItem('koala_ex_img_v5') || '',
-            exAddr: localStorage.getItem('koala_ex_addr_v5') || ''
+        let state = {
+            bal: parseFloat(localStorage.getItem('koala_bal_final')) || 15500.00,
+            exName: localStorage.getItem('koala_ex_name_final') || '',
+            exImg: localStorage.getItem('koala_ex_img_final') || '',
+            exAddr: localStorage.getItem('koala_ex_addr_final') || ''
         };
 
         let tempEx = { name: '', img: '' };
 
-        // MADENCİLİK
+        // MADENCİLİK DÖNGÜSÜ
         setInterval(() => {
-            userData.bal += (128.50 / 3600);
+            state.bal += (128.50 / 3600);
             updateUI();
             save();
         }, 1000);
 
         function updateUI() {
-            document.getElementById('main-bal').innerText = userData.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('main-bal').innerText = state.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             
             const off = document.getElementById('ex-off');
             const on = document.getElementById('ex-on');
-            if(userData.exName && userData.exAddr) {
+            if(state.exName && state.exAddr) {
                 off.style.display = 'none';
                 on.style.display = 'block';
-                document.getElementById('connected-ex-name').innerText = userData.exName;
-                document.getElementById('connected-ex-img').src = userData.exImg;
-                document.getElementById('connected-addr').innerText = userData.exAddr;
+                document.getElementById('connected-ex-name').innerText = state.exName;
+                document.getElementById('connected-ex-img').src = state.exImg;
+                document.getElementById('connected-addr').innerText = state.exAddr;
             } else {
                 off.style.display = 'block';
                 on.style.display = 'none';
             }
         }
 
-        // BORSA SEÇİM SÜRECİ
-        function openExModal() { 
-            showStep(1);
-            document.getElementById('exchange-modal').style.display = 'flex'; 
-        }
+        function openExModal() { showStep(1); document.getElementById('exchange-modal').style.display = 'flex'; }
         function closeExModal() { document.getElementById('exchange-modal').style.display = 'none'; }
-
-        function showStep(step) {
-            document.getElementById('step-1').style.display = step === 1 ? 'block' : 'none';
-            document.getElementById('step-2').style.display = step === 2 ? 'block' : 'none';
+        function showStep(s) {
+            document.getElementById('step-1').style.display = s === 1 ? 'block' : 'none';
+            document.getElementById('step-2').style.display = s === 2 ? 'block' : 'none';
         }
 
-        function selectEx(name, img) {
-            tempEx.name = name;
-            tempEx.img = img;
-            document.getElementById('temp-ex-name').innerText = name;
-            document.getElementById('temp-ex-img').src = img;
+        function selectEx(n, i) {
+            tempEx.name = n; tempEx.img = i;
+            document.getElementById('temp-ex-name').innerText = n;
+            document.getElementById('temp-ex-img').src = i;
             showStep(2);
         }
 
         function finishConnection() {
-            const addr = document.getElementById('ton-address-input').value;
-            if(addr.length < 10) {
-                alert("Lütfen geçerli bir TON adresi girin!");
-                return;
-            }
-            userData.exName = tempEx.name;
-            userData.exImg = tempEx.img;
-            userData.exAddr = addr;
-            save();
-            updateUI();
-            closeExModal();
-            alert("Borsa ve Adres Başarıyla Bağlandı!");
-        }
-
-        function disconnectEx() {
-            if(confirm("Bağlantıyı kesmek istediğine emin misin?")) {
-                userData.exName = '';
-                userData.exImg = '';
-                userData.exAddr = '';
-                save();
-                updateUI();
-            }
+            const a = document.getElementById('ton-address-input').value;
+            if(a.length < 10) return alert("Geçersiz adres!");
+            state.exName = tempEx.name; state.exImg = tempEx.img; state.exAddr = a;
+            save(); updateUI(); closeExModal();
         }
 
         function nav(p, el) {
@@ -233,10 +253,10 @@
         }
 
         function save() {
-            localStorage.setItem('koala_bal_v5', userData.bal);
-            localStorage.setItem('koala_ex_name_v5', userData.exName);
-            localStorage.setItem('koala_ex_img_v5', userData.exImg);
-            localStorage.setItem('koala_ex_addr_v5', userData.exAddr);
+            localStorage.setItem('koala_bal_final', state.bal);
+            localStorage.setItem('koala_ex_name_final', state.exName);
+            localStorage.setItem('koala_ex_img_final', state.exImg);
+            localStorage.setItem('koala_ex_addr_final', state.exAddr);
         }
 
         window.onload = updateUI;
