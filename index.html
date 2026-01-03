@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koala Arcade - DOGS Style</title>
+    <title>Koala Arcade - DOGS Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,7 +11,7 @@
         
         body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- 1. CHECKING EKRANI --- */
+        /* --- 1. ANALİZ EKRANI (babykoalas.jpg) --- */
         #checking-screen {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -20,7 +20,7 @@
         .progress-container { width: 200px; height: 3px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
         #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 3.5s linear; }
 
-        /* --- 2. CONGRATS / AIRDROP EKRANI --- */
+        /* --- 2. CONGRATS EKRANI (coinkoala.jpg) --- */
         #congrats-screen {
             position: fixed; inset: 0; background: #000; z-index: 9000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -28,24 +28,26 @@
         }
         .main-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
         .sub-title { font-size: 14px; color: #888; margin-bottom: 50px; }
-        .koala-logo-large { width: 120px; height: 120px; border-radius: 50%; border: 1px solid #333; margin-bottom: 20px; }
+        
+        /* Madeni Para Görseli (coinkoala.jpg) */
+        .koala-coin-large { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 2px solid #333; margin-bottom: 20px; box-shadow: 0 0 40px rgba(255,255,255,0.1); }
+        
         .amount-text { font-size: 55px; font-weight: 900; letter-spacing: -1px; margin-bottom: 60px; }
         .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 350px; padding: 18px; border-radius: 16px; font-weight: 700; font-size: 16px; position: absolute; bottom: 40px; }
 
-        /* --- 3. DOGS MAIN INTERFACE (Leaderboard & Tasks) --- */
+        /* --- 3. ANA ARAYÜZ (Leaderboard & Tasks) --- */
         #main-interface {
             display: none; height: 100vh; flex-direction: column; padding: 20px; opacity: 0; transition: opacity 0.5s;
         }
         .user-summary { text-align: center; padding: 40px 0; }
-        .user-balance { font-size: 48px; font-weight: 900; }
+        .user-balance { font-size: 48px; font-weight: 900; margin-bottom: 4px; }
         
-        /* Satır Stilleri */
         .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .dogs-row i { font-size: 20px; width: 30px; text-align: center; }
         .dogs-row-label { font-weight: 700; font-size: 14px; flex: 1; margin-left: 12px; }
         .dogs-row-val { font-weight: 700; color: #888; }
 
-        /* Navigation */
+        /* Alt Navigasyon */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #1a1a1a; display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0 30px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-item.active { color: #fff; }
@@ -62,14 +64,14 @@
     <div id="congrats-screen">
         <h1 class="main-title">You're a Legend!</h1>
         <p class="sub-title">Based on your activity, you've earned</p>
-        <img src="koalas.jpg" class="koala-logo-large">
-        <div class="amount-text" id="final-amount">0.00</div>
+        <img src="coinkoala.jpg" class="koala-coin-large">
+        <div class="amount-text" id="final-amount">0</div>
         <button class="dogs-btn" onclick="openMain()">CONTINUE</button>
     </div>
 
     <div id="main-interface">
         <div class="user-summary">
-            <img src="koalas.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border border-zinc-800">
+            <img src="coinkoala.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border border-zinc-800 object-cover">
             <div class="user-balance" id="top-balance">0</div>
             <p class="text-zinc-500 font-bold text-xs uppercase tracking-tighter">$KOALA Rewards</p>
         </div>
@@ -77,19 +79,14 @@
         <div class="overflow-y-auto pb-24">
             <h3 class="text-sm font-bold mb-4 text-zinc-400">YOUR STATS</h3>
             <div class="dogs-row">
-                <i class="fa-solid fa-calendar-check text-blue-500"></i>
+                <i class="fa-solid fa-calendar-check text-white"></i>
                 <div class="dogs-row-label">Account Age</div>
                 <div class="dogs-row-val">5.4 Yrs</div>
             </div>
             <div class="dogs-row">
-                <i class="fa-solid fa-star text-yellow-500"></i>
+                <i class="fa-solid fa-star text-white"></i>
                 <div class="dogs-row-label">Premium Status</div>
                 <div class="dogs-row-val">Yes</div>
-            </div>
-            <div class="dogs-row">
-                <i class="fa-solid fa-bolt text-purple-500"></i>
-                <div class="dogs-row-label">Activity Rank</div>
-                <div class="dogs-row-val">Top 5%</div>
             </div>
 
             <h3 class="text-sm font-bold mt-6 mb-4 text-zinc-400">TASKS</h3>
@@ -107,7 +104,7 @@
 
         <div class="bottom-nav">
             <div class="nav-item active"><i class="fa-solid fa-house-chimney text-xl"></i><span>HOME</span></div>
-            <div class="nav-item"><i class="fa-solid fa-trophy text-xl"></i><span>LEADERBOARD</span></div>
+            <div class="nav-item"><i class="fa-solid fa-trophy text-xl"></i><span>RANK</span></div>
             <div class="nav-item"><i class="fa-solid fa-wallet text-xl"></i><span>AIRDROP</span></div>
         </div>
     </div>
@@ -116,17 +113,15 @@
         let myBalance = 0;
 
         window.onload = () => {
-            // Barı başlat
             document.getElementById('progress-fill').style.width = '100%';
 
-            // Analiz bitişi
             setTimeout(() => {
                 document.getElementById('checking-screen').style.display = 'none';
                 document.getElementById('congrats-screen').style.display = 'flex';
                 
-                // Rastgele ödül
-                const reward = (Math.random() * (9000 - 3000) + 3000).toFixed(0);
-                document.getElementById('final-amount').innerText = reward;
+                // DOGS tarzı tam sayı ödül (550 gibi)
+                const reward = Math.floor(Math.random() * (9000 - 3000) + 3000);
+                document.getElementById('final-amount').innerText = reward.toLocaleString();
                 myBalance = reward;
             }, 3800);
         };
@@ -137,7 +132,7 @@
             main.style.display = 'flex';
             setTimeout(() => main.style.opacity = '1', 50);
             
-            document.getElementById('top-balance').innerText = myBalance;
+            document.getElementById('top-balance').innerText = myBalance.toLocaleString();
         }
     </script>
 </body>
