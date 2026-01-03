@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | PRO TASK FIX</title>
+    <title>KOALA ARCADE | FULL ROADMAP EDITION</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -28,7 +28,7 @@
         #reward-pop.show { transform: scale(1); opacity: 1; }
 
         /* SAYFALAR */
-        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 120px; overflow-y: auto; }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 120px; overflow-y: auto; scroll-behavior: smooth; }
         .page.active { display: flex; animation: pIn 0.3s ease-out; }
         @keyframes pIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -38,7 +38,17 @@
         .koala-box { width: 180px; height: 180px; margin: 0 auto; background: #fff; border-radius: 40px; border: 6px solid #111; transform: rotate(-2deg); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .koala-box img { width: 100%; height: 100%; object-fit: cover; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
-        .card:active { transform: scale(0.98); }
+
+        /* ROADMAP TASARIMI */
+        .roadmap-title { font-size: 10px; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 2px; margin: 30px 0 15px 5px; }
+        .roadmap-wrap { padding-left: 20px; border-left: 2px solid #111; margin-left: 10px; margin-bottom: 50px; }
+        .roadmap-node { position: relative; padding-bottom: 35px; }
+        .roadmap-node::before { content: ''; position: absolute; left: -27px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #222; border-radius: 50%; }
+        .roadmap-node.done::before { background: #fff; border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.4); }
+        .roadmap-node h4 { font-size: 14px; font-weight: 800; color: #333; text-transform: uppercase; }
+        .roadmap-node.done h4 { color: #fff; }
+        .roadmap-node p { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.4; }
+        .roadmap-node.done p { color: #888; }
 
         /* BORSA GRID */
         .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0 30px; }
@@ -94,6 +104,30 @@
                 <div id="task-btn-text" class="bg-sky-500 text-white px-5 py-2 rounded-xl font-black text-[10px]">KATIL</div>
             </div>
         </div>
+
+        <p class="roadmap-title">Proje Yol Haritası</p>
+        <div class="roadmap-wrap">
+            <div class="roadmap-node done">
+                <h4>Aşama 1: Genesis</h4>
+                <p>Koala Arcade ekosisteminin temelleri atıldı. Puan madenciliği ve topluluk başlangıcı.</p>
+            </div>
+            <div class="roadmap-node done">
+                <h4>Aşama 2: Büyüme</h4>
+                <p>Adexora reklam entegrasyonu ve sosyal görevlerin aktif edilmesi.</p>
+            </div>
+            <div class="roadmap-node">
+                <h4>Aşama 3: Oyun Alanı</h4>
+                <p>Uygulama içine mini arcade oyunlarının eklenmesi ve skor tablosu lansmanı.</p>
+            </div>
+            <div class="roadmap-node">
+                <h4>Aşama 4: Snapshot</h4>
+                <p>Tüm puanların dondurulması ve borsa hakedişlerinin hesaplanması.</p>
+            </div>
+            <div class="roadmap-node">
+                <h4>Aşama 5: Listeleme</h4>
+                <p>Tier-1 borsalarda $KOALA token listelemesi ve Airdrop dağıtımı.</p>
+            </div>
+        </div>
     </div>
 
     <div id="p-squad" class="page">
@@ -138,10 +172,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('koala_pro_v3') || 'K' + Math.floor(Math.random()*1000000);
-    localStorage.setItem('koala_pro_v3', uid);
+    let uid = localStorage.getItem('koala_pro_v_final') || 'K' + Math.floor(Math.random()*1000000);
+    localStorage.setItem('koala_pro_v_final', uid);
 
-    // task_channel: Görev yapıldı mı kontrolü
     let u = { bal: 0, ex: '', checked: false, task_channel: false };
 
     async function init() {
@@ -196,19 +229,12 @@
         });
     }
 
-    // TELEGRAM TASK FONKSİYONU
     function completeChannelTask() {
-        if(u.task_channel) return; // Zaten yapıldıysa işlem yapma
-
-        // Kanal linkini buraya yaz koala
+        if(u.task_channel) return;
         window.open("https://t.me/SeninKanalLinkin", "_blank");
-
-        // Ödülü ver ve durumu güncelle
         u.bal += 500;
         u.task_channel = true;
-        
-        save();
-        render();
+        save(); render();
     }
 
     function tab(name, el) {
@@ -225,7 +251,6 @@
         let airdropVal = Math.floor(u.bal / 10);
         document.getElementById('ui-airdrop').innerText = airdropVal.toLocaleString('tr-TR');
         
-        // Görev Butonu Güncelleme
         const taskBtn = document.getElementById('task-btn-text');
         if(u.task_channel) {
             taskBtn.innerText = "BİTTİ";
