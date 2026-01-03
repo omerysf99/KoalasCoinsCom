@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koala Arcade - All-in-One</title>
+    <title>Koala Arcade - CONNECTED Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,52 +11,39 @@
         
         body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- 1. ANALİZ EKRANI --- */
-        #checking-screen {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
-        }
+        /* --- 1. ANALİZ --- */
+        #checking-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .baby-banner { width: 70%; max-width: 300px; border-radius: 20px; margin-bottom: 25px; }
         .analysis-list { width: 100%; max-width: 280px; }
-        .analysis-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; opacity: 0; transform: translateY(10px); transition: 0.5s; }
+        .analysis-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; opacity: 0; transform: translateY(10px); transition: 0.5s; }
         .analysis-item.visible { opacity: 1; transform: translateY(0); }
-        .item-label { color: #888; font-size: 13px; font-weight: 700; }
-        .item-value { color: #fff; font-size: 13px; font-weight: 900; }
+        .progress-container { width: 180px; height: 2px; background: #111; margin-top: 30px; border-radius: 5px; overflow: hidden; }
+        #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 5s linear; }
 
-        .progress-container { width: 200px; height: 2px; background: #1a1a1a; margin-top: 30px; overflow: hidden; border-radius: 5px; }
-        #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 5.5s linear; }
+        /* --- 2. CONGRATS --- */
+        #congrats-screen { position: fixed; inset: 0; background: #000; z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .koala-coin-large { width: 140px; height: 140px; border-radius: 50%; border: 2px solid #222; margin-bottom: 20px; }
 
-        /* --- 2. CONGRATS EKRANI --- */
-        #congrats-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9000;
-            display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center;
-        }
-        .koala-coin-large { width: 140px; height: 140px; border-radius: 50%; border: 2px solid #333; margin-bottom: 20px; }
-        .amount-text { font-size: 55px; font-weight: 900; letter-spacing: -2px; }
-
-        /* --- 3. ANA ARAYÜZ SİSTEMİ --- */
+        /* --- 3. ANA ARAYÜZ --- */
         #main-interface { display: none; height: 100vh; flex-direction: column; opacity: 0; transition: opacity 0.5s; }
-        .page-content { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 20px 20px 100px; }
+        .page-content { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 20px 20px 120px; }
         .page-content.active { display: flex; }
 
-        /* Home Stilleri */
-        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
-        .dogs-row.disabled { opacity: 0.5; pointer-events: none; }
+        /* Wallet/Connected UI */
+        .wallet-card { background: #0d0d0d; border-radius: 24px; padding: 30px 20px; border: 1px solid #1a1a1a; margin-top: 40px; }
+        .status-badge { background: #151515; color: #22c55e; font-size: 10px; font-weight: 900; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; border: 1px solid #064e3b; }
+        #wallet-input-area { display: none; }
+        input { background: #151515; border: 1px solid #222; border-radius: 16px; padding: 18px; width: 100%; color: #fff; text-align: center; margin-bottom: 15px; outline: none; font-weight: 700; }
+        
+        .dogs-btn { background: #fff; color: #000; width: 100%; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 15px; }
+        .dogs-btn.connected { background: #22c55e; color: #fff; pointer-events: none; }
 
-        /* Game Stilleri */
-        .game-card { background: #0d0d0d; border-radius: 20px; border: 1px solid #111; padding: 20px; text-align: center; margin-bottom: 15px; position: relative; }
-        .badge { position: absolute; top: 15px; right: 15px; background: #fff; color: #000; font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 5px; }
-
-        /* Wallet Stilleri */
-        #wallet-input-box { display: none; width: 100%; margin-top: 20px; }
-        input { background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px; width: 100%; color: #fff; text-align: center; margin-bottom: 10px; outline: none; }
-
-        /* UI Elements */
-        .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 350px; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0 35px; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
+        /* Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding: 15px 0 35px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 800; gap: 5px; }
         .nav-item.active { color: #fff; }
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; z-index: 20000; transition: 0.4s; }
+        
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 24px; border-radius: 50px; font-weight: 900; font-size: 13px; z-index: 20000; transition: 0.5s; box-shadow: 0 10px 30px rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -66,85 +53,76 @@
     <div id="checking-screen">
         <img src="babykoalas.jpg" class="baby-banner">
         <div class="analysis-list">
-            <div class="analysis-item" id="a1">
-                <span class="item-label">Account Age</span>
-                <span class="item-value">5.4 Years <i class="fa-solid fa-check text-green-500 ml-2"></i></span>
-            </div>
-            <div class="analysis-item" id="a2">
-                <span class="item-label">Telegram Nick</span>
-                <span class="item-value">@KoalaKing <i class="fa-solid fa-check text-green-500 ml-2"></i></span>
-            </div>
-            <div class="analysis-item" id="a3">
-                <span class="item-label">TG Premium</span>
-                <span class="item-value">Active <i class="fa-solid fa-star text-yellow-500 ml-2"></i></span>
-            </div>
+            <div class="analysis-item" id="c1"><span class="item-label">Account Age</span><span class="item-value">5.4 Years ✅</span></div>
+            <div class="analysis-item" id="c2"><span class="item-label">Nickname</span><span class="item-value">@KoalaPrime ✅</span></div>
+            <div class="analysis-item" id="c3"><span class="item-label">Status</span><span class="item-value">Premium ⭐</span></div>
         </div>
         <div class="progress-container"><div id="progress-fill"></div></div>
     </div>
 
     <div id="congrats-screen">
-        <h1 class="text-3xl font-black mb-2 uppercase">You're OG Koala!</h1>
-        <p class="text-zinc-500 text-sm font-bold mb-10">Verification complete</p>
-        <img src="coinkoala.jpg" class="koala-coin-large">
-        <div class="amount-text" id="final-amount">0</div>
-        <button class="dogs-btn mt-10" onclick="openMain()">CONTINUE</button>
+        <h1 class="text-3xl font-black mb-1 uppercase">LEGENDARY!</h1>
+        <p class="text-zinc-500 text-sm font-bold mb-10">Based on your activity</p>
+        <img src="coinkoala.jpg" class="koala-coin-large mx-auto">
+        <div class="text-6xl font-black tracking-tighter mb-10" id="final-amount">0</div>
+        <button class="dogs-btn w-[80%] mx-auto" onclick="openMain()">CONTINUE</button>
     </div>
 
     <div id="main-interface">
         
         <div id="page-home" class="page-content active">
-            <div class="text-center py-10">
-                <img src="coinkoala.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-zinc-900">
-                <div id="top-balance" class="user-balance text-4xl font-black">0</div>
-                <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mt-1">Total $KOALA Earned</p>
+            <div class="text-center py-12">
+                <img src="coinkoala.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-zinc-900 object-cover">
+                <div id="top-balance" class="text-5xl font-black">0</div>
+                <p class="text-zinc-500 font-black text-[10px] uppercase tracking-widest mt-2">$KOALA BALANCE</p>
             </div>
-            <h3 class="text-xs font-bold mb-4 text-zinc-500 uppercase tracking-widest">Profile Stats</h3>
-            <div class="dogs-row disabled"><div class="font-bold text-sm">Account Tier</div><div class="text-zinc-500 font-bold">Gold OG</div></div>
-            <h3 class="text-xs font-bold mt-6 mb-4 text-zinc-500 uppercase tracking-widest">Tasks</h3>
-            <div id="tg-task" class="dogs-row" onclick="completeTG()">
-                <div class="flex items-center"><i class="fa-brands fa-telegram text-blue-400 mr-3"></i><span class="font-bold">Join Community</span></div>
-                <div id="tg-v" class="text-zinc-500 font-bold text-sm">+100</div>
+            <h3 class="text-xs font-black mb-4 text-zinc-600 uppercase tracking-widest">Tasks</h3>
+            <div class="bg-zinc-950 p-4 rounded-2xl flex justify-between items-center mb-3" onclick="completeTG()">
+                <div class="flex items-center gap-3"><i class="fa-brands fa-telegram text-blue-500 text-xl"></i><span class="font-bold">Join Community</span></div>
+                <div id="tg-status" class="text-zinc-400 font-bold">+100</div>
             </div>
-            <div class="dogs-row" onclick="watchAd()">
-                <div class="flex items-center"><i class="fa-solid fa-play text-green-500 mr-3"></i><span class="font-bold">Watch Ad</span></div>
-                <div class="text-zinc-500 font-bold text-sm">+1</div>
+            <div class="bg-zinc-950 p-4 rounded-2xl flex justify-between items-center" onclick="watchAd()">
+                <div class="flex items-center gap-3"><i class="fa-solid fa-play-circle text-green-500 text-xl"></i><span class="font-bold">Watch Ad</span></div>
+                <div class="text-zinc-400 font-bold">+1</div>
             </div>
         </div>
 
         <div id="page-games" class="page-content">
-            <h2 class="text-2xl font-black mt-6 mb-8 text-center uppercase tracking-tighter">Koala Games</h2>
-            <div class="game-card">
-                <span class="badge">SEASON 1</span>
-                <div class="text-4xl mb-3">🐨</div>
-                <h3 class="font-black">Koala Run</h3>
-                <p class="text-zinc-500 text-[11px] font-bold mt-1">Launching in 5 days</p>
-            </div>
-            <div class="game-card">
-                <span class="badge">COMING SOON</span>
-                <div class="text-4xl mb-3">🎲</div>
-                <h3 class="font-black">Lucky Dice</h3>
-                <p class="text-zinc-500 text-[11px] font-bold mt-1">Bet your $KOALA</p>
+            <h2 class="text-2xl font-black mt-10 mb-6 uppercase text-center">Games</h2>
+            <div class="bg-zinc-950 p-8 rounded-[30px] border border-zinc-900 text-center">
+                <div class="text-5xl mb-4">🎮</div>
+                <h3 class="font-black">Arcade Opening Soon</h3>
+                <p class="text-zinc-500 text-xs mt-2 font-bold">Play games to earn more $KOALA</p>
             </div>
         </div>
 
-        <div id="page-wallet" class="page-content text-center">
-            <div class="mt-16">
-                <div id="w-icon" class="w-20 h-20 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-wallet text-3xl text-zinc-600"></i>
+        <div id="page-wallet" class="page-content">
+            <h2 class="text-2xl font-black mt-10 mb-2 uppercase text-center">Airdrop</h2>
+            <p class="text-zinc-500 text-center text-sm font-bold mb-8">Link your TON wallet below</p>
+            
+            <div class="wallet-card text-center">
+                <div id="wallet-icon-box" class="w-16 h-16 bg-zinc-900 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+                    <i class="fa-solid fa-wallet text-2xl text-zinc-700"></i>
                 </div>
-                <h2 id="w-title" class="text-2xl font-black uppercase">Wallet Connection</h2>
-                <p id="w-desc" class="text-zinc-500 text-sm font-bold mt-2 px-6">Link your TON wallet to receive rewards.</p>
                 
-                <div id="wallet-input-box">
-                    <input type="text" id="wallet-addr" placeholder="Enter TON Address (EQ...)">
-                    <button class="dogs-btn" onclick="linkWallet()">CONFIRM</button>
+                <div id="status-tag" style="display:none;" class="status-badge">
+                    <i class="fa-solid fa-circle-check"></i> CONNECTED
                 </div>
-                <button id="w-init-btn" class="dogs-btn mt-10" onclick="showInput()">CONNECT WALLET</button>
+
+                <h3 id="w-header" class="font-black text-xl mb-2">Connect Wallet</h3>
+                <p id="w-info" class="text-zinc-500 text-xs font-bold mb-8 px-4">Enter your TON address to verify your eligibility for the airdrop.</p>
+                
+                <div id="wallet-input-area">
+                    <input type="text" id="ton-address" placeholder="UQ... or EQ...">
+                    <button class="dogs-btn" onclick="processConnection()">CONFIRM</button>
+                </div>
+
+                <button id="start-connect-btn" class="dogs-btn" onclick="startLink()">CONNECT WALLET</button>
             </div>
         </div>
 
         <div class="bottom-nav">
-            <div class="nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-house text-lg"></i><span>HOME</span></div>
+            <div class="nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-house-chimney text-lg"></i><span>HOME</span></div>
             <div class="nav-item" onclick="switchPage('games', this)"><i class="fa-solid fa-gamepad text-lg"></i><span>GAMES</span></div>
             <div class="nav-item" onclick="switchPage('wallet', this)"><i class="fa-solid fa-wallet text-lg"></i><span>AIRDROP</span></div>
         </div>
@@ -156,16 +134,15 @@
 
         window.onload = () => {
             document.getElementById('progress-fill').style.width = '100%';
-            setTimeout(() => document.getElementById('a1').classList.add('visible'), 1000);
-            setTimeout(() => document.getElementById('a2').classList.add('visible'), 2000);
-            setTimeout(() => document.getElementById('a3').classList.add('visible'), 3000);
-            
+            setTimeout(() => document.getElementById('c1').classList.add('visible'), 800);
+            setTimeout(() => document.getElementById('c2').classList.add('visible'), 1600);
+            setTimeout(() => document.getElementById('c3').classList.add('visible'), 2400);
             setTimeout(() => {
                 document.getElementById('checking-screen').style.display = 'none';
                 document.getElementById('congrats-screen').style.display = 'flex';
-                balance = Math.floor(Math.random() * 5000 + 1500);
+                balance = Math.floor(Math.random() * 5000 + 2000);
                 document.getElementById('final-amount').innerText = balance.toLocaleString();
-            }, 5800);
+            }, 5500);
         };
 
         function openMain() {
@@ -182,38 +159,40 @@
             el.classList.add('active');
         }
 
+        /* --- WALLET CONNECTED LOGIC --- */
+        function startLink() {
+            document.getElementById('start-connect-btn').style.display = 'none';
+            document.getElementById('wallet-input-area').style.display = 'block';
+        }
+
+        function processConnection() {
+            const addr = document.getElementById('ton-address').value;
+            if(addr.length < 10) return showToast("Enter valid address!");
+
+            // CONNECTED STATE
+            document.getElementById('wallet-input-area').style.display = 'none';
+            document.getElementById('status-tag').style.display = 'inline-flex';
+            document.getElementById('w-header').innerText = "Wallet Linked";
+            document.getElementById('w-info').innerHTML = "Your address: <span class='text-white font-black'>" + addr.substring(0,6) + "..." + addr.slice(-4) + "</span>";
+            document.getElementById('wallet-icon-box').innerHTML = '<i class="fa-solid fa-link text-2xl text-green-500"></i>';
+            document.getElementById('wallet-icon-box').style.background = "#064e3b";
+            
+            showToast("Wallet Connected!");
+        }
+
         function completeTG() {
             if(!tgDone) {
                 window.open('Https://t.me/KoalasCommunity', '_blank');
-                balance += 100;
-                tgDone = true;
-                document.getElementById('tg-task').classList.add('disabled');
-                document.getElementById('tg-v').innerHTML = '✅';
+                balance += 100; tgDone = true;
+                document.getElementById('tg-status').innerHTML = '✅';
                 updateUI();
-                showToast("+100 $KOALA Claimed!");
+                showToast("+100 $KOALA!");
             }
         }
 
         function watchAd() {
-            balance += 1;
-            updateUI();
-            showToast("+1 $KOALA Added!");
-        }
-
-        function showInput() {
-            document.getElementById('w-init-btn').style.display = 'none';
-            document.getElementById('wallet-input-box').style.display = 'block';
-        }
-
-        function linkWallet() {
-            const addr = document.getElementById('wallet-addr').value;
-            if(addr.length < 10) return showToast("Invalid Address!");
-            
-            document.getElementById('wallet-input-box').style.display = 'none';
-            document.getElementById('w-title').innerText = "CONNECTED";
-            document.getElementById('w-icon').innerHTML = '<i class="fa-solid fa-circle-check text-3xl text-green-500"></i>';
-            document.getElementById('w-desc').innerText = "Wallet: " + addr.substring(0,6) + "..." + addr.slice(-4);
-            showToast("Wallet Linked!");
+            balance += 1; updateUI();
+            showToast("+1 $KOALA!");
         }
 
         function showToast(m) {
