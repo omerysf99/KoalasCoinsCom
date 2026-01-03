@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | FULL SYSTEM</title>
+    <title>KOALA ARCADE | MINER HIRE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -20,22 +20,15 @@
 
         /* Kartlar & Butonlar */
         .card { background: var(--grey); border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; margin-bottom: 16px; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; cursor: pointer; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; cursor: pointer; transition: 0.2s; }
         .btn-main:active { transform: scale(0.96); }
+        .btn-main:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* Checking Animasyonu */
-        .check-step { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; color: #333; font-weight: 700; transition: 0.3s; }
-        .check-step.done { color: #fff; }
-        .check-step i { color: var(--accent); opacity: 0; transform: scale(0); transition: 0.4s; }
-        .check-step.done i { opacity: 1; transform: scale(1); }
-
-        /* Borsa & Cüzdan Modal */
-        #ex-modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            z-index: 2000; align-items: center; justify-content: center; padding: 20px;
-            backdrop-filter: blur(10px);
+        /* Reklam İzleme Overlay */
+        #ad-overlay {
+            display: none; position: fixed; inset: 0; background: #000; z-index: 5000;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px;
         }
-        .ex-option { background: #151515; padding: 16px; border-radius: 20px; display: flex; align-items: center; gap: 15px; margin-bottom: 12px; border: 1px solid #222; }
 
         /* Alt Menü */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; }
@@ -43,7 +36,7 @@
         .nav-item.active { color: #fff; }
         .nav-item i { font-size: 20px; margin-bottom: 4px; }
 
-        .koala-img-container { width: 220px; height: 220px; background: #fff; border-radius: 50px; margin: 20px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; }
+        .koala-img-container { width: 200px; height: 200px; background: #fff; border-radius: 50px; margin: 20px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; position: relative; }
         .koala-img-container img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 
         ::-webkit-scrollbar { display: none; }
@@ -52,194 +45,159 @@
 <body>
 
     <div id="app">
-        <div id="p-check" class="page active items-center justify-center">
-            <img src="coinkoala.jpg" class="w-24 h-24 rounded-[35px] grayscale mb-10 shadow-2xl">
-            <h2 class="text-2xl font-black mb-10 italic uppercase tracking-wider">Analiz Ediliyor</h2>
-            <div class="w-full max-w-[280px]">
-                <div id="s1" class="check-step"><i class="fa-solid fa-circle-check"></i> Telegram Yaşı Kontrolü</div>
-                <div id="s2" class="check-step"><i class="fa-solid fa-circle-check"></i> Aktivite Skorlaması</div>
-                <div id="s3" class="check-step"><i class="fa-solid fa-circle-check"></i> Koala Ödülü Belirleniyor</div>
+        <div id="p-check" class="page active items-center justify-center text-center">
+            <h2 class="text-2xl font-black mb-10 italic uppercase">Checking Account</h2>
+            <div class="space-y-4 w-64 text-left">
+                <div id="s1" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Account Age</div>
+                <div id="s2" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Active Status</div>
+                <div id="s3" class="flex items-center gap-3 text-zinc-800 font-bold transition-all"><i class="fa-solid fa-check-circle"></i> Calculating Reward</div>
             </div>
-            <button onclick="startChecking()" id="btn-start" class="btn-main mt-10 w-full max-w-[320px]">ANALİZİ BAŞLAT</button>
-        </div>
-
-        <div id="p-result" class="page items-center justify-center text-center">
-            <p class="text-zinc-600 font-black uppercase tracking-[0.4em] mb-4 text-[10px]">OG ÖDÜLÜ KAZANILDI</p>
-            <div class="card w-full max-w-[340px] py-12 bg-gradient-to-b from-zinc-900 to-black">
-                <h3 class="text-5xl font-black text-white italic">+<span id="initial-drop">0</span></h3>
-                <p class="text-xs font-bold text-zinc-500 mt-2">$KOALA</p>
-            </div>
-            <button onclick="enterDashboard()" class="btn-main mt-10 w-full max-w-[320px]">MADENCİLİĞE GEÇ</button>
+            <button onclick="runCheck()" id="btn-run" class="btn-main mt-12 w-64">START CHECK</button>
         </div>
 
         <div id="p-home" class="page">
-            <div class="flex justify-between items-center mb-10">
-                <div class="text-[10px] font-black text-zinc-500 italic uppercase tracking-widest">Koala Arcade</div>
-                <div class="flex items-center gap-2 bg-green-500/10 px-3 py-1 rounded-full"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span><span class="text-[9px] font-black text-green-500 uppercase">Mining</span></div>
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Koala Arcade v2</div>
+                <div class="bg-zinc-900 px-3 py-1 rounded-full text-[9px] font-black text-zinc-400 uppercase">Miner lvl <span id="miner-lv">1</span></div>
             </div>
+            
             <div class="text-center flex-1">
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">Toplam Bakiye</p>
-                <h2 class="text-6xl font-black mb-10 italic tracking-tighter" id="balance-display">0.00</h2>
+                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.4em] mb-2">Total Balance</p>
+                <h2 class="text-6xl font-black mb-10 italic tracking-tighter" id="bal-txt">0.00</h2>
+                
                 <div class="koala-img-container"><img src="coinkoala.jpg"></div>
-                <div class="card mt-12 flex justify-between items-center text-left">
-                    <div><p class="text-[10px] text-zinc-500 font-black uppercase">Üretim Hızı</p><p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p></div>
-                    <i class="fa-solid fa-bolt text-yellow-500 text-xl"></i>
+
+                <div class="card mt-10 text-left flex justify-between items-center border-l-4 border-l-yellow-500">
+                    <div>
+                        <p class="text-[10px] text-zinc-500 font-black uppercase">Current Speed</p>
+                        <p class="text-2xl font-black text-white italic"><span id="speed-txt">128.50</span> <span class="text-xs text-zinc-600">$KOALA/h</span></p>
+                    </div>
+                    <i class="fa-solid fa-bolt-lightning text-yellow-500 text-2xl animate-pulse"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-hire" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Hire Miner</h2>
+            <p class="text-zinc-600 text-[10px] font-black mb-8 uppercase tracking-widest">Watch ads to boost your farm</p>
+
+            <div class="card relative overflow-hidden">
+                <div class="flex items-center gap-5 mb-6">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-black text-2xl">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-lg">Hızlı Takviye</h4>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase">Anında +5,000 $KOALA & +10 Speed</p>
+                    </div>
+                </div>
+                <button onclick="startAd()" class="btn-main !py-4 !text-sm">REKLAM İZLE & KİRALA</button>
+            </div>
+
+            <div class="card bg-zinc-900/20 border-zinc-800">
+                <p class="text-[10px] text-zinc-500 font-black uppercase mb-4">Aktif İşçilerin</p>
+                <div id="miner-list" class="text-xs font-bold text-zinc-400 italic">
+                    Şu an sadece temel madenci aktif.
                 </div>
             </div>
         </div>
 
         <div id="p-frens" class="page text-center">
-            <h2 class="text-4xl font-black mb-2 italic uppercase">Ekip</h2>
-            <p class="text-zinc-600 text-[10px] font-black mb-10 uppercase tracking-widest">Arkadaşlarını Getir, Bonus Kazan</p>
+            <h2 class="text-4xl font-black mb-10 italic uppercase">Ekip</h2>
             <div class="card py-10">
-                <i class="fa-solid fa-user-plus text-4xl mb-6 text-zinc-800"></i>
-                <h3 class="text-xl font-black mb-2">Davet Et & Kazan</h3>
-                <p class="text-xs text-zinc-500 mb-10 px-6 leading-relaxed">Referans linkinle katılan her arkadaşın için <span class="text-white">+25,000 $KOALA</span> kazanırsın.</p>
-                <div class="flex gap-2">
-                    <button onclick="copyRef()" class="w-1/4 bg-zinc-900 text-white rounded-2xl py-4"><i class="fa-solid fa-copy"></i></button>
-                    <button onclick="shareRef()" class="w-3/4 btn-main !text-sm">ARKADAŞLARINI ÇAĞIR</button>
-                </div>
+                <p class="text-xs text-zinc-500 mb-8">Davet ettiğin her kişi için 25.000 $KOALA kazanırsın.</p>
+                <button onclick="alert('Link kopyalandı!')" class="btn-main">DAVET LİNKİNİ AL</button>
             </div>
         </div>
 
-        <div id="p-airdrop" class="page">
-            <h2 class="text-4xl font-black mb-10 italic uppercase">Airdrop</h2>
-            <div class="card text-center py-10 mb-6 border-dashed border-zinc-800">
-                <div id="ex-disconnected">
-                    <i class="fa-solid fa-building-columns text-4xl mb-6 text-zinc-800"></i>
-                    <p class="text-xs text-zinc-400 mb-8 px-10">Ödül dağıtımı için bir borsa seç ve cüzdan adresini bağla.</p>
-                    <button onclick="openExModal()" class="btn-main !text-sm !py-4">BORSA BAĞLA</button>
-                </div>
-                <div id="ex-connected" style="display: none;" class="flex flex-col items-center">
-                    <img id="connected-img" src="" class="w-16 h-16 rounded-2xl mb-4">
-                    <h4 id="connected-name" class="text-xl font-black italic uppercase">Borsa</h4>
-                    <p id="connected-addr" class="text-[10px] font-mono text-zinc-500 break-all bg-black/50 p-4 rounded-xl w-full mt-4"></p>
-                    <button onclick="resetEx()" class="mt-6 text-[10px] font-black text-zinc-700 uppercase underline">Değiştir</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="ex-modal">
-            <div id="modal-step-1" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5">
-                <div class="flex justify-between items-center mb-8"><h3 class="font-black italic uppercase">Borsa Seç</h3><i class="fa-solid fa-xmark text-zinc-600" onclick="closeExModal()"></i></div>
-                <div class="ex-option" onclick="pickEx('Binance', 'binance.jpg')"><img src="binance.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'"><span class="font-black text-white">Binance</span></div>
-                <div class="ex-option" onclick="pickEx('OKX', 'okx.jpg')"><img src="okx.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'"><span class="font-black text-white">OKX</span></div>
-                <div class="ex-option" onclick="pickEx('Bitget', 'bitget.jpg')"><img src="bitget.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'"><span class="font-black text-white">Bitget</span></div>
-            </div>
-            <div id="modal-step-2" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5" style="display: none;">
-                <h3 class="font-black italic uppercase text-center mb-4">TON ADRESİ</h3>
-                <p class="text-[10px] text-zinc-500 text-center mb-6">Borsadaki TON yatırma adresini gir.</p>
-                <input type="text" id="ton-input" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-center text-xs mb-8 text-white outline-none" placeholder="UQ... veya EQA...">
-                <button onclick="saveExDetails()" class="btn-main !py-4">KAYDET VE BAĞLA</button>
-            </div>
+        <div id="ad-overlay">
+            <div class="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin mb-6"></div>
+            <h3 class="text-2xl font-black italic mb-2 uppercase">Reklam İzleniyor...</h3>
+            <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">Ödülün yükleniyor <span id="ad-timer">15</span>s</p>
+            <p class="mt-10 text-[10px] text-zinc-700 italic">Video Player Provider: KoalaAds SDK</p>
         </div>
 
         <nav id="bottom-nav" class="nav-bar" style="display: none;">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>MADEN</span></div>
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>FARM</span></div>
+            <div class="nav-item" onclick="nav('hire', this)"><i class="fa-solid fa-hammer"></i><span>KİRALA</span></div>
             <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
-            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
         </nav>
     </div>
 
     <script>
-        let userData = {
-            bal: parseFloat(localStorage.getItem('koala_v8_bal')) || 0,
-            onboard: localStorage.getItem('koala_v8_on') === 'true',
-            ex: localStorage.getItem('koala_v8_ex') || '',
-            img: localStorage.getItem('koala_v8_img') || '',
-            addr: localStorage.getItem('koala_v8_addr') || '',
-            refCode: "KOL" + Math.floor(100000 + Math.random() * 900000)
+        let data = {
+            bal: parseFloat(localStorage.getItem('k_v9_bal')) || 0,
+            speed: parseFloat(localStorage.getItem('k_v9_speed')) || 128.50,
+            lv: parseInt(localStorage.getItem('k_v9_lv')) || 1,
+            on: localStorage.getItem('k_v9_on') === 'true'
         };
 
-        let tempEx = { name: '', img: '' };
-
-        // --- CHECKING & REWARD SİSTEMİ ---
-        function startChecking() {
-            document.getElementById('btn-start').style.display = 'none';
-            let steps = ['s1', 's2', 's3'];
-            steps.forEach((id, i) => {
+        // ANALİZ SİSTEMİ
+        function runCheck() {
+            document.getElementById('btn-run').disabled = true;
+            let s = ['s1', 's2', 's3'];
+            s.forEach((id, i) => {
                 setTimeout(() => {
-                    document.getElementById(id).classList.add('done');
-                    if(i === 2) setTimeout(finishAnalysis, 1000);
-                }, i * 1200);
+                    document.getElementById(id).style.color = "#fff";
+                    if(i === 2) {
+                        data.bal += 25000; // Başlangıç hediyesi
+                        data.on = true;
+                        setTimeout(() => {
+                            document.getElementById('p-check').classList.remove('active');
+                            document.getElementById('p-home').classList.add('active');
+                            document.getElementById('bottom-nav').style.display = 'flex';
+                            save();
+                        }, 1000);
+                    }
+                }, i * 1000);
             });
         }
 
-        function finishAnalysis() {
-            // 💰 1,000 ile 100,000 arası rastgele coin
-            const drop = Math.floor(Math.random() * (100000 - 1000 + 1)) + 1000;
-            userData.bal += drop;
-            document.getElementById('initial-drop').innerText = drop.toLocaleString();
-            document.getElementById('p-check').classList.remove('active');
-            document.getElementById('p-result').classList.add('active');
-            save();
-        }
-
-        function enterDashboard() {
-            userData.onboard = true;
-            document.getElementById('p-result').classList.remove('active');
-            document.getElementById('p-home').classList.add('active');
-            document.getElementById('bottom-nav').style.display = 'flex';
-            save();
-            updateUI();
-        }
-
-        // --- MADENCİLİK DÖNGÜSÜ ---
+        // MADENCİLİK
         setInterval(() => {
-            if(userData.onboard) {
-                userData.bal += (128.50 / 3600);
+            if(data.on) {
+                data.bal += (data.speed / 3600);
                 updateUI();
                 save();
             }
         }, 1000);
 
+        // REKLAM SİSTEMİ (MADENCİ KİRALAMA)
+        function startAd() {
+            const overlay = document.getElementById('ad-overlay');
+            const timerTxt = document.getElementById('ad-timer');
+            overlay.style.display = 'flex';
+            
+            let timeLeft = 15;
+            let interval = setInterval(() => {
+                timeLeft--;
+                timerTxt.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(interval);
+                    finishAd();
+                }
+            }, 1000);
+        }
+
+        function finishAd() {
+            data.bal += 5000; // Reklam ödülü
+            data.speed += 10.0; // Hız artışı
+            data.lv += 1; // Seviye artışı
+            
+            document.getElementById('ad-overlay').style.display = 'none';
+            document.getElementById('miner-list').innerHTML = `<p class="text-green-500">✓ Kiralık madenci aktif (+${(data.lv-1)*10} Speed)</p>`;
+            
+            updateUI();
+            save();
+            alert("Tebrikler! Madenci kiralandı: +5,000 $KOALA ve +10 Hız eklendi.");
+        }
+
         function updateUI() {
-            document.getElementById('balance-display').innerText = userData.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-            const disc = document.getElementById('ex-disconnected');
-            const conn = document.getElementById('ex-connected');
-            if(userData.ex && userData.addr) {
-                disc.style.display = 'none'; conn.style.display = 'flex';
-                document.getElementById('connected-name').innerText = userData.ex;
-                document.getElementById('connected-img').src = userData.img;
-                document.getElementById('connected-addr').innerText = userData.addr;
-            } else {
-                disc.style.display = 'block'; conn.style.display = 'none';
-            }
+            document.getElementById('bal-txt').innerText = data.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+            document.getElementById('speed-txt').innerText = data.speed.toFixed(2);
+            document.getElementById('miner-lv').innerText = data.lv;
         }
 
-        // --- BORSA & CÜZDAN ---
-        function openExModal() { 
-            document.getElementById('modal-step-1').style.display = 'block';
-            document.getElementById('modal-step-2').style.display = 'none';
-            document.getElementById('ex-modal').style.display = 'flex'; 
-        }
-        function closeExModal() { document.getElementById('ex-modal').style.display = 'none'; }
-        function pickEx(n, i) {
-            tempEx.name = n; tempEx.img = i;
-            document.getElementById('modal-step-1').style.display = 'none';
-            document.getElementById('modal-step-2').style.display = 'block';
-        }
-        function saveExDetails() {
-            const val = document.getElementById('ton-input').value;
-            if(val.length < 8) return alert("Lütfen geçerli bir adres girin!");
-            userData.ex = tempEx.name; userData.img = tempEx.img; userData.addr = val;
-            save(); updateUI(); closeExModal();
-        }
-        function resetEx() { if(confirm("Bağlantıyı değiştirmek istiyor musun?")) { userData.ex = ''; userData.addr = ''; save(); updateUI(); } }
-
-        // --- REFERANS PAYLAŞIM ---
-        function shareRef() {
-            const link = "https://t.me/KoalaArcadeBot?start=" + userData.refCode;
-            const text = encodeURIComponent("🐨 Koala Arcade'de madencilik yapıyorum! Telegram yaşım için ödül kazandım. Sen de katıl ve 25k bonus al!\n\n🔗 Katıl: " + link);
-            window.open(`https://t.me/share/url?url=${link}&text=${text}`, '_blank');
-        }
-        function copyRef() {
-            const link = "https://t.me/KoalaArcadeBot?start=" + userData.refCode;
-            navigator.clipboard.writeText(link);
-            alert("Referans linkin kopyalandı!");
-        }
-
-        // --- GENEL ---
         function nav(p, el) {
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
@@ -248,19 +206,21 @@
         }
 
         function save() {
-            localStorage.setItem('koala_v8_bal', userData.bal);
-            localStorage.setItem('koala_v8_on', userData.onboard);
-            localStorage.setItem('koala_v8_ex', userData.ex);
-            localStorage.setItem('koala_v8_img', userData.img);
-            localStorage.setItem('koala_v8_addr', userData.addr);
+            localStorage.setItem('k_v9_bal', data.bal);
+            localStorage.setItem('k_v9_speed', data.speed);
+            localStorage.setItem('k_v9_lv', data.lv);
+            localStorage.setItem('k_v9_on', data.on);
         }
 
         window.onload = () => {
-            if(userData.onboard) {
+            if(data.on) {
                 document.getElementById('p-check').classList.remove('active');
                 document.getElementById('p-home').classList.add('active');
                 document.getElementById('bottom-nav').style.display = 'flex';
                 updateUI();
+                if(data.lv > 1) {
+                    document.getElementById('miner-list').innerHTML = `<p class="text-green-500">✓ Kiralık madenci aktif (+${(data.lv-1)*10} Speed)</p>`;
+                }
             }
         };
     </script>
