@@ -1,124 +1,339 @@
-<style>
-    /* Cüzdan Giriş Alanı Tasarımı */
-    .wallet-input {
-        background: #000;
-        border: 2px solid #222;
-        border-radius: 18px;
-        padding: 16px;
-        color: #fff;
-        width: 100%;
-        font-family: 'Inter', sans-serif;
-        font-weight: 700;
-        font-size: 14px;
-        outline: none;
-        transition: 0.3s;
-        text-align: center;
-    }
-    .wallet-input:focus { border-color: #fff; }
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KOALA ARCADE SUPREME</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
-    .save-btn {
-        background: #fff;
-        color: #000;
-        font-weight: 900;
-        padding: 18px;
-        border-radius: 20px;
-        width: 100%;
-        margin-top: 15px;
-        text-transform: uppercase;
-        font-size: 13px;
-    }
-    
-    .wallet-info-box {
-        background: #111;
-        border: 1px solid #1a1a1a;
-        padding: 20px;
-        border-radius: 28px;
-        text-align: center;
-        width: 100%;
-    }
-</style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        /* --- CORE SYSTEM --- */
+        :root {
+            --bg: #000000;
+            --card: #0d0d0d;
+            --border: #1a1a1a;
+            --accent: #ffffff;
+            --text-secondary: #555555;
+        }
 
-<div id="airdrop" class="page">
-    <h2 class="text-4xl font-black italic uppercase mt-16 mb-2 text-center">Airdrop</h2>
-    <p class="text-zinc-500 font-bold text-sm mb-12 text-center px-6">Submit your TON wallet address to qualify for the $KOALA drop.</p>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
 
-    <div id="wallet-form" class="space-y-4">
-        <div class="px-2">
-            <input type="text" id="wallet-addr-input" class="wallet-input" placeholder="UQAz... (TON Address)" spellcheck="false">
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- CHECKING SCREEN (ANIMATED) --- */
+        #checking-engine {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        .logo-container {
+            position: relative; width: 150px; height: 150px; 
+            border-radius: 45px; overflow: hidden; border: 1px solid var(--border);
+            margin-bottom: 50px;
+        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; grayscale: 100%; }
+        .scanner {
+            position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: #fff; box-shadow: 0 0 20px #fff;
+            animation: scanMove 2.5s infinite ease-in-out;
+        }
+        @keyframes scanMove { 0%, 100% { top: 0; } 50% { top: 100%; } }
+
+        .analysis-row {
+            width: 280px; display: flex; justify-content: space-between;
+            margin: 15px 0; opacity: 0; transform: translateY(10px);
+            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .analysis-row.active { opacity: 1; transform: translateY(0); }
+        .label { font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 2px; }
+        .value { font-size: 11px; font-weight: 900; }
+
+        /* --- APP CONTENT LAYOUT --- */
+        #main-app { display: none; height: 100%; flex-direction: column; }
+        .page { 
+            display: none; height: 100%; overflow-y: auto; 
+            padding: 20px 24px 140px; 
+            animation: pageFade 0.4s ease;
+        }
+        .page.active { display: block; }
+        @keyframes pageFade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- HOME COMPONENTS --- */
+        .balance-hero { padding: 60px 0 40px; text-align: center; }
+        .bal-val { font-size: 88px; font-weight: 900; letter-spacing: -4px; line-height: 1; }
+        
+        .action-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 28px; padding: 22px; display: flex; align-items: center;
+            justify-content: space-between; transition: 0.2s;
+        }
+        .action-card:active { transform: scale(0.96); background: #151515; }
+
+        /* --- AIRDROP & WALLET UI --- */
+        .wallet-input-field {
+            background: #000; border: 2px solid #1a1a1a;
+            border-radius: 20px; padding: 18px; color: #fff;
+            width: 100%; font-weight: 700; text-align: center;
+            outline: none; transition: 0.3s;
+        }
+        .wallet-input-field:focus { border-color: #fff; }
+        .confirm-btn {
+            background: #fff; color: #000; width: 100%; padding: 20px;
+            border-radius: 22px; font-weight: 900; text-transform: uppercase;
+            margin-top: 15px; letter-spacing: 1px;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); display: grid;
+            grid-template-columns: repeat(3, 1fr); padding: 12px 0 35px;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-secondary); font-size: 10px; font-weight: 900;
+            gap: 5px; text-transform: uppercase;
+        }
+        .nav-item.active { color: #fff; }
+
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        .success-box {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 30px; border-radius: 32px; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="checking-engine">
+        <div class="logo-container">
+            <img src="babykoalas.jpg" alt="Koala Logo">
+            <div class="scanner"></div>
         </div>
-        <button class="save-btn" onclick="saveWallet()">Confirm Address</button>
-        <p class="text-[9px] text-zinc-600 text-center font-bold uppercase tracking-widest mt-4">Make sure to use a TON network address</p>
+        <h2 class="text-xl font-black italic uppercase mb-10 tracking-tighter">Analyzing Status</h2>
+        <div class="analysis-row" id="r1"><span class="label">Seniority</span><span class="value">...</span></div>
+        <div class="analysis-row" id="r2"><span class="label">Activity</span><span class="value">...</span></div>
+        <div class="analysis-row" id="r3"><span class="label">Karma</span><span class="value">...</span></div>
     </div>
 
-    <div id="wallet-success" class="hidden flex flex-col items-center">
-        <div class="wallet-info-box">
-            <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fa-solid fa-circle-check text-white text-xl"></i>
+    <div id="main-app">
+        
+        <div id="page-home" class="page active">
+            <div class="balance-hero">
+                <div class="bal-val" id="total-bal">0</div>
+                <p class="text-zinc-600 font-black text-xs tracking-[0.4em] uppercase mt-4">$KOALA</p>
             </div>
-            <h3 class="font-black text-sm uppercase mb-1">Wallet Submitted</h3>
-            <p id="saved-addr-display" class="text-zinc-500 text-[10px] font-mono break-all px-4"></p>
+
+            <h4 class="text-zinc-700 font-black text-[10px] uppercase mb-4 ml-2 tracking-widest">Mining Center</h4>
+            
+            <div class="action-card" onclick="mineKoala(this)">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-zinc-900"><i class="fa-solid fa-play"></i></div>
+                    <div>
+                        <p class="font-black text-sm uppercase">Earn More Koala</p>
+                        <p class="text-zinc-600 text-[10px] font-bold">+1 $KOALA Reward</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
+            </div>
         </div>
-        <button class="mt-6 text-zinc-600 font-black text-[10px] uppercase underline" onclick="resetWallet()">Change Address</button>
+
+        <div id="page-games" class="page flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-lock text-4xl text-zinc-900 mb-4"></i>
+            <h3 class="text-xl font-black italic uppercase">Arcade Closed</h3>
+            <p class="text-zinc-600 font-bold text-xs px-10 mt-2">The gaming zone unlocks after the TGE snapshot.</p>
+        </div>
+
+        <div id="page-airdrop" class="page">
+            <h2 class="text-4xl font-black italic uppercase mt-12 mb-2 text-center">Airdrop</h2>
+            <p class="text-zinc-500 font-bold text-sm mb-12 text-center">Submit your TON wallet to be eligible.</p>
+
+            <div id="wallet-entry" class="space-y-4">
+                <input type="text" id="wallet-input" class="wallet-input-field" placeholder="Enter TON Wallet Address" spellcheck="false">
+                <button class="confirm-btn" onclick="saveWalletAddress()">Link Wallet</button>
+            </div>
+
+            <div id="wallet-saved" class="hidden">
+                <div class="success-box">
+                    <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-check-double text-white text-2xl"></i>
+                    </div>
+                    <h3 class="font-black text-lg uppercase mb-2 italic">Wallet Linked</h3>
+                    <p id="display-address" class="text-zinc-600 text-[10px] font-mono break-all"></p>
+                </div>
+                <button class="w-full mt-6 text-zinc-700 font-black text-[10px] uppercase tracking-widest underline" onclick="clearWallet()">Edit Address</button>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="navigate('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+            <div class="nav-item" onclick="navigate('games', this)"><i class="fa-solid fa-gamepad"></i><span>Games</span></div>
+            <div class="nav-item" onclick="navigate('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+        </div>
     </div>
-</div>
 
-<script>
-    // --- WALLET STORAGE LOGIC ---
-    let userWallet = localStorage.getItem('koala_wallet_addr') || null;
+    <script>
+        // --- APP STATE ---
+        let state = {
+            balance: parseInt(localStorage.getItem('koala_bal')) || 0,
+            wallet: localStorage.getItem('koala_wallet') || null,
+            firstRun: localStorage.getItem('koala_init') || false,
+            reward: 6420
+        };
 
-    // Uygulama açıldığında cüzdanı kontrol et
-    document.addEventListener('DOMContentLoaded', () => {
-        if(userWallet) {
-            showConnectedUI(userWallet);
+        // --- CORE ENGINE ---
+        window.onload = () => {
+            if(state.firstRun) {
+                // Eğer daha önce açıldıysa hızlı geçiş
+                startApp();
+            } else {
+                // İlk açılış: Analiz simülasyonu
+                runAnalysis();
+            }
+        };
+
+        function runAnalysis() {
+            const steps = [
+                { id: 'r1', label: 'Seniority', val: '4.8 YEARS' },
+                { id: 'r2', label: 'Activity', val: 'ELITE' },
+                { id: 'r3', label: 'Karma', val: 'POSITIVE' }
+            ];
+
+            steps.forEach((step, i) => {
+                setTimeout(() => {
+                    const el = document.getElementById(step.id);
+                    el.classList.add('active');
+                    el.querySelector('.value').innerText = step.val;
+                    hapticFeedback('light');
+                }, (i + 1) * 1200);
+            });
+
+            setTimeout(() => {
+                localStorage.setItem('koala_init', 'true');
+                startApp();
+            }, 5000);
         }
-    });
 
-    function saveWallet() {
-        const input = document.getElementById('wallet-addr-input');
-        const addr = input.value.trim();
+        function startApp() {
+            document.getElementById('checking-engine').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('checking-engine').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                
+                // Eğer bakiye 0 ise airdrop ödülünü saydır
+                if(state.balance === 0) {
+                    animateBalance(state.reward);
+                } else {
+                    document.getElementById('total-bal').innerText = state.balance.toLocaleString();
+                }
 
-        if(addr.length < 10) {
-            alert("Please enter a valid TON address.");
-            haptic('medium');
-            return;
+                // Cüzdan kontrolü
+                if(state.wallet) showWalletUI(state.wallet);
+            }, 600);
         }
 
-        // Veriyi Kaydet (Tarayıcı hafızasına/LocalStorage)
-        localStorage.setItem('koala_wallet_addr', addr);
-        userWallet = addr;
-
-        // UI Güncelle
-        haptic('success');
-        showConnectedUI(addr);
-        
-        // Ödül Puanı Ekle (Opsiyonel)
-        balance += 500; 
-        document.getElementById('balance').innerText = balance.toLocaleString();
-    }
-
-    function showConnectedUI(addr) {
-        document.getElementById('wallet-form').classList.add('hidden');
-        document.getElementById('wallet-success').classList.remove('hidden');
-        
-        // Adresin başını ve sonunu göster (Örn: UQAz...88x1)
-        const display = addr.substring(0, 8) + "..." + addr.substring(addr.length - 8);
-        document.getElementById('saved-addr-display').innerText = display;
-    }
-
-    function resetWallet() {
-        localStorage.removeItem('koala_wallet_addr');
-        userWallet = null;
-        document.getElementById('wallet-form').classList.remove('hidden');
-        document.getElementById('wallet-success').classList.add('hidden');
-        haptic('light');
-    }
-
-    // --- HAPTIC (Hatırlatma) ---
-    function haptic(type) {
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            if(type === 'light') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            if(type === 'medium') window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-            if(type === 'success') window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        // --- LOGIC FUNCTIONS ---
+        function animateBalance(target) {
+            let start = 0;
+            const display = document.getElementById('total-bal');
+            const timer = setInterval(() => {
+                start += Math.floor(target / 50);
+                if(start >= target) {
+                    state.balance = target;
+                    saveState();
+                    display.innerText = state.balance.toLocaleString();
+                    clearInterval(timer);
+                    hapticFeedback('success');
+                } else {
+                    display.innerText = start.toLocaleString();
+                }
+            }, 30);
         }
-    }
-</script>
+
+        function mineKoala(el) {
+            const original = el.innerHTML;
+            el.innerHTML = `<div class="w-full text-center font-black text-[10px] uppercase py-2 italic animate-pulse">Checking Ad...</div>`;
+            el.style.pointerEvents = 'none';
+            hapticFeedback('medium');
+
+            setTimeout(() => {
+                state.balance += 1;
+                saveState();
+                document.getElementById('total-bal').innerText = state.balance.toLocaleString();
+                el.innerHTML = original;
+                el.style.pointerEvents = 'all';
+                hapticFeedback('success');
+            }, 2000);
+        }
+
+        function saveWalletAddress() {
+            const input = document.getElementById('wallet-input');
+            const addr = input.value.trim();
+
+            if(addr.length < 15) {
+                hapticFeedback('error');
+                alert("Please enter a valid TON address");
+                return;
+            }
+
+            state.wallet = addr;
+            localStorage.setItem('koala_wallet', addr);
+            showWalletUI(addr);
+            hapticFeedback('success');
+        }
+
+        function showWalletUI(addr) {
+            document.getElementById('wallet-entry').classList.add('hidden');
+            document.getElementById('wallet-saved').classList.remove('hidden');
+            document.getElementById('display-address').innerText = 
+                addr.substring(0, 10) + "..." + addr.substring(addr.length - 10);
+        }
+
+        function clearWallet() {
+            localStorage.removeItem('koala_wallet');
+            state.wallet = null;
+            document.getElementById('wallet-entry').classList.remove('hidden');
+            document.getElementById('wallet-saved').classList.add('hidden');
+            hapticFeedback('light');
+        }
+
+        function saveState() {
+            localStorage.setItem('koala_bal', state.balance);
+        }
+
+        function navigate(page, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            el.classList.add('active');
+            hapticFeedback('light');
+        }
+
+        function hapticFeedback(type) {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                const h = window.Telegram.WebApp.HapticFeedback;
+                if(type === 'light') h.impactOccurred('light');
+                if(type === 'medium') h.impactOccurred('medium');
+                if(type === 'success') h.notificationOccurred('success');
+                if(type === 'error') h.notificationOccurred('error');
+            }
+        }
+    </script>
+</body>
+</html>
