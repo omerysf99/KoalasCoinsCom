@@ -3,269 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE - SUPREME</title>
+    <title>KOALA - OG EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        :root { --main-bg: #000; --card-bg: #0a0a0a; --accent: #fff; --gray: #555; }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; }
-        
-        body { 
-            background: var(--main-bg); 
-            color: #fff; 
-            font-family: 'Inter', sans-serif; 
-            height: 100vh; 
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
-        }
+        :root { --bg: #000; --card: #111; --border: #1a1a1a; }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- SKELETON & LOADER --- */
-        #loading-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
+        /* --- CHECKING SCREEN --- */
+        #checker {
+            position: fixed; inset: 0; background: #000; z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .koala-glow {
-            width: 140px; height: 140px; border-radius: 50px;
-            box-shadow: 0 0 40px rgba(255,255,255,0.05);
-            border: 1px solid #1a1a1a; grayscale: 100%;
-        }
+        .koala-img { width: 140px; height: 140px; border-radius: 45px; grayscale: 100%; border: 1px solid var(--border); margin-bottom: 50px; }
+        .scan-line { position: absolute; width: 100%; height: 3px; background: #fff; box-shadow: 0 0 15px #fff; animation: scan 2s infinite; }
+        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
+        .step { width: 280px; display: flex; justify-content: space-between; margin: 15px 0; opacity: 0; transition: 0.5s; }
+        .step.active { opacity: 1; }
 
-        /* --- PROGRESS BARS --- */
-        .lvl-bar { width: 100%; height: 4px; background: #111; border-radius: 10px; margin-top: 8px; overflow: hidden; }
-        .lvl-fill { width: 45%; height: 100%; background: #fff; transition: 1s cubic-bezier(0.1, 1, 0.1, 1); }
+        /* --- UI COMPONENTS --- */
+        .balance-hero { padding: 60px 20px 40px; text-align: center; }
+        .bal-num { font-size: 84px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+        .dogs-card { background: var(--card); border-radius: 28px; padding: 22px; display: flex; align-items: center; gap: 16px; border: 1px solid transparent; transition: 0.2s; cursor: pointer; }
+        .dogs-card:active { transform: scale(0.96); background: #181818; }
 
-        /* --- CARDS & LISTS --- */
-        .task-card {
-            background: var(--card-bg); border: 1px solid #111;
-            padding: 16px; border-radius: 24px; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: space-between;
-            transition: 0.2s;
-        }
-        .task-card:active { transform: scale(0.97); background: #111; }
-        .icon-circle { width: 44px; height: 44px; background: #000; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid #1a1a1a; }
-
-        /* --- NAVIGATION --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
-            border-top: 1px solid #111; padding: 12px 10px 35px;
-            display: grid; grid-template-columns: repeat(3, 1fr);
-        }
-        .nav-link { 
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--gray); font-size: 10px; font-weight: 900; text-transform: uppercase;
-        }
-        .nav-link.active { color: #fff; }
+        /* --- NAV --- */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 0 35px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 900; gap: 5px; text-transform: uppercase; }
+        .nav-item.active { color: #fff; }
 
         .page { display: none; height: 100%; overflow-y: auto; padding: 20px 20px 140px; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- BUTTONS --- */
-        .btn-supreme { background: #fff; color: #000; font-weight: 900; width: 100%; padding: 20px; border-radius: 22px; text-transform: uppercase; letter-spacing: 1px; }
+        .page.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <div class="relative mb-12">
-            <img src="babykoalas.jpg" class="koala-glow">
-            <div class="absolute top-0 left-0 w-full h-full border-2 border-white/10 rounded-[50px] animate-pulse"></div>
+    <div id="checker">
+        <div class="relative overflow-hidden rounded-[45px]">
+            <img src="babykoalas.jpg" class="koala-img">
+            <div class="scan-line"></div>
         </div>
-        <div id="check-list" class="w-64">
-            <div class="flex justify-between mb-4 opacity-20 transition-all duration-700" id="l1"><span class="text-[10px] font-black uppercase text-zinc-500">Age Check</span><span class="text-[10px] font-black">...</span></div>
-            <div class="flex justify-between mb-4 opacity-20 transition-all duration-700" id="l2"><span class="text-[10px] font-black uppercase text-zinc-500">Karma Score</span><span class="text-[10px] font-black">...</span></div>
-            <div class="flex justify-between opacity-20 transition-all duration-700" id="l3"><span class="text-[10px] font-black uppercase text-zinc-500">Eligibility</span><span class="text-[10px] font-black">...</span></div>
+        <div class="w-64">
+            <div id="s1" class="step"><span class="text-zinc-600 font-black text-[10px] uppercase">Account Age</span><span class="text-[10px] font-black">5.2 YEARS</span></div>
+            <div id="s2" class="step"><span class="text-zinc-600 font-black text-[10px] uppercase">Activity</span><span class="text-[10px] font-black">LEGENDARY</span></div>
+            <div id="s3" class="step"><span class="text-zinc-600 font-black text-[10px] uppercase">Status</span><span class="text-[10px] font-black">VERIFIED</span></div>
         </div>
     </div>
 
-    <div id="main-wrap" class="hidden">
+    <div id="main-app" class="hidden h-full">
         
         <div id="home" class="page active">
-            <div class="mt-12 mb-10 text-center">
-                <div class="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em] mb-2">Total Balance</div>
-                <div class="text-7xl font-black tracking-tighter" id="balance-display">0</div>
-                
-                <div class="mt-8 px-6">
-                    <div class="flex justify-between text-[10px] font-black uppercase mb-1">
-                        <span class="text-zinc-500">Level: <span class="text-white">Gold Koala</span></span>
-                        <span class="text-white">75%</span>
-                    </div>
-                    <div class="lvl-bar"><div class="lvl-fill"></div></div>
-                </div>
+            <div class="balance-hero">
+                <div class="bal-num" id="balance">0</div>
+                <p class="text-zinc-500 font-black text-xs tracking-widest mt-4 uppercase">$KOALA</p>
             </div>
 
-            <div class="task-card" onclick="triggerAd(this)">
-                <div class="flex items-center gap-4">
-                    <div class="icon-circle text-xl text-white"><i class="fa-solid fa-bolt"></i></div>
-                    <div>
-                        <p class="font-black text-sm uppercase">Quick Mine</p>
-                        <p class="text-zinc-600 text-[10px] font-bold">Watch ad to earn +1 $KOALA</p>
-                    </div>
+            <h3 class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-4 ml-2">Mining</h3>
+            
+            <div class="dogs-card" onclick="playAd(this)">
+                <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-xl"><i class="fa-solid fa-play"></i></div>
+                <div class="flex-1">
+                    <p class="font-black text-sm uppercase">Earn More Koala</p>
+                    <p class="text-zinc-600 text-[10px] font-bold">Watch ad to earn +1 $KOALA</p>
                 </div>
                 <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-            </div>
-
-            <div class="task-card opacity-50">
-                <div class="flex items-center gap-4">
-                    <div class="icon-circle text-xl text-white"><i class="fa-solid fa-calendar"></i></div>
-                    <div>
-                        <p class="font-black text-sm uppercase">Daily Streak</p>
-                        <p class="text-zinc-600 text-[10px] font-bold">Claim in 04:22:10</p>
-                    </div>
-                </div>
-                <div class="text-zinc-800 font-black text-xs">LOCK</div>
             </div>
         </div>
 
         <div id="airdrop" class="page">
-            <h2 class="text-4xl font-black italic uppercase mt-10 mb-2">Airdrop</h2>
-            <p class="text-zinc-500 font-bold text-sm mb-10">Complete ecosystem tasks to qualify.</p>
+            <h2 class="text-4xl font-black italic uppercase mt-16 mb-2">Airdrop</h2>
+            <p class="text-zinc-500 font-bold text-sm mb-12">Connect your wallet to qualify for the drop.</p>
 
-            <div class="bg-zinc-900/30 rounded-[32px] p-6 border border-zinc-900 mb-6">
-                <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-6 tracking-widest">Mandatory Tasks</h3>
-                
-                <div class="flex justify-between items-center mb-6" onclick="completeTask(this)">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-telegram text-xl"></i>
-                        <span class="font-black text-xs uppercase">Join Community</span>
-                    </div>
-                    <i class="fa-solid fa-circle-plus text-white"></i>
+            <div id="w-card" class="bg-white text-black rounded-[32px] p-8 flex flex-col items-center text-center shadow-2xl transition-all duration-500" onclick="connectWallet()">
+                <div class="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center mb-6">
+                    <i id="w-icon" class="fa-solid fa-wallet text-2xl"></i>
                 </div>
-
-                <div class="flex justify-between items-center" id="wallet-row" onclick="linkWallet()">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-wallet text-xl"></i>
-                        <span class="font-black text-xs uppercase">Link TON Wallet</span>
-                    </div>
-                    <span id="w-badge" class="text-[9px] font-black bg-white text-black px-2 py-1 rounded">START</span>
-                </div>
+                <h3 id="w-title" class="font-black text-lg uppercase tracking-tighter">Connect TON Wallet</h3>
+                <p id="w-desc" class="text-[10px] font-bold opacity-60 uppercase mt-1">Telegram, Tonkeeper or MyTonWallet</p>
             </div>
-
-            <div class="bg-white text-black p-6 rounded-[32px] flex items-center justify-between">
-                <div>
-                    <p class="font-black text-[10px] uppercase opacity-50">Referral Program</p>
-                    <p class="font-black text-lg tracking-tighter italic">INVITE YOUR PACK</p>
-                </div>
-                <button class="bg-black text-white px-4 py-2 rounded-xl font-black text-[10px]" onclick="copyRef()">COPY</button>
-            </div>
+            
+            <p class="text-center text-zinc-700 font-black text-[10px] uppercase mt-10 tracking-widest">Snapshot Coming Soon</p>
         </div>
 
         <div id="games" class="page flex items-center justify-center">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-cubes text-2xl text-zinc-700"></i>
-                </div>
-                <h3 class="text-xl font-black italic uppercase">Arcade Locked</h3>
-                <p class="text-zinc-600 font-bold text-xs mt-2 px-10">Only available for Verified Koalas after the snapshot.</p>
+            <div class="text-center opacity-30">
+                <i class="fa-solid fa-lock text-4xl mb-4"></i>
+                <p class="font-black text-[10px] uppercase">Coming After Listing</p>
             </div>
         </div>
 
-        <div class="bottom-nav">
-            <div class="nav-link active" onclick="switchPage('home', this)"><i class="fa-solid fa-bone text-lg"></i><span>Home</span></div>
-            <div class="nav-link" onclick="switchPage('games', this)"><i class="fa-solid fa-gamepad text-lg"></i><span>Games</span></div>
-            <div class="nav-link" onclick="switchPage('airdrop', this)"><i class="fa-solid fa-parachute-box text-lg"></i><span>Drop</span></div>
+        <div class="nav">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bone"></i><span>Home</span></div>
+            <div class="nav-item" onclick="nav('games', this)"><i class="fa-solid fa-paw"></i><span>Games</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </div>
     </div>
 
     <script>
-        let userData = { balance: 0, airdrop: 8420, wallet: false };
+        let balance = 0;
+        const initialDrop = 7840;
 
-        // --- THE ENGINE ---
+        // --- CHECKING ENGINE ---
         window.onload = () => {
-            const checks = [
-                { id: 'l1', val: '6.2 YEARS' },
-                { id: 'l2', val: '9.8 / 10' },
-                { id: 'l3', val: 'ELIGIBLE' }
-            ];
-
-            checks.forEach((c, i) => {
+            ['s1', 's2', 's3'].forEach((id, i) => {
                 setTimeout(() => {
-                    const row = document.getElementById(c.id);
-                    row.style.opacity = '1';
-                    row.querySelector('span:last-child').innerText = c.val;
-                    vibrate('light');
+                    document.getElementById(id).classList.add('active');
+                    haptic('light');
                 }, (i + 1) * 1200);
             });
 
             setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
+                document.getElementById('checker').style.opacity = '0';
                 setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('main-wrap').classList.remove('hidden');
-                    animateBalance(userData.airdrop);
+                    document.getElementById('checker').style.display = 'none';
+                    document.getElementById('main-app').classList.remove('hidden');
+                    countBalance(initialDrop);
                 }, 500);
             }, 5000);
         };
 
-        function animateBalance(target) {
+        function countBalance(target) {
             let start = 0;
-            const display = document.getElementById('balance-display');
-            const interval = setInterval(() => {
-                start += Math.floor(target / 40);
+            const el = document.getElementById('balance');
+            const timer = setInterval(() => {
+                start += Math.floor(target / 50);
                 if(start >= target) {
-                    userData.balance = target;
-                    display.innerText = userData.balance.toLocaleString();
-                    clearInterval(interval);
-                    vibrate('success');
+                    balance = target;
+                    el.innerText = balance.toLocaleString();
+                    clearInterval(timer);
+                    haptic('success');
                 } else {
-                    display.innerText = start.toLocaleString();
+                    el.innerText = start.toLocaleString();
                 }
             }, 30);
         }
 
         // --- ACTIONS ---
-        function triggerAd(el) {
+        function playAd(el) {
             const original = el.innerHTML;
-            el.innerHTML = `<div class="w-full text-center font-black text-[10px] uppercase py-2 animate-pulse">Syncing with blockchain...</div>`;
+            el.innerHTML = `<div class="w-full text-center font-black text-[10px] uppercase py-3 italic">Loading Koala Power...</div>`;
             el.style.pointerEvents = 'none';
-            vibrate('medium');
+            haptic('medium');
 
             setTimeout(() => {
-                userData.balance += 1;
-                document.getElementById('balance-display').innerText = userData.balance.toLocaleString();
+                balance += 1;
+                document.getElementById('balance').innerText = balance.toLocaleString();
                 el.innerHTML = original;
                 el.style.pointerEvents = 'all';
-                vibrate('success');
+                haptic('success');
             }, 2000);
         }
 
-        function linkWallet() {
-            if(userData.wallet) return;
-            const badge = document.getElementById('w-badge');
-            badge.innerText = "WAIT...";
-            vibrate('medium');
+        function connectWallet() {
+            haptic('medium');
+            const title = document.getElementById('w-title');
+            const desc = document.getElementById('w-desc');
+            const icon = document.getElementById('w-icon');
+            const card = document.getElementById('w-card');
+
+            title.innerText = "Connecting...";
             
             setTimeout(() => {
-                userData.wallet = true;
-                badge.innerText = "LINKED";
-                badge.className = "text-[9px] font-black bg-green-500 text-white px-2 py-1 rounded";
-                vibrate('success');
+                card.style.background = "#111";
+                card.style.color = "#fff";
+                card.style.border = "1px solid #222";
+                title.innerText = "Wallet Linked";
+                desc.innerText = "UQAz...88x1 Connected";
+                icon.className = "fa-solid fa-circle-check text-white";
+                haptic('success');
             }, 1500);
         }
 
-        function completeTask(el) {
-            const icon = el.querySelector('.fa-circle-plus');
-            icon.className = "fa-solid fa-circle-check text-green-500";
-            vibrate('light');
-        }
-
-        function switchPage(p, el) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            document.getElementById(p).classList.add('active');
+        function nav(page, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
             el.classList.add('active');
-            vibrate('light');
+            haptic('light');
         }
 
-        function copyRef() {
-            vibrate('medium');
-            alert("Invite link copied to clipboard!");
-        }
-
-        function vibrate(type) {
+        function haptic(type) {
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 if(type === 'light') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
                 if(type === 'medium') window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
