@@ -3,248 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ENERGY BOOST EDITION</title>
+    <title>KOALA ARCADE PRO | ENERGY UPDATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;600;800;900&display=swap');
         
-        :root { --primary: #00ffa3; --energy: #fbbf24; --bg: #000; }
+        :root { --primary: #00ffa3; --energy: #fbbf24; --bg: #000; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; user-select: none; }
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
 
-        /* Sayfa Yapısı */
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; }
-        .page.active { display: block; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Koala & Enerji Modu */
-        .koala-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-        .koala-main { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 8px solid #111; transition: transform 0.05s; }
-        .koala-main:active { transform: scale(0.92); }
+        .glass { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(15px); border-radius: 28px; }
+        .neon-glow { color: var(--primary); text-shadow: 0 0 15px rgba(0,255,163,0.4); }
         
-        /* Enerji Modu Aktifken */
-        .energy-mode .koala-main { border-color: var(--energy); box-shadow: 0 0 30px rgba(251, 191, 36, 0.4); }
-        .energy-mode::after { content: 'ŞARJ EDİLİYOR'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: var(--energy); font-weight: 900; font-size: 10px; letter-spacing: 3px; }
+        /* Gelişmiş Koala Butonu */
+        .tap-target { width: 260px; height: 260px; position: relative; cursor: pointer; transition: transform 0.05s; z-index: 10; margin: 0 auto; }
+        .tap-target:active { transform: scale(0.94); }
+        .koala-circle { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 8px solid #0a0a0a; box-shadow: 0 0 40px rgba(0,0,0,0.8); transition: 0.3s; }
+        
+        /* Enerji Modu Stili */
+        .energy-mode-active .koala-circle { border-color: var(--energy); box-shadow: 0 0 30px rgba(251, 191, 36, 0.5); filter: drop-shadow(0 0 10px var(--energy)); }
 
-        /* Barlar */
-        .bar-wrap { width: 100%; background: #111; height: 10px; border-radius: 10px; overflow: hidden; border: 1px solid #222; }
-        #energy-fill { height: 100%; background: var(--energy); width: 100%; transition: width 0.2s; }
-        #xp-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.5s; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(5,5,5,0.9); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 25px; backdrop-filter: blur(10px); z-index: 1000; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 9px; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
+        .nav-btn.active { color: #fff; transform: translateY(-3px); }
+        .nav-btn i { font-size: 22px; margin-bottom: 4px; }
 
-        /* Yüzen İkonlar */
-        .float-ico { position: absolute; pointer-events: none; animation: floatUp 0.6s ease-out forwards; font-weight: 900; font-family: 'Orbitron'; z-index: 5000; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .float-text { position: absolute; font-weight: 900; font-size: 32px; pointer-events: none; animation: float 0.8s ease-out forwards; font-family: 'Orbitron', sans-serif; z-index: 2000; }
+        @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
 
-        /* Alt Nav */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(10,10,10,0.95); display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #222; padding-bottom: 20px; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .market-card { background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.05)); border: 1px solid var(--border); padding: 16px; border-radius: 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 
-        /* Cam Kart */
-        .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 16px; margin-bottom: 12px; }
+        .bar-container { height: 10px; background: #0a0a0a; border-radius: 20px; border: 1px solid #151515; overflow: hidden; }
+        .bar-fill { height: 100%; transition: width 0.2s; }
+        #energy-bar { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <div id="p-mine" class="page active">
+        
+        <div id="p-main" class="page active">
             <div class="flex justify-between items-center mb-6">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-zinc-500 tracking-widest uppercase">Enerji Durumu</span>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
-                        <span id="e-val" class="font-black text-sm uppercase">1000 / 1000</span>
-                    </div>
+                <div class="glass px-4 py-2 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-xs"></i>
+                    <span id="energy-txt" class="text-[10px] font-black uppercase">1000/1000</span>
                 </div>
-                <button onclick="toggleEnergyMode()" id="mode-btn" class="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-full text-[10px] font-black uppercase border border-amber-500/20">
+                <button onclick="toggleMode()" id="mode-toggle" class="glass px-4 py-2 text-[10px] font-black uppercase text-amber-500 border-amber-500/20 bg-amber-500/5">
                     Enerji Topla
                 </button>
             </div>
 
-            <div class="text-center mt-4">
-                <p class="text-zinc-500 font-black text-[10px] uppercase tracking-[0.4em] mb-1">Toplam Bakiye</p>
-                <h1 id="bal" class="text-6xl font-black tracking-tighter italic mb-8">0</h1>
-
-                <div class="koala-container" id="koala-btn">
-                    <img src="coinkoala.jpg" class="koala-main">
+            <div class="flex flex-col items-center">
+                <p id="status-label" class="text-zinc-500 font-black text-[10px] uppercase tracking-[0.5em] mb-2">Bakiyen</p>
+                <div class="flex items-center gap-3 mb-8">
+                    <h1 id="balance" class="text-7xl font-black tracking-tighter italic">0</h1>
                 </div>
 
-                <div class="max-w-[280px] mx-auto mt-10">
-                    <div class="bar-wrap mb-4">
-                        <div id="energy-fill"></div>
+                <div class="tap-target" id="koala-btn">
+                    <img src="coinkoala.jpg" class="koala-circle">
+                </div>
+
+                <div class="w-full max-w-[280px] mt-12">
+                    <div class="bar-container mb-2">
+                        <div id="energy-bar" class="bar-fill w-full"></div>
                     </div>
-                    <p id="status-msg" class="text-[9px] font-bold text-zinc-600 uppercase">Koala Madencilik Yapıyor...</p>
+                    <div class="flex justify-between px-1">
+                        <p class="text-[9px] font-bold text-zinc-600 uppercase">GÜÇ: <span id="tap-power" class="text-white">1</span></p>
+                        <p id="mode-status" class="text-[9px] font-bold text-zinc-400 uppercase italic">Madencilik Modu</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="p-market" class="page">
-            <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Geliştirmeler</h2>
+            <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Koala Market</h2>
             
-            <div class="glass-card flex justify-between items-center">
+            <div class="market-card">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500"><i class="fa-solid fa-battery-three-quarters text-xl"></i></div>
+                    <div class="w-12 h-12 glass flex items-center justify-center text-xl text-primary"><i class="fa-solid fa-hand-pointer"></i></div>
                     <div>
-                        <p class="text-sm font-bold">Enerji Deposu</p>
-                        <p class="text-[10px] text-zinc-500">Maksimum enerjiyi +500 artırır.</p>
+                        <p class="text-sm font-bold">Tıklama Gücü</p>
+                        <p class="text-[10px] text-zinc-500">Tık başı +1 kazanç verir.</p>
                     </div>
                 </div>
-                <button onclick="upgrade('limit')" id="cost-limit" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">5,000</button>
+                <button onclick="buyUpgrade('tap')" id="up-tap-price" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">1,000</button>
             </div>
 
-            <div class="glass-card flex justify-between items-center">
+            <div class="market-card">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400"><i class="fa-solid fa-gauge-high text-xl"></i></div>
+                    <div class="w-12 h-12 glass flex items-center justify-center text-xl text-yellow-500"><i class="fa-solid fa-battery-full"></i></div>
                     <div>
-                        <p class="text-sm font-bold">Hızlı Şarj</p>
-                        <p class="text-[10px] text-zinc-500">Tık başına enerji dolumunu artırır.</p>
+                        <p class="text-sm font-bold">Şarj Hızı</p>
+                        <p class="text-[10px] text-zinc-500">Enerji toplama modunda +2 verir.</p>
                     </div>
                 </div>
-                <button onclick="upgrade('recharge')" id="cost-recharge" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">2,500</button>
+                <button onclick="buyUpgrade('charge')" id="up-charge-price" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">2,500</button>
             </div>
         </div>
 
-        <div id="p-crew" class="page">
-            <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Ekibin</h2>
-            <div class="glass-card text-center py-10">
-                <p class="text-zinc-500 text-xs font-bold uppercase mb-4 italic">Arkadaşlarını davet ederek %10 bonus kazan!</p>
-                <button class="bg-primary text-black px-8 py-4 rounded-2xl font-black uppercase text-xs">Davet Linkini Kopyala</button>
-            </div>
-        </div>
-
-        <div id="p-drop" class="page">
-            <h2 class="text-3xl font-black italic mb-6 uppercase tracking-tighter">Airdrop</h2>
-            <div class="glass-card border-l-4 border-primary">
-                <p class="text-zinc-500 text-[10px] font-bold uppercase mb-1">USDT Ödül Havuzu</p>
-                <h3 class="text-4xl font-black text-primary">50,000 USDT</h3>
-            </div>
-            <div class="mt-6 glass-card">
-                <p class="text-xs font-bold mb-4">TON Cüzdan Adresi</p>
-                <input type="text" class="w-full bg-black border border-zinc-800 p-4 rounded-xl text-xs mb-4" placeholder="UQ... adresini gir">
-                <button class="w-full bg-white text-black p-4 rounded-xl font-black uppercase text-xs">Cüzdanı Kaydet</button>
-            </div>
-        </div>
+        <div id="p-rank" class="page"><h2 class="text-3xl font-black italic mb-6 uppercase">Liderlik</h2><div id="leader-list" class="space-y-3"></div></div>
+        <div id="p-crew" class="page text-center"><h2 class="text-4xl font-black italic mb-6 uppercase">Ekibin</h2><div class="glass p-6"><p id="ref-link" class="text-xs mb-4">link...</p><button onclick="shareLink()" class="w-full bg-white text-black p-4 rounded-2xl font-black">PAYLAŞ</button></div></div>
+        <div id="p-airdrop" class="page"><h2 class="text-3xl font-black italic mb-6 uppercase">Airdrop</h2><div id="wallet-box" class="glass p-8 text-center"><input type="text" id="w-input" class="w-full bg-black p-4 mb-4 rounded-xl" placeholder="TON Adresi"><button onclick="saveWallet()" class="w-full bg-white text-black p-4 rounded-xl font-black">BAĞLA</button></div><div id="wallet-connected" class="hidden glass p-8 text-center"><p id="display-w" class="text-xs break-all"></p><button onclick="resetWallet()" class="underline text-xs mt-4">Sıfırla</button></div></div>
 
         <nav class="nav-bar">
-            <div class="nav-item active" onclick="nav('mine', this)"><i class="fa-solid fa-gamepad"></i><span>Oyna</span></div>
-            <div class="nav-item" onclick="nav('market', this)"><i class="fa-solid fa-shop"></i><span>Market</span></div>
-            <div class="nav-item" onclick="nav('crew', this)"><i class="fa-solid fa-users"></i><span>Ekip</span></div>
-            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+            <div class="nav-btn active" onclick="nav('main', this)"><i class="fa-solid fa-fire"></i><span>Oyna</span></div>
+            <div class="nav-btn" onclick="nav('market', this)"><i class="fa-solid fa-cart-shopping"></i><span>Market</span></div>
+            <div class="nav-btn" onclick="nav('rank', this)"><i class="fa-solid fa-trophy"></i><span>Sıra</span></div>
+            <div class="nav-btn" onclick="nav('crew', this)"><i class="fa-solid fa-user-group"></i><span>Ekip</span></div>
+            <div class="nav-btn" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
         // --- OYUN VERİLERİ ---
         let state = {
-            bal: parseInt(localStorage.getItem('k_bal')) || 0,
-            energy: parseInt(localStorage.getItem('k_energy')) || 1000,
-            maxE: parseInt(localStorage.getItem('k_maxE')) || 1000,
-            rechargePower: parseInt(localStorage.getItem('k_rch')) || 2, // Enerji toplama hızı
-            mode: 'MINE' // MINE veya ENERGY
+            bal: parseFloat(localStorage.getItem('k_bal')) || 0,
+            energy: parseFloat(localStorage.getItem('k_energy')) || 1000,
+            maxEnergy: 1000,
+            tapPower: parseInt(localStorage.getItem('k_tap')) || 1,
+            chargePower: parseInt(localStorage.getItem('k_charge')) || 2, // Enerji toplama hızı
+            mode: 'MINE', // 'MINE' veya 'ENERGY'
+            wallet: localStorage.getItem('k_wallet') || null,
+            uid: localStorage.getItem('k_uid') || Math.floor(100000 + Math.random()*900000)
         };
 
-        const BTN = document.getElementById('koala-btn');
+        // --- MOD DEĞİŞTİRİCİ ---
+        function toggleMode() {
+            const btn = document.getElementById('mode-toggle');
+            const target = document.getElementById('koala-btn');
+            const statusLabel = document.getElementById('status-label');
+            const modeStatus = document.getElementById('mode-status');
 
-        // --- MOD DEĞİŞTİRME ---
-        function toggleEnergyMode() {
-            const btn = document.getElementById('mode-btn');
-            const container = document.getElementById('koala-btn');
-            
             if(state.mode === 'MINE') {
                 state.mode = 'ENERGY';
-                btn.innerText = 'Madenciliğe Dön';
-                btn.classList.replace('bg-amber-500/10', 'bg-blue-500/10');
-                btn.classList.replace('text-amber-500', 'text-blue-500');
-                container.classList.add('energy-mode');
-                document.getElementById('status-msg').innerText = 'Enerji Depolanıyor...';
+                btn.innerText = 'Madencilik';
+                btn.classList.replace('text-amber-500', 'text-primary');
+                target.classList.add('energy-mode-active');
+                statusLabel.innerText = 'Toplanan Enerji';
+                modeStatus.innerText = 'Şarj Modu Aktif';
             } else {
                 state.mode = 'MINE';
                 btn.innerText = 'Enerji Topla';
-                btn.classList.replace('bg-blue-500/10', 'bg-amber-500/10');
-                btn.classList.replace('text-blue-500', 'text-amber-500');
-                container.classList.remove('energy-mode');
-                document.getElementById('status-msg').innerText = 'Koala Madencilik Yapıyor...';
+                btn.classList.replace('text-primary', 'text-amber-500');
+                target.classList.remove('energy-mode-active');
+                statusLabel.innerText = 'Bakiyen';
+                modeStatus.innerText = 'Madencilik Modu';
             }
         }
 
-        // --- TIKLAMA YÖNETİMİ ---
-        BTN.addEventListener('touchstart', (e) => {
+        // --- TIKLAMA MANTIĞI ---
+        const btn = document.getElementById('koala-btn');
+        btn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.changedTouches[0];
-            
+
             if(state.mode === 'MINE') {
-                if(state.energy >= 1) {
-                    state.bal += 1;
-                    state.energy -= 1;
-                    showFloat(touch.clientX, touch.clientY, '+1', '#fff');
+                // Madencilik Modu
+                if(state.energy >= state.tapPower) {
+                    state.bal += state.tapPower;
+                    state.energy -= state.tapPower;
+                    createFloat(touch.clientX, touch.clientY, `+${state.tapPower}`, '#fff');
                 } else {
-                    alert("Enerji bitti! Enerji Topla moduna geç.");
+                    alert("Enerjin bitti! Enerji Topla moduna geç.");
                 }
             } else {
-                // ENERGY TOPLAMA MODU
-                if(state.energy < state.maxE) {
-                    state.energy = Math.min(state.maxE, state.energy + state.rechargePower);
-                    showFloat(touch.clientX, touch.clientY, `+${state.rechargePower}⚡`, '#fbbf24');
+                // Enerji Toplama Modu
+                if(state.energy < state.maxEnergy) {
+                    state.energy = Math.min(state.maxEnergy, state.energy + state.chargePower);
+                    createFloat(touch.clientX, touch.clientY, `+${state.chargePower}⚡`, '#fbbf24');
                 }
             }
             updateUI();
             save();
         });
 
-        // --- GELİŞTİRMELER ---
-        function upgrade(type) {
-            if(type === 'limit' && state.bal >= 5000) {
-                state.bal -= 5000;
-                state.maxE += 500;
-                alert("Depo Büyütüldü!");
-            } else if(type === 'recharge' && state.bal >= 2500) {
-                state.bal -= 2500;
-                state.rechargePower += 2;
-                alert("Şarj Hızı Artırıldı!");
+        // --- MARKET SİSTEMİ ---
+        function buyUpgrade(type) {
+            if(type === 'tap') {
+                let cost = state.tapPower * 1000;
+                if(state.bal >= cost) {
+                    state.bal -= cost;
+                    state.tapPower++;
+                } else { alert("Yetersiz bakiye!"); }
+            } else if(type === 'charge') {
+                let cost = state.chargePower * 1250;
+                if(state.bal >= cost) {
+                    state.bal -= cost;
+                    state.chargePower += 2;
+                } else { alert("Yetersiz bakiye!"); }
             }
             updateUI();
             save();
         }
 
-        // --- UI & SİSTEM ---
+        // --- UI GÜNCELLEME ---
         function updateUI() {
-            document.getElementById('bal').innerText = state.bal.toLocaleString();
-            document.getElementById('e-val').innerText = `${Math.floor(state.energy)} / ${state.maxE}`;
-            document.getElementById('energy-fill').style.width = (state.energy / state.maxE * 100) + "%";
+            document.getElementById('balance').innerText = Math.floor(state.bal).toLocaleString();
+            document.getElementById('energy-txt').innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
+            document.getElementById('energy-bar').style.width = (state.energy / state.maxEnergy * 100) + "%";
+            document.getElementById('tap-power').innerText = state.tapPower;
             
-            // Market Fiyatları (Basit tutuldu)
-            document.getElementById('cost-limit').innerText = "5,000";
-            document.getElementById('cost-recharge').innerText = "2,500";
+            // Fiyatlar
+            document.getElementById('up-tap-price').innerText = (state.tapPower * 1000).toLocaleString();
+            document.getElementById('up-charge-price').innerText = (state.chargePower * 1250).toLocaleString();
         }
 
-        function showFloat(x, y, txt, color) {
-            const el = document.createElement('div');
-            el.className = 'float-ico';
-            el.innerText = txt;
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            el.style.color = color;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 600);
+        function createFloat(x, y, txt, color) {
+            const d = document.createElement('div');
+            d.className = 'float-text';
+            d.innerText = txt;
+            d.style.left = x + 'px'; d.style.top = y + 'px';
+            d.style.color = color;
+            document.body.appendChild(d);
+            setTimeout(() => d.remove(), 800);
         }
 
-        function nav(page, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('p-' + page).classList.add('active');
+        // --- STANDART FONKSİYONLAR ---
+        function nav(p, el) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById('p-' + p).classList.add('active');
             el.classList.add('active');
         }
 
         function save() {
             localStorage.setItem('k_bal', state.bal);
             localStorage.setItem('k_energy', state.energy);
-            localStorage.setItem('k_maxE', state.maxE);
-            localStorage.setItem('k_rch', state.rechargePower);
+            localStorage.setItem('k_tap', state.tapPower);
+            localStorage.setItem('k_charge', state.chargePower);
         }
 
-        window.onload = updateUI;
+        window.onload = () => {
+            document.getElementById('ref-link').innerText = `t.me/Koalas_Bot?start=r${state.uid}`;
+            checkWalletUI();
+            updateUI();
+        };
+
+        // Wallet fonksiyonları (Sizin kodunuzdan korundu)
+        function saveWallet() { let v = document.getElementById('w-input').value; if(v.length < 10) return; state.wallet = v; localStorage.setItem('k_wallet', v); checkWalletUI(); }
+        function resetWallet() { state.wallet = null; localStorage.removeItem('k_wallet'); checkWalletUI(); }
+        function checkWalletUI() { if(state.wallet) { document.getElementById('wallet-box').classList.add('hidden'); document.getElementById('wallet-connected').classList.remove('hidden'); document.getElementById('display-w').innerText = state.wallet; } else { document.getElementById('wallet-box').classList.remove('hidden'); document.getElementById('wallet-connected').classList.add('hidden'); } }
     </script>
 </body>
 </html>
