@@ -3,609 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE EDITION</title>
-    
+    <title>KOALA ARCADE | PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        /* KOALA ARCADE PROFESSIONAL STYLING 
-           DESIGNED FOR HIGH PERFORMANCE MINI-APP 
-        */
-        :root {
-            --primary: #ffffff;
-            --secondary: #a1a1aa;
-            --bg-dark: #000000;
-            --zinc-950: #09090b;
-            --zinc-900: #18181b;
-            --zinc-800: #27272a;
-            --accent: #eab308;
-            --safe-area-bottom: env(safe-area-inset-bottom);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; user-select: none; }
+        body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Inter', sans-serif;
-            user-select: none;
-            -webkit-user-drag: none;
-        }
+        /* --- UI UTILS --- */
+        .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--primary);
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-        }
+        /* --- TAP AREA --- */
+        .tap-circle { width: 280px; height: 280px; margin: 20px auto; position: relative; }
+        .tap-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 8px solid #111; transition: 0.1s; }
+        .tap-img:active { transform: scale(0.92); }
+        .tap-img.disabled { filter: grayscale(1); opacity: 0.3; pointer-events: none; }
 
-        /* --- Custom Scrollbar --- */
-        ::-webkit-scrollbar { width: 0px; }
+        /* --- NAVIGATION --- */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #050505; border-top: 1px solid #151515; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: 25px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
+        .nav-item.active { color: #fff; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
 
-        /* --- Transitions --- */
-        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- FLOATING TEXT --- */
+        .float-text { position: absolute; color: white; font-weight: 900; font-size: 32px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 2000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
 
-        @keyframes slideUp { 
-            from { transform: translateY(30px); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
-        }
+        /* --- ENERGY BAR --- */
+        .energy-track { height: 10px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
+        #energy-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #fff, #666); transition: 0.2s linear; }
 
-        /* --- Checking Screen Elements --- */
-        #checking-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 10000; display: flex; flex-direction: column;
-            padding: 60px 24px; justify-content: space-between;
-        }
-
-        .check-step {
-            background: var(--zinc-950);
-            border: 1px solid var(--zinc-900);
-            padding: 20px;
-            border-radius: 24px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .check-step.visible { opacity: 1; transform: translateX(0); }
-        .check-icon { font-size: 20px; color: var(--zinc-800); transition: 0.3s; }
-        .check-icon.active { color: #fff; transform: scale(1.2); }
-
-        /* --- MAIN INTERFACE --- */
-        #main-app {
-            display: none;
-            flex: 1;
-            height: 100%;
-            overflow-y: auto;
-            padding-bottom: 140px;
-        }
-
-        /* --- Tap Circle --- */
-        .tap-wrapper {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto;
-            perspective: 1000px;
-        }
-
-        .tap-circle {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: url('coinkoala.jpg') center/cover;
-            border: 8px solid var(--zinc-900);
-            box-shadow: 0 0 60px rgba(255,255,255,0.03);
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.1s cubic-bezier(0.1, 0.7, 1, 0.1);
-            z-index: 10;
-        }
-
-        .tap-circle:active {
-            transform: scale(0.92) rotateX(5deg) rotateY(5deg);
-            border-color: #fff;
-        }
-
-        .tap-circle.disabled {
-            filter: grayscale(1) contrast(0.5);
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        /* --- Floating Particles --- */
-        .particle {
-            position: absolute;
-            color: #fff;
-            font-weight: 900;
-            font-size: 32px;
-            pointer-events: none;
-            z-index: 1000;
-            animation: floatAway 0.8s ease-out forwards;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        @keyframes floatAway {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-150px) rotate(15deg) scale(1.5); }
-        }
-
-        /* --- Energy Bar --- */
-        .energy-box { width: 280px; margin: 25px auto; }
-        .energy-track {
-            height: 12px;
-            background: var(--zinc-950);
-            border: 1px solid var(--zinc-900);
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-        #energy-bar {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #fff, #71717a);
-            transition: width 0.3s ease;
-            box-shadow: 0 0 15px rgba(255,255,255,0.1);
-        }
-
-        /* --- Task System --- */
-        .task-list { padding: 0 20px; margin-top: 10px; }
-        .task-card {
-            background: linear-gradient(145deg, #09090b 0%, #050505 100%);
-            border: 1px solid var(--zinc-900);
-            padding: 16px;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            transition: 0.3s;
-        }
-
-        .task-card:active { transform: scale(0.98); background: #0c0c0e; }
-
-        /* --- Bottom Nav --- */
-        .nav-container {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            height: 100px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--zinc-900);
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            padding-bottom: var(--safe-area-bottom);
-            z-index: 5000;
-        }
-
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #52525b;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .nav-link.active { color: #fff; }
-        .nav-link i { font-size: 22px; margin-bottom: 4px; }
-        .nav-link span { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- Overlay (Ad) --- */
-        #ad-view {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 20000; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-            text-align: center;
-        }
+        #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="ad-view">
-        <div class="animate-pulse mb-8">
-            <i class="fa-solid fa-clapperboard text-6xl text-zinc-800"></i>
-        </div>
-        <p class="text-zinc-500 font-black text-xs tracking-[0.5em] uppercase mb-4">Sponsoring Arcade</p>
-        <h2 id="ad-timer" class="text-8xl font-black italic">10</h2>
-        <div class="w-64 h-1 bg-zinc-900 mt-10 rounded-full overflow-hidden">
-            <div id="ad-progress" class="h-full bg-white w-0"></div>
+    <div id="ad-overlay">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-zinc-900 border-t-white rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 id="ad-timer" class="text-7xl font-black italic">10</h2>
+            <p class="text-zinc-500 font-black text-xs mt-4 tracking-widest uppercase">Video Reward Loading</p>
         </div>
     </div>
 
-    <div id="checking-screen">
-        <div class="text-center mt-4">
-            <div class="w-20 h-20 bg-zinc-900 rounded-[2rem] mx-auto flex items-center justify-center mb-6">
-                <i class="fa-solid fa-leaf text-3xl text-white"></i>
-            </div>
-            <h1 class="text-3xl font-black italic uppercase tracking-tighter">Koala Protocol</h1>
-            <p class="text-zinc-500 font-medium text-sm mt-1">Establishing secure connection...</p>
-        </div>
-
-        <div class="px-2">
-            <div class="check-step" id="step1">
-                <div class="flex items-center gap-4">
-                    <i class="fa-solid fa-fingerprint check-icon"></i>
-                    <span class="font-bold text-sm text-zinc-400 uppercase tracking-widest">ID Verification</span>
-                </div>
-                <i class="fa-solid fa-circle-check text-zinc-800" id="mark1"></i>
-            </div>
-            <div class="check-step" id="step2">
-                <div class="flex items-center gap-4">
-                    <i class="fa-solid fa-bolt check-icon"></i>
-                    <span class="font-bold text-sm text-zinc-400 uppercase tracking-widest">Energy Sync</span>
-                </div>
-                <i class="fa-solid fa-circle-check text-zinc-800" id="mark2"></i>
-            </div>
-            <div class="check-step" id="step3">
-                <div class="flex items-center gap-4">
-                    <i class="fa-solid fa-shield-virus check-icon"></i>
-                    <span class="font-bold text-sm text-zinc-400 uppercase tracking-widest">Anti-Sybil</span>
-                </div>
-                <i class="fa-solid fa-circle-check text-zinc-800" id="mark3"></i>
-            </div>
-        </div>
-
-        <div id="checking-result" class="hidden text-center animate-bounce">
-            <p class="text-zinc-500 font-black text-[10px] uppercase tracking-widest mb-2">Account Loyalty Reward</p>
-            <h2 id="years-count" class="text-9xl font-black italic tracking-tighter">0</h2>
-            <p class="text-xl font-black text-zinc-400 uppercase">Year Badge</p>
-            <div class="mt-6 p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800 inline-block">
-                <span class="text-yellow-500 font-black text-2xl">+<span id="welcome-bonus">0</span> $KOALA</span>
-            </div>
-        </div>
-
-        <div class="w-full">
-            <div class="h-1 bg-zinc-900 mb-8 rounded-full overflow-hidden">
-                <div id="loading-bar" class="h-full bg-white w-0 transition-all duration-700"></div>
-            </div>
-            <button onclick="initiateCheck()" id="start-btn" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-sm tracking-widest">Begin Analysis</button>
-            <button onclick="launchApp()" id="launch-btn" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-sm tracking-widest hidden">Claim & Launch</button>
-        </div>
-    </div>
-
-    <div id="main-app">
+    <div id="app-container">
         
-        <div id="view-earn" class="page active px-4 pt-10">
-            <div class="text-center mb-10">
-                <h4 class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.6em] mb-2">Current Assets</h4>
-                <div class="flex items-center justify-center gap-3">
-                    <span id="main-balance" class="text-7xl font-black tracking-tighter">0</span>
-                </div>
+        <div id="page-earn" class="page active">
+            <div class="text-center mt-6">
+                <p class="text-zinc-500 font-black text-[10px] uppercase tracking-[0.5em] mb-1">Koala Balance</p>
+                <h1 id="bal-text" class="text-6xl font-black tracking-tighter">0</h1>
             </div>
 
-            <div class="tap-wrapper" onclick="triggerTap(event)">
-                <div id="tap-target" class="tap-circle"></div>
+            <div class="tap-circle" onclick="handleTap(event)">
+                <img src="coinkoala.jpg" id="tap-target" class="tap-img">
             </div>
 
-            <div class="energy-box">
+            <div class="max-w-[280px] mx-auto">
                 <div class="flex justify-between items-center mb-2 px-1">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-bolt-lightning text-yellow-500 text-xs"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Recovery</span>
-                    </div>
-                    <span id="energy-val" class="text-xs font-black">1000 / 1000</span>
+                    <span class="text-[10px] font-black text-zinc-400 uppercase"><i class="fa-solid fa-bolt text-yellow-500"></i> Energy</span>
+                    <span class="text-[10px] font-black" id="energy-text">1000/1000</span>
                 </div>
                 <div class="energy-track">
-                    <div id="energy-bar"></div>
+                    <div id="energy-fill"></div>
                 </div>
+                <p class="text-[9px] text-zinc-600 mt-2 text-center uppercase font-bold italic">Full recharge: 24 Hours</p>
             </div>
+        </div>
 
-            <div class="task-list">
-                <h5 class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4 ml-2">Available Quests</h5>
-                
-                <div class="task-card" onclick="runSocialTask('tg')">
+        <div id="page-tasks" class="page">
+            <h2 class="text-3xl font-black italic mb-6">QUESTS</h2>
+            <div class="space-y-3">
+                <div class="glass p-5 rounded-[24px] flex justify-between items-center" onclick="doTelegram()">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
-                            <i class="fa-brands fa-telegram text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-sm">Join Koala News</p>
-                            <p class="text-[10px] text-zinc-500">+50,000 $KOALA</p>
-                        </div>
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 text-xl"><i class="fa-brands fa-telegram"></i></div>
+                        <div><p class="font-bold text-sm">Join Community</p><p class="text-[10px] text-zinc-500">+50,000 $KOALA</p></div>
                     </div>
-                    <button id="tg-status" class="bg-zinc-900 border border-zinc-800 text-white text-[10px] font-black px-5 py-2 rounded-xl">START</button>
+                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
                 </div>
-
-                <div class="task-card" onclick="manualAdTrigger()">
+                <div class="glass p-5 rounded-[24px] flex justify-between items-center" onclick="showAd()">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500">
-                            <i class="fa-solid fa-film text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-sm">Reward Video</p>
-                            <p class="text-[10px] text-zinc-500">+1 $KOALA + Energy</p>
-                        </div>
+                        <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 text-xl"><i class="fa-solid fa-play"></i></div>
+                        <div><p class="font-bold text-sm">Watch Video</p><p class="text-[10px] text-zinc-500">+1 $KOALA + Bonus</p></div>
                     </div>
-                    <button class="bg-white text-black text-[10px] font-black px-5 py-2 rounded-xl">WATCH</button>
+                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
                 </div>
             </div>
         </div>
 
-        <div id="view-airdrop" class="page px-6 pt-12 hidden">
-            <div class="text-center">
-                <div class="w-24 h-24 bg-zinc-900 rounded-[2.5rem] mx-auto flex items-center justify-center mb-6 border border-zinc-800">
-                    <i class="fa-solid fa-parachute-box text-4xl text-white"></i>
-                </div>
-                <h2 class="text-4xl font-black uppercase italic italic tracking-tighter mb-2">Airdrop</h2>
-                <p class="text-zinc-500 font-bold text-xs uppercase px-10 mb-12 tracking-wide leading-relaxed">Listing soon on major DEX. Link your wallet to qualify.</p>
-            </div>
-
-            <div id="wallet-setup">
-                <div class="bg-zinc-950 border border-zinc-900 p-8 rounded-[40px] shadow-2xl">
-                    <label class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 block">TON Wallet Address</label>
-                    <input type="text" id="wallet-input" spellcheck="false" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white font-mono text-sm mb-6 focus:border-white transition-all outline-none" placeholder="UQxxxxxxxxxxxxxx...">
-                    <button onclick="handleWalletSave()" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-transform">Verify & Save</button>
-                </div>
-            </div>
-
-            <div id="wallet-confirmed" class="hidden">
-                <div class="bg-zinc-950 border border-green-900/20 p-8 rounded-[40px] text-center">
-                    <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center text-green-500 mx-auto mb-6">
-                        <i class="fa-solid fa-check-double text-2xl"></i>
-                    </div>
-                    <p class="text-white font-bold text-sm mb-2">Address Linked</p>
-                    <p id="addr-preview" class="text-zinc-500 font-mono text-[10px] break-all mb-8 bg-black p-3 rounded-xl"></p>
-                    <button onclick="clearWallet()" class="text-zinc-700 text-[10px] font-black uppercase underline tracking-tighter">Edit Address</button>
+        <div id="page-friends" class="page">
+            <div class="text-center mt-10">
+                <i class="fa-solid fa-users text-6xl mb-6 text-zinc-800"></i>
+                <h2 class="text-3xl font-black italic mb-2">FRIENDS</h2>
+                <p class="text-zinc-500 text-sm px-10 mb-8">Invite friends and earn 10% of their earnings!</p>
+                <div class="glass p-8 rounded-[30px] border-dashed border-zinc-800">
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-4">Your Referral Link</p>
+                    <button class="w-full bg-white text-black font-black p-4 rounded-2xl text-xs uppercase tracking-widest">Share Invite Link</button>
                 </div>
             </div>
         </div>
 
-        <nav class="nav-container">
-            <div class="nav-link active" onclick="switchTab('earn', this)">
-                <i class="fa-solid fa-coins"></i>
-                <span>Mining</span>
+        <div id="page-drop" class="page">
+            <h2 class="text-3xl font-black italic mb-6 text-center mt-6 uppercase">Airdrop</h2>
+            <div id="wallet-setup" class="glass p-8 rounded-[35px] text-center border-zinc-800">
+                <div class="w-20 h-20 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-6 border border-zinc-800">
+                    <i class="fa-solid fa-wallet text-3xl"></i>
+                </div>
+                <p class="text-sm font-bold mb-6">Connect your TON wallet to receive rewards.</p>
+                <input type="text" id="wallet-addr" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white font-bold text-xs mb-4 outline-none focus:border-white" placeholder="UQ... Wallet Address">
+                <button onclick="saveWallet()" class="w-full bg-white text-black p-5 rounded-2xl font-black uppercase text-xs">Link Wallet</button>
             </div>
-            <div class="nav-link" onclick="switchTab('airdrop', this)">
-                <i class="fa-solid fa-vault"></i>
-                <span>Airdrop</span>
+            <div id="wallet-done" class="hidden glass p-8 rounded-[35px] text-center border-green-900/20">
+                <i class="fa-solid fa-circle-check text-5xl text-green-500 mb-4"></i>
+                <p id="display-wallet" class="text-zinc-500 text-[10px] font-mono break-all mb-6"></p>
+                <button onclick="resetWallet()" class="text-zinc-600 text-[10px] font-black uppercase underline">Change Address</button>
             </div>
+        </div>
+
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="tab('earn', this)"><i class="fa-solid fa-coins"></i><span>Earn</span></div>
+            <div class="nav-item" onclick="tab('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
+            <div class="nav-item" onclick="tab('friends', this)"><i class="fa-solid fa-user-group"></i><span>Friends</span></div>
+            <div class="nav-item" onclick="tab('drop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
         /**
-         * KOALA ARCADE | CORE SCRIPTING
-         * v2.0 - Optimized for High-Frequency Tapping
+         * 🐨 KOALA ARCADE - CORE LOGIC
+         * Energy: 1000 per 24 hours (86400 seconds)
+         * Fill Rate: 0.01157 per second
          */
 
-        // --- GLOBAL STATE ---
-        let STATE = {
-            balance: parseInt(localStorage.getItem('koala_bal')) || 0,
-            energy: parseInt(localStorage.getItem('koala_energy')) || 1000,
-            wallet: localStorage.getItem('koala_wallet') || null,
-            isVerified: localStorage.getItem('koala_v') === 'true',
-            tgDone: localStorage.getItem('koala_tg') === 'true',
-            lastSync: parseInt(localStorage.getItem('koala_sync')) || Date.now(),
-            clickBatch: 0
+        let state = {
+            bal: parseInt(localStorage.getItem('k_bal')) || 0,
+            energy: parseFloat(localStorage.getItem('k_energy')) || 1000,
+            lastSync: parseInt(localStorage.getItem('k_sync')) || Date.now(),
+            wallet: localStorage.getItem('k_wallet') || null,
+            adCount: 0
         };
 
-        const CONSTANTS = {
-            MAX_ENERGY: 1000,
-            RECOVERY_RATE: 1, // Energy per second
-            AD_THRESHOLD: 10,
-            TG_LINK: "https://t.me/KoalasCommunity"
-        };
+        const MAX_ENERGY = 1000;
+        const REFILL_RATE = MAX_ENERGY / 86400; // 1 günde 1000 artış için saniyelik oran
 
-        // --- INITIALIZATION ---
         window.onload = () => {
-            applyRecovery();
+            syncEnergy();
             refreshUI();
-            checkWalletUI();
-            
-            // Start Auto Recovery Loop
-            setInterval(autoRecover, 1000);
+            checkWallet();
+            setInterval(autoRefill, 1000);
         };
 
-        // --- CORE LOGIC ---
-        function applyRecovery() {
-            const now = Date.now();
-            const diff = Math.floor((now - STATE.lastSync) / 1000);
-            const recovered = diff * CONSTANTS.RECOVERY_RATE;
-            STATE.energy = Math.min(CONSTANTS.MAX_ENERGY, STATE.energy + recovered);
-            save();
+        // --- ENERGY LOGIC ---
+        function syncEnergy() {
+            let now = Date.now();
+            let elapsedSeconds = (now - state.lastSync) / 1000;
+            state.energy = Math.min(MAX_ENERGY, state.energy + (elapsedSeconds * REFILL_RATE));
+            state.lastSync = now;
         }
 
-        function autoRecover() {
-            if(STATE.energy < CONSTANTS.MAX_ENERGY) {
-                STATE.energy += CONSTANTS.RECOVERY_RATE;
+        function autoRefill() {
+            if (state.energy < MAX_ENERGY) {
+                state.energy = Math.min(MAX_ENERGY, state.energy + REFILL_RATE);
                 refreshUI();
             }
         }
 
-        function triggerTap(e) {
-            if(STATE.energy <= 0) return;
+        function handleTap(e) {
+            if (state.energy < 1) return;
 
-            // Update State
-            STATE.energy -= 1;
-            STATE.balance += 1;
-            STATE.clickBatch += 1;
-            STATE.lastSync = Date.now();
+            state.energy -= 1;
+            state.bal += 1;
+            state.adCount += 1;
+            state.lastSync = Date.now();
 
-            // Visual Feedback
-            createParticle(e.clientX, e.clientY);
+            createFloat(e.clientX, e.clientY);
             refreshUI();
 
-            // Ad Control
-            if(STATE.clickBatch >= CONSTANTS.AD_THRESHOLD) {
-                STATE.clickBatch = 0;
-                manualAdTrigger();
+            if (state.adCount >= 10) {
+                state.adCount = 0;
+                showAd();
             }
         }
 
-        function createParticle(x, y) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.innerText = '+1';
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 800);
-        }
-
-        // --- UI REFRESH ---
+        // --- UI FUNCTIONS ---
         function refreshUI() {
-            document.getElementById('main-balance').innerText = STATE.balance.toLocaleString();
-            document.getElementById('energy-val').innerText = `${STATE.energy} / ${CONSTANTS.MAX_ENERGY}`;
+            document.getElementById('bal-text').innerText = Math.floor(state.bal).toLocaleString();
+            document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${MAX_ENERGY}`;
+            document.getElementById('energy-fill').style.width = (state.energy / MAX_ENERGY * 100) + "%";
             
-            const bar = document.getElementById('energy-bar');
             const target = document.getElementById('tap-target');
-            const percent = (STATE.energy / CONSTANTS.MAX_ENERGY) * 100;
-            
-            bar.style.width = percent + "%";
-            
-            if(STATE.energy <= 0) {
-                target.classList.add('disabled');
-                document.getElementById('energy-val').innerHTML = "<span class='text-red-500 animate-pulse'>RECHARGING...</span>";
-            } else {
-                target.classList.remove('disabled');
-            }
-            save();
+            if (state.energy < 1) target.classList.add('disabled');
+            else target.classList.remove('disabled');
+
+            localStorage.setItem('k_bal', state.bal);
+            localStorage.setItem('k_energy', state.energy);
+            localStorage.setItem('k_sync', state.lastSync);
         }
 
-        // --- AD SYSTEM ---
-        function manualAdTrigger() {
-            const view = document.getElementById('ad-view');
-            const timerTxt = document.getElementById('ad-timer');
-            const prog = document.getElementById('ad-progress');
-            
-            view.style.display = 'flex';
+        function createFloat(x, y) {
+            const div = document.createElement('div');
+            div.className = 'float-text';
+            div.innerText = '+1';
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 700);
+        }
+
+        function tab(name, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('page-' + name).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // --- TASKS & AD ---
+        function showAd() {
+            const over = document.getElementById('ad-overlay');
+            const timer = document.getElementById('ad-timer');
+            over.style.display = 'flex';
             let sec = 10;
-            
-            const interval = setInterval(() => {
-                sec--;
-                timerTxt.innerText = sec;
-                prog.style.width = ((10-sec)*10) + "%";
-                
-                if(sec <= 0) {
-                    clearInterval(interval);
-                    view.style.display = 'none';
-                    STATE.balance += 1;
-                    STATE.energy = Math.min(CONSTANTS.MAX_ENERGY, STATE.energy + 50); // Ad bonus energy
-                    refreshUI();
-                    alert("Reward Claimed! +1 $KOALA & +50 Energy");
+            const iv = setInterval(() => {
+                sec--; timer.innerText = sec;
+                if (sec <= 0) {
+                    clearInterval(iv); over.style.display = 'none';
+                    state.bal += 1; refreshUI();
                 }
             }, 1000);
         }
 
-        // --- TASKS ---
-        function runSocialTask(type) {
-            if(type === 'tg') {
-                window.open(CONSTANTS.TG_LINK, '_blank');
-                if(!STATE.tgDone) {
-                    setTimeout(() => {
-                        STATE.balance += 50000;
-                        STATE.tgDone = true;
-                        localStorage.setItem('koala_tg', 'true');
-                        document.getElementById('tg-status').innerText = "CLAIMED";
-                        document.getElementById('tg-status').style.color = "#4ade80";
-                        refreshUI();
-                    }, 3000);
-                }
+        function doTelegram() {
+            window.open('https://t.me/KoalasCommunity', '_blank');
+            if(localStorage.getItem('k_tg') !== 'done') {
+                setTimeout(() => {
+                    state.bal += 50000;
+                    localStorage.setItem('k_tg', 'done');
+                    refreshUI();
+                    alert("50,000 $KOALA earned!");
+                }, 2000);
             }
         }
 
         // --- WALLET ---
-        function handleWalletSave() {
-            const input = document.getElementById('wallet-input').value.trim();
-            if(input.length < 10) return alert("Invalid Address!");
-            
-            STATE.wallet = input;
-            localStorage.setItem('koala_wallet', input);
-            checkWalletUI();
+        function saveWallet() {
+            const addr = document.getElementById('wallet-addr').value;
+            if(addr.length < 10) return;
+            state.wallet = addr;
+            localStorage.setItem('k_wallet', addr);
+            checkWallet();
         }
 
-        function checkWalletUI() {
-            const setup = document.getElementById('wallet-setup');
-            const confirm = document.getElementById('wallet-confirmed');
-            if(STATE.wallet) {
-                setup.classList.add('hidden');
-                confirm.classList.remove('hidden');
-                document.getElementById('addr-preview').innerText = STATE.wallet;
+        function checkWallet() {
+            if(state.wallet) {
+                document.getElementById('wallet-setup').classList.add('hidden');
+                document.getElementById('wallet-done').classList.remove('hidden');
+                document.getElementById('display-wallet').innerText = state.wallet;
             } else {
-                setup.classList.remove('hidden');
-                confirm.classList.add('hidden');
+                document.getElementById('wallet-setup').classList.remove('hidden');
+                document.getElementById('wallet-done').classList.add('hidden');
             }
         }
-
-        function clearWallet() {
-            if(confirm("Disconnect wallet?")) {
-                STATE.wallet = null;
-                localStorage.removeItem('koala_wallet');
-                checkWalletUI();
-            }
-        }
-
-        // --- CHECKING FLOW ---
-        function initiateCheck() {
-            document.getElementById('start-btn').style.display = 'none';
-            const load = document.getElementById('loading-bar');
-            
-            const steps = ['step1', 'step2', 'step3'];
-            const marks = ['mark1', 'mark2', 'mark3'];
-
-            steps.forEach((s, i) => {
-                setTimeout(() => {
-                    document.getElementById(s).classList.add('visible');
-                    document.getElementById(marks[i]).classList.add('active');
-                    document.getElementById(marks[i]).style.color = "#fff";
-                    load.style.width = ((i+1)*33.3) + "%";
-                    
-                    if(i === 2) setTimeout(finalizeCheck, 1000);
-                }, i * 1200);
-            });
-        }
-
-        function finalizeCheck() {
-            const years = Math.floor(Math.random() * 6) + 2;
-            const reward = years * 12500;
-            
-            document.querySelectorAll('.check-step').forEach(el => el.classList.add('hidden'));
-            document.getElementById('years-count').innerText = years;
-            document.getElementById('welcome-bonus').innerText = reward.toLocaleString();
-            document.getElementById('checking-result').classList.remove('hidden');
-            document.getElementById('launch-btn').classList.remove('hidden');
-
-            if(!STATE.isVerified) {
-                STATE.balance += reward;
-                STATE.isVerified = true;
-                localStorage.setItem('koala_v', 'true');
-                refreshUI();
-            }
-        }
-
-        // --- APP NAVIGATION ---
-        function launchApp() {
-            document.getElementById('checking-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
-        }
-
-        function switchTab(target, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
-            document.getElementById('view-' + target).classList.remove('hidden');
-            el.classList.add('active');
-        }
-
-        // --- DATA PERSISTENCE ---
-        function save() {
-            localStorage.setItem('koala_bal', STATE.balance);
-            localStorage.setItem('koala_energy', STATE.energy);
-            localStorage.setItem('koala_sync', STATE.lastSync);
-        }
+        function resetWallet() { localStorage.removeItem('k_wallet'); state.wallet = null; checkWallet(); }
     </script>
 </body>
 </html>
