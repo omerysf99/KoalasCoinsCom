@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA TIME ATTACK PRO</title>
+    <title>KOALA ARCADE PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         :root { --bg: #000; --card: #0d0d0d; --border: #1a1a1a; }
@@ -26,20 +27,20 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .bal-display { font-size: 50px; font-weight: 900; letter-spacing: -2px; text-align: center; margin: 10px 0; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; transition: transform 0.2s; }
+        .card:active { transform: scale(0.98); }
         .task-done { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
 
-        /* --- TIME ATTACK GAME --- */
-        #game-area { position: relative; width: 100%; height: 300px; background: #050505; border: 2px solid var(--border); border-radius: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; }
-        #timer-display { font-size: 72px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -2px; z-index: 10; transition: color 0.3s; }
-        .hidden-timer { color: transparent; text-shadow: 0 0 15px rgba(255,255,255,0.05); }
-        .game-bg-img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.1; z-index: 1; }
+        /* REKLAM KARTI ÖZEL STİL */
+        .ad-card { background: linear-gradient(90deg, #1a1a1a, #0d0d0d); border: 1px dashed #333; }
 
-        /* BET CONTROLS */
-        .bet-box { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 15px; margin-top: 20px; }
-        .bet-btn { background: #1a1a1a; padding: 8px 15px; border-radius: 12px; font-size: 12px; font-weight: 900; border: 1px solid #333; }
+        /* --- TIME ATTACK GAME --- */
+        #game-area { position: relative; width: 100%; height: 280px; background: #050505; border: 2px solid var(--border); border-radius: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; }
+        #timer-display { font-size: 64px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -2px; z-index: 10; }
+        .hidden-timer { color: transparent; text-shadow: 0 0 15px rgba(255,255,255,0.05); }
         
-        .btn-game { width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; text-transform: uppercase; transition: 0.2s; cursor: pointer; font-size: 18px; border: none; }
+        .bet-box { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 15px; margin-top: 20px; }
+        .btn-game { width: 100%; padding: 20px; border-radius: 25px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 16px; border: none; }
         .btn-start { background: #fff; color: #000; }
         .btn-stop { background: #ff3b30; color: #fff; }
 
@@ -67,50 +68,47 @@
                 <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em]">$KOALA</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-8">
-                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('Binance', 'binance.jpg')">
-                    <img src="binance.jpg" class="w-7 h-7 mx-auto rounded-lg">
+            <h3 class="text-[9px] font-black text-zinc-700 uppercase mb-3 tracking-widest px-2">Sponsored Boost</h3>
+            <div id="ad-task" class="card ad-card" onclick="watchAd()">
+                <div class="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-800 text-xl">
+                    <i class="fa-solid fa-play text-white"></i>
                 </div>
-                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('OKX', 'okx.jpg')">
-                    <img src="okx.jpg" class="w-7 h-7 mx-auto rounded-lg">
+                <div class="flex-1">
+                    <p class="font-black text-xs uppercase">Watch Ads</p>
+                    <p class="text-zinc-500 text-[10px] font-bold">+10 $KOALA / Video</p>
                 </div>
-                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('Bitget', 'bitget.jpg')">
-                    <img src="bitget.jpg" class="w-7 h-7 mx-auto rounded-lg">
-                </div>
+                <button id="ad-btn" class="bg-zinc-800 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase">Watch</button>
             </div>
 
+            <h3 class="text-[9px] font-black text-zinc-700 uppercase mb-3 mt-6 tracking-widest px-2">Daily Missions</h3>
             <div id="task-community" class="card" onclick="verifyTask('task-community', 2500, 'https://t.me/KoalasCommunity')">
                 <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center border border-zinc-800 text-2xl"><i class="fa-brands fa-telegram text-sky-400"></i></div>
                 <div class="flex-1">
                     <p class="font-black text-xs uppercase">Join Community</p>
-                    <p class="text-zinc-600 text-[10px] font-bold">+2,500 $KOALA</p>
+                    <p class="text-green-500 text-[10px] font-bold">+2,500 $KOALA</p>
                 </div>
-                <button class="task-btn bg-white text-black text-[10px] font-black px-4 py-2 rounded-xl uppercase">Start</button>
+                <button class="task-btn bg-white text-black text-[9px] font-black px-4 py-2 rounded-xl uppercase">Start</button>
             </div>
         </div>
 
         <div id="games" class="page text-center">
-            <h2 class="text-2xl font-black italic uppercase mt-4 mb-2 tracking-tighter">Koala Time Attack</h2>
-            <p class="text-zinc-600 text-[10px] font-black uppercase mb-4">WIN 2X IF YOU STOP AT 10.00s!</p>
-            
+            <h2 class="text-2xl font-black italic uppercase mt-4 mb-2">Time Attack</h2>
             <div id="game-area">
-                <img src="coinkoala.jpg" class="game-bg-img">
                 <div id="timer-display">00.00</div>
-                <p id="game-status" class="absolute bottom-6 text-[10px] font-black uppercase text-zinc-600 tracking-widest">Set Bet and Start</p>
+                <p id="game-status" class="absolute bottom-6 text-[10px] font-black uppercase text-zinc-600 tracking-widest">Stop at 10.00s</p>
             </div>
 
             <div class="bet-box">
-                <p class="text-[10px] font-black text-zinc-500 uppercase mb-3">Your Bet Amount</p>
+                <p class="text-[10px] font-black text-zinc-500 uppercase mb-3">Stake Amount</p>
                 <div class="flex items-center justify-center gap-6 mb-4">
-                    <button onclick="adjustBet(-100)" class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 font-bold">-</button>
+                    <button onclick="adjustBet(-100)" class="w-10 h-10 rounded-full bg-zinc-800 font-bold">-</button>
                     <span id="bet-display" class="text-2xl font-black">100</span>
-                    <button onclick="adjustBet(100)" class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 font-bold">+</button>
+                    <button onclick="adjustBet(100)" class="w-10 h-10 rounded-full bg-zinc-800 font-bold">+</button>
                 </div>
                 <div class="flex justify-center gap-2">
-                    <button onclick="setBet(100)" class="bet-btn">100</button>
-                    <button onclick="setBet(500)" class="bet-btn">500</button>
-                    <button onclick="setBet(1000)" class="bet-btn">1000</button>
-                    <button onclick="setBet(balance)" class="bet-btn text-zinc-400">MAX</button>
+                    <button onclick="setBet(100)" class="bg-zinc-900 px-3 py-1 rounded-lg text-[10px] font-black uppercase">100</button>
+                    <button onclick="setBet(500)" class="bg-zinc-900 px-3 py-1 rounded-lg text-[10px] font-black uppercase">500</button>
+                    <button onclick="setBet(balance)" class="bg-zinc-900 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Max</button>
                 </div>
             </div>
 
@@ -120,10 +118,10 @@
         </div>
 
         <div id="airdrop" class="page">
-            <h2 class="text-3xl font-black italic uppercase text-center mt-12 mb-8 text-zinc-400">Claim Drop</h2>
+            <h2 class="text-3xl font-black italic uppercase text-center mt-12 mb-8">Drop</h2>
             <div class="bg-zinc-900 p-8 rounded-[40px] border border-zinc-800 text-center">
-                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-4 text-center font-bold text-white mb-4" placeholder="TON Wallet Address">
-                <button onclick="saveWallet()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect Wallet</button>
+                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-4 text-center font-bold text-white mb-4" placeholder="Wallet Address">
+                <button onclick="saveWallet()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect</button>
             </div>
         </div>
 
@@ -138,8 +136,7 @@
         let balance = parseInt(localStorage.getItem('k_bal')) || 10000;
         let currentBet = 100;
         let isPlaying = false;
-        let startTime;
-        let timerInterval;
+        let startTime, timerInterval;
 
         window.onload = () => {
             checkCompletedTasks();
@@ -150,26 +147,33 @@
             }, 2500);
         };
 
-        // --- BETTING LOGIC ---
-        function adjustBet(amt) {
-            if (isPlaying) return;
-            currentBet = Math.max(100, currentBet + amt);
-            if (currentBet > balance) currentBet = balance;
-            updateBetUI();
-            haptic('light');
-        }
-
-        function setBet(amt) {
-            if (isPlaying) return;
-            currentBet = Math.max(100, amt);
-            if (currentBet > balance) currentBet = Math.max(100, balance);
-            updateBetUI();
+        // --- ADEXORA AD SYSTEM ---
+        function watchAd() {
+            const btn = document.getElementById('ad-btn');
             haptic('medium');
-        }
+            
+            btn.disabled = true;
+            btn.innerText = "Loading...";
 
-        function updateBetUI() {
-            document.getElementById('bet-display').innerText = currentBet.toLocaleString();
-            document.getElementById('btn-bet-val').innerText = currentBet.toLocaleString();
+            window.showAdexora()
+                .then(() => {
+                    // ✅ Reward user
+                    balance += 10;
+                    syncUI();
+                    haptic('success');
+                    showNotify("Reward Received! +10 $KOALA");
+                    
+                    // Reset button for next ad
+                    btn.disabled = false;
+                    btn.innerText = "Watch Again";
+                })
+                .catch(e => {
+                    // ❌ Handle error
+                    console.error("Ad failed:", e);
+                    showNotify("No ads available right now.");
+                    btn.disabled = false;
+                    btn.innerText = "Watch";
+                });
         }
 
         // --- GAME LOGIC ---
@@ -180,125 +184,60 @@
 
             if (!isPlaying) {
                 if (balance < currentBet) return showNotify("Insufficient $KOALA!");
-                
-                balance -= currentBet;
-                syncUI();
-                isPlaying = true;
-                
-                btn.innerText = "STOP NOW!";
-                btn.className = "btn-game btn-stop";
+                balance -= currentBet; syncUI(); isPlaying = true;
+                btn.innerText = "STOP!"; btn.className = "btn-game btn-stop";
                 display.classList.remove('hidden-timer');
-                display.style.color = "white";
-                status.innerText = "Counting...";
-
                 startTime = Date.now();
                 timerInterval = setInterval(() => {
                     let elapsed = (Date.now() - startTime) / 1000;
                     display.innerText = elapsed.toFixed(2);
-                    
-                    // Zorluk: 3.5 sn sonra gizle
-                    if (elapsed > 3.50 && elapsed < 11.00) {
-                        display.classList.add('hidden-timer');
-                        status.innerText = "Sshh... Internal Clock!";
-                    }
+                    if (elapsed > 3.50 && elapsed < 11.00) display.classList.add('hidden-timer');
                 }, 10);
                 haptic('medium');
             } else {
-                isPlaying = false;
-                clearInterval(timerInterval);
-                btn.disabled = true;
-                display.classList.remove('hidden-timer');
-                
-                let finalTime = (Date.now() - startTime) / 1000;
-                let formattedTime = finalTime.toFixed(2);
-                display.innerText = formattedTime;
-
-                if (formattedTime === "10.00") {
-                    let win = currentBet * 2;
-                    balance += win;
-                    display.style.color = "#4cd964";
-                    status.innerText = `JACKPOT! +${win.toLocaleString()} $KOALA`;
-                    haptic('success');
+                isPlaying = false; clearInterval(timerInterval);
+                btn.disabled = true; display.classList.remove('hidden-timer');
+                let finalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                display.innerText = finalTime;
+                if (finalTime === "10.00") {
+                    let win = currentBet * 2; balance += win;
+                    status.innerText = `JACKPOT! +${win}`; haptic('success');
                 } else {
-                    display.style.color = "#ff3b30";
-                    status.innerText = "MISSED! Bet Lost.";
-                    haptic('error');
+                    status.innerText = "FAILED!"; haptic('error');
                 }
-
                 setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = `Start (Bet: ${currentBet})`;
-                    btn.className = "btn-game btn-start";
-                    status.innerText = "Ready for Next Round?";
-                    display.style.color = "white";
-                    updateBetUI();
+                    btn.disabled = false; btn.innerText = `Start (Bet: ${currentBet})`;
+                    btn.className = "btn-game btn-start"; status.innerText = "Stop at 10.00s";
                 }, 3000);
                 syncUI();
             }
         }
 
-        // --- TASK & UTILS ---
+        // --- VERIFICATION SYSTEM ---
         function verifyTask(taskId, reward, link) {
             if(localStorage.getItem(taskId)) return;
             const card = document.getElementById(taskId);
             const b = card.querySelector('.task-btn');
             window.open(link, '_blank');
-            b.classList.add('btn-verifying');
-            b.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i>`;
+            b.classList.add('bg-zinc-800', 'pointer-events-none');
+            b.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Checking`;
             setTimeout(() => {
-                balance += reward;
-                localStorage.setItem(taskId, 'done');
-                card.classList.add('task-done');
-                b.innerHTML = `<i class="fa-solid fa-check"></i>`;
-                syncUI();
-                haptic('success');
+                balance += reward; localStorage.setItem(taskId, 'done');
+                card.classList.add('task-done'); b.innerHTML = `<i class="fa-solid fa-check"></i> Done`;
+                syncUI(); haptic('success');
             }, 6000);
         }
 
-        function checkCompletedTasks() {
-            if(localStorage.getItem('task-community')) {
-                const el = document.getElementById('task-community');
-                el.classList.add('task-done');
-                el.querySelector('.task-btn').innerHTML = `<i class="fa-solid fa-check"></i>`;
-            }
-        }
-
-        function syncUI() {
-            document.getElementById('total-bal').innerText = balance.toLocaleString();
-            localStorage.setItem('k_bal', balance);
-        }
-
-        function showNotify(msg) {
-            if(window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(msg);
-            else alert(msg);
-        }
-
-        function changeEx(n, i) {
-            document.getElementById('ex-name').innerText = n;
-            document.getElementById('ex-img').src = i;
-            haptic('light');
-        }
-
-        function nav(p, el) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-            document.getElementById(p).classList.add('active'); el.classList.add('active');
-            haptic('light');
-        }
-
-        function haptic(t) {
-            const h = window.Telegram?.WebApp?.HapticFeedback;
-            if(!h) return;
-            if(t === 'light') h.impactOccurred('light');
-            if(t === 'medium') h.impactOccurred('medium');
-            if(t === 'success') h.notificationOccurred('success');
-            if(t === 'error') h.notificationOccurred('warning');
-        }
-
-        function saveWallet() {
-            showNotify("Wallet connected!");
-            haptic('success');
-        }
+        // --- HELPERS ---
+        function adjustBet(a) { if(!isPlaying) { currentBet = Math.max(100, currentBet + a); if(currentBet > balance) currentBet = balance; updateBetUI(); } }
+        function setBet(a) { if(!isPlaying) { currentBet = Math.max(100, a); if(currentBet > balance) currentBet = balance; updateBetUI(); } }
+        function updateBetUI() { document.getElementById('bet-display').innerText = currentBet; document.getElementById('btn-bet-val').innerText = currentBet; }
+        function syncUI() { document.getElementById('total-bal').innerText = balance.toLocaleString(); localStorage.setItem('k_bal', balance); }
+        function showNotify(m) { if(window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(m); else alert(m); }
+        function checkCompletedTasks() { if(localStorage.getItem('task-community')) { document.getElementById('task-community').classList.add('task-done'); document.getElementById('task-community').querySelector('.task-btn').innerHTML = `<i class="fa-solid fa-check"></i> Done`; } }
+        function nav(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); el.classList.add('active'); haptic('light'); }
+        function haptic(t) { const h = window.Telegram?.WebApp?.HapticFeedback; if(h) { if(t === 'success') h.notificationOccurred('success'); else if(t === 'error') h.notificationOccurred('warning'); else h.impactOccurred(t); } }
+        function saveWallet() { showNotify("Wallet Connected!"); haptic('success'); }
     </script>
 </body>
 </html>
