@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | DOGS EDITION</title>
+    <title>KOALA ARCADE | FIREBASE EDITION</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -12,30 +16,22 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
 
-        /* DOGS Checking Stili */
+        /* DOGS Stil */
         .page { display: none; height: 100vh; flex-direction: column; padding: 30px 24px; animation: dogsFade 0.4s ease; }
         .page.active { display: flex; }
         @keyframes dogsFade { from { opacity: 0; } to { opacity: 1; } }
 
-        .check-container { width: 100%; max-width: 400px; margin: 0 auto; }
         .check-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-weight: 700; font-size: 15px; color: #444; transition: 0.3s; }
         .check-item.active { color: #fff; }
-        .check-item.done { color: var(--white); }
-        
-        .status-box { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+        .check-item.done { color: #fff; }
         .spinner { width: 14px; height: 14px; border: 2px solid #333; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .check-icon { color: #fff; font-size: 16px; display: none; }
         .check-item.done .check-icon { display: block; }
         .check-item.done .spinner { display: none; }
-        .check-item.active .spinner { border-top-color: #fff; }
 
-        /* Progress Bar */
-        .progress-bg { width: 100%; height: 4px; background: #1a1a1a; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
-        .progress-fill { width: 0%; height: 100%; background: #fff; transition: width 0.5s ease; }
-
-        .btn-dogs { background: #fff; color: #000; padding: 20px; border-radius: 18px; font-weight: 900; width: 100%; text-align: center; font-size: 16px; text-transform: uppercase; cursor: pointer; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; }
+        .btn-dogs { background: #fff; color: #000; padding: 20px; border-radius: 18px; font-weight: 900; width: 100%; text-align: center; text-transform: uppercase; cursor: pointer; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
         .koala-img { width: 220px; height: 220px; background: #fff; border-radius: 50px; margin: 20px auto; overflow: hidden; filter: grayscale(1); }
@@ -46,191 +42,194 @@
     <div id="app">
         <div id="p-check" class="page active">
             <div class="mt-10 mb-12">
-                <h1 class="text-4xl font-black italic uppercase leading-none">Hesabın<br>Kontrol Ediliyor</h1>
-                <p class="text-zinc-600 text-[11px] font-bold uppercase tracking-widest mt-4">Telegram Verileri Analiz Ediliyor...</p>
+                <h1 class="text-4xl font-black italic uppercase">Analiz Ediliyor</h1>
+                <p class="text-zinc-600 text-[11px] font-bold uppercase mt-4">Telegram Verileri Sorgulanıyor...</p>
             </div>
-
-            <div class="progress-bg">
-                <div id="p-bar" class="progress-fill"></div>
+            <div class="space-y-6">
+                <div id="i1" class="check-item"><span>Telegram Yaşı</span><div class="status"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+                <div id="i2" class="check-item"><span>Telegram Premium</span><div class="status"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+                <div id="i3" class="check-item"><span>Kullanıcı Adı</span><div class="status"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+                <div id="i4" class="check-item"><span>Koala Puanı</span><div class="status"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
             </div>
-
-            <div class="check-container">
-                <div id="i1" class="check-item"><span>Telegram Yaşı Kontrol Ediliyor</span><div class="status-box"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-                <div id="i2" class="check-item"><span>Premium Durumu Sorgulanıyor</span><div class="status-box"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-                <div id="i3" class="check-item"><span>Kullanıcı Adı Doğrulanıyor</span><div class="status-box"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-                <div id="i4" class="check-item"><span>Koala Puanı Hesaplanıyor</span><div class="status-box"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            </div>
-
-            <div class="mt-auto">
-                <button onclick="startDOGSCheck()" id="btn-action" class="btn-dogs">Analizi Başlat</button>
-            </div>
+            <div class="mt-auto"><button onclick="startDOGSCheck()" id="btn-start" class="btn-dogs">Analizi Başlat</button></div>
         </div>
 
         <div id="p-reward" class="page text-center justify-center">
-            <h2 class="text-zinc-500 font-black text-xs uppercase tracking-[0.4em] mb-4">Harika İş!</h2>
-            <div class="koala-img mx-auto mb-8"><img src="coinkoala.jpg" class="w-full h-full object-cover"></div>
             <h1 class="text-6xl font-black italic mb-2" id="reward-val">0</h1>
-            <p class="text-zinc-600 font-bold uppercase text-[10px] mb-12">$KOALA ÖDÜLÜ KAZANDIN</p>
-            <button onclick="enterBot()" class="btn-dogs">Ödülü Cüzdana At</button>
+            <p class="text-zinc-600 font-bold uppercase text-[10px] mb-12">$KOALA KAZANDIN</p>
+            <button onclick="enterBot()" class="btn-dogs">Sisteme Gir</button>
         </div>
 
         <div id="p-home" class="page">
             <div class="text-center mt-6">
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.4em] mb-2">Toplam Kazanç</p>
+                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.4em] mb-2">Bakiyen</p>
                 <h2 class="text-6xl font-black italic mb-10" id="bal-txt">0.00</h2>
-                
-                <div class="koala-img mx-auto"><img src="coinkoala.jpg" class="w-full h-full object-cover"></div>
-
+                <div class="koala-img"><img src="coinkoala.jpg" class="w-full h-full object-cover"></div>
                 <div class="grid grid-cols-2 gap-4 mt-12">
                     <div class="bg-[#0c0c0c] p-5 rounded-[24px] text-left border border-zinc-900">
-                        <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Sabit Hız</p>
+                        <p class="text-[9px] text-zinc-500 font-black uppercase">Sabit Gelir</p>
                         <p class="text-xl font-black italic">+128.50</p>
                     </div>
                     <div class="bg-[#0c0c0c] p-5 rounded-[24px] text-left border border-zinc-900 border-l-white/20">
-                        <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Boost Hız</p>
-                        <p class="text-xl font-black italic text-zinc-400">+<span id="boost-val">0.00</span></p>
+                        <p class="text-[9px] text-zinc-500 font-black uppercase">Boost Gelir</p>
+                        <p class="text-xl font-black italic">+<span id="boost-val">0.00</span></p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="p-boost" class="page">
-             <h2 class="text-4xl font-black italic uppercase mb-10">Hızlandır</h2>
-             <div class="bg-[#0c0c0c] p-6 rounded-3xl border border-zinc-900 flex justify-between items-center">
-                 <div>
-                     <p class="font-black italic">Reklam İzle</p>
-                     <p class="text-[10px] text-zinc-500 uppercase mt-1">+1.00 PPH (24 Saat)</p>
-                 </div>
-                 <button onclick="watchAd()" class="bg-white text-black px-6 py-3 rounded-2xl font-black text-xs uppercase">İzle</button>
-             </div>
-        </div>
-
         <div id="p-airdrop" class="page">
-             <h2 class="text-4xl font-black italic uppercase mb-10">Airdrop</h2>
-             <div id="ex-selector" class="flex gap-3 mb-6">
-                 <img src="binance.jpg" class="w-14 h-14 rounded-2xl border-2 border-zinc-800" onclick="selEx('Binance', this)">
-                 <img src="okx.jpg" class="w-14 h-14 rounded-2xl border-2 border-zinc-800" onclick="selEx('OKX', this)">
-                 <img src="bitget.jpg" class="w-14 h-14 rounded-2xl border-2 border-zinc-800" onclick="selEx('Bitget', this)">
-             </div>
-             <input type="text" id="w-input" class="w-full bg-[#0c0c0c] border border-zinc-800 p-5 rounded-2xl mb-4 text-xs font-mono outline-none focus:border-white" placeholder="TON Yatırma Adresi">
-             <button onclick="saveW()" class="btn-dogs">Kaydet</button>
-             
-             <div id="w-saved" class="hidden mt-6 p-8 bg-zinc-900 rounded-3xl text-center">
-                 <i class="fa-solid fa-circle-check text-4xl mb-4"></i>
-                 <h4 id="saved-name" class="text-xl font-black italic mb-2">BORSA</h4>
-                 <p id="saved-addr" class="text-[9px] font-mono text-zinc-500 break-all"></p>
-             </div>
+            <h2 class="text-4xl font-black italic uppercase mb-10">Cüzdan</h2>
+            <div id="w-form">
+                <div class="flex gap-3 mb-6">
+                    <img src="binance.jpg" class="w-14 h-14 rounded-2xl border-2 border-transparent cursor-pointer" onclick="setEx('Binance', this)">
+                    <img src="okx.jpg" class="w-14 h-14 rounded-2xl border-2 border-transparent cursor-pointer" onclick="setEx('OKX', this)">
+                    <img src="bitget.jpg" class="w-14 h-14 rounded-2xl border-2 border-transparent cursor-pointer" onclick="setEx('Bitget', this)">
+                </div>
+                <input type="text" id="w-input" class="w-full bg-[#111] border border-zinc-800 p-5 rounded-2xl mb-4 text-xs font-mono" placeholder="TON Cüzdan Adresi">
+                <button onclick="saveWallet()" class="btn-dogs">Kaydet</button>
+            </div>
+            <div id="w-saved" class="hidden text-center bg-[#111] p-10 rounded-3xl">
+                <i class="fa-solid fa-circle-check text-4xl mb-4"></i>
+                <h3 id="s-name" class="font-black text-xl italic mb-2">-</h3>
+                <p id="s-addr" class="text-[9px] font-mono text-zinc-500 break-all"></p>
+            </div>
         </div>
 
-        <nav class="nav-bar" id="nav" style="display: none;">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house-chimney"></i><span>ANA SAYFA</span></div>
+        <div id="p-boost" class="page">
+            <h2 class="text-4xl font-black italic uppercase mb-10">Boost</h2>
+            <button onclick="watchAd()" class="btn-dogs">Reklam İzle (+1.00 PPH)</button>
+        </div>
+
+        <nav class="nav-bar" id="nav" style="display:none">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>GİRİŞ</span></div>
             <div class="nav-item" onclick="nav('boost', this)"><i class="fa-solid fa-bolt"></i><span>BOOST</span></div>
             <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-wallet"></i><span>CÜZDAN</span></div>
         </nav>
     </div>
 
     <script>
-        let state = {
-            bal: parseFloat(localStorage.getItem('k_bal')) || 0,
-            boosts: JSON.parse(localStorage.getItem('k_boosts')) || [],
-            on: localStorage.getItem('k_on') === 'true',
-            ex: localStorage.getItem('k_ex') || '',
-            addr: localStorage.getItem('k_addr') || ''
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
+            authDomain: "koalascombom.firebaseapp.com",
+            projectId: "koalascombom",
+            storageBucket: "koalascombom.firebasestorage.app",
+            messagingSenderId: "533011982418",
+            appId: "1:533011982418:web:9e8e50e93a99017062d78b",
+            measurementId: "G-1LWEES2195"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // USER STATE (Local + Sync)
+        let userId = localStorage.getItem('koala_uuid') || 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('koala_uuid', userId);
+
+        let userState = {
+            bal: 0,
+            boosts: [],
+            ex: '',
+            addr: '',
+            isNew: true
         };
 
-        // 1. DÜZELTİLMİŞ ANALİZ FONKSİYONU
+        // Veriyi Firestore'dan Çek
+        async function loadData() {
+            const doc = await db.collection("users").doc(userId).get();
+            if (doc.exists) {
+                userState = doc.data();
+                if(!userState.isNew) {
+                    document.getElementById('p-check').classList.remove('active');
+                    document.getElementById('p-home').classList.add('active');
+                    document.getElementById('nav').style.display = 'flex';
+                }
+            }
+            updateUI();
+        }
+
+        // Analiz Başlat
         function startDOGSCheck() {
-            const btn = document.getElementById('btn-action');
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-            btn.innerText = "Analiz Ediliyor...";
-
             const items = ['i1', 'i2', 'i3', 'i4'];
-            const bar = document.getElementById('p-bar');
-            
-            items.forEach((id, index) => {
+            document.getElementById('btn-start').style.display = 'none';
+            items.forEach((id, i) => {
                 setTimeout(() => {
-                    // Mevcut olanı aktif yap
-                    const el = document.getElementById(id);
-                    el.classList.add('active');
-                    bar.style.width = ((index + 1) * 25) + "%";
-
-                    // Bir önceki bitmişse işaretle
+                    document.getElementById(id).classList.add('active');
                     setTimeout(() => {
-                        el.classList.replace('active', 'done');
-                        if(index === 3) finishCheck();
+                        document.getElementById(id).classList.add('done');
+                        if(i === 3) showReward();
                     }, 1500);
-
-                }, index * 1800);
+                }, i * 1500);
             });
         }
 
-        function finishCheck() {
-            const reward = Math.floor(Math.random() * 45000) + 5000;
-            state.bal = reward;
-            document.getElementById('reward-val').innerText = reward.toLocaleString();
+        function showReward() {
+            const gift = Math.floor(Math.random() * 40000) + 5000;
+            userState.bal = gift;
+            userState.isNew = false;
+            document.getElementById('reward-val').innerText = gift.toLocaleString();
             document.getElementById('p-check').classList.remove('active');
             document.getElementById('p-reward').classList.add('active');
-            save();
+            sync();
         }
 
         function enterBot() {
-            state.on = true;
             document.getElementById('p-reward').classList.remove('active');
             document.getElementById('p-home').classList.add('active');
             document.getElementById('nav').style.display = 'flex';
-            save(); updateUI();
+            updateUI();
         }
 
-        // 2. KAZANÇ SİSTEMİ
+        // Madencilik Döngüsü
         setInterval(() => {
-            if(state.on) {
-                const totalPPH = 128.50 + state.boosts.length;
-                state.bal += (totalPPH / 3600);
+            if(!userState.isNew) {
+                const pph = 128.50 + userState.boosts.length;
+                userState.bal += (pph / 3600);
                 
-                // Boost süresi dolanları sil (24 saat)
+                // Boost temizliği
                 const now = Date.now();
-                state.boosts = state.boosts.filter(b => b.exp > now);
+                userState.boosts = userState.boosts.filter(b => b.exp > now);
                 
                 updateUI();
-                save();
+                if(Math.random() > 0.95) sync(); // Her 20sn bir yedekle
             }
         }, 1000);
 
-        function updateUI() {
-            document.getElementById('bal-txt').innerText = state.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('boost-val').innerText = state.boosts.length.toFixed(2);
-            
-            if(state.ex && state.addr) {
-                document.getElementById('w-saved').classList.remove('hidden');
-                document.getElementById('saved-name').innerText = state.ex;
-                document.getElementById('saved-addr').innerText = state.addr;
-            }
-        }
-
-        // 3. BOOST & DİĞERLERİ
         function watchAd() {
-            alert("Reklam Hazırlanıyor...");
-            setTimeout(() => {
-                state.boosts.push({ exp: Date.now() + (24*60*60*1000) });
-                save(); updateUI();
-                alert("Başarılı! Boost geliri saniyeye yansıtıldı.");
-            }, 1000);
+            alert("Reklam izlendi!");
+            userState.boosts.push({ exp: Date.now() + (24*60*60*1000) });
+            sync(); updateUI();
         }
 
-        let tempEx = 'Binance';
-        function selEx(name, el) {
-            tempEx = name;
-            document.querySelectorAll('#ex-selector img').forEach(i => i.style.borderColor = '#1a1a1a');
+        let selectedEx = '';
+        function setEx(name, el) {
+            selectedEx = name;
+            document.querySelectorAll('#w-form img').forEach(i => i.style.borderColor = 'transparent');
             el.style.borderColor = '#fff';
         }
 
-        function saveW() {
-            const val = document.getElementById('w-input').value;
-            if(val.length < 8) return alert("Geçersiz adres.");
-            state.ex = tempEx;
-            state.addr = val;
-            save(); updateUI();
+        function saveWallet() {
+            const addr = document.getElementById('w-input').value;
+            if(addr.length < 5) return;
+            userState.ex = selectedEx;
+            userState.addr = addr;
+            sync(); updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('bal-txt').innerText = userState.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('boost-val').innerText = userState.boosts.length.toFixed(2);
+            if(userState.ex) {
+                document.getElementById('w-form').classList.add('hidden');
+                document.getElementById('w-saved').classList.remove('hidden');
+                document.getElementById('s-name').innerText = userState.ex;
+                document.getElementById('s-addr').innerText = userState.addr;
+            }
+        }
+
+        function sync() {
+            db.collection("users").doc(userId).set(userState);
         }
 
         function nav(p, el) {
@@ -240,22 +239,7 @@
             el.classList.add('active');
         }
 
-        function save() {
-            localStorage.setItem('k_bal', state.bal);
-            localStorage.setItem('k_boosts', JSON.stringify(state.boosts));
-            localStorage.setItem('k_on', state.on);
-            localStorage.setItem('k_ex', state.ex);
-            localStorage.setItem('k_addr', state.addr);
-        }
-
-        window.onload = () => {
-            if(state.on) {
-                document.getElementById('p-check').classList.remove('active');
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('nav').style.display = 'flex';
-                updateUI();
-            }
-        };
+        window.onload = loadData;
     </script>
 </body>
 </html>
