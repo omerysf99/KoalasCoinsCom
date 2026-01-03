@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | OFFICIAL</title>
+    <title>KOALA ARCADE | FINAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -12,111 +12,105 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --fg: #fff; --zinc-800: #18181b; --zinc-500: #71717a; }
+        :root { --bg: #000; --fg: #fff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; }
 
-        /* DOGS STYLE CHECKER */
-        #checker { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; padding: 50px 25px; }
+        /* CHECKER SCREEN */
+        #checker { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; padding: 50px 25px; transition: 0.5s; }
         .dogs-h { font-size: 38px; font-weight: 900; line-height: 1.1; margin-bottom: 45px; }
         .c-line { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
         .c-line.active { color: var(--fg); }
         .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: s 0.7s linear infinite; }
         @keyframes s { to { transform: rotate(360deg); } }
 
-        /* APP PAGES */
+        /* PAGES */
         .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
         .page.active { display: flex; animation: pIn 0.4s ease-out; }
         @keyframes pIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .balance-hero { text-align: center; margin: 30px 0; }
         .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
-        .balance-hero p { font-size: 10px; font-weight: 900; color: var(--zinc-500); text-transform: uppercase; letter-spacing: 3px; margin-top: 10px; }
-
+        
         .koala-img { width: 190px; height: 190px; background: #fff; border-radius: 45px; margin: 25px auto; overflow: hidden; transform: rotate(-2deg); border: 6px solid #111; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         .koala-img img { width: 100%; height: 100%; object-fit: cover; }
 
         .card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 20px; margin-bottom: 12px; }
         .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
         
-        /* EXCHANGES */
-        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; filter: grayscale(1); transition: 0.3s; }
-        .ex-card.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; }
-        .ex-card img { width: 35px; height: 35px; margin: 0 auto 8px; border-radius: 8px; }
-
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
         .nav-link.active { color: #fff; }
-        ::-webkit-scrollbar { display: none; }
+
+        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; filter: grayscale(1); }
+        .ex-card.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; }
     </style>
 </head>
 <body>
 
     <div id="checker">
-        <h1 class="dogs-h">Checking your<br>Koala status</h1>
+        <h1 class="dogs-h">Checking your<br>eligibility</h1>
         <div class="flex-1">
-            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="l2" class="c-line"><span>Daily Activity</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="l3" class="c-line"><span>Sybil Check</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
+            <div id="l2" class="c-line"><span>Activity Status</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
+            <div id="l3" class="c-line"><span>Sybil Check</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
         </div>
-        <div id="result-box" class="hidden text-center mb-6">
-            <p id="reward-text" class="text-white font-black text-2xl italic mb-1"></p>
-            <p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Koalas Reward Earned!</p>
+        <div id="result-box" class="hidden text-center mb-8 animate-bounce">
+            <p id="reward-val" class="text-5xl font-black italic text-white"></p>
+            <p class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mt-2">Welcome Koalas Added!</p>
         </div>
-        <div id="check-btn" class="btn-white hidden" onclick="startApp()">Continue to Arcade</div>
+        <div id="check-btn" class="btn-white hidden" onclick="closeChecker()">Continue</div>
     </div>
 
     <div id="p-home" class="page">
         <div class="balance-hero">
             <h1 id="ui-bal">0.00</h1>
-            <p>$KOALA Balance</p>
+            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">$KOALA Tokens</p>
         </div>
         <div class="koala-img"><img src="coinkoala.jpg"></div>
-        <div class="mt-4">
-            <div class="card flex justify-between items-center" onclick="claimAd()">
-                <div><h4 class="font-black text-xs uppercase">Watch Daily Ad</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
-                <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">WATCH</div>
-            </div>
+        <div class="card flex justify-between items-center" onclick="claimAd()">
+            <div><h4 class="font-black text-xs">DAILY AD REWARD</h4><p class="text-[9px] text-zinc-500">+1.00 $KOALA</p></div>
+            <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">WATCH</div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h1 class="dogs-h">Squad</h1>
+        <h1 class="dogs-h">Friends</h1>
         <div class="card py-10 flex flex-col items-center gap-2">
-            <p class="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Invite Reward</p>
-            <h2 class="text-5xl font-black italic">+10,000</h2>
+            <p class="text-[10px] text-zinc-500 font-black uppercase">Referral Bonus</p>
+            <h2 class="text-4xl font-black">+10,000</h2>
         </div>
-        <div id="ref-list" class="flex-1 overflow-y-auto space-y-2 mt-4"></div>
-        <div class="btn-white mt-4" onclick="copyRef()">Invite Friends</div>
+        <div id="ref-list" class="flex-1 mt-4"></div>
+        <div class="btn-white" onclick="copyRef()">Invite Link</div>
     </div>
 
     <div id="p-airdrop" class="page">
         <h1 class="dogs-h">Airdrop</h1>
-        <div class="card bg-zinc-900/30">
-            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2">Estimated $KOALA Token</p>
-            <h2 id="airdrop-tokens" class="text-4xl font-black tracking-tighter">0.00</h2>
+        <div class="card">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">My Allocation</p>
+            <h2 id="airdrop-tokens" class="text-4xl font-black">0.00</h2>
         </div>
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Connect Exchange</p>
-        <div class="flex gap-2">
-            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><img src="binance.jpg" alt="B"><p class="text-[9px] font-black uppercase">Binance</p></div>
-            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><img src="okx.jpg" alt="O"><p class="text-[9px] font-black uppercase">OKX</p></div>
-            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><img src="bitget.jpg" alt="B"><p class="text-[9px] font-black uppercase">Bitget</p></div>
+        <div class="flex gap-2 mt-4">
+            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><img src="binance.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">BINANCE</p></div>
+            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><img src="okx.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">OKX</p></div>
+            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><img src="bitget.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">BITGET</p></div>
         </div>
     </div>
 
     <nav id="navbar" style="display:none">
         <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
-        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
+        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Friends</span></div>
         <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
 <script>
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Yapılandır
+    // Config
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('k_uid_vfinal') || 'U' + Math.floor(Math.random()*9999999);
-    localStorage.setItem('k_uid_vfinal', uid);
+    let uid = localStorage.getItem('k_v_final') || 'U' + Math.floor(Math.random()*999999);
+    localStorage.setItem('k_v_final', uid);
 
     let u = { bal: 0, ex: '', checked: false, refs: [] };
 
@@ -140,20 +134,25 @@
                 el.classList.add('active');
                 el.querySelector('.spin').classList.add('hidden');
                 el.querySelector('i').classList.remove('hidden');
+                
+                // Son adım bittiğinde ödülü HESAPLA ve EKLE
                 if(i === 2) {
-                    // 1000 - 10000 arası rastgele ödül
                     const bonus = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
-                    u.bal += bonus;
-                    document.getElementById('reward-text').innerText = "+" + bonus.toLocaleString();
+                    u.bal += bonus; // Bakiyeye ekle
+                    u.checked = true; // Checking tamamlandı
+                    
+                    document.getElementById('reward-val').innerText = bonus.toLocaleString();
                     document.getElementById('result-box').classList.remove('hidden');
                     document.getElementById('check-btn').classList.remove('hidden');
+                    
+                    save(); // Firebase'e anında gönder
+                    render(); // UI'ı güncelle
                 }
             }, (i+1) * 1500);
         });
     }
 
-    function startApp() {
-        u.checked = true; save();
+    function closeChecker() {
         document.getElementById('checker').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('checker').style.display = 'none';
@@ -168,11 +167,12 @@
 
     function claimAd() { u.bal += 1; save(); render(); }
     function setEx(n) { u.ex = n; save(); render(); }
-    function copyRef() { alert("Invite link copied!"); }
+    function copyRef() { alert("Link copied!"); }
 
     function render() {
         document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
         document.getElementById('airdrop-tokens').innerText = (u.bal / 100).toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        
         document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
         if(u.ex) {
             const active = document.getElementById('ex-' + u.ex);
@@ -181,6 +181,7 @@
     }
 
     async function save() { await db.collection("users").doc(uid).set(u); }
+
     function tab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
