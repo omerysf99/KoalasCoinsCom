@@ -12,67 +12,68 @@
         
         body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- DOGS STYLE CHECKING SCREEN --- */
+        /* --- DOGS STYLE LOADER (GELİŞTİRİLMİŞ) --- */
         #loader-screen {
             position: fixed; inset: 0; background: #000; z-index: 100000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Yatay Uzatılmış Görsel */
+        /* YATAY UZATILMIŞ GÖRSEL */
         .baby-banner {
-            width: 90%; max-width: 450px; 
-            aspect-ratio: 16 / 7; /* Yatay uzatma oranı */
-            border-radius: 20px; object-fit: cover; margin-bottom: 40px;
-            box-shadow: 0 0 50px rgba(255,255,255,0.05);
-            animation: dogsPulse 2s infinite ease-in-out;
+            width: 92%; max-width: 500px; 
+            aspect-ratio: 21 / 9; /* Tam yatay geniş format */
+            border-radius: 18px; object-fit: cover; margin-bottom: 35px;
+            box-shadow: 0 10px 40px rgba(255,255,255,0.03);
+            animation: dogsFloat 3s infinite ease-in-out;
         }
 
-        @keyframes dogsPulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.02); opacity: 1; }
+        @keyframes dogsFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.01); }
         }
 
-        .loader-title { font-size: 28px; font-weight: 900; margin-bottom: 4px; letter-spacing: -1px; }
-        .loader-sub { color: #555; font-size: 14px; margin-bottom: 40px; font-weight: 600; }
+        .loader-title { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 2px; }
+        .loader-sub { color: #444; font-size: 14px; margin-bottom: 40px; font-weight: 700; }
 
-        .stat-list { width: 300px; }
+        .stat-box { width: 310px; }
         .stat-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 18px 0; border-bottom: 1px solid #111;
-            opacity: 0; transform: translateY(10px);
-            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            opacity: 0; transform: translateX(-10px);
+            transition: 0.5s ease-out;
         }
-        .stat-row.active { opacity: 1; transform: translateY(0); }
-        .stat-label { color: #888; font-size: 13px; font-weight: 700; text-transform: uppercase; }
-        .stat-value { color: #fff; font-weight: 900; font-style: italic; font-size: 16px; }
+        .stat-row.active { opacity: 1; transform: translateX(0); }
+        .stat-label { color: #777; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { color: #fff; font-weight: 900; font-size: 16px; }
 
-        /* --- MAIN APP UI --- */
-        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s ease; }
+        /* --- ANA EKRAN --- */
+        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transform: scale(0.95); transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
+        #main-app.show { display: block; opacity: 1; transform: scale(1); }
         
-        .hero-header {
-            padding: 40px 20px; text-align: center;
-            background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
+        .profile-header {
+            padding: 50px 20px 30px; text-align: center;
+            background: linear-gradient(180deg, #080808 0%, #000 100%);
         }
-        .main-img {
-            width: 100px; height: 100px; border-radius: 35px; margin: 0 auto 20px;
-            border: 4px solid #151515; object-fit: cover;
+        .avatar-main {
+            width: 110px; height: 110px; border-radius: 38px; margin: 0 auto 20px;
+            border: 4px solid #1a1a1a; object-fit: cover;
         }
-        .bal-val { font-size: 80px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 8px; }
+        .bal-text { font-size: 85px; font-weight: 900; letter-spacing: -5px; line-height: 1; margin-bottom: 10px; }
         
-        /* CEX Grid */
-        .cex-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
-        .cex-item {
-            background: #080808; border: 1px solid #151515; border-radius: 24px;
-            padding: 22px 10px; text-align: center; transition: 0.3s;
+        /* CEX Kartları */
+        .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
+        .cex-btn {
+            background: #0a0a0a; border: 1px solid #161616; border-radius: 25px;
+            padding: 25px 5px; text-align: center; transition: 0.3s;
         }
-        .cex-item img { width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 12px; }
-        .cex-item span { font-size: 9px; font-weight: 900; color: #444; }
-        .cex-item.selected { border-color: #007aff; background: #001224; }
-        .cex-item.selected span { color: #007aff; }
+        .cex-btn img { width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 12px; }
+        .cex-btn span { font-size: 9px; font-weight: 900; color: #444; letter-spacing: 1px; }
+        .cex-btn.active { border-color: #007aff; background: rgba(0,122,255,0.05); }
+        .cex-btn.active span { color: #007aff; }
 
         .btn-action { 
-            background: #fff; color: #000; width: calc(100% - 40px); margin: 0 20px 15px;
+            background: #fff; color: #000; width: calc(100% - 40px); margin: 0 20px 10px;
             padding: 20px; border-radius: 22px; font-weight: 900; font-size: 16px;
         }
     </style>
@@ -80,38 +81,38 @@
 <body>
 
     <div id="loader-screen">
-        <img src="babykoalas.jpg" class="baby-banner" onerror="this.src='https://via.placeholder.com/600x250?text=Baby+Koalas'">
+        <img src="babykoalas.jpg" class="baby-banner" onerror="this.src='https://via.placeholder.com/600x250?text=Baby+Koala+Banner'">
         <h1 class="loader-title">Who are you?</h1>
-        <p class="loader-sub">Checking your account data...</p>
+        <p class="loader-sub">Checking your Telegram status...</p>
 
-        <div class="stat-list">
-            <div id="r1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="v1">...</span></div>
-            <div id="r2" class="stat-row"><span class="stat-label">Telegram Premium</span><span class="stat-value" id="v2">...</span></div>
-            <div id="r3" class="stat-row"><span class="stat-label">Koala Tier</span><span class="stat-value" id="v3">...</span></div>
+        <div class="stat-box">
+            <div id="l1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="s1">...</span></div>
+            <div id="l2" class="stat-row"><span class="stat-label">Premium Status</span><span class="stat-value" id="s2">...</span></div>
+            <div id="l3" class="stat-row"><span class="stat-label">User Quality</span><span class="stat-value" id="s3">...</span></div>
         </div>
     </div>
 
     <div id="main-app">
-        <div class="hero-header">
-            <img src="koalas.jpg" class="main-img" onerror="this.src='https://via.placeholder.com/100?text=Koalas'">
-            <h2 id="total-bal" class="bal-val">0</h2>
-            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase italic">KOALA BALANCE</p>
+        <div class="profile-header">
+            <img src="koalas.jpg" class="avatar-main" onerror="this.src='https://via.placeholder.com/150?text=Koala'">
+            <h2 id="user-bal" class="bal-text">0</h2>
+            <p class="text-zinc-600 font-black text-[10px] tracking-[5px] uppercase italic">YOUR ALLOCATION</p>
         </div>
 
-        <button onclick="addBonus()" class="btn-action">CLAIM DAILY BONUS</button>
+        <button onclick="addBonus()" class="btn-action">EARN EXTRA KOALA</button>
         
-        <div class="mt-8">
-            <p class="px-8 mb-4 text-[10px] font-black text-zinc-700 tracking-widest uppercase text-center">Select Partner Exchange</p>
-            <div class="cex-container">
-                <div class="cex-item" onclick="pickCex(this, 'Binance')">
+        <div class="mt-10">
+            <p class="text-center mb-5 text-[10px] font-black text-zinc-700 tracking-[3px] uppercase">Select Your Exchange</p>
+            <div class="cex-grid">
+                <div class="cex-btn" onclick="selectEx(this)">
                     <img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'">
                     <span>BINANCE</span>
                 </div>
-                <div class="cex-item" onclick="pickCex(this, 'OKX')">
+                <div class="cex-btn" onclick="selectEx(this)">
                     <img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'">
                     <span>OKX</span>
                 </div>
-                <div class="cex-item" onclick="pickCex(this, 'Bitget')">
+                <div class="cex-btn" onclick="selectEx(this)">
                     <img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'">
                     <span>BITGET</span>
                 </div>
@@ -120,75 +121,77 @@
     </div>
 
     <script>
-        let balance = 0;
+        // --- TAKILMAYI ÖNLEYEN MOTOR ---
+        async function initProcess() {
+            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        // --- TAKILMAYI ÖNLEYEN AKIŞ ---
-        async function startChecking() {
-            const sleep = ms => new Promise(res => setTimeout(res, ms));
+            // Başladıktan 1 saniye sonra ilk veri
+            await wait(1200);
+            updateRow('l1', 's1', '4.9 YEARS');
 
-            try {
-                // Adım 1
-                await sleep(1500);
-                showRow('r1', 'v1', '5.2 YEARS');
+            // 2 saniye sonra ikinci veri
+            await wait(1800);
+            updateRow('l2', 's2', 'ACTIVE');
 
-                // Adım 2
-                await sleep(1800);
-                showRow('r2', 'v2', 'YES');
+            // 2 saniye sonra üçüncü veri
+            await wait(1800);
+            updateRow('l3', 's3', 'HIGH');
 
-                // Adım 3
-                await sleep(1800);
-                showRow('r3', 'v3', 'GOLDEN');
-
-                // Geçiş Hazırlığı
-                await sleep(1500);
-                
-                // Final Geçiş
-                switchUI();
-            } catch (err) {
-                // Hata olursa bile geçişi zorla
-                switchUI();
-            }
+            // Final hazırlığı
+            await wait(1500);
+            launchApp();
         }
 
-        function showRow(rowId, valId, text) {
+        function updateRow(rowId, spanId, text) {
             const row = document.getElementById(rowId);
-            const val = document.getElementById(valId);
-            if(row && val) {
+            const span = document.getElementById(spanId);
+            if(row && span) {
                 row.classList.add('active');
                 setTimeout(() => {
-                    val.innerText = text;
-                    val.style.color = "#007aff";
+                    span.innerText = text;
+                    span.style.color = "#007aff";
                 }, 300);
             }
         }
 
-        function switchUI() {
+        function launchApp() {
             const loader = document.getElementById('loader-screen');
             const app = document.getElementById('main-app');
             
-            balance = Math.floor(Math.random() * 7000) + 3000;
-            document.getElementById('total-bal').innerText = balance.toLocaleString();
+            // Rastgele bakiye üret
+            const finalBal = Math.floor(Math.random() * 8500) + 1500;
+            document.getElementById('user-bal').innerText = finalBal.toLocaleString();
 
+            // Geçiş animasyonu
             loader.style.opacity = '0';
+            loader.style.transform = 'translateY(-20px)';
+            
             setTimeout(() => {
                 loader.style.display = 'none';
-                app.style.display = 'block';
-                setTimeout(() => app.style.opacity = '1', 50);
-            }, 500);
+                app.classList.add('show');
+            }, 600);
         }
 
-        function pickCex(el, name) {
-            document.querySelectorAll('.cex-item').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
+        function selectEx(el) {
+            document.querySelectorAll('.cex-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
         }
 
         function addBonus() {
-            balance += 10;
-            document.getElementById('total-bal').innerText = balance.toLocaleString();
+            let b = document.getElementById('user-bal');
+            let current = parseInt(b.innerText.replace(/,/g, ''));
+            b.innerText = (current + 1).toLocaleString();
         }
 
-        // Başlatıcı
-        window.onload = startChecking;
+        // HER ŞEYİ BAŞLAT
+        window.onload = initProcess;
+
+        // GÜVENLİK: Eğer 9 saniye içinde geçiş olmazsa zorla geç (Takılma koruması)
+        setTimeout(() => {
+            if(document.getElementById('loader-screen').style.display !== 'none') {
+                launchApp();
+            }
+        }, 9000);
 
     </script>
 </body>
