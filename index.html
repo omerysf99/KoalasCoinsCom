@@ -3,117 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | OFFICIAL</title>
+    <title>KOALA ARCADE | NEON EDITION</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #0c0c0c; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; animation: dogsIn 0.4s ease; }
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@400;700;900&display=swap');
+
+        :root {
+            --neon-green: #39ff14;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+            --card-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+        }
+
+        body { 
+            background: var(--bg-dark); 
+            color: #fff; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+        }
+
+        /* Başlık Fontu */
+        .sync { font-family: 'Syncopate', sans-serif; }
+
+        .page { 
+            display: none; flex: 1; flex-direction: column; 
+            padding: 30px 20px 120px; 
+            overflow-y: auto; 
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
         .page.active { display: flex; }
-        @keyframes dogsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes slideIn {
+            from { opacity: 0; filter: blur(10px); transform: scale(0.95); }
+            to { opacity: 1; filter: blur(0); transform: scale(1); }
+        }
+
+        /* Neon Kartlar */
+        .neon-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .neon-card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg); transition: 0.5s;
+        }
+
+        /* Checking Animasyonu */
+        .check-line {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px; background: rgba(255,255,255,0.02);
+            border-radius: 20px; margin-bottom: 10px;
+            border-left: 4px solid #222; transition: 0.3s;
+        }
+        .check-line.active { border-left-color: var(--neon-green); background: rgba(57, 255, 20, 0.05); }
         
-        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
-        .check-item.done { color: #fff; }
-        .spinner { width: 16px; height: 16px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner {
+            width: 20px; height: 20px; border: 3px solid #333;
+            border-top-color: var(--neon-green); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .check-icon { display: none; color: #fff; }
-        .check-item.done .check-icon { display: block; }
-        .check-item.done .spinner { display: none; }
 
-        .koala-box { width: 180px; height: 180px; background: #fff; border-radius: 45px; margin: 15px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-        .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
-        .card { background: var(--card); border: 1px solid #1a1a1a; padding: 18px; border-radius: 24px; margin-bottom: 12px; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
-        
-        .roadmap-container { padding: 5px 10px; }
-        .roadmap-item { position: relative; padding-left: 30px; border-left: 2px solid #222; padding-bottom: 25px; }
-        .roadmap-item:last-child { border-left: 0; }
-        .roadmap-item::before { content: ''; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; background: #222; border-radius: 50%; }
-        .roadmap-item.active { border-left-color: #fff; }
-        .roadmap-item.active::before { background: #fff; box-shadow: 0 0 10px #fff; }
+        /* Ana Görsel */
+        .hero-img {
+            width: 220px; height: 220px; margin: 20px auto;
+            border-radius: 60px; position: relative;
+            padding: 10px; background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            box-shadow: 0 0 50px rgba(57, 255, 20, 0.3);
+        }
+        .hero-img img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            border-radius: 50px; background: #000;
+        }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
-        .nav-item.active { color: #fff; }
+        /* Butonlar */
+        .btn-neon {
+            background: #fff; color: #000;
+            padding: 20px; border-radius: 25px;
+            font-weight: 900; text-align: center;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-neon:active { transform: scale(0.95); filter: brightness(0.8); }
+
+        /* Navigasyon */
+        .nav-glass {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            height: 85px; background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(25px); border-radius: 35px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; z-index: 1000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .nav-btn {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.3); transition: 0.3s;
+        }
+        .nav-btn.active { color: var(--neon-green); }
+        .nav-btn i { font-size: 22px; margin-bottom: 4px; }
+        .nav-btn span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
+
+        /* Roadmap Maddeleri */
+        .rm-step {
+            display: flex; gap: 20px; margin-bottom: 30px; position: relative;
+        }
+        .rm-dot {
+            width: 14px; height: 14px; background: #333; border-radius: 50%;
+            margin-top: 5px; z-index: 2;
+        }
+        .rm-step.done .rm-dot { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+        .rm-step::after {
+            content: ''; position: absolute; left: 6px; top: 20px;
+            width: 2px; height: 40px; background: #111; z-index: 1;
+        }
+        .rm-step:last-child::after { display: none; }
+
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-<div id="app" class="h-full flex flex-col">
-    <div id="p-check" class="page">
-        <h1 class="text-4xl font-black italic uppercase mt-10">Checking<br>Status</h1>
-        <div class="flex-1 mt-10">
-            <div id="c1" class="check-item"><span>Hesap Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c2" class="check-item"><span>Koala Gücü</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c3" class="check-item"><span>Referans Puanı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+<div id="app" class="h-full flex flex-col relative">
+
+    <div id="p-check" class="page active">
+        <h1 class="sync text-4xl font-bold mb-2 text-white">SYSTEM</h1>
+        <h1 class="sync text-4xl font-bold mb-10 text-zinc-700">SCANNING</h1>
+        
+        <div class="flex-1 space-y-4">
+            <div id="c1" class="check-line">
+                <span class="font-bold">TELEGRAM ACCOUNT</span>
+                <div class="status"><div class="spinner"></div><i class="fa-solid fa-circle-check text-white hidden"></i></div>
+            </div>
+            <div id="c2" class="check-line">
+                <span class="font-bold">KOALA POINTS</span>
+                <div class="status"><div class="spinner"></div><i class="fa-solid fa-circle-check text-white hidden"></i></div>
+            </div>
+            <div id="c3" class="check-line">
+                <span class="font-bold">SECURITY CLEARANCE</span>
+                <div class="status"><div class="spinner"></div><i class="fa-solid fa-circle-check text-white hidden"></i></div>
+            </div>
         </div>
-        <div onclick="startAnalysis()" id="btn-c" class="btn-main">Sistemi Analiz Et</div>
+
+        <div id="btn-start" onclick="runScan()" class="btn-neon">Analizi Başlat</div>
     </div>
 
     <div id="p-reward" class="page text-center justify-center">
-        <div class="koala-box mx-auto mb-6"><img src="coinkoala.jpg"></div>
-        <h1 id="gift-amt" class="text-6xl font-black italic mb-2">0</h1>
-        <p class="text-zinc-500 font-bold text-xs uppercase mb-12">$KOALA OG Bonusu</p>
-        <div onclick="toHome()" class="btn-main">Madenciliği Başlat</div>
+        <div class="hero-img"><img src="coinkoala.jpg"></div>
+        <p class="sync text-xs text-zinc-500 mb-2 uppercase tracking-widest">Initial Reward</p>
+        <h1 id="gift-val" class="sync text-6xl font-bold mb-12">0</h1>
+        <div onclick="enterApp()" class="btn-neon">Sisteme Giriş Yap</div>
     </div>
 
     <div id="p-home" class="page">
-        <div class="text-center mb-6">
-            <h2 id="bal-txt" class="text-6xl font-black italic mb-8">0.00</h2>
-            <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
+        <div class="text-center mt-6">
+            <h2 id="balance-ui" class="sync text-6xl font-bold mb-10 tracking-tighter">0.00</h2>
+            <div class="hero-img"><img src="coinkoala.jpg"></div>
         </div>
-        <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase text-center">Maden Hızı</p><p class="text-2xl font-black italic text-center">+128.50 PPH</p></div>
-        
-        <div class="card flex justify-between items-center" onclick="watchAd()">
-            <div><p class="font-black italic text-xs uppercase">Reklam İzle</p><p class="text-[9px] text-zinc-500 font-bold">ANINDA +1.00 $KOALA</p></div>
-            <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">KAZAN</div>
+
+        <div class="grid grid-cols-2 gap-4 mt-8">
+            <div class="neon-card text-center">
+                <p class="text-[10px] text-zinc-500 font-black uppercase">Statü</p>
+                <p class="text-lg font-bold text-white uppercase italic">OG Koala</p>
+            </div>
+            <div class="neon-card text-center">
+                <p class="text-[10px] text-zinc-500 font-black uppercase">PPH</p>
+                <p class="text-lg font-bold text-white italic">+128.50</p>
+            </div>
+        </div>
+
+        <div class="neon-card flex justify-between items-center mt-4 border-l-4 border-l-[#39ff14]" onclick="claimAd()">
+            <div>
+                <p class="sync text-[11px] text-white">AD REWARD</p>
+                <p class="text-[10px] text-zinc-500 font-bold uppercase">Anında +1.00 $KOALA</p>
+            </div>
+            <div class="bg-white text-black px-5 py-2 rounded-2xl font-black text-[11px] tracking-tighter">CLAIM</div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-6">Referanslar</h2>
-        <div class="card text-center py-8">
-            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Davet Başına</p>
-            <h3 class="text-3xl font-black italic uppercase">+10,000 $KOALA</h3>
+        <h2 class="sync text-3xl font-bold mb-10">FRIENDS</h2>
+        <div class="neon-card bg-gradient-to-br from-[#39ff14]/10 to-transparent py-10 text-center">
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Referral Bonus</p>
+            <h3 class="sync text-4xl text-white">+10,000</h3>
         </div>
-        <div id="ref-list" class="flex-1 space-y-2 mt-4 overflow-y-auto"></div>
-        <div onclick="copyRef()" class="btn-main mt-4">Arkadaşlarını Davet Et</div>
+        
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 mt-6 tracking-widest">Referral List</h3>
+        <div id="ref-container" class="space-y-2 flex-1 overflow-y-auto pr-2"></div>
+        
+        <div onclick="copyRefLink()" class="btn-neon mt-4">Referans Linki</div>
     </div>
 
     <div id="p-airdrop" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-8">Airdrop</h2>
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1">Borsa Seçimi</h3>
-        <div id="ex-list" class="space-y-3 mb-10">
-            <div class="card flex items-center gap-4" onclick="saveEx('Binance')"><img src="binance.jpg" class="w-10 h-10 rounded-lg grayscale"><p class="font-black italic uppercase">Binance</p></div>
-            <div class="card flex items-center gap-4" onclick="saveEx('OKX')"><img src="okx.jpg" class="w-10 h-10 rounded-lg grayscale"><p class="font-black italic uppercase">OKX</p></div>
-        </div>
-        <div id="ex-done" class="hidden card text-center py-6 mb-10 border-white/40">
-            <h4 id="sel-name" class="text-2xl font-black italic uppercase">None</h4>
-            <p onclick="resetEx()" class="text-[10px] underline mt-3 opacity-30">Borsayı Güncelle</p>
+        <h2 class="sync text-3xl font-bold mb-8">AIRDROP</h2>
+        
+        <div id="exchange-selector" class="space-y-3 mb-12">
+            <div class="neon-card flex items-center gap-5" onclick="selectEx('Binance')">
+                <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5"><i class="fa-solid fa-building-columns"></i></div>
+                <p class="sync text-sm">BINANCE</p>
+            </div>
+            <div class="neon-card flex items-center gap-5" onclick="selectEx('OKX')">
+                <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5"><i class="fa-solid fa-cube"></i></div>
+                <p class="sync text-sm">OKX</p>
+            </div>
         </div>
 
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-6 ml-1 tracking-widest">Koala Yol Haritası</h3>
-        <div class="roadmap-container">
-            <div class="roadmap-item active"><p class="font-black italic text-xs uppercase">1. Madencilik Dönemi</p><p class="text-[10px] text-zinc-500">Topluluğun büyümesi ve $KOALA kazımı.</p></div>
-            <div class="roadmap-item"><p class="font-black italic text-xs uppercase">2. Borsa Doğrulaması</p><p class="text-[10px] text-zinc-500">Seçilen borsalar ile entegrasyon.</p></div>
-            <div class="roadmap-item"><p class="font-black italic text-xs uppercase">3. TGE ve Listeleme</p><p class="text-[10px] text-zinc-500">Token üretimi ve borsa listelemeleri.</p></div>
-            <div class="roadmap-item"><p class="font-black italic text-xs uppercase">4. Airdrop Dağıtımı</p><p class="text-[10px] text-zinc-500">Puanların cüzdanlara transferi.</p></div>
+        <div id="exchange-fixed" class="hidden neon-card py-8 text-center border-white/20">
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-1">Target Exchange</p>
+            <h4 id="target-name" class="sync text-2xl text-white">None</h4>
+            <p onclick="resetEx()" class="text-[10px] text-zinc-700 underline mt-4 cursor-pointer uppercase font-black">Change</p>
+        </div>
+
+        <h2 class="sync text-xl font-bold mb-8 mt-4 text-zinc-500">ROADMAP</h2>
+        <div class="roadmap-container px-2">
+            <div class="rm-step done">
+                <div class="rm-dot"></div>
+                <div><p class="sync text-xs">Phase 01</p><p class="text-[10px] text-zinc-600 font-bold uppercase">Mining & Community Building</p></div>
+            </div>
+            <div class="rm-step">
+                <div class="rm-dot"></div>
+                <div><p class="sync text-xs">Phase 02</p><p class="text-[10px] text-zinc-600 font-bold uppercase">Exchange Integrations</p></div>
+            </div>
+            <div class="rm-step">
+                <div class="rm-dot"></div>
+                <div><p class="sync text-xs">Phase 03</p><p class="text-[10px] text-zinc-600 font-bold uppercase">Token Generation Event</p></div>
+            </div>
+            <div class="rm-step">
+                <div class="rm-dot"></div>
+                <div><p class="sync text-xs">Phase 04</p><p class="text-[10px] text-zinc-600 font-bold uppercase">Airdrop Distribution</p></div>
+            </div>
         </div>
     </div>
 
-    <nav class="nav-bar" id="navbar" style="display:none">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>Maden</span></div>
-        <div class="nav-item" onclick="nav('ref', this)"><i class="fa-solid fa-users"></i><span>Ref</span></div>
-        <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+    <nav id="bottom-nav" class="nav-glass" style="display:none">
+        <div class="nav-btn active" onclick="navigate('home', this)"><i class="fa-solid fa-house-chimney"></i><span>Home</span></div>
+        <div class="nav-btn" onclick="navigate('ref', this)"><i class="fa-solid fa-user-group"></i><span>Friends</span></div>
+        <div class="nav-btn" onclick="navigate('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 </div>
 
 <script>
+    // Firebase Setup
     const firebaseConfig = {
         apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
         authDomain: "koalascombom.firebaseapp.com",
@@ -125,76 +278,108 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('k_id') || 'u' + Math.random().toString(36).substr(2, 7);
-    localStorage.setItem('k_id', uid);
+    // User State
+    let userId = localStorage.getItem('koala_id') || 'K' + Math.floor(Math.random()*899999+100000);
+    localStorage.setItem('koala_id', userId);
 
-    let u = { bal: 0, lu: Date.now(), ex: '', refs: [], cd: false };
+    let user = {
+        balance: 0,
+        refList: [],
+        exchange: '',
+        isOld: false
+    };
 
-    async function init() {
-        const doc = await db.collection("users").doc(uid).get();
-        if (doc.exists) {
-            u = { ...u, ...doc.data() };
-            if (u.cd) {
-                const gap = (Date.now() - u.lu) / 1000;
-                u.bal += (128.50 / 3600) * gap;
-                show('home'); document.getElementById('navbar').style.display = 'flex';
-            } else { show('check'); }
-        } else { show('check'); }
-        updateUI(); loop();
+    async function bootstrap() {
+        const snap = await db.collection("users").doc(userId).get();
+        if(snap.exists) {
+            user = {...user, ...snap.data()};
+            if(user.isOld) {
+                switchPage('home');
+                document.getElementById('bottom-nav').style.display = 'flex';
+            }
+        }
+        render();
     }
 
-    function startAnalysis() {
-        document.getElementById('btn-c').style.display = 'none';
-        ['c1', 'c2', 'c3'].forEach((c, i) => {
+    function runScan() {
+        document.getElementById('btn-start').style.display = 'none';
+        const lines = ['c1', 'c2', 'c3'];
+        lines.forEach((id, i) => {
             setTimeout(() => {
-                document.getElementById(c).classList.add('done');
+                const el = document.getElementById(id);
+                el.classList.add('active');
+                el.querySelector('.spinner').style.display = 'none';
+                el.querySelector('i').classList.remove('hidden');
                 if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 8000) + 2000;
-                    u.bal += bonus;
-                    document.getElementById('gift-amt').innerText = bonus.toLocaleString();
-                    setTimeout(() => show('reward'), 1000);
+                    const startBonus = Math.floor(Math.random() * 5000) + 1000;
+                    user.balance += startBonus;
+                    document.getElementById('gift-val').innerText = startBonus.toLocaleString();
+                    setTimeout(() => switchPage('reward'), 800);
                 }
             }, (i+1) * 1500);
         });
     }
 
-    function toHome() {
-        u.cd = true; u.lu = Date.now(); sync();
-        show('home'); document.getElementById('navbar').style.display = 'flex';
+    function enterApp() {
+        user.isOld = true;
+        save();
+        switchPage('home');
+        document.getElementById('bottom-nav').style.display = 'flex';
     }
 
-    function loop() {
-        setInterval(() => {
-            if(!u.cd) return;
-            u.bal += (128.50 / 3600); u.lu = Date.now();
-            document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }, 1000);
-        setInterval(() => { if(u.cd) sync(); }, 15000);
+    function claimAd() {
+        user.balance += 1.00;
+        save();
+        render();
+        alert("Success! +1.00 Koala added.");
     }
 
-    function watchAd() {
-        // Reklam izleme başarılı simülasyonu
-        u.bal += 1.00;
-        sync();
-        alert("Harika! 1.00 $KOALA bakiyene eklendi.");
+    function selectEx(name) { user.exchange = name; save(); render(); }
+    function resetEx() { user.exchange = ''; save(); render(); }
+    
+    function copyRefLink() {
+        const link = window.location.origin + "?ref=" + userId;
+        navigator.clipboard.writeText(link);
+        alert("Referral link copied!");
     }
 
-    function saveEx(n) { u.ex = n; sync(); updateUI(); }
-    function resetEx() { u.ex = ''; sync(); updateUI(); }
-    function copyRef() { navigator.clipboard.writeText(window.location.origin + '?ref=' + uid); alert("Link Kopyalandı!"); }
+    function render() {
+        document.getElementById('balance-ui').innerText = user.balance.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        
+        if(user.exchange) {
+            document.getElementById('exchange-selector').classList.add('hidden');
+            document.getElementById('exchange-fixed').classList.remove('hidden');
+            document.getElementById('target-name').innerText = user.exchange;
+        } else {
+            document.getElementById('exchange-selector').classList.remove('hidden');
+            document.getElementById('exchange-fixed').classList.add('hidden');
+        }
 
-    function updateUI() {
-        if(u.ex) { document.getElementById('ex-list').classList.add('hidden'); document.getElementById('ex-done').classList.remove('hidden'); document.getElementById('sel-name').innerText = u.ex; }
-        else { document.getElementById('ex-list').classList.remove('hidden'); document.getElementById('ex-done').classList.add('hidden'); }
-        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 text-[10px] opacity-40">Ref ID: ${r}</div>`; });
-        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 opacity-20 text-[10px]">Henüz referansınız bulunmuyor</p>';
+        let refHtml = '';
+        user.refList.forEach(id => {
+            refHtml += `<div class="neon-card !py-3 !px-5 flex justify-between items-center">
+                <span class="text-[10px] font-black text-zinc-500 tracking-tighter">USER ID: ${id}</span>
+                <span class="text-[10px] font-bold text-[#39ff14]">+10,000</span>
+            </div>`;
+        });
+        document.getElementById('ref-container').innerHTML = refHtml || '<p class="text-center py-10 text-[10px] text-zinc-800 font-black uppercase">No friends yet</p>';
     }
 
-    async function sync() { await db.collection("users").doc(uid).set(u); }
-    function show(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('p-' + id).classList.add('active'); }
-    function nav(id, el) { show(id); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+    async function save() { await db.collection("users").doc(userId).set(user); }
 
-    window.onload = init;
+    function switchPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+    }
+
+    function navigate(id, el) {
+        switchPage(id);
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    window.onload = bootstrap;
 </script>
+
 </body>
 </html>
