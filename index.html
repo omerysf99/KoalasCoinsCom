@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE ELITE</title>
+    <title>KOALA ARCADE PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
@@ -19,52 +19,53 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bal-display { font-size: 48px; font-weight: 900; letter-spacing: -2px; text-align: center; margin: 10px 0; }
+        .bal-display { font-size: 48px; font-weight: 900; letter-spacing: -2px; text-align: center; margin: 5px 0; }
+        
+        /* GÖRSEL STİLLERİ */
+        .hero-img { width: 100%; max-width: 280px; height: 200px; object-fit: cover; border-radius: 30px; margin: 0 auto 15px; border: 1px solid var(--border); display: block; }
+        .drop-img { width: 100%; height: 180px; object-fit: cover; border-radius: 25px; margin-bottom: 20px; border: 1px solid #222; }
+
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 
         /* --- GAME HUB --- */
         .game-card { background: linear-gradient(135deg, #111, #050505); border: 1px solid var(--border); border-radius: 28px; padding: 25px; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 15px; }
         .game-icon { width: 60px; height: 60px; background: #1a1a1a; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 15px; border: 1px solid #222; }
 
-        /* --- NAV --- */
+        /* --- LARGE NAV --- */
         .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 10px 35px; z-index: 1000; height: 110px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; gap: 8px; }
         .nav-item i { font-size: 32px; }
         .nav-item span { font-size: 12px; font-weight: 900; text-transform: uppercase; }
         .nav-item.active { color: #fff; transform: translateY(-5px); transition: 0.3s; }
 
-        /* --- FULLSCREEN OVERLAY --- */
-        .game-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 40px 20px; flex-direction: column; align-items: center; overflow-y: auto; }
-        .close-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; z-index: 2100; }
-        
+        /* --- OVERLAYS --- */
+        .game-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; padding: 40px 20px; flex-direction: column; align-items: center; }
+        .close-btn { position: absolute; top: 20px; left: 20px; font-size: 24px; }
         .bet-control { background: #0d0d0d; border: 1px solid #222; border-radius: 25px; padding: 20px; width: 100%; margin: 20px 0; }
-        .action-btn { width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; font-size: 18px; text-transform: uppercase; border: none; cursor: pointer; }
-        
-        /* Time Display */
+        .action-btn { width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; font-size: 18px; text-transform: uppercase; border: none; }
         #timer-display { font-size: 72px; font-weight: 900; margin: 30px 0; }
         .hidden-timer { color: transparent; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
-
-        /* Spin Animation */
-        .wheel-container { width: 250px; height: 250px; border: 5px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0, 1); }
     </style>
 </head>
 <body>
 
     <div id="app">
         <div id="home" class="page active">
-            <div class="text-center py-4">
+            <img src="babykoalas.jpg" alt="Koala" class="hero-img">
+            
+            <div class="text-center">
                 <div class="bal-display" id="total-bal">0</div>
-                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em]">$KOALA BALANCE</p>
+                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em] mb-6">$KOALA BALANCE</p>
             </div>
             
-            <div class="card bg-zinc-900/50 border-dashed border-zinc-700 mt-6" onclick="watchAd()">
+            <div class="card bg-zinc-900/50 border-dashed border-zinc-700" onclick="watchAd()">
                 <div class="w-14 h-14 bg-white text-black rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-bolt"></i></div>
-                <div class="flex-1"><p class="font-black text-sm">WATCH AD</p><p class="text-zinc-500 text-[10px]">+10 $KOALA</p></div>
+                <div class="flex-1"><p class="font-black text-sm uppercase">Watch Ads</p><p class="text-zinc-500 text-[10px]">+10 $KOALA</p></div>
             </div>
 
             <div id="task-1" class="card mt-2" onclick="verifyTask('task-1', 2500, 'https://t.me/KoalasCommunity')">
                 <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center text-2xl text-sky-400"><i class="fa-brands fa-telegram"></i></div>
-                <div class="flex-1"><p class="font-black text-sm">TELEGRAM</p><p class="text-green-500 text-[10px]">+2,500 $KOALA</p></div>
+                <div class="flex-1"><p class="font-black text-sm uppercase">Telegram</p><p class="text-green-500 text-[10px]">+2,500 $KOALA</p></div>
                 <button class="task-btn bg-white text-black font-black px-5 py-2 rounded-xl text-[10px]">START</button>
             </div>
         </div>
@@ -74,69 +75,45 @@
             <div class="game-card" onclick="openGame('plinko-ui')">
                 <div class="game-icon text-orange-500"><i class="fa-solid fa-circle-nodes"></i></div>
                 <h3 class="font-black text-lg uppercase">Plinko</h3>
-                <p class="text-zinc-500 text-[10px]">WIN UP TO 100X</p>
+                <p class="text-zinc-500 text-[10px]">JACKPOT CHANCE: %0.10</p>
             </div>
             <div class="game-card" onclick="openGame('time-ui')">
                 <div class="game-icon text-white"><i class="fa-solid fa-clock"></i></div>
                 <h3 class="font-black text-lg uppercase">Time Attack</h3>
-                <p class="text-zinc-500 text-[10px]">EXACT 10.00s (2X WIN)</p>
+                <p class="text-zinc-500 text-[10px]">BİLEK GÜCÜ (2X WIN)</p>
             </div>
             <div class="game-card" onclick="openGame('spin-ui')">
                 <div class="game-icon text-purple-500"><i class="fa-solid fa-dharmachakra"></i></div>
                 <h3 class="font-black text-lg uppercase">Lucky Spin</h3>
-                <p class="text-zinc-500 text-[10px]">0.10% JACKPOT CHANCE</p>
+                <p class="text-zinc-500 text-[10px]">WIN UP TO 50X</p>
             </div>
         </div>
 
         <div id="drop" class="page">
-            <h2 class="text-3xl font-black italic uppercase text-center mt-10 mb-6">Airdrop</h2>
-            <div class="bg-zinc-900 p-10 rounded-[40px] text-center">
-                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-5 text-center font-bold mb-6" placeholder="Wallet">
-                <button onclick="saveWallet()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect</button>
-            </div>
-        </div>
+            <h2 class="text-3xl font-black italic uppercase text-center mb-6">Airdrop</h2>
+            
+            <img src="koalas.jpg" alt="Airdrop Koala" class="drop-img">
 
-        <div id="plinko-ui" class="game-overlay">
-            <div onclick="closeGame()" class="close-btn"><i class="fa-solid fa-arrow-left"></i></div>
-            <h3 class="font-black uppercase text-zinc-500">Plinko Drop</h3>
-            <div id="plinko-board" class="h-64 flex items-center justify-center text-4xl text-zinc-800"><i class="fa-solid fa-mountain"></i></div>
-            <div class="bet-control">
-                <p class="text-center font-black text-xs text-zinc-500 mb-4">CHOOSE BET</p>
-                <div class="flex justify-center gap-4 mb-4"><span id="plinko-bet" class="text-3xl font-black">100</span></div>
-                <div class="flex justify-center gap-2">
-                    <button onclick="changeBet('plinko', 100)" class="bg-zinc-800 px-4 py-2 rounded-lg">100</button>
-                    <button onclick="changeBet('plinko', 500)" class="bg-zinc-800 px-4 py-2 rounded-lg">500</button>
-                    <button onclick="changeBet('plinko', 1000)" class="bg-zinc-800 px-4 py-2 rounded-lg">1000</button>
-                </div>
+            <div class="bg-zinc-900 p-8 rounded-[40px] text-center border border-zinc-800">
+                <p class="text-[10px] font-black text-zinc-500 uppercase mb-4 tracking-tighter">Connect your TON wallet for snapshot</p>
+                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-5 text-center font-bold mb-4" placeholder="UQ... Wallet Address">
+                <button onclick="saveWallet()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect Wallet</button>
             </div>
-            <button onclick="playPlinko()" class="action-btn bg-orange-500 text-white">Drop Ball</button>
         </div>
 
         <div id="time-ui" class="game-overlay">
             <div onclick="closeGame()" class="close-btn"><i class="fa-solid fa-arrow-left"></i></div>
-            <h3 class="font-black uppercase text-zinc-500">Target 10.00s</h3>
+            <h3 class="font-black uppercase text-zinc-500">Time Attack</h3>
             <div id="timer-display">00.00</div>
             <div class="bet-control">
-                <p class="text-center font-black text-xs text-zinc-500 mb-4">CHOOSE BET</p>
+                <p class="text-center font-black text-xs text-zinc-500 mb-2">STAKE $KOALA</p>
                 <div class="flex justify-center gap-4 mb-4"><span id="time-bet" class="text-3xl font-black">100</span></div>
                 <div class="flex justify-center gap-2">
-                    <button onclick="changeBet('time', 100)" class="bg-zinc-800 px-4 py-2 rounded-lg">100</button>
-                    <button onclick="changeBet('time', 500)" class="bg-zinc-800 px-4 py-2 rounded-lg">500</button>
+                    <button onclick="changeBet('time', 100)" class="bg-zinc-800 px-6 py-2 rounded-xl">100</button>
+                    <button onclick="changeBet('time', 1000)" class="bg-zinc-800 px-6 py-2 rounded-xl">1000</button>
                 </div>
             </div>
             <button id="time-btn" onclick="playTime()" class="action-btn bg-white text-black">Start</button>
-        </div>
-
-        <div id="spin-ui" class="game-overlay">
-            <div onclick="closeGame()" class="close-btn"><i class="fa-solid fa-arrow-left"></i></div>
-            <h3 class="font-black uppercase text-zinc-500">Lucky Spin</h3>
-            <div class="wheel-container" id="wheel"><i class="fa-solid fa-dharmachakra text-6xl"></i></div>
-            <div class="bet-control">
-                <p class="text-center font-black text-xs text-zinc-500 mb-4">CHOOSE BET</p>
-                <div class="flex justify-center gap-4 mb-4"><span id="spin-bet" class="text-3xl font-black">100</span></div>
-                <button onclick="changeBet('spin', 1000)" class="w-full bg-zinc-800 py-2 rounded-lg">1000 $KOALA</button>
-            </div>
-            <button onclick="playSpin()" class="action-btn bg-purple-600 text-white">Spin Wheel</button>
         </div>
 
         <nav class="nav">
@@ -148,7 +125,7 @@
 
     <script>
         let balance = parseInt(localStorage.getItem('k_bal')) || 10000;
-        let bets = { plinko: 100, time: 100, spin: 100 };
+        let bets = { time: 100 };
         let isPlaying = false;
         let timeStart, timeInt;
 
@@ -169,34 +146,15 @@
         function closeGame() { if(isPlaying) return; document.querySelectorAll('.game-overlay').forEach(x => x.style.display = 'none'); }
 
         function changeBet(game, val) {
-            if(isPlaying) return;
             bets[game] = val;
             document.getElementById(game+'-bet').innerText = val;
         }
 
-        // --- PLINKO (%0.10 100X) ---
-        function playPlinko() {
-            if(balance < bets.plinko) return alert("No money!");
-            balance -= bets.plinko; syncUI();
-            let rand = Math.random() * 100;
-            if(rand <= 0.10) {
-                let win = bets.plinko * 100; balance += win;
-                alert("JACKPOT! 100X: " + win);
-            } else if(rand <= 10) {
-                let win = Math.floor(bets.plinko * 1.5); balance += win;
-                alert("Nice! 1.5X: " + win);
-            } else {
-                alert("Lost! Low multiplier.");
-            }
-            syncUI();
-        }
-
-        // --- TIME ATTACK (Skill) ---
         function playTime() {
             const btn = document.getElementById('time-btn');
             const disp = document.getElementById('timer-display');
             if(!isPlaying) {
-                if(balance < bets.time) return alert("No money!");
+                if(balance < bets.time) return alert("Not enough $KOALA!");
                 balance -= bets.time; syncUI(); isPlaying = true;
                 btn.innerText = "STOP!"; disp.classList.remove('hidden-timer');
                 timeStart = Date.now();
@@ -211,37 +169,15 @@
                 let final = ((Date.now() - timeStart) / 1000).toFixed(2);
                 disp.innerText = final;
                 if(final === "10.00") {
-                    balance += bets.time * 2; alert("LEGEND! 2X");
-                } else { alert("FAILED!"); }
+                    balance += bets.time * 2; alert("LEGENDARY! +"+(bets.time*2));
+                } else { alert("MISS! Target was 10.00"); }
                 btn.innerText = "Start"; syncUI();
             }
         }
 
-        // --- SPIN (%0.10 Jackpot) ---
-        function playSpin() {
-            if(balance < bets.spin) return alert("No money!");
-            balance -= bets.spin; syncUI();
-            const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${Math.random() * 2000 + 1000}deg)`;
-            setTimeout(() => {
-                let rand = Math.random() * 100;
-                if(rand <= 0.10) {
-                    balance += bets.spin * 50; alert("SPIN JACKPOT! 50X");
-                } else { alert("Try again!"); }
-                syncUI();
-            }, 4000);
-        }
-
-        function watchAd() {
-            window.showAdexora().then(() => { balance += 10; syncUI(); });
-        }
-
-        function verifyTask(id, rew, link) {
-            window.open(link, '_blank');
-            setTimeout(() => { balance += rew; syncUI(); }, 5000);
-        }
-
-        function saveWallet() { alert("Connected!"); }
+        function watchAd() { window.showAdexora().then(() => { balance += 10; syncUI(); }).catch(() => alert("No Ads")); }
+        function verifyTask(id, rew, link) { window.open(link, '_blank'); setTimeout(() => { balance += rew; syncUI(); }, 6000); }
+        function saveWallet() { alert("Wallet Connected!"); }
     </script>
 </body>
 </html>
