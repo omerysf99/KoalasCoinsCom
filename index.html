@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA - OFFICIAL TON CONNECT</title>
+    <title>KOALA ARCADE - DOGS EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -11,28 +11,24 @@
         
         body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- TON CONNECT MODAL (ORIJINAL UI) --- */
-        #ton-modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000;
-            display: none; align-items: flex-end; backdrop-filter: blur(8px);
+        /* --- CHECKING SCREEN --- */
+        #checking-screen {
+            position: fixed; inset: 0; background: #000; z-index: 100000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; text-align: center;
         }
-        #ton-modal {
-            width: 100%; background: #1c1c1e; border-top-left-radius: 24px; border-top-right-radius: 24px;
-            padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .wallet-item {
-            display: flex; align-items: center; background: #2c2c2e; padding: 14px 18px;
-            border-radius: 16px; margin-bottom: 12px; cursor: pointer;
-        }
-        .wallet-item:active { background: #3a3a3c; transform: scale(0.98); }
-        .wallet-logo { width: 40px; height: 40px; border-radius: 10px; margin-right: 15px; }
+        .koala-avatar { width: 130px; height: 130px; border-radius: 45px; margin-bottom: 50px; grayscale: 100%; border: 1px solid #1a1a1a; }
+        .scanner-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #fff; box-shadow: 0 0 15px #fff; animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        .check-row { display: flex; justify-content: space-between; width: 100%; max-width: 280px; margin-bottom: 25px; opacity: 0.1; transition: 0.5s; }
+        .check-row.active { opacity: 1; }
+        .check-label { font-size: 11px; font-weight: 900; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        .check-val { font-size: 11px; font-weight: 900; color: #fff; }
 
-        /* --- DASHBOARD --- */
+        /* --- MAIN UI --- */
         .balance-huge { font-size: 84px; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-        .dogs-card { background: #111; border-radius: 20px; padding: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        
-        .check-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #222; display: flex; items-center; justify-content: center; font-size: 10px; }
-        .check-icon.active { background: #fff; border-color: #fff; color: #000; }
+        .dogs-card { background: #111; border-radius: 24px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+        .dogs-card:active { background: #1a1a1a; transform: scale(0.97); }
 
         /* --- NAV --- */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 0 35px; }
@@ -41,50 +37,32 @@
 
         .page-content { display: none; height: 100%; overflow-y: auto; padding: 20px 20px 140px; }
         .active-page { display: flex; flex-direction: column; }
-        .btn-main { background: #fff; color: #000; font-weight: 900; width: 100%; padding: 20px; border-radius: 18px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div id="ton-modal-overlay" onclick="closeWalletModal()">
-        <div id="ton-modal" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-xl font-black">Connect Wallet</h3>
-                <i class="fa-solid fa-xmark text-zinc-500" onclick="closeWalletModal()"></i>
-            </div>
-            
-            <div class="wallet-item" onclick="linkWallet('Telegram Wallet', 'https://cryptologos.cc/logos/telegram-messenger-logo.png')">
-                <img src="https://cryptologos.cc/logos/telegram-messenger-logo.png" class="wallet-logo">
-                <div class="flex-1">
-                    <p class="font-black text-sm">Wallet on Telegram</p>
-                    <p class="text-[10px] text-zinc-500 font-bold">The official way to link</p>
-                </div>
-                <span class="bg-blue-600/10 text-blue-500 text-[9px] px-2 py-1 rounded font-black">POPULAR</span>
-            </div>
-
-            <div class="wallet-item" onclick="linkWallet('Tonkeeper', 'https://tonkeeper.com/assets/img/tonkeeper_logo.png')">
-                <img src="https://tonkeeper.com/assets/img/tonkeeper_logo.png" class="wallet-logo">
-                <div class="flex-1 font-black text-sm">Tonkeeper</div>
-                <i class="fa-solid fa-chevron-right text-zinc-700"></i>
-            </div>
-
-            <p class="text-center text-zinc-500 text-[10px] font-bold mt-4">By connecting, you agree to the Terms.</p>
+    <div id="checking-screen">
+        <div class="relative w-32 h-32 mb-10 overflow-hidden rounded-[40px]">
+            <img src="babykoalas.jpg" class="w-full h-full object-cover grayscale">
+            <div class="scanner-line"></div>
         </div>
+        <h2 class="text-xl font-black italic uppercase mb-10">Analysing your pack</h2>
+        <div class="check-row" id="c1"><span class="check-label">Account Seniority</span><span class="check-val">...</span></div>
+        <div class="check-row" id="c2"><span class="check-label">Activity Level</span><span class="check-val">...</span></div>
+        <div class="check-row" id="c3"><span class="check-label">Premium Bonus</span><span class="check-val">...</span></div>
     </div>
 
-    <div id="main-app">
+    <div id="main-app" class="hidden">
         
         <div id="page-home" class="page-content active-page">
             <div class="mt-16 mb-12 text-center">
-                <div class="balance-huge" id="balance-val">100</div>
-                <p class="text-zinc-500 font-black text-xs tracking-[0.3em] uppercase mt-4">$KOALA</p>
+                <div class="balance-huge" id="balance">0</div>
+                <p class="text-zinc-500 font-black text-xs tracking-widest uppercase mt-4">$KOALA</p>
             </div>
 
-            <h3 class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-4">Missions</h3>
-            
-            <div class="dogs-card" onclick="watchAd(this)">
+            <div class="dogs-card" onclick="playAd(this)">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center text-xl text-white"><i class="fa-solid fa-video"></i></div>
+                    <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fa-solid fa-play"></i></div>
                     <div>
                         <p class="font-black text-sm uppercase">Watch Ads</p>
                         <p class="text-zinc-600 text-[10px] font-bold">+1 $KOALA per video</p>
@@ -94,39 +72,29 @@
             </div>
         </div>
 
-        <div id="page-airdrop" class="page-content">
-            <h2 class="text-4xl font-black italic uppercase mt-10 mb-8">Airdrop</h2>
-            
-            <div class="bg-zinc-950 rounded-3xl p-6 mb-8 border border-zinc-900">
-                <div class="flex justify-between items-center py-4 border-b border-zinc-900">
-                    <span class="font-black text-xs uppercase">Account Verified</span>
-                    <div class="check-icon active"><i class="fa-solid fa-check"></i></div>
-                </div>
-                <div class="flex justify-between items-center py-4">
-                    <span class="font-black text-xs uppercase">Wallet Linked</span>
-                    <div id="wallet-check-icon" class="check-icon"><i class="fa-solid fa-check"></i></div>
-                </div>
-            </div>
-
-            <div id="wallet-btn-area">
-                <button class="btn-main" onclick="openWalletModal()">Connect Wallet</button>
-            </div>
-
-            <div id="connected-info" class="hidden text-center mt-6">
-                <div class="bg-zinc-900 p-5 rounded-3xl border border-zinc-800">
-                    <img id="active-logo" src="" class="w-12 h-12 mx-auto mb-4 rounded-xl">
-                    <p id="active-name" class="font-black text-sm uppercase mb-1"></p>
-                    <p id="addr" class="font-mono text-[10px] text-zinc-500 font-bold">UQ...</p>
-                    <button class="text-red-900 font-black text-[10px] uppercase mt-4" onclick="location.reload()">Disconnect</button>
-                </div>
+        <div id="page-games" class="page-content flex items-center justify-center text-center">
+            <div>
+                <i class="fa-solid fa-lock text-5xl text-zinc-900 mb-6"></i>
+                <h2 class="text-2xl font-black uppercase italic">Soon</h2>
+                <p class="text-zinc-600 font-bold text-sm px-10">Games will be unlocked after the snapshot.</p>
             </div>
         </div>
 
-        <div id="page-games" class="page-content flex items-center justify-center text-center">
-            <div>
-                <i class="fa-solid fa-hourglass-start text-4xl text-zinc-800 mb-4"></i>
-                <h2 class="text-xl font-black uppercase italic">Coming Soon</h2>
-                <p class="text-zinc-600 font-bold text-xs mt-1">Koala Games are in development.</p>
+        <div id="page-airdrop" class="page-content">
+            <h2 class="text-4xl font-black italic uppercase mt-10 mb-8">Airdrop</h2>
+            <div class="bg-zinc-950 rounded-[32px] p-6 border border-zinc-900">
+                <div class="flex justify-between items-center py-4 border-b border-zinc-900">
+                    <span class="font-black text-xs uppercase">OG Verification</span>
+                    <i class="fa-solid fa-check-circle text-white"></i>
+                </div>
+                <div class="flex justify-between items-center py-4">
+                    <span class="font-black text-xs uppercase">Activity Score</span>
+                    <span class="text-[10px] font-black uppercase bg-white text-black px-2 py-0.5 rounded">Elite</span>
+                </div>
+            </div>
+            <div class="mt-8 p-6 bg-zinc-900 rounded-[32px] text-center">
+                <p class="text-zinc-500 font-black text-[10px] uppercase mb-1">Listing Date</p>
+                <p class="font-black text-lg">Q1 2026</p>
             </div>
         </div>
 
@@ -138,49 +106,60 @@
     </div>
 
     <script>
-        let balance = 100;
+        let currentBalance = 0;
+        const reward = 4850; // Başlangıç ödülü
 
-        // --- WALLET MODAL ---
-        function openWalletModal() {
-            const overlay = document.getElementById('ton-modal-overlay');
-            overlay.style.display = 'flex';
-            setTimeout(() => document.getElementById('ton-modal').style.transform = 'translateY(0)', 10);
-            if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-        }
+        // --- CHECKING LOGIC ---
+        window.onload = () => {
+            const steps = [
+                {id: 'c1', val: '5.2 YEARS'},
+                {id: 'c2', val: 'LEGENDARY'},
+                {id: 'c3', val: 'ACTIVE'}
+            ];
 
-        function closeWalletModal() {
-            document.getElementById('ton-modal').style.transform = 'translateY(100%)';
-            setTimeout(() => document.getElementById('ton-modal-overlay').style.display = 'none', 300);
-        }
+            steps.forEach((s, i) => {
+                setTimeout(() => {
+                    const row = document.getElementById(s.id);
+                    row.classList.add('active');
+                    row.querySelector('.check-val').innerText = s.val;
+                    if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }, (i + 1) * 1500);
+            });
 
-        function linkWallet(name, logo) {
-            closeWalletModal();
-            const btn = document.querySelector('.btn-main');
-            btn.innerText = "LINKING...";
-            
             setTimeout(() => {
-                document.getElementById('wallet-btn-area').classList.add('hidden');
-                document.getElementById('connected-info').classList.remove('hidden');
-                document.getElementById('wallet-check-icon').classList.add('active');
-                document.getElementById('active-name').innerText = name;
-                document.getElementById('active-logo').src = logo;
-                document.getElementById('addr').innerText = "UQ" + Math.random().toString(36).substr(2, 10).toUpperCase();
-                if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }, 1200);
+                document.getElementById('checking-screen').style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+                animateBalance(reward);
+            }, 6000);
+        };
+
+        function animateBalance(target) {
+            let start = 0;
+            const el = document.getElementById('balance');
+            const timer = setInterval(() => {
+                start += Math.floor(target / 40);
+                if(start >= target) {
+                    currentBalance = target;
+                    el.innerText = currentBalance.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    el.innerText = start.toLocaleString();
+                }
+            }, 30);
         }
 
         // --- ADS LOGIC ---
-        function watchAd(el) {
-            const original = el.innerHTML;
-            el.innerHTML = `<div class="w-full text-center py-3 font-black text-xs uppercase animate-pulse">Watching Video...</div>`;
-            el.style.pointerEvents = "none";
+        function playAd(el) {
+            const inner = el.innerHTML;
+            el.innerHTML = `<div class="w-full text-center font-black text-xs uppercase py-3 italic">Playing Ad...</div>`;
+            el.style.pointerEvents = 'none';
 
             setTimeout(() => {
-                balance += 1;
-                document.getElementById('balance-val').innerText = balance;
-                el.innerHTML = original;
-                el.style.pointerEvents = "all";
-                if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                currentBalance += 1;
+                document.getElementById('balance').innerText = currentBalance.toLocaleString();
+                el.innerHTML = inner;
+                el.style.pointerEvents = 'all';
+                if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
             }, 2500);
         }
 
