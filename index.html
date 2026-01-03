@@ -3,344 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE - ELITE AGE CHECK</title>
+    <title>KOALA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
         
-        :root {
-            --bg: #000000;
-            --card: #0a0a0a;
-            --koala-gold: #fbbf24;
-            --border: #18181b;
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
+        body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; }
+
+        /* DEV GÖRSEL - DOGS TARZI */
+        .hero-section { width: 100%; display: flex; justify-content: center; padding: 20px 10px; }
+        .hero-img { 
+            width: 100%; max-width: 500px; height: 400px; 
+            object-fit: cover; border-radius: 40px;
+            box-shadow: 0 0 40px rgba(255,255,255,0.05);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Inter', sans-serif;
-            user-select: none;
+        /* DOGS STYLE CHECKING AREA */
+        .dogs-container { padding: 20px; text-align: center; }
+        .dogs-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+        .dogs-subtitle { color: #888; font-size: 14px; font-weight: 600; margin-bottom: 30px; }
+        
+        .checking-box {
+            background: #111; border-radius: 24px; padding: 40px 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 200px; border: 1px solid #222;
         }
 
-        body {
-            background-color: var(--bg);
-            color: #ffffff;
-            overflow: hidden;
-            height: 100vh;
+        /* LOADING ANIMATION (DOGS STYLE) */
+        .loader {
+            width: 48px; height: 48px; border: 5px solid #fff;
+            border-bottom-color: transparent; border-radius: 50%;
+            display: inline-block; animation: rotation 1s linear infinite;
         }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- DEV GÖRSEL SİSTEMİ --- */
-        .hero-wrapper {
-            width: 100%;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+        /* BUTTONS */
+        .btn-black { 
+            background: #fff; color: #000; width: 100%; padding: 18px; 
+            border-radius: 16px; font-weight: 800; font-size: 16px; 
+            transition: 0.2s; margin-top: 20px;
         }
+        .btn-black:active { transform: scale(0.98); opacity: 0.9; }
 
-        .hero-img {
-            width: 100%;
-            max-width: 600px;
-            height: 420px;
-            object-fit: cover;
-            border-radius: 60px;
-            border: 2px solid var(--border);
-            box-shadow: 0 0 100px rgba(251, 191, 36, 0.05);
-            animation: breathe 4s infinite ease-in-out;
+        /* NAVIGATION */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 90px;
+            background: #000; border-top: 1px solid #111;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            padding-bottom: 20px; z-index: 1000;
         }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; }
+        .nav-item.active { color: #fff; }
+        .nav-item i { font-size: 24px; margin-bottom: 4px; }
+        .nav-item span { font-size: 10px; font-weight: 700; }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.02); opacity: 1; }
-        }
-
-        /* --- SAYFA YÖNETİMİ --- */
-        .page {
-            display: none;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 20px 20px 160px;
-            animation: slideUp 0.4s ease-out;
-        }
-
+        .page { display: none; height: 100vh; overflow-y: auto; padding-bottom: 120px; }
         .page.active { display: block; }
 
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* --- AGE CHECK KARTI --- */
-        .check-card {
-            background: #0d0d0d;
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 40px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .scanner-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--koala-gold);
-            box-shadow: 0 0 20px var(--koala-gold);
-            display: none;
-            animation: scan 2s infinite linear;
-        }
-
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
-        }
-
-        /* --- CRASH OYUNU --- */
-        #crash-container {
-            height: 40vh;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-            border: 1px solid var(--border);
-            border-radius: 50px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 25px;
-        }
-
-        #mult-display {
-            font-size: 85px;
-            font-weight: 900;
-            z-index: 10;
-            letter-spacing: -4px;
-        }
-
-        #rocket-ship {
-            font-size: 60px;
-            position: absolute;
-            bottom: 20%;
-            transition: transform 0.1s linear;
-        }
-
-        /* --- NAV BAR --- */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 120px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            padding-bottom: 40px;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #444;
-            transition: 0.3s;
-        }
-
-        .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 28px; margin-bottom: 6px; }
-        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
-
-        .btn-universal {
-            width: 100%;
-            padding: 22px;
-            border-radius: 30px;
-            font-weight: 900;
-            font-size: 18px;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-
-        .balance-text {
-            font-size: 72px;
-            font-weight: 900;
-            letter-spacing: -5px;
-            text-align: center;
-            margin: 10px 0;
-        }
+        /* GAME */
+        #multiplier { font-size: 80px; font-weight: 900; margin: 40px 0; }
+        .crash-area { background: #0a0a0a; border: 1px solid #111; border-radius: 32px; height: 300px; display: flex; align-items: center; justify-content: center; position: relative; }
     </style>
 </head>
 <body>
 
-    <div id="main-app">
+    <div id="app">
         <div id="home" class="page active">
-            <div class="hero-wrapper">
-                <img src="babykoalas.jpg" class="hero-img" alt="Koala Hero">
+            <div class="hero-section">
+                <img src="babykoalas.jpg" class="hero-img">
             </div>
 
-            <div class="balance-text" id="user-balance">0</div>
-            <p class="text-zinc-600 font-black text-[10px] text-center uppercase tracking-[0.7em] mb-10">$KOALA BALANCE</p>
+            <div class="dogs-container">
+                <h1 class="dogs-title">Who is Koala?</h1>
+                <p class="dogs-subtitle">Checking your Telegram seniority...</p>
 
-            <div class="check-card" id="age-check-box">
-                <div class="scanner-line" id="line-anim"></div>
-                <div id="check-ui">
-                    <h3 class="text-xl font-black uppercase italic mb-2">Telegram Seniority</h3>
-                    <p class="text-zinc-500 text-xs font-bold mb-6">Analyze your account age to receive rewards.</p>
-                    <button onclick="runAgeAnalysis()" class="btn-universal bg-white text-black">Check My Age</button>
+                <div class="checking-box" id="main-check-box">
+                    <div id="check-initial">
+                        <i class="fa-brands fa-telegram text-5xl mb-6"></i>
+                        <button onclick="startDogsCheck()" class="btn-black">Check My Years</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="play" class="page">
-            <h2 class="text-2xl font-black italic uppercase text-center mb-6 tracking-tighter">Koala Flight</h2>
-            
-            <div id="crash-container">
-                <div id="mult-display">1.00x</div>
-                <div id="rocket-ship">🚀</div>
-            </div>
+        <div id="game" class="page">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-2xl font-black uppercase">Koala Run</h2>
+                    <div class="bg-white text-black px-4 py-1 rounded-full font-black" id="bal-display">0</div>
+                </div>
+                
+                <div class="crash-area" id="crash-box">
+                    <div id="multiplier">1.00x</div>
+                    <div id="rocket" style="position: absolute; bottom: 20%; font-size: 40px;">🚀</div>
+                </div>
 
-            <div class="flex gap-4 mb-6">
-                <button onclick="bet=100" class="flex-1 bg-zinc-900 border border-zinc-800 py-4 rounded-2xl font-black">100</button>
-                <button onclick="bet=1000" class="flex-1 bg-zinc-900 border border-zinc-800 py-4 rounded-2xl font-black">1000</button>
+                <button id="game-btn" onclick="handleGame()" class="btn-black">Launch</button>
             </div>
-
-            <button id="crash-btn" onclick="handleCrashGame()" class="btn-universal bg-white text-black">Launch Rocket</button>
         </div>
 
         <div id="drop" class="page">
-            <h2 class="text-4xl font-black italic uppercase text-center mb-8">Airdrop</h2>
-            <img src="coinkoala.jpg" class="w-full h-72 object-cover rounded-[60px] mb-8 border border-zinc-800 grayscale">
-            
-            <div class="bg-zinc-900/30 p-10 rounded-[50px] border border-zinc-800 text-center">
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-6 italic">Phase 1: Verification</p>
-                <button class="w-full bg-zinc-800 text-zinc-500 font-black py-5 rounded-2xl uppercase cursor-not-allowed">Wallet Connected</button>
+            <div class="p-6 text-center mt-20">
+                <img src="coinkoala.jpg" class="w-32 h-32 rounded-full mx-auto mb-6">
+                <h2 class="text-3xl font-black mb-2">Airdrop</h2>
+                <p class="text-zinc-500 font-bold mb-10">Connect your wallet to prepare for the snapshot.</p>
+                <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
+                    <p class="text-xs font-black text-zinc-400">STATUS: COMING SOON</p>
+                </div>
             </div>
         </div>
 
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="showPage('home', this)"><i class="fa-solid fa-id-card"></i><span>Check</span></div>
-            <div class="nav-item" onclick="showPage('play', this)"><i class="fa-solid fa-rocket"></i><span>Play</span></div>
-            <div class="nav-item" onclick="showPage('drop', this)"><i class="fa-solid fa-parachute-box"></i><span>Drop</span></div>
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-shield-dog"></i><span>Seniority</span></div>
+            <div class="nav-item" onclick="nav('game', this)"><i class="fa-solid fa-rocket"></i><span>Play</span></div>
+            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-wallet"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
-        // CORE STATE
         let balance = parseInt(localStorage.getItem('k_bal')) || 0;
         let isChecked = localStorage.getItem('k_checked') === 'true';
-        let bet = 100;
-        let isPlaying = false;
-        let gameTicker;
+        let isRunning = false;
+        let gameLoop;
 
         window.onload = () => {
-            refreshUI();
-            if(isChecked) renderCheckedState();
+            updateBal();
+            if(isChecked) renderFinalState(Math.floor(Math.random()*6)+3, 25000);
         };
 
-        function refreshUI() {
-            document.getElementById('user-balance').innerText = balance.toLocaleString();
+        function updateBal() {
+            document.getElementById('bal-display').innerText = balance.toLocaleString();
             localStorage.setItem('k_bal', balance);
         }
 
-        function showPage(pId, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pId).classList.add('active');
-            el.classList.add('active');
+        function nav(p, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active'); el.classList.add('active');
         }
 
-        // --- TELEGRAM AGE CHECK LOGIC ---
-        function runAgeAnalysis() {
-            const ui = document.getElementById('check-ui');
-            const scanner = document.getElementById('line-anim');
+        function startDogsCheck() {
+            const box = document.getElementById('main-check-box');
+            box.innerHTML = `<span class="loader"></span><p class="mt-4 font-bold text-zinc-500">Calculating your reward...</p>`;
             
-            scanner.style.display = 'block';
-            ui.innerHTML = `<p class="text-yellow-500 font-black animate-pulse uppercase tracking-widest">Scanning Telegram Data...</p>`;
-
             setTimeout(() => {
-                const years = Math.floor(Math.random() * 9) + 1; // 1-10 yıl
-                const reward = years * 12500;
+                const years = Math.floor(Math.random() * 8) + 2;
+                const reward = years * 7500;
                 balance += reward;
                 isChecked = true;
                 localStorage.setItem('k_checked', 'true');
-                
-                scanner.style.display = 'none';
-                renderCheckedState(years, reward);
-                refreshUI();
-            }, 3500);
+                renderFinalState(years, reward);
+                updateBal();
+            }, 3000);
         }
 
-        function renderCheckedState(years = 5, reward = 0) {
-            const ui = document.getElementById('check-ui');
-            ui.innerHTML = `
-                <div class="animate-bounce mb-2"><i class="fa-solid fa-award text-yellow-500 text-4xl"></i></div>
-                <h4 class="text-2xl font-black uppercase text-white">${years} Years on TG</h4>
-                <p class="text-[10px] font-bold text-zinc-500 mb-4">VERIFIED VETERAN STATUS</p>
-                <div class="bg-yellow-500 text-black py-3 rounded-2xl font-black text-sm uppercase">Claimed Success!</div>
+        function renderFinalState(years, reward) {
+            const box = document.getElementById('main-check-box');
+            box.innerHTML = `
+                <h2 class="text-5xl font-black mb-2">${years}</h2>
+                <p class="text-sm font-bold text-zinc-500 uppercase mb-6">Years on Telegram</p>
+                <div class="text-2xl font-black text-white">+${reward.toLocaleString()} $KOALA</div>
+                <p class="text-[10px] text-zinc-600 mt-2 font-black uppercase">Account Verified</p>
             `;
         }
 
-        // --- KOALA CRASH LOGIC (Bağımlılık Yapan) ---
-        function handleCrashGame() {
-            const btn = document.getElementById('crash-btn');
-            if(!isPlaying) {
-                if(balance < bet) return alert("Not enough $KOALA!");
-                
-                isPlaying = true;
-                balance -= bet;
-                refreshUI();
-                
-                let currentMult = 1.00;
-                // Bağımlılık Algoritması: Arada bir büyük kazandır, genelde erken patlat.
-                let luck = Math.random();
-                let crashAt = luck > 0.7 ? (Math.random() * 6 + 2).toFixed(2) : (Math.random() * 0.4 + 1.1).toFixed(2);
-                
+        // KOALA CRASH GAME (Bağımlılık Yapan)
+        function handleGame() {
+            const btn = document.getElementById('game-btn');
+            if(!isRunning) {
+                if(balance < 100) return alert("Low balance!");
+                isRunning = true; balance -= 100; updateBal();
+                let current = 1.00;
+                let crashAt = Math.random() > 0.6 ? (Math.random() * 5 + 1.2).toFixed(2) : (Math.random() * 0.3 + 1.05).toFixed(2);
                 btn.innerText = "CASH OUT";
-                btn.className = "btn-universal bg-yellow-500 text-black";
+                btn.style.backgroundColor = "#ffcc00";
 
-                gameTicker = setInterval(() => {
-                    currentMult += 0.03;
-                    document.getElementById('mult-display').innerText = currentMult.toFixed(2) + "x";
-                    document.getElementById('rocket-ship').style.transform = `translateY(-${(currentMult-1)*45}px)`;
-
-                    if(currentMult >= crashAt) {
-                        clearInterval(gameTicker);
-                        isPlaying = false;
-                        document.getElementById('mult-display').innerText = "BOOM!";
-                        document.getElementById('mult-display').style.color = "#ef4444";
-                        document.getElementById('rocket-ship').innerText = "💥";
-                        
-                        setTimeout(() => {
-                            btn.innerText = "Launch Rocket";
-                            btn.className = "btn-universal bg-white text-black";
-                            document.getElementById('mult-display').innerText = "1.00x";
-                            document.getElementById('mult-display').style.color = "#fff";
-                            document.getElementById('rocket-ship').innerText = "🚀";
-                            document.getElementById('rocket-ship').style.transform = "translateY(0)";
-                        }, 1000);
+                gameLoop = setInterval(() => {
+                    current += 0.04;
+                    document.getElementById('multiplier').innerText = current.toFixed(2) + "x";
+                    document.getElementById('rocket').style.transform = `translateY(-${(current-1)*40}px)`;
+                    if(current >= crashAt) {
+                        clearInterval(gameLoop);
+                        isRunning = false;
+                        document.getElementById('multiplier').innerText = "BOOM";
+                        btn.innerText = "Launch"; btn.style.backgroundColor = "#fff";
+                        setTimeout(() => { document.getElementById('multiplier').innerText = "1.00x"; document.getElementById('rocket').style.transform = "translateY(0)"; }, 1000);
                     }
-                }, 60);
+                }, 70);
             } else {
-                clearInterval(gameTicker);
-                isPlaying = false;
-                let finalMult = parseFloat(document.getElementById('mult-display').innerText);
-                let winAmount = Math.floor(bet * finalMult);
-                balance += winAmount;
-                refreshUI();
-                
-                alert(`CONGRATS! You won ${winAmount} $KOALA!`);
-                btn.innerText = "Launch Rocket";
-                btn.className = "btn-universal bg-white text-black";
-                document.getElementById('mult-display').innerText = "1.00x";
-                document.getElementById('rocket-ship').style.transform = "translateY(0)";
+                clearInterval(gameLoop);
+                isRunning = false;
+                let win = Math.floor(100 * parseFloat(document.getElementById('multiplier').innerText));
+                balance += win; updateBal();
+                btn.innerText = "Launch"; btn.style.backgroundColor = "#fff";
+                alert(`Won: ${win}`);
+                document.getElementById('multiplier').innerText = "1.00x";
+                document.getElementById('rocket').style.transform = "translateY(0)";
             }
         }
     </script>
