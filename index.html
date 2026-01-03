@@ -12,58 +12,38 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
         body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        /* --- CHECKING SCREEN --- */
+        /* --- ADVANCED CHECKING SCREEN --- */
         #checking-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between; padding: 60px 30px;
+            padding: 40px 24px;
         }
 
-        .loader-ring {
-            width: 45px; height: 45px; border: 4px solid #1a1a1a;
-            border-top: 4px solid #fff; border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .check-item {
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+            opacity: 0; transform: translateY(10px); transition: 0.5s ease forwards;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .check-item.active { opacity: 1; transform: translateY(0); }
+        .check-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #333; }
+        .check-dot.done { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
+
+        .progress-line { height: 2px; background: #1a1a1a; width: 100%; position: relative; overflow: hidden; border-radius: 10px; }
+        .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: #fff; width: 0%; transition: 0.3s; }
 
         /* --- DASHBOARD --- */
         #main-app { display: none; height: 100vh; }
-        
-        .hero-img { 
-            width: 100%; max-width: 320px; height: 240px; 
-            object-fit: cover; border-radius: 30px;
-            box-shadow: 0 0 30px rgba(255,255,255,0.05);
-            margin: 0 auto;
-        }
+        .hero-img { width: 100%; max-width: 320px; height: 220px; object-fit: cover; border-radius: 30px; margin: 0 auto; }
 
-        /* TASK UI */
-        .task-card {
-            background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 20px;
-            padding: 12px 18px; display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        /* --- ENHANCED CRASH UI --- */
+        /* --- CRASH UI --- */
         .crash-canvas { 
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
-            border: 2px solid #111; border-radius: 35px; 
-            height: 320px; display: flex; align-items: center; justify-content: center; 
+            background: #050505; border: 1px solid #111; border-radius: 35px; 
+            height: 300px; display: flex; align-items: center; justify-content: center; 
             position: relative; overflow: hidden;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
         }
-        
-        /* Dinamik Çizgi Efekti */
-        .grid-bg {
-            position: absolute; width: 200%; height: 200%;
-            background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px);
-            background-size: 40px 40px;
-            transform: rotate(-15deg);
-            z-index: 1; opacity: 0.3;
-        }
+        #multiplier { font-size: 80px; font-weight: 900; z-index: 10; font-variant-numeric: tabular-nums; }
+        #rocket { position: absolute; bottom: 15%; font-size: 50px; z-index: 10; }
 
-        #multiplier { font-size: 80px; font-weight: 900; z-index: 10; font-variant-numeric: tabular-nums; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        #rocket { position: absolute; bottom: 15%; font-size: 55px; z-index: 10; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transition: transform 0.1s ease-out; }
-
+        /* BUTTONS */
         .btn-dogs { 
             background: #fff; color: #000; width: 100%; padding: 18px; 
             border-radius: 18px; font-weight: 800; font-size: 16px; transition: 0.2s;
@@ -71,10 +51,8 @@
         .btn-dogs:active { transform: scale(0.97); }
 
         .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 95px;
-            background: #000; border-top: 1px solid #111;
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            padding-bottom: 25px;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #000; border-top: 1px solid #111;
+            display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 25px;
         }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; }
         .nav-item.active { color: #fff; }
@@ -82,79 +60,75 @@
         .page { display: none; height: 100vh; padding: 15px 20px 140px; overflow-y: auto; }
         .page.active { display: block; }
 
-        /* AD OVERLAY */
         #ad-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 10000; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; 
+            display: none; flex-direction: column; align-items: center; justify-content: center;
         }
     </style>
 </head>
 <body>
 
     <div id="ad-overlay">
-        <p class="text-zinc-500 text-xs font-black mb-4">REKLAM İZLENİYOR...</p>
-        <div class="loader-ring"></div>
-        <p id="ad-timer" class="mt-4 text-2xl font-black">15</p>
+        <p class="text-zinc-500 text-[10px] font-black mb-4 tracking-[0.3em]">REKLAM İZLENİYOR</p>
+        <div class="w-12 h-12 border-4 border-zinc-800 border-t-white rounded-full animate-spin"></div>
+        <p id="ad-timer" class="mt-6 text-4xl font-black">15</p>
     </div>
 
     <div id="checking-screen">
-        <div class="w-full flex flex-col items-center">
-            <i class="fa-solid fa-shield-dog text-7xl mb-6"></i>
-            <div id="check-content" class="w-full text-center">
-                <h1 class="text-3xl font-black mb-4 uppercase italic">Who is Koala?</h1>
-                <div id="analysis-box" class="hidden">
-                    <div class="flex justify-center mb-6"><div class="loader-ring"></div></div>
-                    <div id="log-status" class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Analiz Ediliyor...</div>
-                </div>
-                <div id="result-box" class="hidden">
-                    <h2 id="years-val" class="text-9xl font-black mb-0 tracking-tighter">0</h2>
-                    <p class="text-xl font-bold text-zinc-500 uppercase mb-8">Years on Telegram</p>
-                    <div class="text-2xl font-black text-white italic">+<span id="reward-val" class="text-yellow-500">0</span> $KOALA</div>
-                </div>
+        <div class="mt-10 mb-20 text-center">
+            <i class="fa-solid fa-shield-dog text-6xl mb-6"></i>
+            <h1 class="text-3xl font-black italic uppercase">Koala Verify</h1>
+        </div>
+
+        <div id="checklist-area" class="flex-grow">
+            <div class="check-item" id="c1">
+                <div class="check-dot" id="d1"></div>
+                <p class="text-sm font-bold text-zinc-400">Account age analysis...</p>
+            </div>
+            <div class="check-item" id="c2">
+                <div class="check-dot" id="d2"></div>
+                <p class="text-sm font-bold text-zinc-400">Activity level check...</p>
+            </div>
+            <div class="check-item" id="c3">
+                <div class="check-dot" id="d3"></div>
+                <p class="text-sm font-bold text-zinc-400">Veteran status verification...</p>
             </div>
         </div>
+
+        <div id="final-result" class="hidden text-center mb-10 animate-pulse">
+            <div class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-2">You are a legend!</div>
+            <h2 id="years-val" class="text-9xl font-black tracking-tighter">0</h2>
+            <p class="text-xl font-bold text-white uppercase italic">Years on Telegram</p>
+            <div class="mt-6 text-2xl font-black text-yellow-500">+<span id="reward-val">0</span> $KOALA</div>
+        </div>
+
         <div class="w-full">
-            <button onclick="startChecking()" id="start-btn" class="btn-dogs">Check Age</button>
-            <button onclick="finalizeChecking()" id="continue-btn" class="btn-dogs hidden">Continue</button>
+            <div class="progress-line mb-6"><div id="p-fill" class="progress-fill"></div></div>
+            <button onclick="runAdvancedCheck()" id="start-btn" class="btn-dogs">Start Verification</button>
+            <button onclick="finalize()" id="continue-btn" class="btn-dogs hidden">Claim & Enter</button>
         </div>
     </div>
 
     <div id="main-app">
         <div id="home" class="page active">
             <div class="flex justify-center mb-4"><img src="babykoalas.jpg" class="hero-img"></div>
-            
-            <div class="text-center mb-6">
+            <div class="text-center mb-8">
                 <div id="total-bal" class="text-6xl font-black tracking-tighter">0</div>
                 <p class="text-zinc-600 font-black text-[9px] uppercase tracking-[0.7em] mt-1">$KOALA BALANCE</p>
             </div>
 
-            <h3 class="text-xs font-black uppercase italic text-zinc-400 mb-3 px-2">Görevler</h3>
-            
-            <div id="tasks-container">
-                <div class="task-card" id="task-ads">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-play-circle text-xl text-yellow-500"></i>
-                        <div>
-                            <p class="text-sm font-bold">Watch Ads</p>
-                            <p class="text-[10px] text-zinc-500">+1 $KOALA</p>
-                        </div>
-                    </div>
-                    <button onclick="watchAdTask()" class="bg-white text-black px-4 py-1.5 rounded-full text-xs font-black">İzle</button>
+            <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-4 px-2 tracking-widest">Available Tasks</h3>
+            <div class="task-card bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl flex justify-between items-center mb-2" onclick="watchAdTask()">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-play-circle text-xl text-yellow-500"></i>
+                    <div><p class="text-sm font-bold">Watch Ads</p><p class="text-[10px] text-zinc-500">+1 $KOALA</p></div>
                 </div>
-
-                <div class="task-card" id="task-1">
-                    <div class="flex items-center gap-3"><i class="fa-brands fa-telegram text-xl"></i>
-                        <div><p class="text-sm font-bold">Join Telegram</p><p class="text-[10px] text-zinc-500">+5,000 $KOALA</p></div>
-                    </div>
-                    <button onclick="doTask('task-1', 5000)" class="bg-white text-black px-4 py-1.5 rounded-full text-xs font-black">Go</button>
-                </div>
+                <button class="bg-white text-black px-4 py-1 rounded-full text-[10px] font-black">WATCH</button>
             </div>
         </div>
 
         <div id="play" class="page">
-            <div class="crash-canvas mb-6" id="crash-box">
-                <div class="grid-bg" id="grid-anim"></div>
+            <div class="crash-canvas mb-6">
                 <div id="multiplier">1.00x</div>
                 <div id="rocket">🚀</div>
             </div>
@@ -168,13 +142,13 @@
         <div id="drop" class="page text-center">
             <h2 class="text-4xl font-black uppercase mt-10 mb-6 italic">Airdrop</h2>
             <img src="coinkoala.jpg" class="w-full h-64 object-cover rounded-3xl mb-8 grayscale brightness-50">
-            <p class="text-zinc-500 font-bold uppercase text-xs">Snapshot yakında...</p>
+            <p class="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Snapshot is coming...</p>
         </div>
 
         <nav class="nav-bar">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span class="text-[10px] font-black uppercase mt-1">Main</span></div>
-            <div class="nav-item" onclick="nav('play', this)"><i class="fa-solid fa-rocket"></i><span class="text-[10px] font-black uppercase mt-1">Flight</span></div>
-            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-wallet"></i><span class="text-[10px] font-black uppercase mt-1">Drop</span></div>
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span class="text-[9px] font-black uppercase mt-1">Home</span></div>
+            <div class="nav-item" onclick="nav('play', this)"><i class="fa-solid fa-rocket"></i><span class="text-[9px] font-black uppercase mt-1">Play</span></div>
+            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-wallet"></i><span class="text-[9px] font-black uppercase mt-1">Drop</span></div>
         </nav>
     </div>
 
@@ -183,113 +157,91 @@
         let isDone = localStorage.getItem('k_done') === 'true';
         let isPlaying = false;
         let gameLoop;
-        let gridPos = 0;
 
-        window.onload = () => {
-            if(isDone) {
-                document.getElementById('checking-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                sync();
-            }
-        };
+        window.onload = () => { if(isDone) { document.getElementById('checking-screen').style.display='none'; document.getElementById('main-app').style.display='block'; sync(); } };
 
-        // --- WATCH ADS TASK ---
-        function watchAdTask() {
-            const overlay = document.getElementById('ad-overlay');
-            const timerText = document.getElementById('ad-timer');
-            overlay.style.display = 'flex';
-            
-            let timeLeft = 15;
-            const adInterval = setInterval(() => {
-                timeLeft--;
-                timerText.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(adInterval);
-                    overlay.style.display = 'none';
-                    balance += 1;
-                    sync();
-                    alert("Tebrikler! 1 $KOALA kazandın.");
-                }
-            }, 1000);
-        }
-
-        // --- DASHBOARD & CHECKING ---
-        function startChecking() {
+        // --- ENHANCED CHECKING SYSTEM ---
+        function runAdvancedCheck() {
             document.getElementById('start-btn').classList.add('hidden');
-            document.getElementById('analysis-box').classList.remove('hidden');
-            setTimeout(() => { showResults(); }, 2500);
+            const items = ['c1', 'c2', 'c3'];
+            const dots = ['d1', 'd2', 'd3'];
+            const progress = document.getElementById('p-fill');
+            
+            items.forEach((id, idx) => {
+                setTimeout(() => {
+                    document.getElementById(id).classList.add('active');
+                    progress.style.width = ((idx + 1) * 33) + "%";
+                    setTimeout(() => { document.getElementById(dots[idx]).classList.add('done'); }, 500);
+                    
+                    if(idx === 2) {
+                        setTimeout(() => {
+                            document.getElementById('checklist-area').classList.add('hidden');
+                            showFinal();
+                        }, 1200);
+                    }
+                }, idx * 1000);
+            });
         }
 
-        function showResults() {
-            const age = Math.floor(Math.random() * 6) + 3;
-            const reward = age * 10000;
+        function showFinal() {
+            const age = Math.floor(Math.random() * 5) + 4;
+            const reward = age * 12500;
             balance += reward;
-            document.getElementById('analysis-box').classList.add('hidden');
-            document.getElementById('result-box').classList.remove('hidden');
             document.getElementById('years-val').innerText = age;
             document.getElementById('reward-val').innerText = reward.toLocaleString();
+            document.getElementById('final-result').classList.remove('hidden');
             document.getElementById('continue-btn').classList.remove('hidden');
             sync();
         }
 
-        function finalizeChecking() {
-            isDone = true;
-            localStorage.setItem('k_done', 'true');
-            document.getElementById('checking-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
+        function finalize() {
+            isDone = true; localStorage.setItem('k_done', 'true');
+            document.getElementById('checking-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('checking-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+            }, 300);
         }
 
-        function doTask(id, r) {
-            alert("Görev başlatıldı...");
-            setTimeout(() => { balance += r; sync(); alert("Tamamlandı!"); }, 2000);
+        // --- OTHER FUNCTIONS ---
+        function watchAdTask() {
+            const overlay = document.getElementById('ad-overlay');
+            const timerText = document.getElementById('ad-timer');
+            overlay.style.display = 'flex';
+            let timeLeft = 15;
+            const interval = setInterval(() => {
+                timeLeft--; timerText.innerText = timeLeft;
+                if(timeLeft <= 0) { clearInterval(interval); overlay.style.display = 'none'; balance += 1; sync(); alert("1 $KOALA Claimed!"); }
+            }, 1000);
         }
 
-        function sync() {
-            document.getElementById('total-bal').innerText = balance.toLocaleString();
-            localStorage.setItem('k_bal', balance);
-        }
+        function sync() { document.getElementById('total-bal').innerText = balance.toLocaleString(); localStorage.setItem('k_bal', balance); }
+        function nav(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); el.classList.add('active'); }
 
-        function nav(p, el) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-            document.getElementById(p).classList.add('active'); el.classList.add('active');
-        }
-
-        // --- IMPROVED CRASH GAME ---
         function handleCrash() {
             const btn = document.getElementById('game-btn');
             const betInp = document.getElementById('bet-input');
-            const grid = document.getElementById('grid-anim');
             let bet = parseInt(betInp.value);
-
             if(!isPlaying) {
                 if(isNaN(bet) || balance < bet || bet <= 0) return alert("Hatalı Bet!");
                 isPlaying = true; balance -= bet; sync();
                 betInp.disabled = true;
-                
                 let current = 1.00;
-                let crashPoint = (Math.random() > 0.7) ? (Math.random()*6+1.5) : (Math.random()*0.4+1.02);
+                let crashPoint = (Math.random() > 0.6) ? (Math.random()*5+1.5) : (Math.random()*0.3+1.05);
                 btn.innerText = "CASH OUT"; btn.style.backgroundColor = "#ffcc00";
-
                 gameLoop = setInterval(() => {
-                    current += 0.035;
-                    gridPos += 5;
-                    grid.style.backgroundPosition = `0px ${gridPos}px`;
-                    
+                    current += 0.04;
                     document.getElementById('multiplier').innerText = current.toFixed(2) + "x";
-                    document.getElementById('rocket').style.transform = `translateY(-${(current-1)*50}px) scale(${1 + (current-1)*0.05})`;
-                    
+                    document.getElementById('rocket').style.transform = `translateY(-${(current-1)*40}px)`;
                     if(current >= crashPoint) {
                         clearInterval(gameLoop); isPlaying = false;
                         document.getElementById('multiplier').innerText = "BOOM!";
-                        document.getElementById('multiplier').style.color = "#ff4444";
                         betInp.disabled = false;
                         setTimeout(() => {
                             btn.innerText = "Launch Flight"; btn.style.backgroundColor = "#fff";
                             document.getElementById('multiplier').innerText = "1.00x";
-                            document.getElementById('multiplier').style.color = "#fff";
                             document.getElementById('rocket').style.transform = "translateY(0)";
-                        }, 1500);
+                        }, 1200);
                     }
                 }, 60);
             } else {
@@ -299,7 +251,7 @@
                 btn.innerText = "Launch Flight"; btn.style.backgroundColor = "#fff";
                 document.getElementById('multiplier').innerText = "1.00x";
                 document.getElementById('rocket').style.transform = "translateY(0)";
-                alert("KAZANDIN: " + win + " $KOALA");
+                alert("Won: " + win);
             }
         }
     </script>
