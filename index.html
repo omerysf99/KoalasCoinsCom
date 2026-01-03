@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | AD-REWARD</title>
+    <title>KOALA ARCADE | AIRDROP & ROADMAP</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -33,34 +33,41 @@
         .balance-hero { text-align: center; margin: 30px 0; }
         .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
         
-        .koala-img { width: 190px; height: 190px; background: #fff; border-radius: 45px; margin: 25px auto; overflow: hidden; transform: rotate(-2deg); border: 6px solid #111; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .koala-img img { width: 100%; height: 100%; object-fit: cover; }
-
         .card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 20px; margin-bottom: 12px; }
         .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
         
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
-        .nav-link.active { color: #fff; }
+        /* ROADMAP STYLE */
+        .roadmap-container { position: relative; padding-left: 25px; border-left: 2px solid #111; margin: 20px 5px; }
+        .roadmap-item { position: relative; margin-bottom: 35px; }
+        .roadmap-dot { position: absolute; left: -32px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #333; border-radius: 50%; }
+        .roadmap-item.done .roadmap-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
+        .roadmap-item.done h4 { color: #fff; }
+        .roadmap-item h4 { font-size: 13px; font-weight: 900; text-transform: uppercase; color: #444; }
+        .roadmap-item p { font-size: 10px; color: #666; margin-top: 4px; line-height: 1.4; }
 
         .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; filter: grayscale(1); }
         .ex-card.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; }
+
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
+        .nav-link.active { color: #fff; }
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="checker">
-        <h1 class="dogs-h">Checking your<br>Koala status</h1>
+        <h1 class="dogs-h">Analyzing your<br>Koala profile</h1>
         <div class="flex-1">
             <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
-            <div id="l2" class="c-line"><span>Daily Activity</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
-            <div id="l3" class="c-line"><span>Trust Score</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
+            <div id="l2" class="c-line"><span>Social Activity</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
+            <div id="l3" class="c-line"><span>Koala Score</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
         </div>
         <div id="result-box" class="hidden text-center mb-8 animate-bounce">
             <p id="reward-val" class="text-5xl font-black italic text-white"></p>
-            <p class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mt-2">Welcome Koalas Added!</p>
+            <p class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mt-2">Welcome Gift Received!</p>
         </div>
-        <div id="check-btn" class="btn-white hidden" onclick="closeChecker()">Get Started</div>
+        <div id="check-btn" class="btn-white hidden" onclick="closeChecker()">Continue</div>
     </div>
 
     <div id="p-home" class="page">
@@ -68,10 +75,11 @@
             <h1 id="ui-bal">0.00</h1>
             <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">$KOALA Tokens</p>
         </div>
-        <div class="koala-img"><img src="coinkoala.jpg"></div>
-        
+        <div class="flex justify-center mb-8">
+            <div class="w-[180px] h-[180px] bg-white rounded-[40px] overflow-hidden border-[6px] border-[#111] -rotate-3"><img src="coinkoala.jpg" class="w-full h-full object-cover"></div>
+        </div>
         <div class="card flex justify-between items-center" id="ad-card" onclick="watchAndEarn()">
-            <div><h4 class="font-black text-xs uppercase">Daily Video Ad</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+            <div><h4 class="font-black text-xs uppercase">Daily Bonus Video</h4><p class="text-[9px] text-zinc-500">+1.00 $KOALA</p></div>
             <div class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px]">WATCH</div>
         </div>
     </div>
@@ -79,7 +87,7 @@
     <div id="p-ref" class="page">
         <h1 class="dogs-h">Squad</h1>
         <div class="card py-10 flex flex-col items-center gap-2">
-            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Friend Bonus</p>
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Referral Reward</p>
             <h2 class="text-5xl font-black italic">+10,000</h2>
         </div>
         <div id="ref-list" class="flex-1 mt-4"></div>
@@ -88,30 +96,61 @@
 
     <div id="p-airdrop" class="page">
         <h1 class="dogs-h">Airdrop</h1>
-        <div class="card">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Estimated Allocation</p>
-            <h2 id="airdrop-tokens" class="text-4xl font-black italic">0.00</h2>
+        
+        <div class="card bg-gradient-to-br from-[#0c0c0c] to-black">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Total Potential Allocation</p>
+            <div class="flex items-baseline gap-2">
+                <h2 id="airdrop-tokens" class="text-4xl font-black italic">0.00</h2>
+                <span class="text-xs font-bold text-zinc-600">$KOALA</span>
+            </div>
         </div>
-        <div class="flex gap-2 mt-4">
-            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><p class="text-[10px] font-black uppercase">Binance</p></div>
-            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><p class="text-[10px] font-black uppercase">OKX</p></div>
+
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Selected Exchange</p>
+        <div class="flex gap-2 mb-8">
+            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><p class="text-[10px] font-black">BINANCE</p></div>
+            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><p class="text-[10px] font-black">OKX</p></div>
+            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><p class="text-[10px] font-black">BITGET</p></div>
+        </div>
+
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Project Roadmap</p>
+        <div class="roadmap-container">
+            <div class="roadmap-item done">
+                <div class="roadmap-dot"></div>
+                <h4>Stage 1: Community Build</h4>
+                <p>Launch of Koala Arcade, checking eligibility and first token distributions.</p>
+            </div>
+            <div class="roadmap-item done">
+                <div class="roadmap-dot"></div>
+                <h4>Stage 2: Ad-Reward Mining</h4>
+                <p>Integration of Adexora for continuous $KOALA farming (ACTIVE NOW).</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-dot"></div>
+                <h4>Stage 3: TGE & Snapshot</h4>
+                <p>Balances will be locked. Final Sybil checks for fair distribution.</p>
+            </div>
+            <div class="roadmap-item">
+                <div class="roadmap-dot"></div>
+                <h4>Stage 4: Token Listing</h4>
+                <p>Listing on Tier-1 exchanges and airdrop claim event.</p>
+            </div>
         </div>
     </div>
 
     <nav id="navbar" style="display:none">
-        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bone"></i><span>Earn</span></div>
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
         <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
         <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
 <script>
-    // Config
+    // Firebase Setup
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('k_v_official') || 'U' + Math.floor(Math.random()*999999);
-    localStorage.setItem('k_v_official', uid);
+    let uid = localStorage.getItem('k_v_roadmap') || 'U' + Math.floor(Math.random()*999999);
+    localStorage.setItem('k_v_roadmap', uid);
 
     let u = { bal: 0, ex: '', checked: false, refs: [] };
 
@@ -147,29 +186,18 @@
         });
     }
 
-    // ADEXORA REWARD LOGIC
     function watchAndEarn() {
         const btn = document.getElementById('ad-card');
-        btn.style.opacity = "0.5";
-        btn.style.pointerEvents = "none";
+        btn.style.opacity = "0.5"; btn.style.pointerEvents = "none";
 
-        window.showAdexora()
-            .then(() => {
-                // ✅ Reklam başarıyla izlendi, ödülü ver
-                u.bal += 1.0;
-                save();
-                render();
-                alert("Success! +1.00 $KOALA added.");
-                btn.style.opacity = "1";
-                btn.style.pointerEvents = "auto";
-            })
-            .catch(e => {
-                // ❌ Hata veya reklam kapandı
-                console.error("Ad Error:", e);
-                alert("Ad failed to load. Please try again later.");
-                btn.style.opacity = "1";
-                btn.style.pointerEvents = "auto";
-            });
+        window.showAdexora().then(() => {
+            u.bal += 1.0; save(); render();
+            alert("Success! +1.00 $KOALA added.");
+            btn.style.opacity = "1"; btn.style.pointerEvents = "auto";
+        }).catch(e => {
+            alert("Ad failed. Try again.");
+            btn.style.opacity = "1"; btn.style.pointerEvents = "auto";
+        });
     }
 
     function closeChecker() {
@@ -183,7 +211,7 @@
     }
 
     function setEx(n) { u.ex = n; save(); render(); }
-    function copyRef() { alert("Link copied!"); }
+    function copyRef() { alert("Invite link copied!"); }
 
     function render() {
         document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
