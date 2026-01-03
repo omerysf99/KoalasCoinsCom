@@ -3,236 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | TASKS</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #0c0c0c; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        :root { --bg: #000; --card: #0c0c0c; --white: #fff; --grey: #1a1a1a; --accent: #fff; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; animation: dogsFade 0.4s ease; }
+        /* Sayfa Geçişleri */
+        .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; animation: dogsIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: flex; }
-        @keyframes dogsFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes dogsIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
-        .check-item.done { color: #fff; }
-        .spinner { width: 14px; height: 14px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        /* DOGS Analiz Satırları */
+        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
+        .check-item.done { color: var(--white); }
+        .spinner { width: 16px; height: 16px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .check-icon { display: none; color: #fff; }
+        .check-icon { display: none; color: #fff; font-size: 18px; }
         .check-item.done .check-icon { display: block; }
         .check-item.done .spinner { display: none; }
 
-        .koala-box { width: 180px; height: 180px; background: #fff; border-radius: 45px; margin: 15px auto; overflow: hidden; filter: grayscale(1); transform: rotate(-2deg); }
-        .koala-box img { width: 100%; height: 100%; object-fit: cover; }
+        /* Kart Yapıları */
+        .koala-box { width: 210px; height: 210px; background: #fff; border-radius: 55px; margin: 20px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+        
+        .stat-card { background: var(--card); border: 1px solid var(--grey); padding: 18px; border-radius: 24px; }
+        .task-card { background: var(--card); border: 1px solid var(--grey); border-radius: 22px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 
-        /* Task Stili */
-        .task-card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 22px; padding: 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .task-btn { background: #fff; color: #000; padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; }
-        .task-done { color: #34c759; font-size: 18px; }
+        /* Butonlar */
+        .btn-main { background: var(--white); color: #000; padding: 20px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        .btn-main:active { transform: scale(0.96); opacity: 0.9; }
 
-        .btn-dogs { background: #fff; color: #000; padding: 18px; border-radius: 18px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: #000; border-top: 1px solid #111; display: flex; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        /* Alt Menü */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-top: 1px solid #111; display: flex; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
         .nav-item.active { color: #fff; }
+        .nav-item i { font-size: 22px; }
+
+        /* Input */
+        input { background: #111; border: 1px solid #222; padding: 18px; border-radius: 20px; color: #fff; width: 100%; outline: none; margin-bottom: 12px; font-family: monospace; }
+        input:focus { border-color: #555; }
     </style>
 </head>
 <body>
 
+<div id="app" class="h-full flex flex-col">
+    
     <div id="p-check" class="page">
-        <h1 class="text-4xl font-black italic uppercase mt-10">Analiz<br>Ediliyor</h1>
-        <div class="flex-1 mt-10">
-            <div id="c1" class="check-item"><span>Hesap Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c2" class="check-item"><span>Premium</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c3" class="check-item"><span>Koala Puanı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+        <h1 class="text-4xl font-black italic uppercase mt-12 leading-tight">Hesabın<br>Kontrol Ediliyor</h1>
+        <p class="text-zinc-600 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 mb-10">Veriler Doğrulanıyor...</p>
+        
+        <div class="flex-1">
+            <div id="c1" class="check-item"><span>Telegram Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c2" class="check-item"><span>Premium Durumu</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c3" class="check-item"><span>Hesap Güvenliği</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c4" class="check-item"><span>Koala Puanı Hesabı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
         </div>
-        <button onclick="startAnalysis()" id="btn-run" class="btn-dogs">Analizi Başlat</button>
+
+        <div id="check-action" class="mt-auto">
+            <div onclick="startAnalysis()" class="btn-main">Analizi Başlat</div>
+        </div>
     </div>
 
     <div id="p-reward" class="page text-center justify-center">
-        <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
-        <h1 class="text-6xl font-black italic mb-2" id="reward-val">0</h1>
-        <p class="text-zinc-500 font-bold text-xs mb-10 uppercase">$KOALA KAZANDIN</p>
-        <button onclick="goHome()" class="btn-dogs">Sisteme Giriş Yap</button>
+        <h3 class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-4">Hoş Geldin Koala!</h3>
+        <div class="koala-box mx-auto mb-10"><img src="coinkoala.jpg"></div>
+        <h1 id="gift-amt" class="text-6xl font-black italic mb-2">0</h1>
+        <p class="text-zinc-400 font-bold text-xs uppercase mb-12">$KOALA OG Puanı Kazandın</p>
+        <div onclick="finishOnboarding()" class="btn-main">Madenciliği Aktif Et</div>
     </div>
 
     <div id="p-home" class="page">
         <div class="text-center mb-8">
-            <p class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-1">Toplam Bakiye</p>
-            <h2 class="text-5xl font-black italic mb-6" id="bal-txt">0.00</h2>
-            <div class="koala-box"><img src="coinkoala.jpg"></div>
+            <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Bakiyen</p>
+            <h2 id="display-bal" class="text-6xl font-black italic mb-8">0.00</h2>
+            <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mb-10">
-            <div class="bg-[#0c0c0c] p-4 rounded-2xl border border-zinc-900">
-                <p class="text-[8px] text-zinc-500 font-black uppercase">Sabit Hız</p>
-                <p class="text-lg font-black italic">+128.50</p>
+            <div class="stat-card">
+                <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Sabit Hız</p>
+                <p class="text-xl font-black italic">+128.50</p>
             </div>
-            <div class="bg-[#0c0c0c] p-4 rounded-2xl border border-zinc-900 border-l-white/20">
-                <p class="text-[8px] text-zinc-500 font-black uppercase">Boost Hız</p>
-                <p class="text-lg font-black italic">+<span id="boost-txt">0.00</span></p>
+            <div class="stat-card border-l-2 border-white/20">
+                <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Boost Hız</p>
+                <p class="text-xl font-black italic text-zinc-400">+<span id="display-boost">0.00</span></p>
             </div>
         </div>
 
-        <h3 class="text-zinc-500 font-black text-[10px] uppercase mb-4 tracking-widest ml-1">Görevler</h3>
-        <div id="task-list">
+        <h3 class="text-zinc-600 font-black text-[11px] uppercase mb-4 tracking-widest ml-1">Görevler</h3>
+        <div id="task-container">
             <div class="task-card">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center"><i class="fa-brands fa-telegram text-xl"></i></div>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-brands fa-telegram"></i></div>
                     <div>
-                        <p class="font-black italic text-xs uppercase">Kanala Katıl</p>
-                        <p class="text-[9px] text-zinc-500 font-bold">+5,000 $KOALA</p>
+                        <p class="font-black italic text-sm uppercase leading-tight">Resmi Kanal</p>
+                        <p class="text-[10px] text-zinc-500 font-bold mt-1">+5,000 $KOALA</p>
                     </div>
                 </div>
-                <div id="task-action-1">
-                    <button onclick="doTask(1, 'https://t.me/KoalasCommunity', 5000)" class="task-btn">Yap</button>
+                <div id="task-1-ui">
+                    <div onclick="executeTask(1, 'https://t.me/KoalasCommunity', 5000)" class="bg-white text-black px-5 py-2 rounded-xl font-black text-xs uppercase">Yap</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="p-airdrop" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-10">Cüzdan</h2>
-        <div id="w-setup">
-            <input type="text" id="w-input" class="bg-zinc-900 w-full p-5 rounded-2xl mb-4 outline-none" placeholder="TON Cüzdan Adresi">
-            <button onclick="saveW()" class="btn-dogs w-full">Adresi Kaydet</button>
+        <h2 class="text-4xl font-black italic uppercase mb-10 leading-tight">Airdrop<br>Cüzdanı</h2>
+        
+        <div id="wallet-form">
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-4 ml-1">Yatırma Borsası Seç</p>
+            <div class="flex gap-4 mb-10">
+                <img src="binance.jpg" id="ex-bin" class="w-16 h-16 rounded-[22px] border-2 border-transparent" onclick="selectEx('Binance', 'ex-bin')">
+                <img src="okx.jpg" id="ex-okx" class="w-16 h-16 rounded-[22px] border-2 border-transparent" onclick="selectEx('OKX', 'ex-okx')">
+                <img src="bitget.jpg" id="ex-bit" class="w-16 h-16 rounded-[22px] border-2 border-transparent" onclick="selectEx('Bitget', 'ex-bit')">
+            </div>
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2 ml-1">TON Adresi</p>
+            <input type="text" id="wallet-input" placeholder="Cüzdan adresinizi yapıştırın">
+            <div onclick="saveWallet()" class="btn-main mt-4">Adresi Kaydet</div>
         </div>
-        <div id="w-done" class="hidden card text-center p-10 bg-[#0c0c0c] rounded-3xl">
-            <i class="fa-solid fa-circle-check text-4xl mb-4 text-white"></i>
-            <h4 class="font-black italic uppercase text-xl">Cüzdan Bağlı</h4>
-            <p id="saved-addr" class="text-[10px] text-zinc-600 font-mono mt-4 break-all"></p>
+
+        <div id="wallet-saved" class="hidden text-center py-12 bg-zinc-900/30 rounded-[40px] border border-white/5">
+            <i class="fa-solid fa-circle-check text-5xl mb-6 text-white"></i>
+            <h3 id="res-ex" class="text-3xl font-black italic uppercase mb-2">-</h3>
+            <p id="res-addr" class="text-[11px] text-zinc-600 font-mono px-8 break-all"></p>
+            <div onclick="resetWallet()" class="mt-8 text-zinc-800 font-black text-[10px] uppercase underline">Bilgileri Güncelle</div>
         </div>
     </div>
 
-    <nav class="nav-bar" id="bot-nav" style="display:none">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>KAZAN</span></div>
-        <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-wallet"></i><span>CÜZDAN</span></div>
+    <nav id="nav-main" class="nav-bar" style="display:none">
+        <div class="nav-item active" onclick="navigate('home', this)"><i class="fa-solid fa-bolt-lightning"></i><span>KAZAN</span></div>
+        <div class="nav-item" onclick="navigate('airdrop', this)"><i class="fa-solid fa-wallet"></i><span>CÜZDAN</span></div>
     </nav>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
-            authDomain: "koalascombom.firebaseapp.com",
-            projectId: "koalascombom",
-            storageBucket: "koalascombom.firebasestorage.app",
-            messagingSenderId: "533011982418",
-            appId: "1:533011982418:web:9e8e50e93a99017062d78b"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+</div>
 
-        let uid = localStorage.getItem('koala_uid') || 'u_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('koala_uid', uid);
+<script>
+    // --- KONFİGÜRASYON ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
+        authDomain: "koalascombom.firebaseapp.com",
+        projectId: "koalascombom",
+        storageBucket: "koalascombom.firebasestorage.app",
+        messagingSenderId: "533011982418",
+        appId: "1:533011982418:web:9e8e50e93a99017062d78b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        let user = {
-            bal: 0,
-            lastUpdate: Date.now(),
-            checkingDone: false,
-            tasks: [], // Yapılan görevlerin ID'leri
-            boosts: [],
-            addr: ''
-        };
+    // --- KULLANICI MODELİ ---
+    let userId = localStorage.getItem('koala_uuid') || 'u_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('koala_uuid', userId);
 
-        async function init() {
-            const doc = await db.collection("users").doc(uid).get();
-            if (doc.exists) {
-                user = { ...user, ...doc.data() };
-                const now = Date.now();
-                const diff = (now - user.lastUpdate) / 1000;
-                const pph = 128.50 + user.boosts.length;
-                user.bal += (pph / 3600) * diff;
-                user.lastUpdate = now;
+    let user = {
+        bal: 0,
+        lastUpdate: Date.now(),
+        isRegistered: false,
+        completedTasks: [],
+        exchange: 'Binance',
+        address: ''
+    };
 
-                if (user.checkingDone) {
-                    showPage('home');
-                    document.getElementById('bot-nav').style.display = 'flex';
-                } else { showPage('check'); }
-            } else { showPage('check'); }
-            updateUI();
-            loop();
-        }
-
-        function startAnalysis() {
-            document.getElementById('btn-run').style.display = 'none';
-            const ids = ['c1', 'c2', 'c3'];
-            ids.forEach((id, i) => {
-                setTimeout(() => {
-                    document.getElementById(id).classList.add('done');
-                    if(i === 2) {
-                        const gift = Math.floor(Math.random() * 15000) + 5000;
-                        user.bal += gift;
-                        document.getElementById('reward-val').innerText = gift.toLocaleString();
-                        showPage('reward');
-                    }
-                }, (i+1) * 1500);
-            });
-        }
-
-        function goHome() {
-            user.checkingDone = true;
-            user.lastUpdate = Date.now();
-            sync(); showPage('home');
-            document.getElementById('bot-nav').style.display = 'flex';
-        }
-
-        // GÖREV YAPMA FONKSİYONU
-        function doTask(id, url, reward) {
-            window.open(url, '_blank');
-            setTimeout(() => {
-                if(!user.tasks.includes(id)) {
-                    user.tasks.push(id);
-                    user.bal += reward;
-                    sync();
-                    updateUI();
-                    alert("Tebrikler! +"+reward+" $KOALA eklendi.");
-                }
-            }, 2000);
-        }
-
-        function loop() {
-            setInterval(() => {
-                if(user.checkingDone) {
-                    const pph = 128.50 + user.boosts.length;
-                    user.bal += (pph / 3600);
-                    user.lastUpdate = Date.now();
-                    updateUI();
-                }
-            }, 1000);
-            setInterval(() => { if(user.checkingDone) sync(); }, 20000);
-        }
-
-        function updateUI() {
-            document.getElementById('bal-txt').innerText = user.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('boost-txt').innerText = user.boosts.length.toFixed(2);
+    // --- BAŞLATMA ---
+    async function init() {
+        const doc = await db.collection("users").doc(userId).get();
+        if (doc.exists) {
+            user = { ...user, ...doc.data() };
             
-            // Task durumu
-            if(user.tasks.includes(1)) {
-                document.getElementById('task-action-1').innerHTML = '<i class="fa-solid fa-circle-check task-done"></i>';
-            }
+            // Çevrimdışı madencilik hesabı (Ömürlük Miner)
+            const diff = (Date.now() - user.lastUpdate) / 1000;
+            const pph = 128.50; 
+            user.bal += (pph / 3600) * diff;
+            user.lastUpdate = Date.now();
 
-            if(user.addr) {
-                document.getElementById('w-setup').classList.add('hidden');
-                document.getElementById('w-done').classList.remove('hidden');
-                document.getElementById('saved-addr').innerText = user.addr;
+            if (user.isRegistered) {
+                showPage('home');
+                document.getElementById('nav-main').style.display = 'flex';
+            } else {
+                showPage('check');
             }
+        } else {
+            showPage('check');
+        }
+        updateUI();
+        startHeartbeat();
+    }
+
+    // --- ANALİZ SİSTEMİ ---
+    function startAnalysis() {
+        document.getElementById('check-action').style.display = 'none';
+        const rows = ['c1', 'c2', 'c3', 'c4'];
+        rows.forEach((id, i) => {
+            setTimeout(() => {
+                document.getElementById(id).classList.add('done');
+                if (i === 3) {
+                    const bonus = Math.floor(Math.random() * 25000) + 5000;
+                    user.bal += bonus;
+                    document.getElementById('gift-amt').innerText = bonus.toLocaleString();
+                    setTimeout(() => showPage('reward'), 1000);
+                }
+            }, (i + 1) * 1600);
+        });
+    }
+
+    function finishOnboarding() {
+        user.isRegistered = true;
+        user.lastUpdate = Date.now();
+        sync();
+        showPage('home');
+        document.getElementById('nav-main').style.display = 'flex';
+    }
+
+    // --- ANA DÖNGÜ (SANİYELİK KAZANÇ) ---
+    function startHeartbeat() {
+        setInterval(() => {
+            if (user.isRegistered) {
+                user.bal += (128.50 / 3600);
+                user.lastUpdate = Date.now();
+                updateUI();
+            }
+        }, 1000);
+        // Firebase yedekleme (Her 30sn)
+        setInterval(() => { if(user.isRegistered) sync(); }, 30000);
+    }
+
+    // --- GÖREVLER ---
+    function executeTask(id, url, reward) {
+        window.open(url, '_blank');
+        setTimeout(() => {
+            if (!user.completedTasks.includes(id)) {
+                user.completedTasks.push(id);
+                user.bal += reward;
+                updateUI();
+                sync();
+                alert("Görev Başarılı! +5,000 $KOALA eklendi.");
+            }
+        }, 3000);
+    }
+
+    // --- CÜZDAN ---
+    let tmpEx = 'Binance';
+    function selectEx(name, id) {
+        tmpEx = name;
+        ['ex-bin', 'ex-okx', 'ex-bit'].forEach(i => document.getElementById(i).style.borderColor = 'transparent');
+        document.getElementById(id).style.borderColor = '#fff';
+    }
+
+    function saveWallet() {
+        const addr = document.getElementById('wallet-input').value;
+        if (addr.length < 10) return alert("Hatalı Adres!");
+        user.exchange = tmpEx;
+        user.address = addr;
+        sync();
+        updateUI();
+    }
+
+    function resetWallet() {
+        user.address = '';
+        updateUI();
+    }
+
+    // --- UI YÖNETİMİ ---
+    function updateUI() {
+        document.getElementById('display-bal').innerText = user.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
+        if (user.completedTasks.includes(1)) {
+            document.getElementById('task-1-ui').innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
         }
 
-        function saveW() {
-            const a = document.getElementById('w-input').value;
-            if(a.length < 10) return;
-            user.addr = a; sync(); updateUI();
+        if (user.address) {
+            document.getElementById('wallet-form').classList.add('hidden');
+            document.getElementById('wallet-saved').classList.remove('hidden');
+            document.getElementById('res-ex').innerText = user.exchange;
+            document.getElementById('res-addr').innerText = user.address;
+        } else {
+            document.getElementById('wallet-form').classList.remove('hidden');
+            document.getElementById('wallet-saved').classList.add('hidden');
         }
+    }
 
-        async function sync() { await db.collection("users").doc(uid).set(user); }
-        function showPage(p) { document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active')); document.getElementById('p-'+p).classList.add('active'); }
-        function nav(p, el) { showPage(p); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+    }
 
-        window.onload = init;
-    </script>
+    function navigate(id, el) {
+        showPage(id);
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    async function sync() {
+        try { await db.collection("users").doc(userId).set(user); } catch (e) { console.log(e); }
+    }
+
+    window.onload = init;
+</script>
 </body>
 </html>
