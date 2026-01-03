@@ -12,114 +12,106 @@
         
         body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- CHECKING SCREEN (DOGS STYLE) --- */
+        /* --- DOGS STYLE CHECKING SCREEN --- */
         #loader-screen {
             position: fixed; inset: 0; background: #000; z-index: 100000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.5s ease;
         }
 
-        /* YATAY UZATILMIŞ GÖRSEL */
+        /* Yatay Uzatılmış Görsel */
         .baby-banner {
-            width: 85%; max-width: 400px; aspect-ratio: 16 / 9;
-            border-radius: 24px; object-fit: cover; margin-bottom: 40px;
-            box-shadow: 0 0 40px rgba(0, 122, 255, 0.2);
-            animation: pulseBanner 2s ease-in-out infinite;
+            width: 90%; max-width: 450px; 
+            aspect-ratio: 16 / 7; /* Yatay uzatma oranı */
+            border-radius: 20px; object-fit: cover; margin-bottom: 40px;
+            box-shadow: 0 0 50px rgba(255,255,255,0.05);
+            animation: dogsPulse 2s infinite ease-in-out;
         }
 
-        @keyframes pulseBanner {
+        @keyframes dogsPulse {
             0%, 100% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.02); opacity: 1; }
         }
 
-        .stat-container { width: 300px; margin-top: 20px; }
+        .loader-title { font-size: 28px; font-weight: 900; margin-bottom: 4px; letter-spacing: -1px; }
+        .loader-sub { color: #555; font-size: 14px; margin-bottom: 40px; font-weight: 600; }
+
+        .stat-list { width: 300px; }
         .stat-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-            opacity: 0; transform: translateY(10px); transition: 0.6s all ease;
+            padding: 18px 0; border-bottom: 1px solid #111;
+            opacity: 0; transform: translateY(10px);
+            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
         }
-        .stat-row.visible { opacity: 1; transform: translateY(0); }
-        .stat-label { color: #666; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-value { color: #fff; font-weight: 900; font-style: italic; }
+        .stat-row.active { opacity: 1; transform: translateY(0); }
+        .stat-label { color: #888; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        .stat-value { color: #fff; font-weight: 900; font-style: italic; font-size: 16px; }
 
         /* --- MAIN APP UI --- */
-        #main-app { display: none; opacity: 0; height: 100vh; overflow-y: auto; transition: 1s ease; }
+        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s ease; }
         
-        .hero-section {
-            padding: 50px 20px 30px; text-align: center;
-            background: radial-gradient(circle at top, #0c0c0c 0%, #000 100%);
+        .hero-header {
+            padding: 40px 20px; text-align: center;
+            background: linear-gradient(180deg, #0a0a0a 0%, #000 100%);
         }
-        .main-avatar {
-            width: 110px; height: 110px; border-radius: 35px; margin: 0 auto 20px;
-            border: 4px solid #1a1a1a; object-fit: cover; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        .main-img {
+            width: 100px; height: 100px; border-radius: 35px; margin: 0 auto 20px;
+            border: 4px solid #151515; object-fit: cover;
         }
-        .balance-num { font-size: 85px; font-weight: 900; letter-spacing: -5px; line-height: 1; margin-bottom: 10px; }
+        .bal-val { font-size: 80px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 8px; }
         
         /* CEX Grid */
-        .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
-        .cex-card {
-            background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 24px;
-            padding: 24px 10px; text-align: center; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .cex-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
+        .cex-item {
+            background: #080808; border: 1px solid #151515; border-radius: 24px;
+            padding: 22px 10px; text-align: center; transition: 0.3s;
         }
-        .cex-card img { width: 45px; height: 45px; margin: 0 auto 12px; border-radius: 12px; }
-        .cex-card span { font-size: 9px; font-weight: 900; color: #444; letter-spacing: 1px; }
-        .cex-card.active { border-color: #007aff; background: rgba(0,122,255,0.08); transform: translateY(-5px); }
-        .cex-card.active span { color: #007aff; }
+        .cex-item img { width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 12px; }
+        .cex-item span { font-size: 9px; font-weight: 900; color: #444; }
+        .cex-item.selected { border-color: #007aff; background: #001224; }
+        .cex-item.selected span { color: #007aff; }
 
-        /* Buttons */
-        .btn-main { 
+        .btn-action { 
             background: #fff; color: #000; width: calc(100% - 40px); margin: 0 20px 15px;
             padding: 20px; border-radius: 22px; font-weight: 900; font-size: 16px;
         }
-        .btn-sec {
-            background: #0d0d0d; color: #fff; border: 1px solid #1a1a1a; width: calc(100% - 40px); 
-            margin: 0 20px; padding: 20px; border-radius: 22px; font-weight: 900; display: flex; 
-            align-items: center; justify-content: center; gap: 12px;
-        }
-
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; backdrop-filter: blur(10px); }
-        .modal.open { display: flex; }
     </style>
 </head>
 <body>
 
     <div id="loader-screen">
-        <img src="babykoalas.jpg" class="baby-banner" onerror="this.src='https://via.placeholder.com/600x337?text=Baby+Koalas+Yatay'">
-        <h1 class="text-2xl font-black italic mb-1">Checking Profile</h1>
-        <p class="text-zinc-600 text-sm font-bold mb-8">Telegram data is processing...</p>
+        <img src="babykoalas.jpg" class="baby-banner" onerror="this.src='https://via.placeholder.com/600x250?text=Baby+Koalas'">
+        <h1 class="loader-title">Who are you?</h1>
+        <p class="loader-sub">Checking your account data...</p>
 
-        <div class="stat-container">
-            <div id="row1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="val1">...</span></div>
-            <div id="row2" class="stat-row"><span class="stat-label">Premium Status</span><span class="stat-value" id="val2">...</span></div>
-            <div id="row3" class="stat-row"><span class="stat-label">Koala Rank</span><span class="stat-value" id="val3">...</span></div>
+        <div class="stat-list">
+            <div id="r1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="v1">...</span></div>
+            <div id="r2" class="stat-row"><span class="stat-label">Telegram Premium</span><span class="stat-value" id="v2">...</span></div>
+            <div id="r3" class="stat-row"><span class="stat-label">Koala Tier</span><span class="stat-value" id="v3">...</span></div>
         </div>
     </div>
 
     <div id="main-app">
-        <div class="hero-section">
-            <img src="koalas.jpg" class="main-avatar" onerror="this.src='https://via.placeholder.com/150?text=Koala'">
-            <h2 id="balance-display" class="balance-num">0</h2>
-            <p class="text-zinc-500 font-black text-[10px] tracking-[0.5em] uppercase">Total $KOALA Balance</p>
+        <div class="hero-header">
+            <img src="koalas.jpg" class="main-img" onerror="this.src='https://via.placeholder.com/100?text=Koalas'">
+            <h2 id="total-bal" class="bal-val">0</h2>
+            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase italic">KOALA BALANCE</p>
         </div>
 
-        <button onclick="toggleModal('ad-modal', true)" class="btn-main">EARN REWARDS</button>
+        <button onclick="addBonus()" class="btn-action">CLAIM DAILY BONUS</button>
         
-        <button id="wallet-btn" onclick="toggleModal('wallet-modal', true)" class="btn-sec">
-            <i class="fa-solid fa-wallet text-blue-500"></i> CONNECT WALLET
-        </button>
-
-        <div class="mt-12">
-            <p class="px-8 mb-4 text-[10px] font-black text-zinc-700 tracking-[0.3em] uppercase">Partners</p>
-            <div class="cex-grid">
-                <div class="cex-card" onclick="setPartner(this, 'Binance')">
+        <div class="mt-8">
+            <p class="px-8 mb-4 text-[10px] font-black text-zinc-700 tracking-widest uppercase text-center">Select Partner Exchange</p>
+            <div class="cex-container">
+                <div class="cex-item" onclick="pickCex(this, 'Binance')">
                     <img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'">
                     <span>BINANCE</span>
                 </div>
-                <div class="cex-card" onclick="setPartner(this, 'OKX')">
+                <div class="cex-item" onclick="pickCex(this, 'OKX')">
                     <img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'">
                     <span>OKX</span>
                 </div>
-                <div class="cex-card" onclick="setPartner(this, 'Bitget')">
+                <div class="cex-item" onclick="pickCex(this, 'Bitget')">
                     <img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'">
                     <span>BITGET</span>
                 </div>
@@ -127,84 +119,76 @@
         </div>
     </div>
 
-    <div id="ad-modal" class="modal"><div class="bg-zinc-900 p-10 rounded-[40px] w-full text-center border border-zinc-800"><div class="text-6xl mb-6">📺</div><h2 class="text-xl font-black mb-8">Daily Ad Reward</h2><button onclick="earnAd()" class="btn-main w-full mx-0 mb-4">WATCH VIDEO</button><button onclick="toggleModal('ad-modal', false)" class="text-zinc-500 font-bold text-xs uppercase">Close</button></div></div>
-    <div id="wallet-modal" class="modal"><div class="bg-zinc-900 p-10 rounded-[40px] w-full text-center border border-zinc-800"><h2 class="text-xl font-black mb-8 uppercase">Link TON Wallet</h2><input type="text" id="wallet-input" placeholder="Address..." class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-400 mb-8 outline-none"><button onclick="saveWallet()" class="btn-main w-full mx-0">SAVE ADDRESS</button></div></div>
-
     <script>
-        let currentBalance = 0;
+        let balance = 0;
 
-        // --- ASYNC ENGINE ---
-        async function runChecking() {
-            const delay = ms => new Promise(res => setTimeout(res, ms));
+        // --- TAKILMAYI ÖNLEYEN AKIŞ ---
+        async function startChecking() {
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-            // Adım 1
-            await delay(1500);
-            showStep('row1', 'val1', '4.5 YEARS');
+            try {
+                // Adım 1
+                await sleep(1500);
+                showRow('r1', 'v1', '5.2 YEARS');
 
-            // Adım 2
-            await delay(2000);
-            showStep('row2', 'val2', 'VERIFIED');
+                // Adım 2
+                await sleep(1800);
+                showRow('r2', 'v2', 'YES');
 
-            // Adım 3
-            await delay(2000);
-            showStep('row3', 'val3', 'TOP 1%');
+                // Adım 3
+                await sleep(1800);
+                showRow('r3', 'v3', 'GOLDEN');
 
-            // Final Geçiş (7. Saniye civarı)
-            await delay(1500);
-            startApp();
-        }
-
-        function showStep(rowId, valId, text) {
-            const row = document.getElementById(rowId);
-            const val = document.getElementById(valId);
-            row.classList.add('visible');
-            setTimeout(() => {
-                val.innerText = text;
-                val.style.color = "#007aff";
-            }, 300);
-        }
-
-        function startApp() {
-            currentBalance = Math.floor(Math.random() * 9000) + 1000;
-            
-            // Ekranları değiştir
-            document.getElementById('loader-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loader-screen').style.display = 'none';
-                const app = document.getElementById('main-app');
-                app.style.display = 'block';
-                setTimeout(() => app.style.opacity = '1', 50);
-                document.getElementById('balance-display').innerText = currentBalance.toLocaleString();
-            }, 800);
-        }
-
-        function setPartner(el, name) {
-            document.querySelectorAll('.cex-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            localStorage.setItem('koala_cex', name);
-        }
-
-        function saveWallet() {
-            const addr = document.getElementById('wallet-input').value.trim();
-            if(addr.length > 15) {
-                localStorage.setItem('koala_wallet', addr);
-                document.getElementById('wallet-btn').innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> ${addr.slice(0,4)}...${addr.slice(-4)}`;
-                toggleModal('wallet-modal', false);
+                // Geçiş Hazırlığı
+                await sleep(1500);
+                
+                // Final Geçiş
+                switchUI();
+            } catch (err) {
+                // Hata olursa bile geçişi zorla
+                switchUI();
             }
         }
 
-        function earnAd() {
-            currentBalance += 10;
-            document.getElementById('balance-display').innerText = currentBalance.toLocaleString();
-            toggleModal('ad-modal', false);
+        function showRow(rowId, valId, text) {
+            const row = document.getElementById(rowId);
+            const val = document.getElementById(valId);
+            if(row && val) {
+                row.classList.add('active');
+                setTimeout(() => {
+                    val.innerText = text;
+                    val.style.color = "#007aff";
+                }, 300);
+            }
         }
 
-        function toggleModal(id, show) {
-            document.getElementById(id).classList.toggle('open', show);
+        function switchUI() {
+            const loader = document.getElementById('loader-screen');
+            const app = document.getElementById('main-app');
+            
+            balance = Math.floor(Math.random() * 7000) + 3000;
+            document.getElementById('total-bal').innerText = balance.toLocaleString();
+
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                app.style.display = 'block';
+                setTimeout(() => app.style.opacity = '1', 50);
+            }, 500);
         }
 
-        // Başlat
-        window.onload = runChecking;
+        function pickCex(el, name) {
+            document.querySelectorAll('.cex-item').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function addBonus() {
+            balance += 10;
+            document.getElementById('total-bal').innerText = balance.toLocaleString();
+        }
+
+        // Başlatıcı
+        window.onload = startChecking;
 
     </script>
 </body>
