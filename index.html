@@ -3,180 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade Ultra</title>
+    <title>Koalas Arcade Premium v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        :root {
+            --tg-theme-bg-color: #000000;
+            --tg-theme-text-color: #ffffff;
+            --primary: #007aff;
+            --accent: #fcd535;
+            --card-bg: #0f0f0f;
+            --border: #1c1c1c;
+        }
 
-        /* --- CHECKING SCREEN & PROGRESS BAR --- */
-        #loader-screen {
-            position: fixed; inset: 0; background: #000; z-index: 100000;
+        body {
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- MODERN LOADING SCREEN --- */
+        #loading-screen {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .baby-banner-wide {
-            width: 90%; max-width: 500px; aspect-ratio: 21 / 9;
-            border-radius: 20px; object-fit: cover; margin-bottom: 30px;
-            border: 1px solid #1a1a1a;
+        .banner-container {
+            width: 92%; max-width: 500px; position: relative;
+            margin-bottom: 40px; overflow: hidden; border-radius: 24px;
+            box-shadow: 0 0 40px rgba(0, 122, 255, 0.1);
         }
 
-        .progress-container { width: 280px; height: 6px; background: #111; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
-        #progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.4s ease; shadow: 0 0 10px #fff; }
-
-        .stat-row {
-            width: 300px; display: flex; justify-content: space-between;
-            padding: 15px 0; border-bottom: 1px solid #111;
-            opacity: 0; transform: translateY(10px); transition: 0.5s ease;
+        .baby-banner-ultra {
+            width: 100%; aspect-ratio: 21 / 9; object-fit: cover;
+            animation: bannerZoom 6s infinite alternate;
         }
-        .stat-row.active { opacity: 1; transform: translateY(0); }
-        .stat-label { color: #555; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .stat-value { color: #fff; font-weight: 900; }
 
-        /* --- MAIN UI --- */
-        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 0.8s ease; }
-        
-        .hero { padding: 40px 20px; text-align: center; background: radial-gradient(circle at top, #0f0f0f 0%, #000 100%); }
-        .avatar { width: 100px; height: 100px; border-radius: 35px; margin: 0 auto 15px; border: 3px solid #1a1a1a; }
-        .bal-val { font-size: 70px; font-weight: 900; letter-spacing: -4px; line-height: 1; }
+        @keyframes bannerZoom { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
-        .btn-premium { background: #fff; color: #000; padding: 20px; border-radius: 22px; font-weight: 900; width: calc(100% - 40px); margin: 0 20px 15px; font-size: 16px; }
-        .btn-outline { background: #0d0d0d; color: #fff; border: 1px solid #1a1a1a; padding: 18px; border-radius: 22px; font-weight: 900; width: calc(100% - 40px); margin: 0 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* Soldan Sağa Dolun Bar */
+        .progress-box { width: 280px; height: 6px; background: #111; border-radius: 20px; overflow: hidden; margin-bottom: 30px; }
+        #bar-fill { 
+            width: 0%; height: 100%; background: linear-gradient(90deg, #007aff, #fff); 
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+            transition: width 0.3s ease-out; 
+        }
+
+        .check-item {
+            width: 280px; display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid #111;
+            opacity: 0; transform: translateX(-20px); transition: 0.6s all ease;
+        }
+        .check-item.active { opacity: 1; transform: translateX(0); }
+        .label { color: #555; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .value { color: #fff; font-weight: 800; font-style: italic; font-size: 14px; }
+
+        /* --- MAIN NAVIGATION --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(25px);
+            border-top: 1px solid var(--border);
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            padding: 12px 0 25px; z-index: 5000;
+        }
+        .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #555; transition: 0.3s; }
+        .nav-tab.active { color: var(--primary); }
+        .nav-tab i { font-size: 20px; }
+        .nav-tab span { font-size: 10px; font-weight: 700; }
+
+        /* --- PAGE CONTENT --- */
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 120px; opacity: 0; transform: scale(0.98); transition: 0.4s; }
+        .page.active { display: block; opacity: 1; transform: scale(1); }
+
+        .balance-header { text-align: center; padding: 40px 0; }
+        .avatar-main { width: 110px; height: 110px; border-radius: 40px; margin: 0 auto 20px; border: 4px solid var(--card-bg); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .bal-number { font-size: 72px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 5px; }
+
+        /* --- CARDS & LISTS --- */
+        .card-task {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 24px; padding: 18px; display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 12px; transition: 0.2s;
+        }
+        .card-task:active { transform: scale(0.97); background: #151515; }
+        .task-icon { width: 48px; height: 48px; border-radius: 14px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+        .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .cex-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px 10px; text-align: center; }
+        .cex-item.selected { border-color: var(--primary); background: rgba(0, 122, 255, 0.05); }
 
         /* --- MODALS --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(10px); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 30px; backdrop-filter: blur(10px); }
         .modal.open { display: flex; }
-        .m-card { background: #0f0f0f; border: 1px solid #222; border-radius: 35px; width: 100%; padding: 40px 25px; text-align: center; }
+        .m-content { background: #0c0c0c; border: 1px solid #222; width: 100%; border-radius: 40px; padding: 40px 25px; text-align: center; }
 
-        .cex-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px 5px; text-align: center; }
-        .cex-card.active { border-color: #007aff; background: #001224; }
+        .btn-full { background: #fff; color: #000; font-weight: 800; width: 100%; padding: 18px; border-radius: 20px; font-size: 16px; margin-top: 15px; }
+        .btn-wallet { background: #111; border: 1px solid var(--border); color: #fff; font-weight: 800; width: 100%; padding: 18px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="loader-screen">
-        <img src="babykoalas.jpg" class="baby-banner-wide" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Baby+Koalas'">
-        <h1 class="text-2xl font-black mb-2">Analysing Profile</h1>
+    <div id="loading-screen">
+        <div class="banner-container">
+            <img src="babykoalas.jpg" class="baby-banner-ultra" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Baby+Koala+Banner'">
+        </div>
         
-        <div class="progress-container">
-            <div id="progress-bar"></div>
+        <h1 class="text-3xl font-black italic mb-2">Analyzing Profile</h1>
+        <div class="progress-box">
+            <div id="bar-fill"></div>
         </div>
 
-        <div class="stat-list">
-            <div id="r1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="s1">...</span></div>
-            <div id="r2" class="stat-row"><span class="stat-label">Premium Status</span><span class="stat-value" id="s2">...</span></div>
-            <div id="r3" class="stat-row"><span class="stat-label">Koala Tier</span><span class="stat-value" id="s3">...</span></div>
+        <div class="check-list">
+            <div id="l1" class="check-item"><span class="label">Account Age</span><span id="v1" class="value">...</span></div>
+            <div id="l2" class="check-item"><span class="label">Telegram Premium</span><span id="v2" class="value">...</span></div>
+            <div id="l3" class="check-item"><span class="label">User Activity</span><span id="v3" class="value">...</span></div>
         </div>
     </div>
 
-    <div id="main-app">
-        <div class="hero">
-            <img src="koalas.jpg" class="avatar" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Koala'">
-            <h2 id="final-bal" class="bal-val">0</h2>
-            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase mb-10">TOTAL ALLOCATION</p>
-            
-            <button onclick="openM('m-earn')" class="btn-premium">EARN $KOALA</button>
-            <button id="wallet-btn" onclick="openM('m-wallet')" class="btn-outline">
-                <i class="fa-solid fa-wallet text-blue-500"></i> SET WALLET
-            </button>
+    <div class="bottom-nav">
+        <div class="nav-tab active" onclick="switchPage('home', this)"><i class="fa-solid fa-house-chimney"></i><span>Home</span></div>
+        <div class="nav-tab" onclick="switchPage('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
+        <div class="nav-tab" onclick="switchPage('frens', this)"><i class="fa-solid fa-users"></i><span>Frens</span></div>
+        <div class="nav-tab" onclick="switchPage('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
+    </div>
+
+    <div id="main-container">
+        <div id="home" class="page active">
+            <div class="balance-header">
+                <img src="koalas.jpg" class="avatar-main" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Koala'">
+                <h2 id="main-balance" class="bal-number">0</h2>
+                <p class="text-zinc-500 font-black text-[10px] tracking-[5px] uppercase">$KOALA ALLOCATION</p>
+            </div>
+
+            <div class="px-2">
+                <p class="text-[11px] font-black text-zinc-700 tracking-widest uppercase mb-4">Partner Exchange</p>
+                <div class="cex-grid">
+                    <div class="cex-item" onclick="setEx(this)"><img src="binance.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=B'"><span class="text-[9px] font-black opacity-30">BINANCE</span></div>
+                    <div class="cex-item" onclick="setEx(this)"><img src="okx.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=O'"><span class="text-[9px] font-black opacity-30">OKX</span></div>
+                    <div class="cex-item" onclick="setEx(this)"><img src="bitget.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=BG'"><span class="text-[9px] font-black opacity-30">BITGET</span></div>
+                </div>
+                
+                <button onclick="openModal('m-earn')" class="btn-full mt-10 uppercase italic">Earn $Koala Allocation</button>
+            </div>
         </div>
 
-        <div class="px-6 mt-6">
-            <p class="text-[10px] font-black text-zinc-700 tracking-widest uppercase mb-4">Select Partner</p>
-            <div class="grid grid-cols-3 gap-3">
-                <div class="cex-card" onclick="setEx(this)"><img src="binance.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=B'"><span class="text-[9px] font-black opacity-30">BINANCE</span></div>
-                <div class="cex-card" onclick="setEx(this)"><img src="okx.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=O'"><span class="text-[9px] font-black opacity-30">OKX</span></div>
-                <div class="cex-card" onclick="setEx(this)"><img src="bitget.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=BG'"><span class="text-[9px] font-black opacity-30">BITGET</span></div>
+        <div id="tasks" class="page">
+            <h2 class="text-2xl font-black mb-6 italic">DAILY TASKS</h2>
+            <div class="card-task" onclick="watchAd()">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-blue-500"><i class="fa-solid fa-circle-play"></i></div>
+                    <div><h4 class="font-black text-sm">Watch Video</h4><p class="text-xs text-zinc-500 font-bold">+500 $KOALA</p></div>
+                </div>
+                <div class="bg-white text-black text-[10px] font-black px-3 py-1 rounded-full">GO</div>
+            </div>
+            <div class="card-task">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-zinc-400"><i class="fa-brands fa-x-twitter"></i></div>
+                    <div><h4 class="font-black text-sm">Follow Koala on X</h4><p class="text-xs text-zinc-500 font-bold">+1000 $KOALA</p></div>
+                </div>
+                <div class="bg-white text-black text-[10px] font-black px-3 py-1 rounded-full">GO</div>
+            </div>
+        </div>
+
+        <div id="frens" class="page text-center">
+            <div class="text-7xl mb-6 mt-10">🫂</div>
+            <h2 class="text-2xl font-black mb-2 uppercase">Invite Frens</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-10 px-6">You and your fren will both receive bonuses for every new user.</p>
+            <div class="bg-[#0a0a0a] border border-dashed border-zinc-800 p-6 rounded-3xl mb-6">
+                <p class="text-[10px] font-black text-zinc-600 mb-2 uppercase tracking-widest">Your Referral Link</p>
+                <p class="text-blue-500 font-bold text-sm">t.me/KoalasArcadeBot?start=ref102</p>
+            </div>
+            <button class="btn-full">INVITE A FREN</button>
+        </div>
+
+        <div id="wallet" class="page">
+            <h2 class="text-2xl font-black mb-6 italic">WEB3 IDENTITY</h2>
+            <div class="bg-zinc-900/30 p-8 rounded-[35px] border border-zinc-800 text-center">
+                <div class="text-5xl mb-6">💎</div>
+                <h3 class="text-xl font-black mb-4">Connect TON Wallet</h3>
+                <p class="text-zinc-500 text-sm font-bold mb-8">Connect your wallet to be eligible for the upcoming $KOALA airdrop.</p>
+                <button id="main-wallet-btn" onclick="openModal('m-wallet')" class="btn-wallet">CONNECT WALLET</button>
             </div>
         </div>
     </div>
 
     <div id="m-earn" class="modal">
-        <div class="m-card">
+        <div class="m-content">
             <div class="text-6xl mb-6">🐨</div>
-            <h2 class="text-2xl font-black mb-2 italic">EARN REWARDS</h2>
-            <p class="text-zinc-500 text-sm font-bold mb-8 px-4">Complete daily tasks and watch videos to increase your allocation.</p>
-            <button onclick="watchAd()" class="btn-premium mx-0 w-full mb-3">WATCH VIDEO (+50)</button>
-            <button onclick="closeM('m-earn')" class="text-zinc-600 font-black text-xs uppercase">MAYBE LATER</button>
+            <h2 class="text-2xl font-black mb-2 italic uppercase">Boost Allocation</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-8">Complete special missions to climb the leaderboard.</p>
+            <button onclick="watchAd()" class="btn-full">WATCH SHORT VIDEO</button>
+            <button onclick="closeModal('m-earn')" class="mt-4 text-zinc-600 font-black text-xs">NOT NOW</button>
         </div>
     </div>
 
     <div id="m-wallet" class="modal">
-        <div class="m-card">
-            <h2 class="text-xl font-black mb-6 uppercase tracking-tighter">Set TON Wallet</h2>
-            <input type="text" id="w-input" placeholder="Enter TON Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-6 outline-none">
-            <button onclick="saveW()" class="btn-premium mx-0 w-full">SAVE ADDRESS</button>
-            <button onclick="closeM('m-wallet')" class="mt-4 text-zinc-600 font-black text-xs">CLOSE</button>
+        <div class="m-content">
+            <h2 class="text-xl font-black mb-6 uppercase tracking-tighter">Set Address</h2>
+            <input type="text" id="wallet-input" placeholder="UQ... Enter TON Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-6 outline-none">
+            <button onclick="saveWallet()" class="btn-full">SAVE WALLET</button>
+            <button onclick="closeModal('m-wallet')" class="mt-4 text-zinc-600 font-black text-xs uppercase">Back</button>
         </div>
     </div>
 
     <script>
-        let balance = 0;
+        let currentBalance = 0;
 
-        async function startApp() {
-            const bar = document.getElementById('progress-bar');
-            const sleep = ms => new Promise(r => setTimeout(r, ms));
+        // --- TAKILMA ÖNLEYİCİ CHECKING SİSTEMİ ---
+        async function runLoader() {
+            const bar = document.getElementById('bar-fill');
+            const wait = ms => new Promise(r => setTimeout(r, ms));
 
             // Adım 1
-            await sleep(1000);
-            bar.style.width = "30%";
-            showStep('r1', 's1', '5.1 YEARS');
+            await wait(1000);
+            bar.style.width = "35%";
+            showStep('l1', 'v1', '5.2 YEARS');
 
             // Adım 2
-            await sleep(1500);
-            bar.style.width = "65%";
-            showStep('r2', 's2', 'YES');
+            await wait(1400);
+            bar.style.width = "70%";
+            showStep('l2', 'v2', 'YES');
 
             // Adım 3
-            await sleep(1500);
+            await wait(1400);
             bar.style.width = "100%";
-            showStep('r3', 's3', 'OG ELITE');
+            showStep('l3', 'v3', 'ELITE OG');
 
-            // Geçiş
-            await sleep(1000);
-            balance = Math.floor(Math.random() * 8000) + 2000;
-            document.getElementById('final-bal').innerText = balance.toLocaleString();
+            // Final Geçiş
+            await wait(1000);
+            currentBalance = Math.floor(Math.random() * 7000) + 3000;
+            document.getElementById('main-balance').innerText = currentBalance.toLocaleString();
             
-            document.getElementById('loader-screen').style.opacity = '0';
+            document.getElementById('loading-screen').style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('loader-screen').style.display = 'none';
-                const app = document.getElementById('main-app');
-                app.style.display = 'block';
-                setTimeout(() => app.style.opacity = '1', 50);
-            }, 600);
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('home').style.opacity = '1';
+            }, 800);
         }
 
-        function showStep(rid, sid, val) {
+        function showStep(rid, vid, val) {
             document.getElementById(rid).classList.add('active');
-            document.getElementById(sid).innerText = val;
-            document.getElementById(sid).style.color = "#007aff";
+            document.getElementById(vid).innerText = val;
+            document.getElementById(vid).style.color = "#007aff";
         }
 
-        function saveW() {
-            const v = document.getElementById('w-input').value;
-            if(v.length > 10) {
-                document.getElementById('wallet-btn').innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> ${v.slice(0,4)}...${v.slice(-4)}`;
-                closeM('m-wallet');
+        // --- PAGE NAVIGATOR ---
+        function switchPage(pageId, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            const target = document.getElementById(pageId);
+            target.style.display = 'block';
+            setTimeout(() => target.classList.add('active'), 50);
+            el.classList.add('active');
+        }
+
+        // --- FUNCTIONS ---
+        function setEx(el) {
+            document.querySelectorAll('.cex-item').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function saveWallet() {
+            const val = document.getElementById('wallet-input').value;
+            if(val.length > 10) {
+                const formatted = val.slice(0,4) + "..." + val.slice(-4);
+                document.getElementById('main-wallet-btn').innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> ${formatted}`;
+                closeModal('m-wallet');
+                alert("Wallet connected! +1000 $KOALA added.");
+                currentBalance += 1000;
+                document.getElementById('main-balance').innerText = currentBalance.toLocaleString();
             }
         }
 
         function watchAd() {
-            balance += 50;
-            document.getElementById('final-bal').innerText = balance.toLocaleString();
-            closeM('m-earn');
+            closeModal('m-earn');
+            currentBalance += 500;
+            document.getElementById('main-balance').innerText = currentBalance.toLocaleString();
+            alert("Reward claimed: +500 $KOALA");
         }
 
-        function setEx(el) {
-            document.querySelectorAll('.cex-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-        }
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
 
-        function openM(id) { document.getElementById(id).classList.add('open'); }
-        function closeM(id) { document.getElementById(id).classList.remove('open'); }
+        window.onload = runLoader;
 
-        window.onload = startApp;
     </script>
 </body>
 </html>
