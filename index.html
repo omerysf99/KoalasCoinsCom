@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | EXCHANGE FOCUS</title>
+    <title>KOALA ARCADE | OFFICIAL BOT</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -13,8 +13,7 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        :root { --bg: #000; --fg: #fff; --card: #0c0c0e; --border: #1d1d21; --accent: #ffffff; }
-        
+        :root { --bg: #000; --fg: #fff; --card: #0c0c0e; --border: #1d1d21; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
 
@@ -30,46 +29,35 @@
         #reward-pop.show { transform: scale(1); opacity: 1; }
 
         /* SAYFA SİSTEMİ */
-        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
         .page.active { display: flex; animation: pFade 0.4s ease; }
         @keyframes pFade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* ANA EKRAN TASARIMI */
+        /* ANA EKRAN */
         .hero-bal { text-align: center; margin: 40px 0; }
         .hero-bal h1 { font-size: 72px; font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 1; }
-        .koala-main { width: 220px; height: 220px; margin: 0 auto; background: #fff; border-radius: 50px; border: 8px solid #111; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.9); position: relative; }
+        .koala-main { width: 220px; height: 220px; margin: 0 auto; background: #fff; border-radius: 50px; border: 8px solid #111; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.9); }
         .koala-main img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* GÖREV KARTLARI */
-        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 22px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-        .task-card:active { transform: scale(0.97); background: #111; }
+        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 22px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
-        /* AIRDROP BORSA LOGOLARI */
+        /* AIRDROP BORSA LİSTESİ */
         .ex-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
-        .ex-item { 
-            background: var(--card); border: 2px solid var(--border); border-radius: 25px; 
-            padding: 20px; display: flex; align-items: center; gap: 20px; 
-            transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
-        }
-        .ex-item img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid #222; }
-        .ex-item h3 { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+        .ex-item { background: var(--card); border: 2px solid var(--border); border-radius: 25px; padding: 18px; display: flex; align-items: center; gap: 18px; transition: 0.3s; position: relative; cursor: pointer; }
+        .ex-item img { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; border: 1px solid #1d1d21; }
+        .ex-item h3 { font-weight: 800; font-size: 16px; }
         .ex-item p { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; }
-        
         .ex-item.selected { border-color: #fff; background: #111; }
-        .ex-item.selected::after { 
-            content: '\f058'; font-family: "Font Awesome 6 Free"; font-weight: 900; 
-            position: absolute; right: 25px; color: #fff; font-size: 20px;
-        }
+        .ex-item.selected::after { content: '\f058'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 20px; color: #fff; font-size: 18px; }
 
-        /* NAVİGASYON */
+        /* NAV */
         nav { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(0,0,0,0.9); border-top: 1px solid #111; display: flex; padding: 0 10px 15px; z-index: 999; backdrop-filter: blur(10px); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333; gap: 6px; }
-        .nav-btn i { font-size: 20px; }
-        .nav-btn span { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .nav-btn.active { color: #fff; }
+        .nav-btn span { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
 
-        .btn-action { background: #fff; color: #000; width: 100%; padding: 20px; border-radius: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; text-align: center; }
-        .btn-action:active { transform: scale(0.95); opacity: 0.8; }
+        .btn-action { background: #fff; color: #000; width: 100%; padding: 20px; border-radius: 24px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; }
+        .btn-action:active { transform: scale(0.96); }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -85,19 +73,14 @@
         </div>
         <div id="reward-pop">
             <p id="reward-val" class="text-6xl font-black italic mb-2"></p>
-            <p class="text-[10px] text-zinc-600 font-bold uppercase tracking-[5px]">Başlangıç Ödülü</p>
+            <p class="text-[10px] text-zinc-600 font-bold uppercase tracking-[5px]">Hoşgeldin Ödülü</p>
         </div>
         <div id="go-btn" class="btn-action hidden" onclick="start()">Giriş Yap</div>
     </div>
 
     <div id="p-home" class="page">
-        <div class="hero-bal">
-            <h1 id="ui-bal">0</h1>
-            <p class="text-[10px] text-zinc-600 font-black uppercase tracking-[4px] mt-3">$KOALA SCORE</p>
-        </div>
-
+        <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase tracking-[4px] mt-3">$KOALA SCORE</p></div>
         <div class="koala-main"><img src="coinkoala.jpg"></div>
-
         <div class="mt-12 space-y-3">
             <div class="task-card" onclick="mine()">
                 <div class="flex items-center gap-4">
@@ -106,98 +89,62 @@
                 </div>
                 <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">İZLE</div>
             </div>
-
-            <div class="task-card" onclick="joinTelegram()">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-sky-900/20 rounded-2xl flex items-center justify-center text-xl text-sky-500 border border-sky-900/30"><i class="fa-brands fa-telegram"></i></div>
-                    <div><h4 class="font-black text-sm uppercase italic">Resmi Kanal</h4><p class="text-[10px] text-zinc-500 font-bold">+500 KOALA</p></div>
-                </div>
-                <div id="tg-btn" class="bg-sky-600 text-white px-6 py-2 rounded-xl font-black text-[10px]">KATIL</div>
-            </div>
         </div>
     </div>
 
     <div id="p-squad" class="page">
         <h1 class="check-h">EKİBİN</h1>
         <div class="task-card py-12 flex-col gap-3">
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Her Davet İçin</p>
+            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Her Başarılı Davet</p>
             <h2 class="text-6xl font-black italic">+10,000</h2>
         </div>
-        <div class="flex-1 mt-6 flex items-center justify-center border-2 border-dashed border-zinc-900 rounded-3xl">
-            <p class="text-zinc-700 font-black italic uppercase text-xs">Henüz üye yok</p>
+        <div class="flex-1 mt-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-900 rounded-3xl p-6 text-center">
+            <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
+                <i class="fa-solid fa-user-plus text-2xl text-white"></i>
+            </div>
+            <p class="text-zinc-500 font-bold uppercase text-[10px] leading-relaxed">Ekibini kurarak airdrop<br>payını katlayabilirsin.</p>
         </div>
-        <div class="btn-action" onclick="copy()">Bağlantıyı Paylaş</div>
+        <div class="btn-action mt-6" onclick="shareTelegram()">Arkadaşlarını Davet Et</div>
     </div>
 
     <div id="p-airdrop" class="page">
         <h1 class="check-h">AIRDROP</h1>
-        
-        <div class="task-card bg-white text-black py-8 border-none">
-            <div class="w-full">
+        <div class="task-card bg-white text-black py-8 border-none text-left w-full">
+            <div>
                 <p class="text-[9px] font-black uppercase opacity-60 mb-1">Tahmini Token Miktarı</p>
-                <div class="flex items-baseline gap-2">
-                    <h2 id="ui-air" class="text-5xl font-black italic">0</h2>
-                    <span class="text-xs font-bold">$KOALA</span>
-                </div>
+                <div class="flex items-baseline gap-2"><h2 id="ui-air" class="text-5xl font-black italic">0</h2><span class="text-xs font-bold">$KOALA</span></div>
             </div>
         </div>
-
-        <p class="text-[10px] text-zinc-600 font-black uppercase mt-8 ml-1 tracking-widest">Listeleme Borsanı Seç</p>
-        
         <div class="ex-list">
-            <div id="ex-Binance" class="ex-item" onclick="setEx('Binance')">
-                <img src="binance.jpg">
-                <div>
-                    <h3>Binance</h3>
-                    <p>Global Exchange</p>
-                </div>
-            </div>
-
-            <div id="ex-OKX" class="ex-item" onclick="setEx('OKX')">
-                <img src="okx.jpg">
-                <div>
-                    <h3>OKX</h3>
-                    <p>Web3 & Trading</p>
-                </div>
-            </div>
-
-            <div id="ex-Bitget" class="ex-item" onclick="setEx('Bitget')">
-                <img src="bitget.jpg">
-                <div>
-                    <h3>Bitget</h3>
-                    <p>Copy Trading Focus</p>
-                </div>
-            </div>
+            <div id="ex-Binance" class="ex-item" onclick="setEx('Binance')"><img src="binance.jpg"><div><h3>Binance</h3><p>CEX Exchange</p></div></div>
+            <div id="ex-OKX" class="ex-item" onclick="setEx('OKX')"><img src="okx.jpg"><div><h3>OKX</h3><p>Web3 Wallet</p></div></div>
+            <div id="ex-Bitget" class="ex-item" onclick="setEx('Bitget')"><img src="bitget.jpg"><div><h3>Bitget</h3><p>Trading Hub</p></div></div>
         </div>
     </div>
 
     <nav id="navbar" class="hidden">
-        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-house"></i><span>Kazan</span></div>
+        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Kazan</span></div>
         <div class="nav-btn" onclick="tab('squad', this)"><i class="fa-solid fa-users"></i><span>Ekip</span></div>
         <div class="nav-btn" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
 <script>
-    // CORE SCRIPT - 874 SATIRLIK KALİTE
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('koala_final_v1') || 'K' + Math.floor(Math.random()*1000000);
-    localStorage.setItem('koala_final_v1', uid);
+    // Kullanıcı ID Oluşturma
+    let uid = localStorage.getItem('koala_final_v3') || 'K' + Math.floor(Math.random()*1000000);
+    localStorage.setItem('koala_final_v3', uid);
 
-    let u = { bal: 0, ex: '', checked: false, tg: false };
+    let u = { bal: 0, ex: '', checked: false };
 
     async function init() {
         try {
             const doc = await db.collection("users").doc(uid).get();
             if(doc.exists) u = {...u, ...doc.data()};
-            if(u.checked) { 
-                document.getElementById('checker-screen').style.display = 'none'; 
-                show(); 
-            } else { 
-                runCheck(); 
-            }
+            if(u.checked) { document.getElementById('checker-screen').style.display = 'none'; show(); } 
+            else { runCheck(); }
             render();
         } catch(e) { runCheck(); render(); }
     }
@@ -206,77 +153,46 @@
         ['L1', 'L2', 'L3'].forEach((id, i) => {
             setTimeout(() => {
                 const row = document.getElementById(id);
-                row.classList.add('active');
-                row.querySelector('.spin').classList.add('hidden');
-                row.querySelector('i').classList.remove('hidden');
-
+                if(row) {
+                    row.classList.add('active');
+                    row.querySelector('.spin').classList.add('hidden');
+                    row.querySelector('i').classList.remove('hidden');
+                }
                 if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 5000) + 1000;
+                    const bonus = Math.floor(Math.random() * 2000) + 1000;
                     u.bal += bonus; u.checked = true;
                     document.getElementById('reward-val').innerText = bonus.toLocaleString('tr-TR');
                     document.getElementById('reward-pop').classList.add('show');
                     document.getElementById('go-btn').classList.remove('hidden');
                     save(); render();
                 }
-            }, (i + 1) * 1200);
+            }, (i + 1) * 1000);
         });
     }
 
-    function start() {
-        document.getElementById('checker-screen').style.opacity = '0';
-        setTimeout(() => { 
-            document.getElementById('checker-screen').style.display = 'none'; 
-            show(); 
-        }, 600);
+    // --- @KoalasUsdt_bot PAYLAŞMA FONKSİYONU ---
+    function shareTelegram() {
+        const botUsername = "KoalasUsdt_bot"; 
+        const referralLink = `https://t.me/${botUsername}?startapp=${uid}`;
+        const shareText = encodeURIComponent("🐨 Koala Arcade'de USDT ödülleri ve tokenlar seni bekliyor! \n\n🎁 Linke tıkla, 1.000+ puan bonusla hemen madenciliğe başla:");
+        const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${shareText}`;
+        window.open(telegramShareUrl, '_blank');
     }
 
-    function show() {
-        document.getElementById('p-home').classList.add('active');
-        document.getElementById('navbar').classList.remove('hidden');
-    }
-
-    function mine() {
-        window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {});
-    }
-
-    function joinTelegram() {
-        if(u.tg) return;
-        window.open("https://t.me/KanalLinkin", "_blank");
-        u.bal += 500; u.tg = true;
-        save(); render();
-    }
-
-    function tab(name, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p-' + name).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
-
+    function start() { document.getElementById('checker-screen').style.opacity = '0'; setTimeout(() => { document.getElementById('checker-screen').style.display = 'none'; show(); }, 600); }
+    function show() { document.getElementById('p-home').classList.add('active'); document.getElementById('navbar').classList.remove('hidden'); }
+    function mine() { window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {}); }
+    function tab(name, el) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('p-' + name).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
     function setEx(n) { u.ex = n; save(); render(); }
-
+    
     function render() {
-        // Puanlar
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
-        // Airdrop (1000 -> 100)
         document.getElementById('ui-air').innerText = Math.floor(u.bal / 10).toLocaleString('tr-TR');
-        
-        // TG Buton
-        if(u.tg) {
-            const btn = document.getElementById('tg-btn');
-            btn.innerText = "TAMAM"; btn.className = "bg-zinc-900 text-zinc-600 px-6 py-2 rounded-xl font-black text-[10px]";
-        }
-
-        // Borsa Seçimi (Logo Vurgusu)
         document.querySelectorAll('.ex-item').forEach(i => i.classList.remove('selected'));
-        if(u.ex) {
-            document.getElementById('ex-' + u.ex)?.classList.add('selected');
-        }
+        if(u.ex) document.getElementById('ex-' + u.ex)?.classList.add('selected');
     }
 
     async function save() { try { await db.collection("users").doc(uid).set(u); } catch(e){} }
-    function copy() { alert("Davet linki kopyalandı!"); }
-
     window.onload = init;
 </script>
 </body>
