@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE</title>
+    <title>KOALA ARCADE | ECOSYSTEM V1.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -12,219 +12,616 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --fg: #fff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; position: fixed; width: 100%; }
-
-        /* --- DOGS STYLE CHECKER --- */
-        #checker { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; padding: 50px 25px; transition: 0.5s ease-in-out; }
-        .dogs-h { font-size: 38px; font-weight: 900; line-height: 1.1; margin-bottom: 45px; }
-        .c-line { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
-        .c-line.active { color: var(--fg); }
-        .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: s 0.7s linear infinite; }
-        @keyframes s { to { transform: rotate(360deg); } }
-
-        /* --- PAGES --- */
-        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .page.active { display: flex; animation: pIn 0.3s ease-out; }
-        @keyframes pIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .balance-hero { text-align: center; margin: 30px 0; }
-        .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
-        .koala-img { width: 190px; height: 190px; background: #fff; border-radius: 45px; margin: 25px auto; overflow: hidden; transform: rotate(-2deg); border: 6px solid #111; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-        .koala-img img { width: 100%; height: 100%; object-fit: cover; }
+        :root {
+            --bg: #000000;
+            --fg: #ffffff;
+            --zinc-900: #09090b;
+            --zinc-800: #18181b;
+            --zinc-700: #27272a;
+            --zinc-500: #71717a;
+            --zinc-400: #a1a1aa;
+            --accent: #ffffff;
+        }
 
-        .card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 20px; margin-bottom: 12px; transition: 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
-        
-        /* --- AIRDROP & ROADMAP --- */
-        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.3; filter: grayscale(1); transition: 0.3s; }
-        .ex-card.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; }
-        
-        .roadmap-line { position: relative; padding-left: 25px; border-left: 2px solid #111; margin: 20px 5px; }
-        .rm-step { position: relative; margin-bottom: 30px; }
-        .rm-dot { position: absolute; left: -32px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #333; border-radius: 50%; }
-        .rm-step.done .rm-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
-        .rm-step.done h4 { color: #fff; }
-        .rm-step h4 { font-size: 13px; font-weight: 900; color: #444; text-transform: uppercase; }
-        .rm-step p { font-size: 10px; color: #666; margin-top: 4px; }
+        /* Temel Reset ve Mobil Uyumluluk */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
 
-        /* --- NAVIGATION --- */
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 998; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
-        .nav-link.active { color: #fff; }
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: fixed;
+        }
+
+        /* --- 1. GİRİŞ TARAMA EKRANI (DOGS STYLE) --- */
+        #checker-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 25px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .check-header {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            margin-bottom: 50px;
+        }
+
+        .check-list {
+            flex: 1;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 0;
+            border-bottom: 1px solid #111;
+            color: #333;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .check-item.active {
+            color: var(--fg);
+        }
+
+        .loader-spin {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #222;
+            border-top-color: var(--fg);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Ödül Kutusu */
+        #reward-box {
+            background: linear-gradient(to bottom, #111, #000);
+            border: 1px solid #222;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: 0.5s;
+        }
+
+        #reward-box.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* --- 2. ANA UYGULAMA YAPISI --- */
+        .page-container {
+            height: 100%;
+            overflow-y: auto;
+            padding: 25px 20px 120px;
+            display: none;
+            flex-direction: column;
+        }
+
+        .page-container.active {
+            display: flex;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 3. BİLEŞENLER (COMPONENTS) --- */
+        .balance-card {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .balance-value {
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: -4px;
+            font-style: italic;
+            line-height: 1;
+        }
+
+        .koala-frame {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 50px;
+            border: 8px solid #0f0f0f;
+            transform: rotate(-3deg);
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .koala-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .action-card {
+            background: var(--zinc-900);
+            border: 1px solid var(--zinc-800);
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-card:active {
+            transform: scale(0.97);
+            background: #111;
+        }
+
+        /* --- 4. AIRDROP & ROADMAP --- */
+        .roadmap-wrap {
+            margin-top: 10px;
+            padding-left: 20px;
+            border-left: 2px solid #111;
+        }
+
+        .roadmap-node {
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        .roadmap-node::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: #111;
+            border: 2px solid #222;
+            border-radius: 50%;
+        }
+
+        .roadmap-node.active::before {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+
+        .roadmap-node h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #444;
+            text-transform: uppercase;
+        }
+
+        .roadmap-node.active h4 {
+            color: #fff;
+        }
+
+        .exchange-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .ex-item {
+            background: #09090b;
+            border: 1px solid #18181b;
+            border-radius: 20px;
+            padding: 15px 5px;
+            text-align: center;
+            opacity: 0.4;
+            filter: grayscale(1);
+            transition: 0.3s;
+        }
+
+        .ex-item.selected {
+            opacity: 1;
+            filter: grayscale(0);
+            border-color: #fff;
+            background: #111;
+        }
+
+        /* --- 5. NAVIGATION --- */
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #111;
+            display: flex;
+            padding: 0 15px 25px;
+            z-index: 999;
+        }
+
+        .nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            gap: 6px;
+        }
+
+        .nav-btn.active {
+            color: #fff;
+        }
+
+        .nav-btn i {
+            font-size: 20px;
+        }
+
+        /* Utility */
+        .btn-main {
+            background: #fff;
+            color: #000;
+            width: 100%;
+            padding: 20px;
+            border-radius: 24px;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+        }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="checker">
-        <h1 class="dogs-h">Checking your<br>Koala eligibility</h1>
-        <div class="flex-1">
-            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
-            <div id="l2" class="c-line"><span>Activity Rank</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
-            <div id="l3" class="c-line"><span>Sybil Protection</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
+    <div id="checker-screen">
+        <h1 class="check-header">Checking your<br>Koala status</h1>
+        <div class="check-list">
+            <div id="c1" class="check-item"><span>Wallet Longevity</span><div class="loader-spin"></div><i class="fa-solid fa-circle-check hidden"></i></div>
+            <div id="c2" class="check-item"><span>Social Activity</span><div class="loader-spin"></div><i class="fa-solid fa-circle-check hidden"></i></div>
+            <div id="c3" class="check-item"><span>Sybil Protocol</span><div class="loader-spin"></div><i class="fa-solid fa-circle-check hidden"></i></div>
         </div>
-        <div id="res-box" class="hidden text-center mb-10 animate-pulse">
-            <p id="res-val" class="text-6xl font-black italic text-white"></p>
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px] mt-2">Points Awarded</p>
+
+        <div id="reward-box">
+            <p id="reward-amount" class="text-6xl font-black italic mb-2"></p>
+            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px]">Early Adopter Bonus</p>
         </div>
-        <div id="res-btn" class="btn-white hidden" onclick="goHome()">Enter Arcade</div>
+
+        <div id="start-btn" class="btn-main hidden" onclick="launchApp()">Claim & Enter</div>
     </div>
 
-    <div id="p-home" class="page">
-        <div class="balance-hero">
-            <h1 id="ui-bal">0</h1>
-            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">$KOALA Points</p>
+    <div id="page-home" class="page-container">
+        <div class="balance-card">
+            <h1 id="main-bal" class="balance-value">0</h1>
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-[3px] mt-3">$KOALA Points</p>
         </div>
-        <div class="koala-img"><img src="coinkoala.jpg"></div>
-        <div class="card flex justify-between items-center mt-6" id="ad-card" onclick="adEarn()">
-            <div><h4 class="font-black text-xs uppercase italic">Daily Mining Ad</h4><p class="text-[9px] text-zinc-500 font-bold uppercase">+1 $KOALA</p></div>
-            <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">WATCH</div>
+
+        <div class="koala-frame">
+            <img src="coinkoala.jpg" alt="Koala">
+        </div>
+
+        <div class="mt-12 space-y-3">
+            <div class="action-card" onclick="handleAdMining()">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-video text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm uppercase italic">Daily Mining</h4>
+                        <p class="text-[10px] text-zinc-500 font-bold">+1 $KOALA</p>
+                    </div>
+                </div>
+                <div class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px]">MINING</div>
+            </div>
+
+            <div class="action-card opacity-50 cursor-not-allowed">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl text-zinc-600">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm uppercase italic">Arcade Games</h4>
+                        <p class="text-[10px] text-zinc-500 font-bold">Coming Soon</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="p-ref" class="page">
-        <h1 class="dogs-h">Squad</h1>
-        <div class="card py-10 flex flex-col items-center gap-2">
-            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Invite Reward</p>
+    <div id="page-squad" class="page-container">
+        <h1 class="check-header">Squad</h1>
+        <div class="action-card py-10 flex-col gap-3">
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Invite Friend Bonus</p>
             <h2 class="text-5xl font-black italic">+10,000</h2>
         </div>
-        <div id="ref-list" class="flex-1 space-y-2 py-4"></div>
-        <div class="btn-white" onclick="copyRef()">Invite Link</div>
-    </div>
 
-    <div id="p-airdrop" class="page">
-        <h1 class="dogs-h">Airdrop</h1>
-        <div class="card bg-gradient-to-br from-[#111] to-black">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Estimated Allocation</p>
-            <div class="flex items-baseline gap-2">
-                <h2 id="airdrop-tokens" class="text-4xl font-black italic">0</h2>
-                <span class="text-xs font-bold text-zinc-600">$KOALA</span>
+        <div class="mt-6 flex-1">
+            <p class="text-[10px] text-zinc-400 font-black uppercase mb-4 ml-1">Your Friends</p>
+            <div id="referral-list" class="space-y-2">
+                <div class="text-center py-10 text-zinc-700 text-xs font-bold uppercase italic">No friends invited yet</div>
             </div>
         </div>
 
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-1">Connect Exchange</p>
-        <div class="flex gap-2 mb-8">
-            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><p class="text-[10px] font-black uppercase">Binance</p></div>
-            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><p class="text-[10px] font-black uppercase">OKX</p></div>
-            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><p class="text-[10px] font-black uppercase">Bitget</p></div>
+        <div class="btn-main mt-4" onclick="shareRef()">Invite a Friend</div>
+    </div>
+
+    <div id="page-airdrop" class="page-container">
+        <h1 class="check-header">Airdrop</h1>
+        
+        <div class="action-card bg-gradient-to-br from-zinc-900 to-black border-zinc-800 py-8">
+            <div class="w-full">
+                <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Estimated $KOALA Token</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 id="airdrop-val" class="text-5xl font-black italic">0</h2>
+                    <span class="text-xs font-black text-zinc-700">LISTING PRICE: TBD</span>
+                </div>
+            </div>
         </div>
 
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-1">Project Roadmap</p>
-        <div class="roadmap-line">
-            <div class="rm-step done"><div class="rm-dot"></div><h4>Stage 1: Genesis</h4><p>Community launch & profile mining.</p></div>
-            <div class="rm-step done"><div class="rm-dot"></div><h4>Stage 2: Farming</h4><p>Ad-reward integration is live.</p></div>
-            <div class="rm-step"><div class="rm-dot"></div><h4>Stage 3: Snapshot</h4><p>Token allocation finalization.</p></div>
-            <div class="rm-step"><div class="rm-dot"></div><h4>Stage 4: TGE</h4><p>Listing on Tier-1 exchanges.</p></div>
+        <div class="mt-8">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-4 ml-1">Select Receiving Exchange</p>
+            <div class="exchange-grid">
+                <div id="ex-Binance" class="ex-item" onclick="selectExchange('Binance')">
+                    <p class="font-black text-[10px]">BINANCE</p>
+                </div>
+                <div id="ex-OKX" class="ex-item" onclick="selectExchange('OKX')">
+                    <p class="font-black text-[10px]">OKX</p>
+                </div>
+                <div id="ex-Bitget" class="ex-item" onclick="selectExchange('Bitget')">
+                    <p class="font-black text-[10px]">BITGET</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-5 ml-1">Ecosystem Roadmap</p>
+            <div class="roadmap-wrap">
+                <div class="roadmap-node active">
+                    <h4>Stage 1: Community Ignition</h4>
+                    <p>Genesis of Koala Arcade and initial distribution.</p>
+                </div>
+                <div class="roadmap-node active">
+                    <h4>Stage 2: Mining & Scaling</h4>
+                    <p>Adexora rewards and community tasks integration.</p>
+                </div>
+                <div class="roadmap-node">
+                    <h4>Stage 3: Arcade Launch</h4>
+                    <p>Mini-games and play-to-earn mechanics.</p>
+                </div>
+                <div class="roadmap-node">
+                    <h4>Stage 4: TGE & Listing</h4>
+                    <p>Final snapshot and Tier-1 exchange listings.</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <nav id="navbar" class="hidden">
-        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
-        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
-        <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+    <nav id="main-nav" class="hidden">
+        <div class="nav-btn active" onclick="switchTab('home', this)">
+            <i class="fa-solid fa-bolt-lightning"></i>
+            <span>Mining</span>
+        </div>
+        <div class="nav-btn" onclick="switchTab('squad', this)">
+            <i class="fa-solid fa-users-viewfinder"></i>
+            <span>Squad</span>
+        </div>
+        <div class="nav-btn" onclick="switchTab('airdrop', this)">
+            <i class="fa-solid fa-box-open"></i>
+            <span>Airdrop</span>
+        </div>
     </nav>
 
 <script>
-    // ⚙️ CONFIG
-    const firebaseConfig = { apiKey: "AIzaSy...", projectId: "koalascombom" };
+    /* =========================================
+       KOALA ARCADE CORE LOGIC
+       =========================================
+    */
+
+    // 1. Firebase Başlatma (Kendi bilgilerinle güncelle)
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        projectId: "koalascombom"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 👤 USER LOGIC
-    let uid = localStorage.getItem('koala_v_final_x') || 'U' + Math.floor(Math.random()*999999);
-    localStorage.setItem('koala_v_final_x', uid);
-
-    let u = { bal: 0, ex: '', checked: false, refs: [] };
-
-    async function init() {
-        const doc = await db.collection("users").doc(uid).get();
-        if(doc.exists) u = {...u, ...doc.data()};
-        
-        if(u.checked) {
-            document.getElementById('checker').style.display = 'none';
-            showApp();
-        } else {
-            startChecker();
-        }
-        render();
+    // 2. Kullanıcı Kimliği (Persistent UID)
+    let userId = localStorage.getItem('koala_user_uuid_v1');
+    if (!userId) {
+        userId = 'K' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        localStorage.setItem('koala_user_uuid_v1', userId);
     }
 
-    function startChecker() {
-        ['l1', 'l2', 'l3'].forEach((id, i) => {
+    // 3. Uygulama Durumu (State)
+    let user = {
+        bal: 0,
+        ex: '',
+        checked: false,
+        refs: [],
+        lastMining: 0
+    };
+
+    // 4. Başlatma Fonksiyonu
+    async function init() {
+        try {
+            const doc = await db.collection("users").doc(userId).get();
+            if (doc.exists) {
+                user = { ...user, ...doc.data() };
+            }
+
+            if (user.checked) {
+                document.getElementById('checker-screen').style.display = 'none';
+                showApp();
+            } else {
+                runCheckerSequence();
+            }
+            updateUI();
+        } catch (err) {
+            console.error("Init Error:", err);
+            // Çevrimdışı mod veya hata durumu
+            runCheckerSequence();
+        }
+    }
+
+    // 5. Tarama Simülasyonu
+    function runCheckerSequence() {
+        const lines = ['c1', 'c2', 'c3'];
+        lines.forEach((id, index) => {
             setTimeout(() => {
                 const el = document.getElementById(id);
                 el.classList.add('active');
-                el.querySelector('.spin').classList.add('hidden');
+                el.querySelector('.loader-spin').classList.add('hidden');
                 el.querySelector('i').classList.remove('hidden');
-                
-                if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 9001) + 1000; // 1000 - 10000
-                    u.bal += bonus;
-                    u.checked = true; // Sadece 1 kere çalışması için
-                    document.getElementById('res-val').innerText = bonus.toLocaleString('tr-TR');
-                    document.getElementById('res-box').classList.remove('hidden');
-                    document.getElementById('res-btn').classList.remove('hidden');
-                    save(); render();
+
+                if (index === lines.length - 1) {
+                    // Bonus Hesaplama (1.000 - 10.000)
+                    const bonus = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+                    user.bal += bonus;
+                    user.checked = true;
+
+                    // UI Güncelleme
+                    const rBox = document.getElementById('reward-box');
+                    document.getElementById('reward-amount').innerText = bonus.toLocaleString('tr-TR');
+                    rBox.classList.add('show');
+                    document.getElementById('start-btn').classList.remove('hidden');
+                    
+                    saveData();
                 }
-            }, (i+1) * 1200);
+            }, (index + 1) * 1500);
         });
     }
 
-    function goHome() {
-        document.getElementById('checker').style.opacity = '0';
-        setTimeout(() => { 
-            document.getElementById('checker').style.display = 'none'; 
+    // 6. Uygulamaya Giriş
+    function launchApp() {
+        const screen = document.getElementById('checker-screen');
+        screen.style.transform = 'translateY(-100%)';
+        setTimeout(() => {
+            screen.style.display = 'none';
             showApp();
-        }, 500);
+        }, 600);
     }
 
     function showApp() {
-        document.getElementById('p-home').classList.add('active');
-        document.getElementById('navbar').classList.remove('hidden');
+        document.getElementById('page-home').classList.add('active');
+        document.getElementById('main-nav').classList.remove('hidden');
+        updateUI();
     }
 
-    // 📺 AD LOGIC
-    function adEarn() {
-        const b = document.getElementById('ad-card');
-        b.style.opacity = "0.5"; b.style.pointerEvents = "none";
+    // 7. Mining (Reklam) Sistemi
+    function handleAdMining() {
+        const btn = event.currentTarget;
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+
+        if (typeof window.showAdexora === 'function') {
+            window.showAdexora()
+                .then(() => {
+                    user.bal += 1; // Kuruşsuz tam puan
+                    saveData();
+                    updateUI();
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                })
+                .catch(err => {
+                    console.log("Ad closed or failed.");
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                });
+        } else {
+            // Test amaçlı reklam yoksa
+            user.bal += 1;
+            saveData();
+            updateUI();
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        }
+    }
+
+    // 8. Sekme Değiştirme
+    function switchTab(tabName, el) {
+        document.querySelectorAll('.page-container').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + tabName).classList.add('active');
         
-        window.showAdexora().then(() => {
-            u.bal += 1;
-            save(); render();
-            b.style.opacity = "1"; b.style.pointerEvents = "auto";
-        }).catch(() => {
-            b.style.opacity = "1"; b.style.pointerEvents = "auto";
-        });
-    }
-
-    // 🛠️ HELPERS
-    function setEx(n) { u.ex = n; save(); render(); }
-    function copyRef() { alert("Link Copied!"); }
-
-    function render() {
-        // Tam sayılar, kuruşsuz
-        document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
-        // Airdrop: 9331 -> 933 (10'a bölme)
-        document.getElementById('airdrop-tokens').innerText = Math.floor(u.bal / 10).toLocaleString('tr-TR');
-        
-        document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
-        if(u.ex) document.getElementById('ex-' + u.ex)?.classList.add('selected');
-    }
-
-    async function save() { await db.collection("users").doc(uid).set(u); }
-
-    function tab(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p-' + id).classList.add('active');
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
     }
 
+    // 9. Borsa Seçimi
+    function selectExchange(name) {
+        user.ex = name;
+        saveData();
+        updateUI();
+    }
+
+    // 10. UI Senkronizasyonu
+    function updateUI() {
+        // Ana Bakiye (9331)
+        document.getElementById('main-bal').innerText = Math.floor(user.bal).toLocaleString('tr-TR');
+        
+        // Airdrop Hesabı (9331 / 10 = 933)
+        const airdropPoints = Math.floor(user.bal / 10);
+        document.getElementById('airdrop-val').innerText = airdropPoints.toLocaleString('tr-TR');
+
+        // Borsa Seçimi UI
+        document.querySelectorAll('.ex-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        if (user.ex) {
+            const selectedEx = document.getElementById('ex-' + user.ex);
+            if (selectedEx) selectedEx.classList.add('selected');
+        }
+    }
+
+    // 11. Veri Kaydetme
+    async function saveData() {
+        try {
+            await db.collection("users").doc(userId).set(user);
+        } catch (e) {
+            console.error("Save Error:", e);
+        }
+    }
+
+    // 12. Paylaşım
+    function shareRef() {
+        const text = `Join Koala Arcade and mine $KOALA tokens! My ID: ${userId}`;
+        if (navigator.share) {
+            navigator.share({ title: 'Koala Arcade', text: text, url: window.location.href });
+        } else {
+            alert("Invite text copied to clipboard!");
+        }
+    }
+
+    // Başlat
     window.onload = init;
 </script>
 </body>
