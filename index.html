@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | FULL ROADMAP EDITION</title>
+    <title>KOALA ARCADE | GÖRSEL MERKEZİ</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -28,116 +28,103 @@
         #reward-pop.show { transform: scale(1); opacity: 1; }
 
         /* SAYFALAR */
-        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 120px; overflow-y: auto; scroll-behavior: smooth; }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 120px; overflow-y: auto; }
         .page.active { display: flex; animation: pIn 0.3s ease-out; }
         @keyframes pIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* GENEL TASARIM */
-        .hero { text-align: center; margin: 30px 0; }
+        .hero { text-align: center; margin: 20px 0; }
         .hero h1 { font-size: 68px; font-weight: 900; font-style: italic; letter-spacing: -3px; }
+        
+        /* GÖRSEL KUTULARI */
         .koala-box { width: 180px; height: 180px; margin: 0 auto; background: #fff; border-radius: 40px; border: 6px solid #111; transform: rotate(-2deg); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .koala-box img { width: 100%; height: 100%; object-fit: cover; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+        
+        .image-banner { width: 100%; border-radius: 20px; margin: 15px 0; border: 1px solid #111; }
+        
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
-        /* ROADMAP TASARIMI */
-        .roadmap-title { font-size: 10px; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 2px; margin: 30px 0 15px 5px; }
-        .roadmap-wrap { padding-left: 20px; border-left: 2px solid #111; margin-left: 10px; margin-bottom: 50px; }
-        .roadmap-node { position: relative; padding-bottom: 35px; }
-        .roadmap-node::before { content: ''; position: absolute; left: -27px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #222; border-radius: 50%; }
-        .roadmap-node.done::before { background: #fff; border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.4); }
-        .roadmap-node h4 { font-size: 14px; font-weight: 800; color: #333; text-transform: uppercase; }
-        .roadmap-node.done h4 { color: #fff; }
-        .roadmap-node p { font-size: 11px; color: #555; margin-top: 4px; line-height: 1.4; }
-        .roadmap-node.done p { color: #888; }
-
-        /* BORSA GRID */
-        .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0 30px; }
+        /* BORSA GRID ( JPG ODAKLI ) */
+        .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
         .ex-btn { background: #09090b; border: 1px solid #18181b; border-radius: 22px; padding: 15px 5px; text-align: center; opacity: 0.3; filter: grayscale(1); transition: 0.3s; cursor: pointer; }
-        .ex-btn img { width: 36px; height: 36px; margin: 0 auto 10px; border-radius: 10px; object-fit: cover; }
-        .ex-btn.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .ex-btn img { width: 40px; height: 40px; margin: 0 auto 10px; border-radius: 12px; object-fit: cover; }
+        .ex-btn.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; transform: scale(1.05); }
 
         /* NAV */
         nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
         .nav-link.active { color: #fff; }
         .btn-p { background: #fff; color: #000; width: 100%; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; }
+        
+        /* EKSTRA GÖRSEL ALANI */
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .gallery-item { width: 100%; border-radius: 15px; border: 1px solid #111; }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="checker-screen">
-        <h1 class="check-h">Profilin<br>inceleniyor</h1>
+        <h1 class="check-h">Analiz Ediliyor...</h1>
         <div class="flex-1">
             <div id="L1" class="c-row"><span>Hesap Yaşı</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L2" class="c-row"><span>Aktivite Puanı</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L3" class="c-row"><span>Güvenlik Kontrolü</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="L2" class="c-row"><span>Aktivite</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="L3" class="c-row"><span>Doğrulama</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
         </div>
         <div id="reward-pop">
             <p id="reward-val" class="text-6xl font-black italic mb-2"></p>
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px]">Hoşgeldin Ödülü</p>
+            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px]">Hoşgeldin Bonusu</p>
         </div>
-        <div id="go-btn" class="btn-p hidden" onclick="entry()">Başlat</div>
+        <div id="go-btn" class="btn-p hidden" onclick="entry()">Uygulamaya Gir</div>
     </div>
 
     <div id="p-home" class="page">
         <div class="hero">
             <h1 id="ui-puan">0</h1>
-            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-[3px] mt-2">$KOALA Puanı</p>
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-[3px] mt-2">$KOALA PUAN</p>
         </div>
+        
         <div class="koala-box"><img src="coinkoala.jpg"></div>
 
         <div class="mt-8 space-y-3">
             <div class="card" onclick="mineAd()">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl text-white"><i class="fa-solid fa-play"></i></div>
-                    <div><h4 class="font-bold text-sm uppercase italic">Madencilik Yap</h4><p class="text-[10px] text-zinc-500 font-bold">+1 $KOALA</p></div>
+                    <div><h4 class="font-bold text-sm uppercase italic">Reklam İzle</h4><p class="text-[10px] text-zinc-500 font-bold">+1 $KOALA</p></div>
                 </div>
                 <div class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px]">İZLE</div>
             </div>
 
-            <div class="card" id="task-channel" onclick="completeChannelTask()">
+            <div class="card" onclick="completeChannelTask()">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-sky-900/30 rounded-2xl flex items-center justify-center text-xl text-sky-400"><i class="fa-brands fa-telegram"></i></div>
-                    <div><h4 class="font-bold text-sm uppercase italic">Kanala Katıl</h4><p class="text-[10px] text-zinc-500 font-bold">+500 $KOALA</p></div>
+                    <div><h4 class="font-bold text-sm uppercase italic">Telegram</h4><p class="text-[10px] text-zinc-500 font-bold">+500 $KOALA</p></div>
                 </div>
                 <div id="task-btn-text" class="bg-sky-500 text-white px-5 py-2 rounded-xl font-black text-[10px]">KATIL</div>
             </div>
         </div>
 
-        <p class="roadmap-title">Proje Yol Haritası</p>
-        <div class="roadmap-wrap">
-            <div class="roadmap-node done">
-                <h4>Aşama 1: Genesis</h4>
-                <p>Koala Arcade ekosisteminin temelleri atıldı. Puan madenciliği ve topluluk başlangıcı.</p>
-            </div>
-            <div class="roadmap-node done">
-                <h4>Aşama 2: Büyüme</h4>
-                <p>Adexora reklam entegrasyonu ve sosyal görevlerin aktif edilmesi.</p>
-            </div>
-            <div class="roadmap-node">
-                <h4>Aşama 3: Oyun Alanı</h4>
-                <p>Uygulama içine mini arcade oyunlarının eklenmesi ve skor tablosu lansmanı.</p>
-            </div>
-            <div class="roadmap-node">
-                <h4>Aşama 4: Snapshot</h4>
-                <p>Tüm puanların dondurulması ve borsa hakedişlerinin hesaplanması.</p>
-            </div>
-            <div class="roadmap-node">
-                <h4>Aşama 5: Listeleme</h4>
-                <p>Tier-1 borsalarda $KOALA token listelemesi ve Airdrop dağıtımı.</p>
+        <div class="mt-6">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-3">Partnerler & Ekosistem</p>
+            <img src="banner1.jpg" class="image-banner" alt="Banner 1">
+            <div class="gallery-grid">
+                <img src="extra1.jpg" class="gallery-item" alt="Görsel 1">
+                <img src="extra2.jpg" class="gallery-item" alt="Görsel 2">
+                <img src="extra3.jpg" class="gallery-item" alt="Görsel 3">
+                <img src="extra4.jpg" class="gallery-item" alt="Görsel 4">
             </div>
         </div>
     </div>
 
     <div id="p-squad" class="page">
         <h1 class="check-h">Ekip</h1>
+        <img src="squad_banner.jpg" class="image-banner" alt="Ekip Banner">
         <div class="card py-10 flex-col gap-2">
-            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Davet Ödülü</p>
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Referans Bonusu</p>
             <h2 class="text-5xl font-black italic">+10,000</h2>
         </div>
-        <div class="flex-1 mt-6"><div id="ref-list" class="text-center py-10 text-zinc-800 text-xs font-bold uppercase italic">Liste Boş</div></div>
-        <div class="btn-p" onclick="copyRef()">Bağlantıyı Kopyala</div>
+        <div class="btn-p mt-auto" onclick="copyRef()">Arkadaşlarını Davet Et</div>
     </div>
 
     <div id="p-airdrop" class="page">
@@ -151,20 +138,26 @@
                 </div>
             </div>
         </div>
+
         <div class="mt-8">
             <p class="text-[10px] text-zinc-500 font-black uppercase mb-3 ml-1">Borsa Seçimi</p>
             <div class="ex-grid">
                 <div id="ex-Binance" class="ex-btn" onclick="setEx('Binance')"><img src="binance.jpg"><p class="font-black text-[9px]">BINANCE</p></div>
                 <div id="ex-OKX" class="ex-btn" onclick="setEx('OKX')"><img src="okx.jpg"><p class="font-black text-[9px]">OKX</p></div>
                 <div id="ex-Bitget" class="ex-btn" onclick="setEx('Bitget')"><img src="bitget.jpg"><p class="font-black text-[9px]">BITGET</p></div>
+                <div id="ex-Bybit" class="ex-btn" onclick="setEx('Bybit')"><img src="bybit.jpg"><p class="font-black text-[9px]">BYBIT</p></div>
+                <div id="ex-Gate" class="ex-btn" onclick="setEx('Gate')"><img src="gate.jpg"><p class="font-black text-[9px]">GATE.IO</p></div>
+                <div id="ex-Mexc" class="ex-btn" onclick="setEx('Mexc')"><img src="mexc.jpg"><p class="font-black text-[9px]">MEXC</p></div>
             </div>
         </div>
+        
+        <img src="airdrop_footer.jpg" class="image-banner" alt="Airdrop Bilgi">
     </div>
 
     <nav id="navbar" class="hidden">
-        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Kazan</span></div>
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-wallet"></i><span>Kazan</span></div>
         <div class="nav-link" onclick="tab('squad', this)"><i class="fa-solid fa-users"></i><span>Ekip</span></div>
-        <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+        <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-coins"></i><span>Airdrop</span></div>
     </nav>
 
 <script>
@@ -172,8 +165,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('koala_pro_v_final') || 'K' + Math.floor(Math.random()*1000000);
-    localStorage.setItem('koala_pro_v_final', uid);
+    let uid = localStorage.getItem('koala_img_v1') || 'K' + Math.floor(Math.random()*1000000);
+    localStorage.setItem('koala_img_v1', uid);
 
     let u = { bal: 0, ex: '', checked: false, task_channel: false };
 
@@ -197,14 +190,14 @@
                     el.querySelector('i').classList.remove('hidden');
                 }
                 if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 9000) + 1000;
+                    const bonus = Math.floor(Math.random() * 5000) + 1000;
                     u.bal += bonus; u.checked = true;
                     document.getElementById('reward-val').innerText = bonus.toLocaleString('tr-TR');
                     document.getElementById('reward-pop').classList.add('show');
                     document.getElementById('go-btn').classList.remove('hidden');
                     save(); render();
                 }
-            }, (i + 1) * 1200);
+            }, (i + 1) * 1000);
         });
     }
 
@@ -219,21 +212,13 @@
     }
 
     function mineAd() {
-        const b = event.currentTarget;
-        b.style.opacity = '0.5'; b.style.pointerEvents = 'none';
-        window.showAdexora().then(() => {
-            u.bal += 1; save(); render();
-            b.style.opacity = '1'; b.style.pointerEvents = 'auto';
-        }).catch(() => {
-            b.style.opacity = '1'; b.style.pointerEvents = 'auto';
-        });
+        window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {});
     }
 
     function completeChannelTask() {
         if(u.task_channel) return;
-        window.open("https://t.me/SeninKanalLinkin", "_blank");
-        u.bal += 500;
-        u.task_channel = true;
+        window.open("https://t.me/SeninKanalin", "_blank");
+        u.bal += 500; u.task_channel = true;
         save(); render();
     }
 
@@ -248,15 +233,12 @@
 
     function render() {
         document.getElementById('ui-puan').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
-        let airdropVal = Math.floor(u.bal / 10);
-        document.getElementById('ui-airdrop').innerText = airdropVal.toLocaleString('tr-TR');
+        document.getElementById('ui-airdrop').innerText = Math.floor(u.bal / 10).toLocaleString('tr-TR');
         
         const taskBtn = document.getElementById('task-btn-text');
-        if(u.task_channel) {
-            taskBtn.innerText = "BİTTİ";
+        if(u.task_channel && taskBtn) {
+            taskBtn.innerText = "OK";
             taskBtn.classList.replace('bg-sky-500', 'bg-zinc-800');
-            taskBtn.classList.add('text-zinc-500');
-            document.getElementById('task-channel').style.opacity = "0.6";
         }
 
         document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('selected'));
