@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE EDITION</title>
+    <title>KOALA ARCADE | PRO</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -11,274 +11,204 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-        :root {
-            --bg: #000000;
-            --fg: #ffffff;
-            --accent: #39ff14;
-            --card: #0a0a0a;
-            --border: #1a1a1a;
-            --zinc-500: #71717a;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; height: 100vh; overflow: hidden; }
+
+        /* DOGS STYLE LOADING & CHECKING */
+        #checker {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; padding: 50px 25px;
         }
+        .dogs-h { font-size: 36px; font-weight: 900; line-height: 1.1; margin-bottom: 40px; }
+        .c-line { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; transition: 0.3s; }
+        .c-line.active { color: #fff; }
+        .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: s 0.7s linear infinite; }
+        @keyframes s { to { transform: rotate(360deg); } }
 
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            font-family: 'Inter', sans-serif; 
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; }
-
-        /* --- DOGS STYLE CHECKING SCREEN --- */
-        #dogs-check {
-            position: fixed; inset: 0; background: var(--bg); z-index: 10000;
-            display: flex; flex-direction: column; padding: 50px 30px;
-        }
-        .dogs-h1 { font-size: 42px; font-weight: 900; line-height: 1; letter-spacing: -1px; margin-bottom: 50px; }
-        .row-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 22px 0; border-bottom: 1px solid var(--border);
-            color: var(--zinc-500); transition: 0.5s;
-        }
-        .row-item.active { color: var(--fg); }
-        .row-item .label { font-size: 16px; font-weight: 700; }
-        .loader { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* --- APP ARCHITECTURE --- */
+        /* APP CONTENT */
         .page { display: none; height: 100vh; flex-direction: column; padding: 20px 20px 100px; overflow-y: auto; }
-        .page.active { display: flex; animation: dogsIn 0.5s cubic-bezier(0.2, 1, 0.3, 1); }
-        @keyframes dogsIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: flex; animation: in 0.4s ease-out; }
+        @keyframes in { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .balance-hero { text-align: center; margin: 40px 0; }
-        .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
-        .balance-hero p { font-size: 11px; font-weight: 900; color: var(--zinc-500); text-transform: uppercase; letter-spacing: 3px; margin-top: 10px; }
+        .balance-val { font-size: 60px; font-weight: 900; letter-spacing: -2px; font-style: italic; text-align: center; margin-top: 30px; }
+        .koala-img { width: 190px; height: 190px; background: #fff; border-radius: 45px; margin: 25px auto; overflow: hidden; transform: rotate(-2deg); border: 6px solid #111; }
+        .koala-img img { width: 100%; height: 100%; object-fit: cover; }
 
-        .koala-canvas {
-            width: 220px; height: 220px; background: var(--fg); border-radius: 60px;
-            margin: 0 auto; overflow: hidden; transform: rotate(-3deg);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); border: 8px solid var(--card);
-        }
-        .koala-canvas img { width: 100%; height: 100%; object-fit: cover; }
+        .task-card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-white { background: #fff; color: #000; padding: 16px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
+        .btn-sm { padding: 8px 16px; font-size: 11px; }
 
-        /* --- COMPONENTS --- */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 20px; margin-bottom: 15px; }
-        .btn- dogs { 
-            background: var(--fg); color: var(--bg); padding: 20px; border-radius: 24px; 
-            font-weight: 900; text-transform: uppercase; text-align: center; 
-            font-size: 14px; letter-spacing: 1px; cursor: pointer; transition: 0.2s;
-        }
-        .btn-dogs:active { transform: scale(0.96); opacity: 0.9; }
+        /* ROADMAP */
+        .rm-box { position: relative; padding-left: 25px; border-left: 2px solid #111; margin: 20px 5px; }
+        .rm-box.done { border-left-color: #fff; }
+        .rm-dot { position: absolute; left: -7px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #333; border-radius: 50%; }
+        .done .rm-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
 
-        /* --- ROADMAP TIMELINE --- */
-        .timeline { position: relative; padding-left: 20px; margin: 30px 0; }
-        .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--border); }
-        .step { position: relative; margin-bottom: 40px; }
-        .step::after { 
-            content: ''; position: absolute; left: -24px; top: 0; 
-            width: 10px; height: 10px; background: var(--bg); border: 2px solid var(--zinc-500); border-radius: 50%; 
-        }
-        .step.done::after { border-color: var(--fg); background: var(--fg); box-shadow: 0 0 10px var(--fg); }
-        .step.done { border-left: 2px solid var(--fg); margin-left: -20px; padding-left: 20px; }
-        .step h4 { font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
-        .step p { font-size: 12px; color: var(--zinc-500); font-weight: 600; line-height: 1.5; }
-
-        /* --- NAVIGATION --- */
-        nav { 
-            position: fixed; bottom: 0; left: 0; right: 0; height: 90px; 
-            background: var(--bg); border-top: 1px solid var(--border);
-            display: flex; align-items: center; padding-bottom: 20px; z-index: 5000;
-        }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: var(--zinc-500); gap: 6px; }
-        .nav-link i { font-size: 20px; }
-        .nav-link span { font-size: 10px; font-weight: 900; text-transform: uppercase; }
-        .nav-link.active { color: var(--fg); }
-
+        /* NAVBAR */
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 15px; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
+        .nav-link.active { color: #fff; }
+        
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="dogs-check">
-        <h1 class="dogs-h1">Checking your<br>Koala status</h1>
+    <div id="checker">
+        <h1 class="dogs-h">Checking your<br>Koala account</h1>
         <div class="flex-1">
-            <div id="row1" class="row-item">
-                <span class="label">Telegram Account Age</span>
-                <div class="status"><div class="loader"></div><i class="fa-solid fa-check hidden"></i></div>
-            </div>
-            <div id="row2" class="row-item">
-                <span class="label">Activity Level</span>
-                <div class="status"><div class="loader"></div><i class="fa-solid fa-check hidden"></i></div>
-            </div>
-            <div id="row3" class="row-item">
-                <span class="label">Koala VIP Access</span>
-                <div class="status"><div class="loader"></div><i class="fa-solid fa-check hidden"></i></div>
-            </div>
+            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l2" class="c-line"><span>Activity Level</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l3" class="c-line"><span>Identity Verified</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
         </div>
-        <div id="check-footer" class="hidden">
-            <p class="text-center text-zinc-500 font-bold text-xs mb-6 uppercase tracking-widest">You are a true Koala</p>
-            <div class="btn-dogs" onclick="launchApp()">Continue</div>
-        </div>
+        <div id="check-btn" class="btn-white hidden" onclick="startApp()">Continue</div>
     </div>
 
     <div id="p-home" class="page">
-        <div class="balance-hero">
-            <h1 id="bal-txt">0.00</h1>
-            <p>$KOALA Balance</p>
-        </div>
+        <h1 class="balance-val" id="ui-bal">0.00</h1>
+        <p class="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-[4px]">Koala Tokens</p>
+        
+        <div class="koala-img"><img src="coinkoala.jpg"></div>
 
-        <div class="koala-canvas">
-            <img src="coinkoala.jpg" alt="Koala">
-        </div>
-
-        <div class="mt-12 space-y-3">
-            <div class="card flex justify-between items-center" onclick="handleWatch()">
-                <div>
-                    <h4 class="font-black text-sm uppercase">Daily Ad Reward</h4>
-                    <p class="text-[10px] font-bold text-zinc-500">+1.00 $KOALA</p>
-                </div>
-                <div class="bg-white text-black px-5 py-2 rounded-2xl font-black text-[10px]">WATCH</div>
+        <div class="mt-8">
+            <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Earn Tasks</p>
+            <div class="task-card" onclick="claimWatch()">
+                <div><h4 class="font-black text-xs uppercase">Watch & Claim</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+                <div class="btn-white btn-sm">WATCH</div>
             </div>
-
-            <div class="card flex justify-between items-center" onclick="window.location.href='#'">
-                <div>
-                    <h4 class="font-black text-sm uppercase">Join Community</h4>
-                    <p class="text-[10px] font-bold text-zinc-500">+10.00 $KOALA</p>
-                </div>
-                <i class="fa-solid fa-arrow-right text-zinc-800"></i>
+            <div id="t-social" class="task-card" onclick="doTask('social')">
+                <div><h4 class="font-black text-xs uppercase">Join Telegram</h4><p class="text-[9px] text-zinc-500 font-bold">+10.00 $KOALA</p></div>
+                <div id="t-social-btn" class="btn-white btn-sm">JOIN</div>
             </div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h2 class="dogs-h1">Invite<br>Friends</h2>
-        <div class="card py-12 text-center bg-zinc-900/20">
-            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">Each Invitation</p>
-            <h3 class="text-5xl font-black">+10,000</h3>
+        <h1 class="dogs-h">Invite<br>Friends</h1>
+        <div class="task-card py-10 flex-col gap-2">
+            <p class="text-[10px] text-zinc-600 font-black uppercase">Your Reward</p>
+            <h2 class="text-4xl font-black">+10,000 $KOALA</h2>
         </div>
-        <div id="ref-list" class="flex-1 mt-6 space-y-2 overflow-y-auto">
-            </div>
-        <div class="btn-dogs mt-4" onclick="copyRef()">Invite a friend</div>
+        <div id="ref-list" class="flex-1 mt-4 overflow-y-auto space-y-2"></div>
+        <div class="btn-white mt-4" onclick="copyRef()">Copy Invite Link</div>
     </div>
 
     <div id="p-airdrop" class="page">
-        <h2 class="dogs-h1">Airdrop<br>Portal</h2>
+        <h1 class="dogs-h">Airdrop</h1>
+        <div class="mb-8">
+            <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest">Connect Wallet</p>
+            <div class="flex gap-2">
+                <div id="ex-Binance" onclick="setEx('Binance')" class="flex-1 task-card justify-center font-black text-[10px] border-white/5">BINANCE</div>
+                <div id="ex-OKX" onclick="setEx('OKX')" class="flex-1 task-card justify-center font-black text-[10px] border-white/5">OKX</div>
+            </div>
+        </div>
         
-        <div class="mb-10">
-            <p class="text-[10px] font-black text-zinc-500 uppercase mb-4 tracking-widest">Select Listing Exchange</p>
-            <div class="flex gap-4">
-                <div id="ex-Binance" onclick="setEx('Binance')" class="flex-1 card !mb-0 text-center border-white/5 font-bold uppercase text-[10px] py-6">Binance</div>
-                <div id="ex-OKX" onclick="setEx('OKX')" class="flex-1 card !mb-0 text-center border-white/5 font-bold uppercase text-[10px] py-6">OKX</div>
-            </div>
-        </div>
-
-        <h3 class="text-[10px] font-black text-zinc-500 uppercase mb-6 tracking-widest">Ultimate Roadmap</h3>
-        <div class="timeline">
-            <div class="step done">
-                <h4>Phase 1: Genesis</h4>
-                <p>Launch of Koala Arcade, community building and initial distribution.</p>
-            </div>
-            <div class="step">
-                <h4>Phase 2: Consolidation</h4>
-                <p>Strategic partnerships with major exchanges and tier-1 influencers.</p>
-            </div>
-            <div class="step">
-                <h4>Phase 3: The Event</h4>
-                <p>Token Generation Event (TGE) and $KOALA listing on Binance/OKX.</p>
-            </div>
-            <div class="step">
-                <h4>Phase 4: Ecosystem</h4>
-                <p>Launch of Koala DEX and NFT staking rewards for long-term holders.</p>
-            </div>
-        </div>
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest">Roadmap</p>
+        <div class="rm-box done"><div class="rm-dot"></div><h4 class="text-xs font-black uppercase">Stage 1: Mining</h4><p class="text-[10px] text-zinc-500 mt-1">Community growth & token distribution.</p></div>
+        <div class="rm-box"><div class="rm-dot"></div><h4 class="text-xs font-black uppercase">Stage 2: Listing</h4><p class="text-[10px] text-zinc-500 mt-1">Tier-1 exchange integration.</p></div>
     </div>
 
     <nav id="navbar" style="display:none">
-        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-house-chimney"></i><span>Earn</span></div>
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
         <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Friends</span></div>
         <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", messagingSenderId: "...", appId: "..." };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+<script>
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom", appId: "..." }; // Burayı doldur
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        let uid = localStorage.getItem('koala_v3_uid') || 'ID' + Math.floor(Math.random()*899999+100000);
-        localStorage.setItem('koala_v3_uid', uid);
+    let uid = localStorage.getItem('k_uid_v2') || 'KOALA_' + Math.floor(Math.random()*999999);
+    localStorage.setItem('k_uid_v2', uid);
 
-        let u = { bal: 0, ex: '', hasChecked: false, refs: [] };
+    let u = { bal: 0, ex: '', checked: false, tasks: [], refs: [] };
 
-        async function init() {
-            const snap = await db.collection("users").doc(uid).get();
-            if(snap.exists) u = {...u, ...snap.data()};
-
-            if(u.hasChecked) {
-                document.getElementById('dogs-check').style.display = 'none';
-                launchApp();
-            } else {
-                runCheckingSequence();
-            }
-            render();
+    async function init() {
+        const doc = await db.collection("users").doc(uid).get();
+        if(doc.exists) u = {...u, ...doc.data()};
+        
+        if(u.checked) {
+            document.getElementById('checker').style.display = 'none';
+            showApp();
+        } else {
+            runCheck();
         }
+        render();
+    }
 
-        function runCheckingSequence() {
-            const rows = ['row1', 'row2', 'row3'];
-            rows.forEach((id, i) => {
-                setTimeout(() => {
-                    const el = document.getElementById(id);
-                    el.classList.add('active');
-                    el.querySelector('.loader').classList.add('hidden');
-                    el.querySelector('i').classList.remove('hidden');
-                    if(i === 2) {
-                        u.bal += 1000.00; // Checking bonus
-                        document.getElementById('check-footer').classList.remove('hidden');
-                    }
-                }, (i + 1) * 1500);
-            });
-        }
-
-        function launchApp() {
-            u.hasChecked = true;
-            save();
-            document.getElementById('dogs-check').style.opacity = '0';
+    function runCheck() {
+        ['l1', 'l2', 'l3'].forEach((id, i) => {
             setTimeout(() => {
-                document.getElementById('dogs-check').style.display = 'none';
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('navbar').style.display = 'flex';
-            }, 500);
+                const el = document.getElementById(id);
+                el.classList.add('active');
+                el.querySelector('.spin').classList.add('hidden');
+                el.querySelector('i').classList.remove('hidden');
+                if(i === 2) {
+                    u.bal += 1500;
+                    document.getElementById('check-btn').classList.remove('hidden');
+                }
+            }, (i+1) * 1200);
+        });
+    }
+
+    function startApp() {
+        u.checked = true; save();
+        document.getElementById('checker').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('checker').style.display = 'none';
+            showApp();
+        }, 400);
+    }
+
+    function showApp() {
+        document.getElementById('p-home').classList.add('active');
+        document.getElementById('navbar').style.display = 'flex';
+    }
+
+    function claimWatch() { u.bal += 1; save(); render(); }
+    
+    function doTask(id) {
+        if(u.tasks.includes(id)) return;
+        u.bal += 10; u.tasks.push(id);
+        save(); render();
+    }
+
+    function setEx(n) { u.ex = n; save(); render(); }
+    function copyRef() { alert("Link Copied!"); }
+
+    function render() {
+        document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        
+        // Tasks
+        if(u.tasks.includes('social')) {
+            document.getElementById('t-social-btn').innerText = 'DONE';
+            document.getElementById('t-social-btn').style.opacity = '0.3';
         }
 
-        function handleWatch() { u.bal += 1.0; save(); render(); }
-        function setEx(n) { u.ex = n; save(); render(); }
-        function copyRef() { alert("Invite link copied!"); }
+        // Exchanges
+        document.querySelectorAll('[id^="ex-"]').forEach(el => el.style.borderColor = '#161616');
+        if(u.ex) document.getElementById('ex-' + u.ex).style.borderColor = '#fff';
 
-        function render() {
-            document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-            document.querySelectorAll('[id^="ex-"]').forEach(el => {
-                el.style.borderColor = '#1a1a1a';
-                el.style.color = '#71717a';
-            });
-            if(u.ex) {
-                const active = document.getElementById('ex-' + u.ex);
-                active.style.borderColor = '#ffffff';
-                active.style.color = '#ffffff';
-            }
-        }
+        // Refs
+        let rH = '';
+        u.refs.forEach(r => {
+            rH += `<div class="task-card !py-3 opacity-50"><span class="text-[10px] font-bold">User ${r}</span><span class="text-[10px] font-black">+10,000</span></div>`;
+        });
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 text-[9px] text-zinc-800 font-bold uppercase">No Friends Yet</p>';
+    }
 
-        async function save() { await db.collection("users").doc(uid).set(u); }
+    async function save() { await db.collection("users").doc(uid).set(u); }
+    function tab(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
 
-        function tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p-' + id).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        window.onload = init;
-    </script>
+    window.onload = init;
+</script>
 </body>
 </html>
