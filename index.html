@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -12,28 +12,23 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-
         :root { --bg: #000; --fg: #fff; --zinc-800: #18181b; --zinc-500: #71717a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; }
 
-        /* --- DOGS STYLE CHECKER --- */
-        #checker {
-            position: fixed; inset: 0; background: var(--bg); z-index: 9999;
-            display: flex; flex-direction: column; padding: 50px 25px;
-        }
+        /* DOGS STYLE CHECKER */
+        #checker { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; padding: 50px 25px; }
         .dogs-h { font-size: 38px; font-weight: 900; line-height: 1.1; margin-bottom: 45px; }
         .c-line { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
         .c-line.active { color: var(--fg); }
         .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: s 0.7s linear infinite; }
         @keyframes s { to { transform: rotate(360deg); } }
 
-        /* --- MAIN LAYOUT --- */
+        /* APP PAGES */
         .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
-        .page.active { display: flex; animation: pageIn 0.4s ease-out; }
-        @keyframes pageIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: flex; animation: pIn 0.4s ease-out; }
+        @keyframes pIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- UI COMPONENTS --- */
         .balance-hero { text-align: center; margin: 30px 0; }
         .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
         .balance-hero p { font-size: 10px; font-weight: 900; color: var(--zinc-500); text-transform: uppercase; letter-spacing: 3px; margin-top: 10px; }
@@ -43,56 +38,44 @@
 
         .card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 20px; margin-bottom: 12px; }
         .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
-        .btn-sm { padding: 8px 16px; font-size: 11px; border-radius: 12px; }
-
-        /* --- AIRDROP SPECIFIC --- */
-        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; grayscale: 1; transition: 0.3s; }
-        .ex-card.selected { opacity: 1; grayscale: 0; border-color: #fff; background: #111; }
+        
+        /* EXCHANGES */
+        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; filter: grayscale(1); transition: 0.3s; }
+        .ex-card.selected { opacity: 1; filter: grayscale(0); border-color: #fff; background: #111; }
         .ex-card img { width: 35px; height: 35px; margin: 0 auto 8px; border-radius: 8px; }
 
-        .roadmap-line { border-left: 2px solid #111; margin-left: 10px; padding-left: 25px; }
-        .rm-step { position: relative; margin-bottom: 30px; color: #444; }
-        .rm-step.active { color: #fff; }
-        .rm-dot { position: absolute; left: -32px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #222; border-radius: 50%; }
-        .active .rm-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
-
-        /* --- NAVIGATION --- */
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
         .nav-link.active { color: #fff; }
-        
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="checker">
-        <h1 class="dogs-h">Checking your<br>Koala eligibility</h1>
+        <h1 class="dogs-h">Checking your<br>Koala status</h1>
         <div class="flex-1">
             <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="l2" class="c-line"><span>Activity Status</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="l3" class="c-line"><span>Sybil Protection</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l2" class="c-line"><span>Daily Activity</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l3" class="c-line"><span>Sybil Check</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
         </div>
-        <div id="check-btn" class="btn-white hidden" onclick="startApp()">Claim Welcome Reward</div>
+        <div id="result-box" class="hidden text-center mb-6">
+            <p id="reward-text" class="text-white font-black text-2xl italic mb-1"></p>
+            <p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Koalas Reward Earned!</p>
+        </div>
+        <div id="check-btn" class="btn-white hidden" onclick="startApp()">Continue to Arcade</div>
     </div>
 
     <div id="p-home" class="page">
         <div class="balance-hero">
             <h1 id="ui-bal">0.00</h1>
-            <p>$KOALA Tokens</p>
+            <p>$KOALA Balance</p>
         </div>
-
         <div class="koala-img"><img src="coinkoala.jpg"></div>
-
         <div class="mt-4">
-            <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Mining Tasks</p>
             <div class="card flex justify-between items-center" onclick="claimAd()">
                 <div><h4 class="font-black text-xs uppercase">Watch Daily Ad</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
-                <div class="btn-white btn-sm">CLAIM</div>
-            </div>
-            <div id="t-tg" class="card flex justify-between items-center" onclick="doTask('tg', 10)">
-                <div><h4 class="font-black text-xs uppercase">Join Community</h4><p class="text-[9px] text-zinc-500 font-bold">+10.00 $KOALA</p></div>
-                <div id="t-tg-btn" class="btn-white btn-sm">JOIN</div>
+                <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">WATCH</div>
             </div>
         </div>
     </div>
@@ -100,40 +83,24 @@
     <div id="p-ref" class="page">
         <h1 class="dogs-h">Squad</h1>
         <div class="card py-10 flex flex-col items-center gap-2">
-            <p class="text-[10px] text-zinc-600 font-black uppercase">Referral Reward</p>
+            <p class="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Invite Reward</p>
             <h2 class="text-5xl font-black italic">+10,000</h2>
         </div>
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2 mt-6">Your Friends</p>
-        <div id="ref-list" class="flex-1 overflow-y-auto space-y-2"></div>
+        <div id="ref-list" class="flex-1 overflow-y-auto space-y-2 mt-4"></div>
         <div class="btn-white mt-4" onclick="copyRef()">Invite Friends</div>
     </div>
 
     <div id="p-airdrop" class="page">
         <h1 class="dogs-h">Airdrop</h1>
-        
-        <div class="card bg-gradient-to-br from-[#111] to-black border-zinc-800">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-widest">Estimated Allocation</p>
-            <div class="flex items-baseline gap-2">
-                <h2 id="airdrop-tokens" class="text-4xl font-black tracking-tighter">0.00</h2>
-                <span class="text-xs font-bold text-zinc-500">$KOALA</span>
-            </div>
-            <div class="h-1 bg-zinc-900 w-full mt-5 rounded-full overflow-hidden">
-                <div id="airdrop-bar" class="h-full bg-white" style="width: 0%"></div>
-            </div>
-            <p class="text-[9px] text-zinc-600 mt-3 font-bold uppercase">Status: <span class="text-white">Eligible</span></p>
+        <div class="card bg-zinc-900/30">
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-2">Estimated $KOALA Token</p>
+            <h2 id="airdrop-tokens" class="text-4xl font-black tracking-tighter">0.00</h2>
         </div>
-
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Connect Wallet</p>
-        <div class="flex gap-2 mb-8">
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Connect Exchange</p>
+        <div class="flex gap-2">
             <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><img src="binance.jpg" alt="B"><p class="text-[9px] font-black uppercase">Binance</p></div>
             <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><img src="okx.jpg" alt="O"><p class="text-[9px] font-black uppercase">OKX</p></div>
             <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><img src="bitget.jpg" alt="B"><p class="text-[9px] font-black uppercase">Bitget</p></div>
-        </div>
-
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Roadmap</p>
-        <div class="roadmap-line">
-            <div class="rm-step active"><div class="rm-dot"></div><h4 class="text-xs font-black">Stage 1: Mining</h4><p class="text-[10px] mt-1">Collecting $KOALA points.</p></div>
-            <div class="rm-step"><div class="rm-dot"></div><h4 class="text-xs font-black">Stage 2: Listing</h4><p class="text-[10px] mt-1">TGE & Exchange distribution.</p></div>
         </div>
     </div>
 
@@ -144,20 +111,14 @@
     </nav>
 
 <script>
-    // FIREBASE INITIALIZATION
-    const firebaseConfig = { 
-        apiKey: "AIzaSy...", 
-        projectId: "koalascombom", 
-        appId: "..." 
-    };
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Yapılandır
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // STATE
-    let uid = localStorage.getItem('koala_uid_final') || 'K' + Math.floor(Math.random()*9999999);
-    localStorage.setItem('koala_uid_final', uid);
+    let uid = localStorage.getItem('k_uid_vfinal') || 'U' + Math.floor(Math.random()*9999999);
+    localStorage.setItem('k_uid_vfinal', uid);
 
-    let u = { bal: 0, ex: '', checked: false, tasks: [], refs: [] };
+    let u = { bal: 0, ex: '', checked: false, refs: [] };
 
     async function init() {
         const doc = await db.collection("users").doc(uid).get();
@@ -180,7 +141,11 @@
                 el.querySelector('.spin').classList.add('hidden');
                 el.querySelector('i').classList.remove('hidden');
                 if(i === 2) {
-                    u.bal += 1000; // Welcome Bonus
+                    // 1000 - 10000 arası rastgele ödül
+                    const bonus = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+                    u.bal += bonus;
+                    document.getElementById('reward-text').innerText = "+" + bonus.toLocaleString();
+                    document.getElementById('result-box').classList.remove('hidden');
                     document.getElementById('check-btn').classList.remove('hidden');
                 }
             }, (i+1) * 1500);
@@ -201,61 +166,26 @@
         document.getElementById('navbar').style.display = 'flex';
     }
 
-    // ACTIONS
     function claimAd() { u.bal += 1; save(); render(); }
-    
-    function doTask(tid, reward) {
-        if(u.tasks.includes(tid)) return;
-        u.bal += reward; u.tasks.push(tid);
-        save(); render();
-    }
-
-    function setEx(name) { u.ex = name; save(); render(); }
-    function copyRef() { 
-        const link = window.location.origin + "?ref=" + uid;
-        navigator.clipboard.writeText(link);
-        alert("Referans linki kopyalandı!"); 
-    }
+    function setEx(n) { u.ex = n; save(); render(); }
+    function copyRef() { alert("Invite link copied!"); }
 
     function render() {
-        // Balance
         document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-        
-        // Airdrop Logic (100 bakiye = 1 token varsayımı)
-        const estTokens = u.bal / 100;
-        document.getElementById('airdrop-tokens').innerText = estTokens.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-        const progress = (u.bal / 100000) * 100; // 100k hedef
-        document.getElementById('airdrop-bar').style.width = Math.min(progress, 100) + '%';
-
-        // Tasks
-        if(u.tasks.includes('tg')) {
-            const btn = document.getElementById('t-tg-btn');
-            btn.innerText = 'DONE'; btn.style.opacity = '0.3'; btn.style.pointerEvents = 'none';
-        }
-
-        // Exchanges
+        document.getElementById('airdrop-tokens').innerText = (u.bal / 100).toLocaleString('tr-TR', {minimumFractionDigits: 2});
         document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
         if(u.ex) {
-            const el = document.getElementById('ex-' + u.ex);
-            if(el) el.classList.add('selected');
+            const active = document.getElementById('ex-' + u.ex);
+            if(active) active.classList.add('selected');
         }
-
-        // Friends List
-        let rH = '';
-        u.refs.forEach(r => {
-            rH += `<div class="card !py-3 opacity-50 flex justify-between items-center"><span class="text-[10px] font-bold">User: ${r}</span><span class="text-[10px] font-black">+10,000</span></div>`;
-        });
-        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 text-[9px] text-zinc-800 font-black uppercase">No squad members yet</p>';
     }
 
     async function save() { await db.collection("users").doc(uid).set(u); }
-
     function tab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
         document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        if(el) el.classList.add('active');
-        render(); // Sayfa değişiminde güncel veriyi yansıt
+        el.classList.add('active');
     }
 
     window.onload = init;
