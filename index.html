@@ -3,172 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade - Dogs Edition</title>
+    <title>Koalas Arcade MK Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; touch-action: manipulation; }
 
-        /* --- DOGS ANALYZE SCREEN --- */
-        #loader-screen {
-            position: fixed; inset: 0; background: #000; z-index: 100000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+        /* --- CHECKING SCREEN --- */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .banner { width: 90%; max-width: 500px; aspect-ratio: 21/9; border-radius: 20px; object-fit: cover; margin-bottom: 25px; border: 1px solid #1a1a1a; }
+        .progress-bg { width: 280px; height: 5px; background: #111; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 0.4s ease; }
+        .row { width: 300px; display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #111; opacity: 0; transform: translateY(10px); transition: 0.5s; }
+        .row.active { opacity: 1; transform: translateY(0); }
+        .val { color: #007aff; font-weight: 900; }
 
-        .banner-wrap {
-            position: relative; width: 90%; max-width: 500px; aspect-ratio: 21 / 9;
-            border-radius: 20px; overflow: hidden; margin-bottom: 30px; border: 1px solid #1a1a1a;
-        }
-        .banner-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .laser { position: absolute; top: -100%; left: 0; width: 100%; height: 60%; background: linear-gradient(180deg, transparent, rgba(0, 122, 255, 0.3), transparent); animation: scan 2.5s infinite linear; }
-        @keyframes scan { 0% { top: -60%; } 100% { top: 100%; } }
-
-        /* Soldan Sağa Bar */
-        .progress-container { width: 280px; height: 4px; background: #111; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
-        #main-bar { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 0.5s ease-out; }
-
-        .stat-list { width: 300px; }
-        .stat-row {
-            display: flex; justify-content: space-between; padding: 15px 0;
-            border-bottom: 1px solid #111; opacity: 0; transform: translateX(-10px);
-            transition: 0.5s ease;
-        }
-        .stat-row.active { opacity: 1; transform: translateX(0); }
-        .stat-label { color: #555; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-value { color: #fff; font-weight: 900; font-style: italic; }
-
-        /* --- MAIN APP --- */
-        #main-app { display: none; opacity: 0; transition: 0.8s; text-align: center; height: 100vh; overflow-y: auto; }
-        .avatar { width: 110px; height: 110px; border-radius: 40px; margin: 50px auto 20px; border: 4px solid #111; }
-        .bal-val { font-size: 80px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 10px; }
-
-        .btn-claim { background: #fff; color: #000; width: calc(100% - 40px); margin: 20px; padding: 20px; border-radius: 22px; font-weight: 900; font-size: 16px; }
-        .btn-wallet { background: #0d0d0d; border: 1px solid #1a1a1a; color: #fff; width: calc(100% - 40px); margin: 0 20px; padding: 20px; border-radius: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* --- GAME UI --- */
+        #game { display: none; height: 100vh; flex-direction: column; align-items: center; padding: 20px; opacity: 0; transition: 0.8s; }
+        .stats-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .bal-box { text-align: center; width: 100%; }
+        .bal-num { font-size: 65px; font-weight: 900; letter-spacing: -3px; }
         
-        /* Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 30px; backdrop-filter: blur(10px); }
-        .modal.open { display: flex; }
+        /* Clicker Area */
+        .click-area { position: relative; width: 280px; height: 280px; margin: 40px 0; display: flex; align-items: center; justify-content: center; }
+        .main-koala { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 8px solid #0d0d0d; box-shadow: 0 0 50px rgba(0,122,255,0.1); transition: transform 0.1s; cursor: pointer; }
+        .main-koala:active { transform: scale(0.92); }
+
+        /* Energy Bar */
+        .energy-container { width: 100%; max-width: 320px; margin-top: auto; margin-bottom: 40px; }
+        .energy-info { display: flex; justify-content: space-between; font-weight: 900; font-size: 14px; margin-bottom: 8px; }
+        .energy-bg { width: 100%; height: 12px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.2s; }
+
+        /* Floating Points */
+        .plus-one { position: absolute; color: #fff; font-weight: 900; font-size: 28px; pointer-events: none; animation: floatUp 0.8s forwards; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        
+        .footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 350px; }
+        .btn-sm { background: #0d0d0d; border: 1px solid #1a1a1a; padding: 15px; border-radius: 18px; font-weight: 900; font-size: 12px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="loader-screen">
-        <div class="banner-wrap">
-            <img src="babykoalas.jpg" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Baby+Koala'">
-            <div class="laser"></div>
-        </div>
-
-        <h1 class="text-2xl font-black italic mb-4">Who are you?</h1>
-        <div class="progress-container"><div id="main-bar"></div></div>
-
+    <div id="loader">
+        <img src="babykoalas.jpg" class="banner" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Analysing...'">
+        <h1 class="text-2xl font-black italic mb-2 uppercase">Who are you?</h1>
+        <div class="progress-bg"><div id="fill"></div></div>
         <div class="stat-list">
-            <div id="r1" class="stat-row"><span class="stat-label">Account Age</span><span id="v1" class="stat-value">SCANNING</span></div>
-            <div id="r2" class="stat-row"><span class="stat-label">TG Premium</span><span id="v2" class="stat-value">SCANNING</span></div>
-            <div id="r3" class="stat-row"><span class="stat-label">Activity Status</span><span id="v3" class="stat-value">SCANNING</span></div>
-            <div id="r4" class="stat-row"><span class="stat-label">Friends Level</span><span id="v4" class="stat-value">SCANNING</span></div>
+            <div id="r1" class="row"><span>ACCOUNT AGE</span><span id="v1" class="val">...</span></div>
+            <div id="r2" class="row"><span>PREMIUM</span><span id="v2" class="val">...</span></div>
+            <div id="r3" class="row"><span>ACTIVITY</span><span id="v3" class="val">...</span></div>
+            <div id="r4" class="row"><span>MK RANK</span><span id="v4" class="val">...</span></div>
         </div>
     </div>
 
-    <div id="main-app">
-        <img src="koalas.jpg" class="avatar" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Koala'">
-        <h2 id="final-bal" class="bal-val">0</h2>
-        <p class="text-zinc-600 font-black text-[10px] tracking-[5px] uppercase mb-10">$KOALA ALLOCATION</p>
+    <div id="game">
+        <div class="bal-box">
+            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase italic">Total Koalas</p>
+            <h2 id="balance" class="bal-num">0</h2>
+        </div>
 
-        <button onclick="openM('m-earn')" class="btn-claim uppercase">Earn More $Koala</button>
-        <button id="w-btn" onclick="openM('m-wallet')" class="btn-wallet uppercase">
-            <i class="fa-solid fa-wallet text-blue-500"></i> Set Wallet
-        </button>
+        <div class="click-area" id="tap-target">
+            <img src="koalas.jpg" class="main-koala" onerror="this.src='https://via.placeholder.com/300/222/fff?text=Tap+Me'">
+        </div>
+
+        <div class="energy-container">
+            <div class="energy-info">
+                <span class="text-yellow-500"><i class="fa-solid fa-bolt"></i> ENERGY</span>
+                <span id="energy-text">1000/1000</span>
+            </div>
+            <div class="energy-bg"><div id="energy-fill"></div></div>
+        </div>
+
+        <div class="footer-btns">
+            <div class="btn-sm" onclick="alert('Set Wallet')"><i class="fa-solid fa-wallet text-blue-500"></i> WALLET</div>
+            <div class="btn-sm" onclick="alert('Invite Frens')"><i class="fa-solid fa-users"></i> FRIENDS</div>
+        </div>
     </div>
-
-    <div id="m-earn" class="modal"><div class="bg-[#0c0c0c] border border-[#222] p-10 rounded-[35px] w-full text-center">
-        <div class="text-6xl mb-6">🐨</div><h2 class="text-xl font-black mb-6 italic uppercase">Allocation Boost</h2>
-        <button onclick="add(500)" class="btn-claim m-0 w-full mb-4">WATCH VIDEO (+500)</button>
-        <button onclick="closeM()" class="text-zinc-600 font-black text-xs">BACK</button>
-    </div></div>
-
-    <div id="m-wallet" class="modal"><div class="bg-[#0c0c0c] border border-[#222] p-10 rounded-[35px] w-full text-center">
-        <h2 class="text-lg font-black mb-6 uppercase">Ton Address</h2>
-        <input id="w-in" placeholder="UQ... Enter Address" class="w-full bg-black border border-[#222] p-5 rounded-2xl text-center text-blue-500 mb-6 outline-none font-mono">
-        <button onclick="saveW()" class="btn-claim m-0 w-full">SAVE WALLET</button>
-    </div></div>
 
     <script>
-        let balance = 0;
+        let score = 0;
+        let energy = 1000;
+        const maxEnergy = 1000;
 
-        async function initDogs() {
-            const bar = document.getElementById('main-bar');
-            const wait = ms => new Promise(r => setTimeout(r, ms));
+        // --- CHECKING ENGINE ---
+        async function startChecking() {
+            const bar = document.getElementById('fill');
+            const wait = ms => new Promise(res => setTimeout(res, ms));
 
-            // DOGS Akışı (Soldan Sağa Bar & Yaş Doğrulama)
-            await wait(800);
-            bar.style.width = "25%";
-            showStep('r1', 'v1', '5.2 YEARS');
+            await wait(1000); bar.style.width = "25%"; showRow('r1','v1','5.4 YEARS');
+            await wait(1500); bar.style.width = "50%"; showRow('r2','v2','YES');
+            await wait(1500); bar.style.width = "75%"; showRow('r3','v3','HIGH');
+            await wait(1500); bar.style.width = "100%"; showRow('r4','v4','DIAMOND');
+            await wait(1200);
 
-            await wait(1500);
-            bar.style.width = "50%";
-            showStep('r2', 'v2', 'ACTIVE');
-
-            await wait(1500);
-            bar.style.width = "75%";
-            showStep('r3', 'v3', 'HIGH');
-
-            await wait(1500);
-            bar.style.width = "100%";
-            showStep('r4', 'v4', 'OG LEVEL');
-
-            await wait(1000);
-            launchApp();
-        }
-
-        function showStep(rid, vid, text) {
-            document.getElementById(rid).classList.add('active');
-            const el = document.getElementById(vid);
-            el.innerText = text;
-            el.style.color = "#007aff";
-        }
-
-        function launchApp() {
-            balance = Math.floor(Math.random() * 8000) + 3000;
-            animateNumber('final-bal', 0, balance, 1500);
+            // Bakiye set et ve geç
+            score = Math.floor(Math.random() * 5000) + 1000;
+            document.getElementById('balance').innerText = score.toLocaleString();
             
-            document.getElementById('loader-screen').style.opacity = '0';
+            document.getElementById('loader').style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('loader-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                setTimeout(() => document.getElementById('main-app').style.opacity = '1', 50);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('game').style.display = 'flex';
+                setTimeout(() => document.getElementById('game').style.opacity = '1', 50);
             }, 600);
         }
 
-        function animateNumber(id, start, end, duration) {
-            let obj = document.getElementById(id);
-            let range = end - start;
-            let current = start;
-            let increment = end > start ? 10 : -10;
-            let stepTime = Math.abs(Math.floor(duration / (range / 10)));
-            let timer = setInterval(function() {
-                current += increment;
-                obj.innerHTML = current.toLocaleString();
-                if (current >= end) {
-                    obj.innerHTML = end.toLocaleString();
-                    clearInterval(timer);
-                }
-            }, stepTime);
+        function showRow(rid, vid, val) {
+            document.getElementById(rid).classList.add('active');
+            document.getElementById(vid).innerText = val;
         }
 
-        function saveW() {
-            let v = document.getElementById('w-in').value;
-            if(v.length > 10) {
-                document.getElementById('w-btn').innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> ${v.slice(0,4)}...${v.slice(-4)}`;
-                closeM();
+        // --- GAME ENGINE ---
+        const target = document.getElementById('tap-target');
+        target.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Çoklu dokunmatik engelleme
+            if (energy >= 10) {
+                handleTap(e.touches[0].clientX, e.touches[0].clientY);
             }
+        });
+
+        function handleTap(x, y) {
+            score += 10;
+            energy -= 10;
+            updateUI();
+            createFloatingText(x, y);
         }
 
-        function add(n) { balance += n; document.getElementById('final-bal').innerText = balance.toLocaleString(); closeM(); }
-        function openM(id) { document.getElementById(id).classList.add('open'); }
-        function closeM() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
+        function updateUI() {
+            document.getElementById('balance').innerText = score.toLocaleString();
+            document.getElementById('energy-text').innerText = `${energy}/${maxEnergy}`;
+            document.getElementById('energy-fill').style.width = `${(energy/maxEnergy)*100}%`;
+        }
 
-        window.onload = initDogs;
+        function createFloatingText(x, y) {
+            const el = document.createElement('div');
+            el.className = 'plus-one';
+            el.innerText = '+10';
+            el.style.left = `${x - 20}px`;
+            el.style.top = `${y - 50}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        // Enerji Yenileme
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy = Math.min(energy + 2, maxEnergy);
+                updateUI();
+            }
+        }, 1000);
+
+        window.onload = startChecking;
     </script>
 </body>
 </html>
