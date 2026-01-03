@@ -3,206 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade Premium</title>
+    <title>Koalas Arcade Ultra</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        :root { --primary: #007aff; --bg: #000; --card: #0d0d0d; --text-sec: #666; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- LOADING SCREEN (DOGS STYLE) --- */
+        /* --- CHECKING SCREEN & PROGRESS BAR --- */
         #loader-screen {
             position: fixed; inset: 0; background: #000; z-index: 100000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .baby-banner-horizontal {
-            width: 95%; max-width: 550px; aspect-ratio: 21 / 9;
+        .baby-banner-wide {
+            width: 90%; max-width: 500px; aspect-ratio: 21 / 9;
             border-radius: 20px; object-fit: cover; margin-bottom: 30px;
-            animation: dogsFloat 3s infinite ease-in-out; border: 1px solid #1a1a1a;
+            border: 1px solid #1a1a1a;
         }
 
-        @keyframes dogsFloat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .progress-container { width: 280px; height: 6px; background: #111; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: #fff; transition: width 0.4s ease; shadow: 0 0 10px #fff; }
 
-        .stat-list { width: 320px; margin-top: 10px; }
         .stat-row {
-            display: flex; justify-content: space-between; padding: 18px 0;
-            border-bottom: 1px solid #111; opacity: 0; transform: translateY(10px);
-            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            width: 300px; display: flex; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid #111;
+            opacity: 0; transform: translateY(10px); transition: 0.5s ease;
         }
         .stat-row.active { opacity: 1; transform: translateY(0); }
-        .stat-label { color: var(--text-sec); font-size: 13px; font-weight: 700; text-transform: uppercase; }
-        .stat-value { color: #fff; font-weight: 900; font-style: italic; }
+        .stat-label { color: #555; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .stat-value { color: #fff; font-weight: 900; }
 
         /* --- MAIN UI --- */
-        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 1s ease; padding-bottom: 100px; }
+        #main-app { display: none; height: 100vh; overflow-y: auto; opacity: 0; transition: 0.8s ease; }
         
-        .nav-bar {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: rgba(15,15,15,0.8); backdrop-filter: blur(20px);
-            border-radius: 25px; display: flex; justify-content: space-around;
-            padding: 15px; border: 1px solid #222; z-index: 50000;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-sec); font-size: 10px; font-weight: 800; }
-        .nav-item.active { color: var(--primary); }
+        .hero { padding: 40px 20px; text-align: center; background: radial-gradient(circle at top, #0f0f0f 0%, #000 100%); }
+        .avatar { width: 100px; height: 100px; border-radius: 35px; margin: 0 auto 15px; border: 3px solid #1a1a1a; }
+        .bal-val { font-size: 70px; font-weight: 900; letter-spacing: -4px; line-height: 1; }
 
-        .balance-card { padding: 40px 20px; text-align: center; }
-        .main-avatar { width: 110px; height: 110px; border-radius: 40px; margin: 0 auto 15px; border: 4px solid #1a1a1a; object-fit: cover; }
-        .balance-val { font-size: 70px; font-weight: 900; letter-spacing: -4px; line-height: 1; margin-bottom: 5px; }
+        .btn-premium { background: #fff; color: #000; padding: 20px; border-radius: 22px; font-weight: 900; width: calc(100% - 40px); margin: 0 20px 15px; font-size: 16px; }
+        .btn-outline { background: #0d0d0d; color: #fff; border: 1px solid #1a1a1a; padding: 18px; border-radius: 22px; font-weight: 900; width: calc(100% - 40px); margin: 0 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
-        .section-title { padding: 0 25px; font-size: 11px; font-weight: 900; color: var(--text-sec); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
-
-        /* Tasks & Cards */
-        .task-card {
-            background: var(--card); margin: 0 20px 10px; padding: 18px;
-            border-radius: 20px; display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid #151515; transition: 0.3s;
-        }
-        .task-info { display: flex; align-items: center; gap: 15px; }
-        .task-icon { width: 45px; height: 45px; background: #1a1a1a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-
-        .cex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 20px; }
-        .cex-box { background: var(--card); border: 1px solid #1a1a1a; border-radius: 22px; padding: 20px 5px; text-align: center; }
-        .cex-box img { width: 40px; height: 40px; margin: 0 auto 10px; border-radius: 10px; }
-        .cex-box.selected { border-color: var(--primary); background: #00152a; }
-
-        /* Modals */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 30px; }
+        /* --- MODALS --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 25px; backdrop-filter: blur(10px); }
         .modal.open { display: flex; }
-        .m-content { background: #111; padding: 40px 25px; border-radius: 35px; width: 100%; border: 1px solid #222; text-align: center; }
+        .m-card { background: #0f0f0f; border: 1px solid #222; border-radius: 35px; width: 100%; padding: 40px 25px; text-align: center; }
 
-        .btn-premium { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; width: 100%; margin-top: 10px; }
+        .cex-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px 5px; text-align: center; }
+        .cex-card.active { border-color: #007aff; background: #001224; }
     </style>
 </head>
 <body>
 
     <div id="loader-screen">
-        <img src="babykoalas.jpg" class="baby-banner-horizontal" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Baby+Koalas'">
-        <h1 class="text-3xl font-black italic mb-1">Who are you?</h1>
-        <p class="text-zinc-600 font-bold mb-10 text-sm">Checking your Telegram history...</p>
+        <img src="babykoalas.jpg" class="baby-banner-wide" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Baby+Koalas'">
+        <h1 class="text-2xl font-black mb-2">Analysing Profile</h1>
+        
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
 
         <div class="stat-list">
             <div id="r1" class="stat-row"><span class="stat-label">Account Age</span><span class="stat-value" id="s1">...</span></div>
             <div id="r2" class="stat-row"><span class="stat-label">Premium Status</span><span class="stat-value" id="s2">...</span></div>
-            <div id="r3" class="stat-row"><span class="stat-label">Activity Rank</span><span class="stat-value" id="s3">...</span></div>
+            <div id="r3" class="stat-row"><span class="stat-label">Koala Tier</span><span class="stat-value" id="s3">...</span></div>
         </div>
     </div>
 
     <div id="main-app">
-        <div id="page-home">
-            <div class="balance-card">
-                <img src="koalas.jpg" class="main-avatar" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Koala'">
-                <h2 id="user-balance" class="balance-val">0</h2>
-                <p class="text-zinc-500 font-black text-[10px] tracking-[5px] uppercase">$KOALA ALLOCATION</p>
-            </div>
-
-            <div class="section-title">Partner Exchanges</div>
-            <div class="cex-grid mb-10">
-                <div class="cex-box" onclick="selectCex(this, 'Binance')"><img src="binance.jpg" onerror="this.src='https://via.placeholder.com/50?text=B'"><span class="text-[9px] font-black opacity-40">BINANCE</span></div>
-                <div class="cex-box" onclick="selectCex(this, 'OKX')"><img src="okx.jpg" onerror="this.src='https://via.placeholder.com/50?text=O'"><span class="text-[9px] font-black opacity-40">OKX</span></div>
-                <div class="cex-box" onclick="selectCex(this, 'Bitget')"><img src="bitget.jpg" onerror="this.src='https://via.placeholder.com/50?text=BG'"><span class="text-[9px] font-black opacity-40">BITGET</span></div>
-            </div>
-
-            <div class="section-title">Quests</div>
-            <div class="task-card" onclick="openModal('m-ad')">
-                <div class="task-info">
-                    <div class="task-icon text-yellow-500"><i class="fa-solid fa-play"></i></div>
-                    <div><h4 class="font-black text-sm">Daily Video</h4><p class="text-xs text-zinc-500 font-bold">+100 $KOALA</p></div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-            </div>
-
-            <div class="task-card" onclick="openModal('m-wallet')">
-                <div class="task-info">
-                    <div class="task-icon text-blue-500"><i class="fa-solid fa-wallet"></i></div>
-                    <div><h4 id="w-status" class="font-black text-sm">Connect Wallet</h4><p class="text-xs text-zinc-500 font-bold">+1000 $KOALA</p></div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-            </div>
+        <div class="hero">
+            <img src="koalas.jpg" class="avatar" onerror="this.src='https://via.placeholder.com/150/222/fff?text=Koala'">
+            <h2 id="final-bal" class="bal-val">0</h2>
+            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase mb-10">TOTAL ALLOCATION</p>
+            
+            <button onclick="openM('m-earn')" class="btn-premium">EARN $KOALA</button>
+            <button id="wallet-btn" onclick="openM('m-wallet')" class="btn-outline">
+                <i class="fa-solid fa-wallet text-blue-500"></i> SET WALLET
+            </button>
         </div>
 
-        <div class="nav-bar">
-            <div class="nav-item active"><i class="fa-solid fa-house text-xl"></i><span>Home</span></div>
-            <div class="nav-item" onclick="alert('Coming Soon')"><i class="fa-solid fa-users text-xl"></i><span>Friends</span></div>
-            <div class="nav-item" onclick="alert('Coming Soon')"><i class="fa-solid fa-trophy text-xl"></i><span>Leaderboard</span></div>
+        <div class="px-6 mt-6">
+            <p class="text-[10px] font-black text-zinc-700 tracking-widest uppercase mb-4">Select Partner</p>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="cex-card" onclick="setEx(this)"><img src="binance.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=B'"><span class="text-[9px] font-black opacity-30">BINANCE</span></div>
+                <div class="cex-card" onclick="setEx(this)"><img src="okx.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=O'"><span class="text-[9px] font-black opacity-30">OKX</span></div>
+                <div class="cex-card" onclick="setEx(this)"><img src="bitget.jpg" class="w-10 h-10 mx-auto mb-2 rounded-lg" onerror="this.src='https://via.placeholder.com/40?text=BG'"><span class="text-[9px] font-black opacity-30">BITGET</span></div>
+            </div>
         </div>
     </div>
 
-    <div id="m-ad" class="modal"><div class="m-content"><div class="text-6xl mb-6">💎</div><h2 class="text-xl font-black mb-2">Claim Bonus</h2><p class="text-zinc-500 text-sm font-bold mb-8">Watch a short video to earn.</p><button onclick="claimAd()" class="btn-premium">WATCH VIDEO</button><button onclick="closeModal('m-ad')" class="mt-4 text-zinc-600 font-bold text-xs uppercase">Cancel</button></div></div>
-    
-    <div id="m-wallet" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-6 uppercase">Link Address</h2><input type="text" id="w-input" placeholder="UQ... Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-8 outline-none"><button onclick="saveW()" class="btn-premium">CONFIRM WALLET</button></div></div>
+    <div id="m-earn" class="modal">
+        <div class="m-card">
+            <div class="text-6xl mb-6">🐨</div>
+            <h2 class="text-2xl font-black mb-2 italic">EARN REWARDS</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-8 px-4">Complete daily tasks and watch videos to increase your allocation.</p>
+            <button onclick="watchAd()" class="btn-premium mx-0 w-full mb-3">WATCH VIDEO (+50)</button>
+            <button onclick="closeM('m-earn')" class="text-zinc-600 font-black text-xs uppercase">MAYBE LATER</button>
+        </div>
+    </div>
+
+    <div id="m-wallet" class="modal">
+        <div class="m-card">
+            <h2 class="text-xl font-black mb-6 uppercase tracking-tighter">Set TON Wallet</h2>
+            <input type="text" id="w-input" placeholder="Enter TON Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-6 outline-none">
+            <button onclick="saveW()" class="btn-premium mx-0 w-full">SAVE ADDRESS</button>
+            <button onclick="closeM('m-wallet')" class="mt-4 text-zinc-600 font-black text-xs">CLOSE</button>
+        </div>
+    </div>
 
     <script>
         let balance = 0;
 
-        async function initApp() {
+        async function startApp() {
+            const bar = document.getElementById('progress-bar');
             const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-            // Dogs Style Sequences
+            // Adım 1
+            await sleep(1000);
+            bar.style.width = "30%";
+            showStep('r1', 's1', '5.1 YEARS');
+
+            // Adım 2
             await sleep(1500);
-            updateStep('r1', 's1', '4.5 YEARS');
+            bar.style.width = "65%";
+            showStep('r2', 's2', 'YES');
 
-            await sleep(2000);
-            updateStep('r2', 's2', 'VERIFIED');
-
-            await sleep(2000);
-            updateStep('r3', 's3', 'TOP 5%');
-
+            // Adım 3
             await sleep(1500);
-            showMain();
-        }
+            bar.style.width = "100%";
+            showStep('r3', 's3', 'OG ELITE');
 
-        function updateStep(rowId, valId, val) {
-            document.getElementById(rowId).classList.add('active');
-            setTimeout(() => {
-                const el = document.getElementById(valId);
-                el.innerText = val;
-                el.style.color = "#007aff";
-            }, 300);
-        }
-
-        function showMain() {
-            balance = Math.floor(Math.random() * 5000) + 3500;
-            document.getElementById('user-balance').innerText = balance.toLocaleString();
+            // Geçiş
+            await sleep(1000);
+            balance = Math.floor(Math.random() * 8000) + 2000;
+            document.getElementById('final-bal').innerText = balance.toLocaleString();
             
-            const loader = document.getElementById('loader-screen');
-            loader.style.opacity = '0';
+            document.getElementById('loader-screen').style.opacity = '0';
             setTimeout(() => {
-                loader.style.display = 'none';
+                document.getElementById('loader-screen').style.display = 'none';
                 const app = document.getElementById('main-app');
                 app.style.display = 'block';
                 setTimeout(() => app.style.opacity = '1', 50);
             }, 600);
         }
 
-        function selectCex(el, name) {
-            document.querySelectorAll('.cex-box').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
+        function showStep(rid, sid, val) {
+            document.getElementById(rid).classList.add('active');
+            document.getElementById(sid).innerText = val;
+            document.getElementById(sid).style.color = "#007aff";
         }
 
         function saveW() {
-            const val = document.getElementById('w-input').value.trim();
-            if(val.length > 15) {
-                localStorage.setItem('k_w', val);
-                document.getElementById('w-status').innerText = val.slice(0,4) + "..." + val.slice(-4);
-                closeModal('m-wallet');
-                balance += 1000;
-                document.getElementById('user-balance').innerText = balance.toLocaleString();
+            const v = document.getElementById('w-input').value;
+            if(v.length > 10) {
+                document.getElementById('wallet-btn').innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> ${v.slice(0,4)}...${v.slice(-4)}`;
+                closeM('m-wallet');
             }
         }
 
-        function claimAd() {
-            balance += 100;
-            document.getElementById('user-balance').innerText = balance.toLocaleString();
-            closeModal('m-ad');
+        function watchAd() {
+            balance += 50;
+            document.getElementById('final-bal').innerText = balance.toLocaleString();
+            closeM('m-earn');
         }
 
-        function openModal(id) { document.getElementById(id).classList.add('open'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function setEx(el) {
+            document.querySelectorAll('.cex-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
 
-        window.onload = initApp;
+        function openM(id) { document.getElementById(id).classList.add('open'); }
+        function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+        window.onload = startApp;
     </script>
 </body>
 </html>
