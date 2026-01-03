@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | SOCIAL EDITION</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -12,284 +12,298 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; user-select: none; }
         body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        /* UI Utilities */
+        /* UI Helpers */
         .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px); }
         .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; }
-        .page.active { display: block; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Koala Tap Area */
-        .tap-circle { width: 270px; height: 270px; margin: 30px auto; position: relative; perspective: 1000px; }
-        .tap-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 8px solid #0a0a0a; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(255,255,255,0.05); }
-        .tap-img:active { transform: scale(0.92) rotateX(10deg); }
-        .tap-img.disabled { filter: grayscale(1) brightness(0.4); pointer-events: none; }
+        /* Checking Screen Custom */
+        #checking-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; display:flex; flex-direction:column; padding:40px 24px; justify-content:space-between; }
+        .check-card { background:#09090b; border:1px solid #111; padding:20px; border-radius:24px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; opacity:0; transform:translateY(10px); transition:0.5s; }
+        .check-card.show { opacity:1; transform:translateY(0); }
+        .dot { width:10px; height:10px; border-radius:50%; background:#222; transition:0.3s; }
+        .dot.done { background:#fff; box-shadow:0 0 10px #fff; }
 
-        /* Floating Text */
-        .float-text { position: absolute; color: white; font-weight: 900; font-size: 36px; pointer-events: none; animation: floatAnim 0.8s ease-out forwards; z-index: 2000; }
-        @keyframes floatAnim { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-140px) scale(1.5); } }
-
-        /* Progress Bars */
-        .energy-track { height: 12px; background: #0a0a0a; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; }
-        #energy-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #fff, #555); transition: 0.3s linear; }
+        /* Tap Mechanism */
+        .tap-circle { width: 280px; height: 280px; margin: 20px auto; position: relative; }
+        .tap-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 6px solid #111; transition: 0.1s cubic-bezier(0.1, 0.7, 1, 0.1); }
+        .tap-img:active { transform: scale(0.94); border-color: #fff; }
+        .tap-img.disabled { filter: grayscale(1); opacity: 0.2; pointer-events: none; }
 
         /* Navigation */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #050505; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: 25px; z-index: 5000; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #050505; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: 25px; z-index: 1000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
 
-        /* Overlays */
-        #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-main { background: #fff; color: #000; font-weight: 900; padding: 18px; border-radius: 24px; text-transform: uppercase; width: 100%; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.96); }
+        /* Floating +1 Text */
+        .f-text { position: absolute; color: white; font-weight: 900; font-size: 34px; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 2000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-130px); } }
+
+        .energy-bar { height: 10px; background: #0a0a0a; border-radius: 20px; overflow: hidden; border: 1px solid #151515; }
+        #e-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #fff, #444); transition: 0.2s linear; }
+
+        .btn-white { background:#fff; color:#000; padding:18px; border-radius:24px; font-weight:900; width:100%; text-transform:uppercase; transition:0.2s; }
+        .btn-white:active { transform:scale(0.97); }
+
+        #ad-view { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
 
-    <div id="ad-overlay">
+    <div id="ad-view">
         <div class="text-center">
-            <div class="w-16 h-16 border-4 border-zinc-900 border-t-white rounded-full animate-spin mx-auto mb-6"></div>
-            <h2 id="ad-timer" class="text-8xl font-black">10</h2>
-            <p class="text-zinc-600 font-bold text-xs mt-4 uppercase tracking-[0.3em]">Loading Reward</p>
+            <div class="w-16 h-16 border-2 border-white/10 border-t-white rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 id="ad-sec" class="text-8xl font-black">10</h2>
+            <p class="text-zinc-600 font-bold text-[10px] mt-4 uppercase tracking-widest">Generating Koala Power</p>
         </div>
     </div>
 
-    <div id="app">
-        <div id="page-earn" class="page active">
+    <div id="checking-screen">
+        <div class="text-center mt-6">
+            <i class="fa-solid fa-shield-cat text-5xl mb-4"></i>
+            <h1 class="text-3xl font-black italic tracking-tighter">KOALA SYSTEM</h1>
+            <p class="text-zinc-500 font-bold text-sm">Validating user credentials...</p>
+        </div>
+
+        <div id="check-list">
+            <div class="check-card" id="s1"><span>Network Latency</span><div class="dot"></div></div>
+            <div class="check-card" id="s2"><span>Energy Calibration</span><div class="dot"></div></div>
+            <div class="check-card" id="s3"><span>Anti-Bot Shield</span><div class="dot"></div></div>
+        </div>
+
+        <div id="check-result" class="hidden text-center animate-pulse">
+            <h2 id="veteran-years" class="text-8xl font-black tracking-tighter">0</h2>
+            <p class="text-zinc-500 font-black uppercase italic">Years Veteran Badge</p>
+            <div class="mt-4 text-yellow-500 font-black text-2xl">+<span id="welcome-reward">0</span> $KOALA</div>
+        </div>
+
+        <div class="w-full">
+            <button onclick="startCheck()" id="btn-check" class="btn-white">Check Eligibility</button>
+            <button onclick="enterApp()" id="btn-claim" class="btn-white hidden">Claim & Enter Arcade</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        
+        <div id="p-earn" class="page active">
             <div class="text-center mt-6">
-                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.5em] mb-1">Koala Balance</p>
-                <h1 id="bal-text" class="text-7xl font-black tracking-tighter">0</h1>
+                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em] mb-1">Available Balance</p>
+                <h1 id="bal-txt" class="text-6xl font-black tracking-tighter">0</h1>
             </div>
 
             <div class="tap-circle" onclick="handleTap(event)">
-                <img src="coinkoala.jpg" id="tap-target" class="tap-img">
+                <img src="coinkoala.jpg" id="koala-btn" class="tap-img">
             </div>
 
             <div class="max-w-[280px] mx-auto">
                 <div class="flex justify-between items-center mb-2 px-1">
-                    <span class="text-[10px] font-black text-zinc-500 uppercase"><i class="fa-solid fa-bolt text-yellow-500 mr-1"></i> Energy</span>
-                    <span class="text-[10px] font-black" id="energy-text">1000/1000</span>
+                    <span class="text-[10px] font-black text-zinc-500 uppercase"><i class="fa-solid fa-bolt text-yellow-500"></i> Energy</span>
+                    <span class="text-[10px] font-black" id="e-txt">1000/1000</span>
                 </div>
-                <div class="energy-track">
-                    <div id="energy-fill"></div>
-                </div>
-                <p class="text-[9px] text-zinc-700 mt-2 text-center uppercase font-bold italic">Refills 1000 points in 24h</p>
+                <div class="energy-bar"><div id="e-fill"></div></div>
+                <p class="text-[9px] text-zinc-700 mt-2 text-center font-bold uppercase italic">Full Re-Charge: 24h</p>
             </div>
         </div>
 
-        <div id="page-tasks" class="page">
-            <h2 class="text-3xl font-black italic mb-8 uppercase tracking-tighter">Active Quests</h2>
-            <div class="space-y-4">
-                <div class="glass p-5 rounded-[28px] flex justify-between items-center" onclick="doTelegram()">
+        <div id="p-tasks" class="page">
+            <h2 class="text-3xl font-black italic mb-8 uppercase">Quest Hub</h2>
+            <div class="space-y-3">
+                <div class="glass p-5 rounded-[24px] flex justify-between items-center" onclick="openTG()">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 text-xl"><i class="fa-brands fa-telegram"></i></div>
-                        <div><p class="font-bold text-sm">Join Koala TG</p><p class="text-[10px] text-zinc-500">+50,000 $KOALA</p></div>
+                        <div><p class="font-bold text-sm">Join Community</p><p class="text-[10px] text-zinc-500">+50,000 $KOALA</p></div>
                     </div>
-                    <button class="bg-zinc-900 text-[10px] px-4 py-2 rounded-xl font-black">GO</button>
+                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
                 </div>
-                <div class="glass p-5 rounded-[28px] flex justify-between items-center" onclick="showAd()">
+                <div class="glass p-5 rounded-[24px] flex justify-between items-center" onclick="triggerAd()">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 text-xl"><i class="fa-solid fa-play"></i></div>
-                        <div><p class="font-bold text-sm">Watch Video</p><p class="text-[10px] text-zinc-500">+1 $KOALA + Energy</p></div>
+                        <div><p class="font-bold text-sm">Watch & Earn</p><p class="text-[10px] text-zinc-500">+1 $KOALA + Boost</p></div>
                     </div>
-                    <button class="bg-zinc-900 text-[10px] px-4 py-2 rounded-xl font-black">PLAY</button>
+                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
                 </div>
             </div>
         </div>
 
-        <div id="page-friends" class="page">
+        <div id="p-friends" class="page">
             <div class="text-center mt-10">
-                <div class="w-24 h-24 bg-zinc-900 rounded-[2.5rem] mx-auto flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-user-plus text-4xl text-white"></i>
+                <div class="w-20 h-20 bg-zinc-900 rounded-[2rem] mx-auto flex items-center justify-center mb-6 border border-zinc-800">
+                    <i class="fa-solid fa-user-plus text-3xl"></i>
                 </div>
-                <h2 class="text-4xl font-black italic mb-2">INVITE</h2>
-                <p class="text-zinc-500 text-sm px-10 mb-10 leading-relaxed">Boost your earnings by inviting your friends to the arcade!</p>
-                
-                <div class="glass p-8 rounded-[40px] mb-6">
-                    <p class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Referral Reward</p>
-                    <p class="text-2xl font-black text-white">+10% Commission</p>
-                    <p class="text-zinc-500 text-[10px] mt-1">Per friend active mining</p>
+                <h2 class="text-4xl font-black italic mb-2 tracking-tighter">FRIENDS</h2>
+                <p class="text-zinc-500 text-sm px-10 mb-8 leading-relaxed">Invite your crew and earn 10% from their mining power!</p>
+                <div class="glass p-6 rounded-[30px] mb-8">
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-2">Your Referral Link</p>
+                    <p id="ref-preview" class="text-[10px] font-mono text-zinc-400 truncate">t.me/KoalasUsdt_Bot?start=r...</p>
                 </div>
-
-                <button onclick="shareToTelegram()" class="btn-main flex items-center justify-center gap-3">
-                    <i class="fa-brands fa-telegram text-xl"></i>
-                    Share Invite Link
+                <button onclick="shareLink()" class="btn-white flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-telegram text-xl"></i> Share Link
                 </button>
             </div>
         </div>
 
-        <div id="page-drop" class="page">
-            <h2 class="text-3xl font-black italic mb-8 uppercase tracking-tighter">Airdrop</h2>
-            <div id="wallet-setup" class="glass p-8 rounded-[40px] text-center">
-                <div class="w-16 h-16 bg-white/5 rounded-full mx-auto flex items-center justify-center mb-6 text-2xl text-white">
-                    <i class="fa-solid fa-link"></i>
-                </div>
-                <p class="text-sm font-bold mb-8 text-zinc-300">Submit your TON wallet to receive your $KOALA tokens.</p>
-                <input type="text" id="wallet-addr" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-white font-bold text-xs mb-4 outline-none focus:border-white transition-all" placeholder="Enter TON Wallet (UQ...)">
-                <button onclick="saveWallet()" class="btn-main text-sm">Connect Wallet</button>
+        <div id="p-drop" class="page">
+            <h2 class="text-4xl font-black italic mb-8 uppercase text-center mt-4">Airdrop</h2>
+            <div id="w-setup" class="glass p-8 rounded-[40px] text-center border-zinc-800">
+                <p class="text-sm font-bold mb-8 text-zinc-400">Link your TON wallet to receive your allocation during TGE.</p>
+                <input type="text" id="w-input" class="w-full bg-black border border-zinc-900 p-5 rounded-2xl text-white font-bold text-xs mb-4 outline-none focus:border-white" placeholder="UQ... Wallet Address">
+                <button onclick="saveW()" class="btn-white text-sm">Link Wallet</button>
             </div>
-            <div id="wallet-done" class="hidden glass p-10 rounded-[40px] text-center">
-                <i class="fa-solid fa-circle-check text-6xl text-green-500 mb-6"></i>
-                <p class="text-white font-bold mb-2">Wallet Connected</p>
-                <p id="display-wallet" class="text-zinc-600 text-[10px] font-mono break-all mb-8"></p>
-                <button onclick="resetWallet()" class="text-zinc-400 text-[10px] font-black uppercase underline">Change Address</button>
+            <div id="w-done" class="hidden glass p-10 rounded-[40px] text-center">
+                <i class="fa-solid fa-circle-check text-6xl text-white/20 mb-6"></i>
+                <p id="w-preview" class="text-zinc-600 text-[10px] font-mono break-all"></p>
+                <button onclick="resetW()" class="text-zinc-400 text-[10px] font-black uppercase underline mt-6">Change Wallet</button>
             </div>
         </div>
 
         <nav class="nav-bar">
             <div class="nav-item active" onclick="tab('earn', this)"><i class="fa-solid fa-hand-pointer"></i><span>Earn</span></div>
-            <div class="nav-item" onclick="tab('tasks', this)"><i class="fa-solid fa-bolt"></i><span>Tasks</span></div>
-            <div class="nav-item" onclick="tab('friends', this)"><i class="fa-solid fa-users"></i><span>Friends</span></div>
-            <div class="nav-item" onclick="tab('drop', this)"><i class="fa-solid fa-wallet"></i><span>Airdrop</span></div>
+            <div class="nav-item" onclick="tab('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
+            <div class="nav-item" onclick="tab('friends', this)"><i class="fa-solid fa-user-group"></i><span>Friends</span></div>
+            <div class="nav-item" onclick="tab('drop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
-        /**
-         * 🐨 KOALA ARCADE - PRO SCRIPT
-         * Energy: 1000 per 24 hours
-         */
-
+        // --- DATA STATE ---
         let state = {
-            bal: parseInt(localStorage.getItem('k_bal')) || 0,
+            bal: parseFloat(localStorage.getItem('k_bal')) || 0,
             energy: parseFloat(localStorage.getItem('k_energy')) || 1000,
             lastSync: parseInt(localStorage.getItem('k_sync')) || Date.now(),
             wallet: localStorage.getItem('k_wallet') || null,
-            tapCount: 0
+            uid: localStorage.getItem('k_uid') || Math.floor(Math.random()*900000 + 100000), // Random ID if not from TG
+            isClaimed: localStorage.getItem('k_clm') === 'true'
         };
 
-        const MAX_ENERGY = 1000;
-        const REFILL_PER_SEC = MAX_ENERGY / 86400; // 1000 points / 24h
-        const BOT_USERNAME = "KoalaArcadeBot"; // Botunun kullanıcı adını buraya yaz!
+        const MAX_E = 1000;
+        const REFILL = MAX_E / 86400; // 1000 in 24h
 
         window.onload = () => {
+            localStorage.setItem('k_uid', state.uid);
+            document.getElementById('ref-preview').innerText = `t.me/KoalasUsdt_Bot?start=r${state.uid}`;
             syncEnergy();
             refreshUI();
-            checkWallet();
+            checkW();
             setInterval(autoRefill, 1000);
         };
 
-        // --- REFERRAL SYSTEM ---
-        function shareToTelegram() {
-            const inviteLink = `https://t.me/${BOT_USERNAME}?start=r${Math.floor(Math.random()*10000)}`;
-            const text = encodeURIComponent("🐨 Koala Arcade'e katıl, tıkla ve $KOALA kazan! \n\n🚀 Geleceğin en büyük airdrop'unu kaçırma!");
-            const url = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${text}`;
-            
-            // Telegram paylaşım sayfasını açar
+        // --- CHECKING FLOW ---
+        function startCheck() {
+            document.getElementById('btn-check').classList.add('hidden');
+            const steps = ['s1', 's2', 's3'];
+            steps.forEach((id, i) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.classList.add('show');
+                    el.querySelector('.dot').classList.add('done');
+                    if(i === 2) setTimeout(finishCheck, 800);
+                }, i * 1000);
+            });
+        }
+
+        function finishCheck() {
+            document.getElementById('check-list').classList.add('hidden');
+            const years = Math.floor(Math.random()*4)+2;
+            const rew = years * 12500;
+            document.getElementById('veteran-years').innerText = years;
+            document.getElementById('welcome-reward').innerText = rew.toLocaleString();
+            document.getElementById('check-result').classList.remove('hidden');
+            document.getElementById('btn-claim').classList.remove('hidden');
+            if(!state.isClaimed) { state.bal += rew; state.isClaimed = true; localStorage.setItem('k_clm', 'true'); }
+        }
+
+        function enterApp() {
+            document.getElementById('checking-screen').style.display = 'none';
+            document.getElementById('main-app').classList.remove('hidden');
+        }
+
+        // --- SOCIAL ---
+        function shareLink() {
+            const link = `https://t.me/KoalasUsdt_Bot?start=r${state.uid}`;
+            const msg = `🐨 Koala Arcade'e katıl, tıkla ve $KOALA kazan!\n\n🚀 Geleceğin en büyük airdrop'unu kaçırma!`;
+            const url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
 
-        // --- ENERGY ENGINE ---
+        // --- CORE ENGINE ---
         function syncEnergy() {
             let now = Date.now();
             let elapsed = (now - state.lastSync) / 1000;
-            state.energy = Math.min(MAX_ENERGY, state.energy + (elapsed * REFILL_PER_SEC));
+            state.energy = Math.min(MAX_E, state.energy + (elapsed * REFILL));
             state.lastSync = now;
         }
 
         function autoRefill() {
-            if (state.energy < MAX_ENERGY) {
-                state.energy = Math.min(MAX_ENERGY, state.energy + REFILL_PER_SEC);
+            if(state.energy < MAX_E) {
+                state.energy = Math.min(MAX_E, state.energy + REFILL);
                 refreshUI();
             }
         }
 
         function handleTap(e) {
-            if (state.energy < 1) return;
-
-            state.energy -= 1;
-            state.bal += 1;
-            state.tapCount += 1;
-            state.lastSync = Date.now();
-
+            if(state.energy < 1) return;
+            state.energy -= 1; state.bal += 1; state.lastSync = Date.now();
             createFloat(e.clientX, e.clientY);
             refreshUI();
-
-            if (state.tapCount >= 10) {
-                state.tapCount = 0;
-                showAd();
-            }
         }
 
-        // --- UI & NAV ---
         function refreshUI() {
-            document.getElementById('bal-text').innerText = Math.floor(state.bal).toLocaleString();
-            document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${MAX_ENERGY}`;
-            document.getElementById('energy-fill').style.width = (state.energy / MAX_ENERGY * 100) + "%";
-            
-            const target = document.getElementById('tap-target');
-            if (state.energy < 1) target.classList.add('disabled');
-            else target.classList.remove('disabled');
-
+            document.getElementById('bal-txt').innerText = Math.floor(state.bal).toLocaleString();
+            document.getElementById('e-txt').innerText = `${Math.floor(state.energy)}/${MAX_E}`;
+            document.getElementById('e-fill').style.width = (state.energy/MAX_E*100) + "%";
+            const btn = document.getElementById('koala-btn');
+            if(state.energy < 1) btn.classList.add('disabled'); else btn.classList.remove('disabled');
             localStorage.setItem('k_bal', state.bal);
             localStorage.setItem('k_energy', state.energy);
             localStorage.setItem('k_sync', state.lastSync);
         }
 
         function createFloat(x, y) {
-            const div = document.createElement('div');
-            div.className = 'float-text';
-            div.innerText = '+1';
-            div.style.left = x + 'px';
-            div.style.top = y + 'px';
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 800);
+            const d = document.createElement('div');
+            d.className = 'f-text'; d.innerText = '+1';
+            d.style.left = x + 'px'; d.style.top = y + 'px';
+            document.body.appendChild(d);
+            setTimeout(() => d.remove(), 700);
         }
 
+        // --- UTILS ---
         function tab(name, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('page-' + name).classList.add('active');
+            document.getElementById('p-' + name).classList.add('active');
             el.classList.add('active');
         }
 
-        // --- TASKS & AD ---
-        function showAd() {
-            const over = document.getElementById('ad-overlay');
-            const timer = document.getElementById('ad-timer');
-            over.style.display = 'flex';
-            let sec = 10;
+        function triggerAd() {
+            const v = document.getElementById('ad-view');
+            const s = document.getElementById('ad-sec');
+            v.style.display = 'flex';
+            let t = 10;
             const iv = setInterval(() => {
-                sec--; timer.innerText = sec;
-                if (sec <= 0) {
-                    clearInterval(iv); over.style.display = 'none';
-                    state.bal += 1; refreshUI();
-                }
+                t--; s.innerText = t;
+                if(t<=0) { clearInterval(iv); v.style.display='none'; state.bal += 100; refreshUI(); alert("Reward: +100 $KOALA!"); }
             }, 1000);
         }
 
-        function doTelegram() {
-            window.open('https://t.me/KoalasCommunity', '_blank');
-            if(localStorage.getItem('k_tg') !== 'done') {
-                setTimeout(() => {
-                    state.bal += 50000;
-                    localStorage.setItem('k_tg', 'done');
-                    refreshUI();
-                    alert("Verification Successful! 50k $KOALA added.");
-                }, 3000);
-            }
+        function openTG() { window.open('https://t.me/KoalasCommunity', '_blank'); }
+        function saveW() {
+            const val = document.getElementById('w-input').value;
+            if(val.length < 8) return;
+            state.wallet = val; localStorage.setItem('k_wallet', val); checkW();
         }
-
-        // --- WALLET ---
-        function saveWallet() {
-            const addr = document.getElementById('wallet-addr').value;
-            if(addr.length < 10) return;
-            state.wallet = addr;
-            localStorage.setItem('k_wallet', addr);
-            checkWallet();
-        }
-
-        function checkWallet() {
+        function checkW() {
             if(state.wallet) {
-                document.getElementById('wallet-setup').classList.add('hidden');
-                document.getElementById('wallet-done').classList.remove('hidden');
-                document.getElementById('display-wallet').innerText = state.wallet;
+                document.getElementById('w-setup').classList.add('hidden');
+                document.getElementById('w-done').classList.remove('hidden');
+                document.getElementById('w-preview').innerText = state.wallet;
             } else {
-                document.getElementById('wallet-setup').classList.remove('hidden');
-                document.getElementById('wallet-done').classList.add('hidden');
+                document.getElementById('w-setup').classList.remove('hidden');
+                document.getElementById('w-done').classList.add('hidden');
             }
         }
-        function resetWallet() { localStorage.removeItem('k_wallet'); state.wallet = null; checkWallet(); }
+        function resetW() { state.wallet = null; localStorage.removeItem('k_wallet'); checkW(); }
     </script>
 </body>
 </html>
