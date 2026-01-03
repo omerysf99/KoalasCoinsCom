@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | FINAL</title>
+    <title>KOALA ARCADE | AD-REWARD</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <style>
@@ -19,7 +20,7 @@
         /* CHECKER SCREEN */
         #checker { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; padding: 50px 25px; transition: 0.5s; }
         .dogs-h { font-size: 38px; font-weight: 900; line-height: 1.1; margin-bottom: 45px; }
-        .c-line { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
+        .c-line { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
         .c-line.active { color: var(--fg); }
         .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: s 0.7s linear infinite; }
         @keyframes s { to { transform: rotate(360deg); } }
@@ -49,17 +50,17 @@
 <body>
 
     <div id="checker">
-        <h1 class="dogs-h">Checking your<br>eligibility</h1>
+        <h1 class="dogs-h">Checking your<br>Koala status</h1>
         <div class="flex-1">
-            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
-            <div id="l2" class="c-line"><span>Activity Status</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
-            <div id="l3" class="c-line"><span>Sybil Check</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
+            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
+            <div id="l2" class="c-line"><span>Daily Activity</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
+            <div id="l3" class="c-line"><span>Trust Score</span><div class="spin"></div><i class="fa-solid fa-check hidden text-white"></i></div>
         </div>
         <div id="result-box" class="hidden text-center mb-8 animate-bounce">
             <p id="reward-val" class="text-5xl font-black italic text-white"></p>
             <p class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mt-2">Welcome Koalas Added!</p>
         </div>
-        <div id="check-btn" class="btn-white hidden" onclick="closeChecker()">Continue</div>
+        <div id="check-btn" class="btn-white hidden" onclick="closeChecker()">Get Started</div>
     </div>
 
     <div id="p-home" class="page">
@@ -68,38 +69,38 @@
             <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">$KOALA Tokens</p>
         </div>
         <div class="koala-img"><img src="coinkoala.jpg"></div>
-        <div class="card flex justify-between items-center" onclick="claimAd()">
-            <div><h4 class="font-black text-xs">DAILY AD REWARD</h4><p class="text-[9px] text-zinc-500">+1.00 $KOALA</p></div>
-            <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">WATCH</div>
+        
+        <div class="card flex justify-between items-center" id="ad-card" onclick="watchAndEarn()">
+            <div><h4 class="font-black text-xs uppercase">Daily Video Ad</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+            <div class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px]">WATCH</div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h1 class="dogs-h">Friends</h1>
+        <h1 class="dogs-h">Squad</h1>
         <div class="card py-10 flex flex-col items-center gap-2">
-            <p class="text-[10px] text-zinc-500 font-black uppercase">Referral Bonus</p>
-            <h2 class="text-4xl font-black">+10,000</h2>
+            <p class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Friend Bonus</p>
+            <h2 class="text-5xl font-black italic">+10,000</h2>
         </div>
         <div id="ref-list" class="flex-1 mt-4"></div>
-        <div class="btn-white" onclick="copyRef()">Invite Link</div>
+        <div class="btn-white" onclick="copyRef()">Invite Friends</div>
     </div>
 
     <div id="p-airdrop" class="page">
         <h1 class="dogs-h">Airdrop</h1>
         <div class="card">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">My Allocation</p>
-            <h2 id="airdrop-tokens" class="text-4xl font-black">0.00</h2>
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Estimated Allocation</p>
+            <h2 id="airdrop-tokens" class="text-4xl font-black italic">0.00</h2>
         </div>
         <div class="flex gap-2 mt-4">
-            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><img src="binance.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">BINANCE</p></div>
-            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><img src="okx.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">OKX</p></div>
-            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><img src="bitget.jpg" class="w-8 mx-auto mb-2"><p class="text-[8px] font-bold">BITGET</p></div>
+            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><p class="text-[10px] font-black uppercase">Binance</p></div>
+            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><p class="text-[10px] font-black uppercase">OKX</p></div>
         </div>
     </div>
 
     <nav id="navbar" style="display:none">
-        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
-        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Friends</span></div>
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bone"></i><span>Earn</span></div>
+        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
         <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
@@ -109,15 +110,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('k_v_final') || 'U' + Math.floor(Math.random()*999999);
-    localStorage.setItem('k_v_final', uid);
+    let uid = localStorage.getItem('k_v_official') || 'U' + Math.floor(Math.random()*999999);
+    localStorage.setItem('k_v_official', uid);
 
     let u = { bal: 0, ex: '', checked: false, refs: [] };
 
     async function init() {
         const doc = await db.collection("users").doc(uid).get();
         if(doc.exists) u = {...u, ...doc.data()};
-        
         if(u.checked) {
             document.getElementById('checker').style.display = 'none';
             showApp();
@@ -134,30 +134,47 @@
                 el.classList.add('active');
                 el.querySelector('.spin').classList.add('hidden');
                 el.querySelector('i').classList.remove('hidden');
-                
-                // Son adım bittiğinde ödülü HESAPLA ve EKLE
                 if(i === 2) {
                     const bonus = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
-                    u.bal += bonus; // Bakiyeye ekle
-                    u.checked = true; // Checking tamamlandı
-                    
+                    u.bal += bonus;
+                    u.checked = true;
                     document.getElementById('reward-val').innerText = bonus.toLocaleString();
                     document.getElementById('result-box').classList.remove('hidden');
                     document.getElementById('check-btn').classList.remove('hidden');
-                    
-                    save(); // Firebase'e anında gönder
-                    render(); // UI'ı güncelle
+                    save(); render();
                 }
-            }, (i+1) * 1500);
+            }, (i+1) * 1200);
         });
+    }
+
+    // ADEXORA REWARD LOGIC
+    function watchAndEarn() {
+        const btn = document.getElementById('ad-card');
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+
+        window.showAdexora()
+            .then(() => {
+                // ✅ Reklam başarıyla izlendi, ödülü ver
+                u.bal += 1.0;
+                save();
+                render();
+                alert("Success! +1.00 $KOALA added.");
+                btn.style.opacity = "1";
+                btn.style.pointerEvents = "auto";
+            })
+            .catch(e => {
+                // ❌ Hata veya reklam kapandı
+                console.error("Ad Error:", e);
+                alert("Ad failed to load. Please try again later.");
+                btn.style.opacity = "1";
+                btn.style.pointerEvents = "auto";
+            });
     }
 
     function closeChecker() {
         document.getElementById('checker').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('checker').style.display = 'none';
-            showApp();
-        }, 500);
+        setTimeout(() => { document.getElementById('checker').style.display = 'none'; showApp(); }, 500);
     }
 
     function showApp() {
@@ -165,19 +182,14 @@
         document.getElementById('navbar').style.display = 'flex';
     }
 
-    function claimAd() { u.bal += 1; save(); render(); }
     function setEx(n) { u.ex = n; save(); render(); }
     function copyRef() { alert("Link copied!"); }
 
     function render() {
         document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
         document.getElementById('airdrop-tokens').innerText = (u.bal / 100).toLocaleString('tr-TR', {minimumFractionDigits: 2});
-        
         document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
-        if(u.ex) {
-            const active = document.getElementById('ex-' + u.ex);
-            if(active) active.classList.add('selected');
-        }
+        if(u.ex) document.getElementById('ex-' + u.ex)?.classList.add('selected');
     }
 
     async function save() { await db.collection("users").doc(uid).set(u); }
