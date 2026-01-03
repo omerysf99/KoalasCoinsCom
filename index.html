@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | AIRDROP 2026</title>
+    <title>KOALA ARCADE | ULTIMATE</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -13,142 +13,252 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
+        :root { --bg: #000; --fg: #fff; --zinc-800: #18181b; --zinc-500: #71717a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #fff; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; }
 
+        /* --- DOGS STYLE CHECKER --- */
+        #checker {
+            position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+            display: flex; flex-direction: column; padding: 50px 25px;
+        }
+        .dogs-h { font-size: 38px; font-weight: 900; line-height: 1.1; margin-bottom: 45px; }
+        .c-line { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid #111; color: #444; font-weight: 700; }
+        .c-line.active { color: var(--fg); }
+        .spin { width: 18px; height: 18px; border: 2px solid #222; border-top-color: var(--fg); border-radius: 50%; animation: s 0.7s linear infinite; }
+        @keyframes s { to { transform: rotate(360deg); } }
+
+        /* --- MAIN LAYOUT --- */
         .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
-        .page.active { display: flex; animation: in 0.4s ease-out; }
-        @keyframes in { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: flex; animation: pageIn 0.4s ease-out; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Airdrop Özel Kartları */
-        .glass-box { background: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 28px; padding: 20px; margin-bottom: 15px; }
-        .token-badge { background: #fff; color: #000; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; }
-        
-        /* Borsa Seçim Grubu */
-        .ex-card { 
-            flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; 
-            text-align: center; transition: 0.3s; grayscale: 100%; opacity: 0.5;
-        }
-        .ex-card.selected { border-color: #fff; grayscale: 0; opacity: 1; transform: scale(1.05); }
-        .ex-card img { width: 40px; height: 40px; margin: 0 auto 10px; border-radius: 10px; }
+        /* --- UI COMPONENTS --- */
+        .balance-hero { text-align: center; margin: 30px 0; }
+        .balance-hero h1 { font-size: 64px; font-weight: 900; letter-spacing: -3px; font-style: italic; line-height: 1; }
+        .balance-hero p { font-size: 10px; font-weight: 900; color: var(--zinc-500); text-transform: uppercase; letter-spacing: 3px; margin-top: 10px; }
 
-        /* Roadmap Gelişmiş */
-        .roadmap-line { position: relative; padding-left: 25px; margin: 25px 5px; border-left: 2px solid #111; }
-        .roadmap-step { position: relative; margin-bottom: 30px; }
-        .roadmap-dot { 
-            position: absolute; left: -32px; top: 0; width: 12px; height: 12px; 
-            background: #000; border: 2px solid #222; border-radius: 50%;
-        }
-        .roadmap-step.active .roadmap-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
-        .roadmap-step.active { color: #fff; }
-        .roadmap-step.pending { color: #444; }
+        .koala-img { width: 190px; height: 190px; background: #fff; border-radius: 45px; margin: 25px auto; overflow: hidden; transform: rotate(-2deg); border: 6px solid #111; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .koala-img img { width: 100%; height: 100%; object-fit: cover; }
 
-        .btn-action { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
+        .card { background: #0c0c0c; border: 1px solid #161616; border-radius: 24px; padding: 20px; margin-bottom: 12px; }
+        .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
+        .btn-sm { padding: 8px 16px; font-size: 11px; border-radius: 12px; }
 
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 15px; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
+        /* --- AIRDROP SPECIFIC --- */
+        .ex-card { flex: 1; border-radius: 20px; border: 1px solid #161616; padding: 15px; text-align: center; opacity: 0.4; grayscale: 1; transition: 0.3s; }
+        .ex-card.selected { opacity: 1; grayscale: 0; border-color: #fff; background: #111; }
+        .ex-card img { width: 35px; height: 35px; margin: 0 auto 8px; border-radius: 8px; }
+
+        .roadmap-line { border-left: 2px solid #111; margin-left: 10px; padding-left: 25px; }
+        .rm-step { position: relative; margin-bottom: 30px; color: #444; }
+        .rm-step.active { color: #fff; }
+        .rm-dot { position: absolute; left: -32px; top: 0; width: 12px; height: 12px; background: #000; border: 2px solid #222; border-radius: 50%; }
+        .active .rm-dot { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
+
+        /* --- NAVIGATION --- */
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 20px; z-index: 999; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 5px; }
         .nav-link.active { color: #fff; }
-
+        
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="p-airdrop" class="page active">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-black italic uppercase">Airdrop</h1>
-            <div class="token-badge">PHASE 1</div>
+    <div id="checker">
+        <h1 class="dogs-h">Checking your<br>Koala eligibility</h1>
+        <div class="flex-1">
+            <div id="l1" class="c-line"><span>Account Age</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l2" class="c-line"><span>Activity Status</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="l3" class="c-line"><span>Sybil Protection</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
         </div>
-
-        <div class="glass-box bg-gradient-to-br from-[#111] to-black">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-widest">Tahmini Tahsisat</p>
-            <div class="flex items-baseline gap-2">
-                <h2 id="airdrop-calc" class="text-4xl font-black tracking-tighter">0.00</h2>
-                <span class="text-xs font-bold text-zinc-500">$KOALA</span>
-            </div>
-            <div class="h-1 bg-zinc-900 w-full mt-4 rounded-full overflow-hidden">
-                <div id="progress-bar" class="h-full bg-white" style="width: 20%"></div>
-            </div>
-            <p class="text-[9px] text-zinc-600 mt-2 font-bold uppercase">Uygunluk durumu: <span class="text-white">Düşük Risk</span></p>
-        </div>
-
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Borsa Cüzdanı Bağla</p>
-        <div class="flex gap-3 mb-8">
-            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card">
-                <img src="binance.jpg" alt="Binance">
-                <p class="text-[9px] font-black uppercase">Binance</p>
-            </div>
-            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card">
-                <img src="okx.jpg" alt="OKX">
-                <p class="text-[9px] font-black uppercase">OKX</p>
-            </div>
-            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card">
-                <img src="bitget.jpg" alt="Bitget">
-                <p class="text-[9px] font-black uppercase">Bitget</p>
-            </div>
-        </div>
-
-        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Listeleme Süreci</p>
-        <div class="roadmap-line">
-            <div class="roadmap-step active">
-                <div class="roadmap-dot"></div>
-                <h4 class="text-xs font-black uppercase">Genesis Mining</h4>
-                <p class="text-[10px] text-zinc-500 mt-1">Koala topluluğu puan topluyor. (Şu an buradasınız)</p>
-            </div>
-            <div class="roadmap-step pending">
-                <div class="roadmap-dot"></div>
-                <h4 class="text-xs font-black uppercase">Snapshot & KYC</h4>
-                <p class="text-[10px] text-zinc-500 mt-1">Cüzdan bakiyeleri dondurulur ve bot temizliği başlar.</p>
-            </div>
-            <div class="roadmap-step pending">
-                <div class="roadmap-dot"></div>
-                <h4 class="text-xs font-black uppercase">TGE & Listeleme</h4>
-                <p class="text-[10px] text-zinc-500 mt-1">Tokenlar seçtiğiniz borsaya gönderilir.</p>
-            </div>
-        </div>
-
-        <div class="btn-action mt-auto mb-4" onclick="claimStatus()">Uygunluğu Kontrol Et</div>
+        <div id="check-btn" class="btn-white hidden" onclick="startApp()">Claim Welcome Reward</div>
     </div>
 
-    <nav>
-        <div class="nav-link" onclick="tab('home')"><i class="fa-solid fa-bone"></i><span>Earn</span></div>
-        <div class="nav-link" onclick="tab('ref')"><i class="fa-solid fa-user-group"></i><span>Friends</span></div>
-        <div class="nav-link active" onclick="tab('airdrop')"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+    <div id="p-home" class="page">
+        <div class="balance-hero">
+            <h1 id="ui-bal">0.00</h1>
+            <p>$KOALA Tokens</p>
+        </div>
+
+        <div class="koala-img"><img src="coinkoala.jpg"></div>
+
+        <div class="mt-4">
+            <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Mining Tasks</p>
+            <div class="card flex justify-between items-center" onclick="claimAd()">
+                <div><h4 class="font-black text-xs uppercase">Watch Daily Ad</h4><p class="text-[9px] text-zinc-500 font-bold">+1.00 $KOALA</p></div>
+                <div class="btn-white btn-sm">CLAIM</div>
+            </div>
+            <div id="t-tg" class="card flex justify-between items-center" onclick="doTask('tg', 10)">
+                <div><h4 class="font-black text-xs uppercase">Join Community</h4><p class="text-[9px] text-zinc-500 font-bold">+10.00 $KOALA</p></div>
+                <div id="t-tg-btn" class="btn-white btn-sm">JOIN</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="p-ref" class="page">
+        <h1 class="dogs-h">Squad</h1>
+        <div class="card py-10 flex flex-col items-center gap-2">
+            <p class="text-[10px] text-zinc-600 font-black uppercase">Referral Reward</p>
+            <h2 class="text-5xl font-black italic">+10,000</h2>
+        </div>
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2 mt-6">Your Friends</p>
+        <div id="ref-list" class="flex-1 overflow-y-auto space-y-2"></div>
+        <div class="btn-white mt-4" onclick="copyRef()">Invite Friends</div>
+    </div>
+
+    <div id="p-airdrop" class="page">
+        <h1 class="dogs-h">Airdrop</h1>
+        
+        <div class="card bg-gradient-to-br from-[#111] to-black border-zinc-800">
+            <p class="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-widest">Estimated Allocation</p>
+            <div class="flex items-baseline gap-2">
+                <h2 id="airdrop-tokens" class="text-4xl font-black tracking-tighter">0.00</h2>
+                <span class="text-xs font-bold text-zinc-500">$KOALA</span>
+            </div>
+            <div class="h-1 bg-zinc-900 w-full mt-5 rounded-full overflow-hidden">
+                <div id="airdrop-bar" class="h-full bg-white" style="width: 0%"></div>
+            </div>
+            <p class="text-[9px] text-zinc-600 mt-3 font-bold uppercase">Status: <span class="text-white">Eligible</span></p>
+        </div>
+
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Connect Wallet</p>
+        <div class="flex gap-2 mb-8">
+            <div id="ex-Binance" onclick="setEx('Binance')" class="ex-card"><img src="binance.jpg" alt="B"><p class="text-[9px] font-black uppercase">Binance</p></div>
+            <div id="ex-OKX" onclick="setEx('OKX')" class="ex-card"><img src="okx.jpg" alt="O"><p class="text-[9px] font-black uppercase">OKX</p></div>
+            <div id="ex-Bitget" onclick="setEx('Bitget')" class="ex-card"><img src="bitget.jpg" alt="B"><p class="text-[9px] font-black uppercase">Bitget</p></div>
+        </div>
+
+        <p class="text-[10px] text-zinc-600 font-black uppercase mb-4 tracking-widest ml-2">Roadmap</p>
+        <div class="roadmap-line">
+            <div class="rm-step active"><div class="rm-dot"></div><h4 class="text-xs font-black">Stage 1: Mining</h4><p class="text-[10px] mt-1">Collecting $KOALA points.</p></div>
+            <div class="rm-step"><div class="rm-dot"></div><h4 class="text-xs font-black">Stage 2: Listing</h4><p class="text-[10px] mt-1">TGE & Exchange distribution.</p></div>
+        </div>
+    </div>
+
+    <nav id="navbar" style="display:none">
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Earn</span></div>
+        <div class="nav-link" onclick="tab('ref', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
+        <div class="nav-link" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 
-    <script>
-        // Firebase ve kullanıcı verileri (Önceki koddan gelen u objesi varsayılmaktadır)
-        let u = { bal: 7520.50, ex: 'Binance' }; // Test verisi
+<script>
+    // FIREBASE INITIALIZATION
+    const firebaseConfig = { 
+        apiKey: "AIzaSy...", 
+        projectId: "koalascombom", 
+        appId: "..." 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        function renderAirdrop() {
-            // Bakiyeye göre tahmini ödül (Örn: 1000 puana 10 token)
-            let estimatedToken = u.bal / 100; 
-            document.getElementById('airdrop-calc').innerText = estimatedToken.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-            
-            // İlerleme çubuğu (Örn: 50.000 puanda %100 olur)
-            let progress = (u.bal / 50000) * 100;
-            document.getElementById('progress-bar').style.width = Math.min(progress, 100) + '%';
+    // STATE
+    let uid = localStorage.getItem('koala_uid_final') || 'K' + Math.floor(Math.random()*9999999);
+    localStorage.setItem('koala_uid_final', uid);
 
-            // Borsa seçimi
-            document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
-            if(u.ex) {
-                const active = document.getElementById('ex-' + u.ex);
-                if(active) active.classList.add('selected');
-            }
+    let u = { bal: 0, ex: '', checked: false, tasks: [], refs: [] };
+
+    async function init() {
+        const doc = await db.collection("users").doc(uid).get();
+        if(doc.exists) u = {...u, ...doc.data()};
+        
+        if(u.checked) {
+            document.getElementById('checker').style.display = 'none';
+            showApp();
+        } else {
+            runChecker();
+        }
+        render();
+    }
+
+    function runChecker() {
+        ['l1', 'l2', 'l3'].forEach((id, i) => {
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                el.classList.add('active');
+                el.querySelector('.spin').classList.add('hidden');
+                el.querySelector('i').classList.remove('hidden');
+                if(i === 2) {
+                    u.bal += 1000; // Welcome Bonus
+                    document.getElementById('check-btn').classList.remove('hidden');
+                }
+            }, (i+1) * 1500);
+        });
+    }
+
+    function startApp() {
+        u.checked = true; save();
+        document.getElementById('checker').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('checker').style.display = 'none';
+            showApp();
+        }, 500);
+    }
+
+    function showApp() {
+        document.getElementById('p-home').classList.add('active');
+        document.getElementById('navbar').style.display = 'flex';
+    }
+
+    // ACTIONS
+    function claimAd() { u.bal += 1; save(); render(); }
+    
+    function doTask(tid, reward) {
+        if(u.tasks.includes(tid)) return;
+        u.bal += reward; u.tasks.push(tid);
+        save(); render();
+    }
+
+    function setEx(name) { u.ex = name; save(); render(); }
+    function copyRef() { 
+        const link = window.location.origin + "?ref=" + uid;
+        navigator.clipboard.writeText(link);
+        alert("Referans linki kopyalandı!"); 
+    }
+
+    function render() {
+        // Balance
+        document.getElementById('ui-bal').innerText = u.bal.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        
+        // Airdrop Logic (100 bakiye = 1 token varsayımı)
+        const estTokens = u.bal / 100;
+        document.getElementById('airdrop-tokens').innerText = estTokens.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        const progress = (u.bal / 100000) * 100; // 100k hedef
+        document.getElementById('airdrop-bar').style.width = Math.min(progress, 100) + '%';
+
+        // Tasks
+        if(u.tasks.includes('tg')) {
+            const btn = document.getElementById('t-tg-btn');
+            btn.innerText = 'DONE'; btn.style.opacity = '0.3'; btn.style.pointerEvents = 'none';
         }
 
-        function setEx(name) {
-            u.ex = name;
-            renderAirdrop();
-            alert(name + " borsası airdrop için seçildi!");
+        // Exchanges
+        document.querySelectorAll('.ex-card').forEach(el => el.classList.remove('selected'));
+        if(u.ex) {
+            const el = document.getElementById('ex-' + u.ex);
+            if(el) el.classList.add('selected');
         }
 
-        function claimStatus() {
-            alert("Snapshot henüz alınmadı. Koala biriktirmeye devam edin!");
-        }
+        // Friends List
+        let rH = '';
+        u.refs.forEach(r => {
+            rH += `<div class="card !py-3 opacity-50 flex justify-between items-center"><span class="text-[10px] font-bold">User: ${r}</span><span class="text-[10px] font-black">+10,000</span></div>`;
+        });
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 text-[9px] text-zinc-800 font-black uppercase">No squad members yet</p>';
+    }
 
-        // Sayfa yüklendiğinde çalıştır
-        window.onload = renderAirdrop;
-    </script>
+    async function save() { await db.collection("users").doc(uid).set(u); }
+
+    function tab(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        if(el) el.classList.add('active');
+        render(); // Sayfa değişiminde güncel veriyi yansıt
+    }
+
+    window.onload = init;
+</script>
 </body>
 </html>
