@@ -1,143 +1,277 @@
-<style>
-    /* Home Sekmesi - Günlük Ödül Tasarımı */
-    .daily-checkin-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        margin-top: 20px;
-    }
-    .day-box {
-        background: #111;
-        border-radius: 16px;
-        padding: 10px;
-        text-align: center;
-        border: 1px solid #1a1a1a;
-    }
-    .day-box.completed { background: #fff; color: #000; border-color: #fff; }
-    .day-box.current { border-color: #fff; animation: pulse-border 2s infinite; }
-    @keyframes pulse-border { 0%, 100% { border-color: #333; } 50% { border-color: #fff; } }
-
-    /* Airdrop Sekmesi - Davet Kartı */
-    .invite-box {
-        background: linear-gradient(135deg, #111 0%, #050505 100%);
-        border-radius: 32px;
-        padding: 24px;
-        border: 1px solid #1a1a1a;
-        margin-top: 20px;
-    }
-    .frens-list { margin-top: 15px; }
-    .fren-item {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 12px 0; border-bottom: 1px solid #111;
-    }
-    
-    /* İlerleme Çubuğu */
-    .progress-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #fff; width: 65%; transition: 1s ease; }
-</style>
-
-<div id="page-home" class="page active">
-    <div class="balance-hero">
-        <div class="balance-val" id="total-bal">0</div>
-        <p class="text-zinc-500 font-black text-xs tracking-widest mt-4 uppercase">$KOALA</p>
-    </div>
-
-    <div class="mb-10 px-2">
-        <div class="flex justify-between items-end mb-4">
-            <h3 class="text-white font-black text-xs uppercase tracking-tighter">Daily Check-in</h3>
-            <span class="text-zinc-600 text-[10px] font-bold">DAY 3 / 7</span>
-        </div>
-        <div class="daily-checkin-grid">
-            <div class="day-box completed"><span class="block text-[10px] font-black">D1</span><i class="fa-solid fa-check text-[10px]"></i></div>
-            <div class="day-box completed"><span class="block text-[10px] font-black">D2</span><i class="fa-solid fa-check text-[10px]"></i></div>
-            <div class="day-box current"><span class="block text-[10px] font-black">D3</span><span class="text-[10px] font-black">+50</span></div>
-            <div class="day-box"><span class="block text-[10px] font-black">D4</span><span class="text-[10px] font-black">+100</span></div>
-        </div>
-    </div>
-
-    <h3 class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-4 ml-2">Earn More</h3>
-    <div class="dogs-card mb-3" onclick="startAd(this)">
-        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-xl"><i class="fa-solid fa-video"></i></div>
-        <div class="flex-1">
-            <p class="font-black text-sm uppercase">Watch & Earn</p>
-            <p class="text-zinc-600 text-[10px] font-bold">Limited: 5/10 Daily</p>
-        </div>
-        <div class="text-right">
-            <span class="text-white font-black text-xs">+10</span>
-        </div>
-    </div>
-</div>
-
-<div id="page-airdrop" class="page">
-    <h2 class="text-4xl font-black italic uppercase mt-16 mb-4">Airdrop</h2>
-    
-    <div class="mb-8 px-2">
-        <div class="flex justify-between text-[10px] font-black uppercase mb-2">
-            <span class="text-zinc-500">Eligibility Score</span>
-            <span class="text-white">65%</span>
-        </div>
-        <div class="progress-bg"><div class="progress-fill"></div></div>
-    </div>
-
-    <div id="wallet-card" class="bg-white text-black rounded-[32px] p-6 mb-6 flex justify-between items-center" onclick="linkWalletSim()">
-        <div>
-            <p class="font-black text-xs uppercase">TON Wallet</p>
-            <p id="w-status-text" class="text-[10px] font-bold opacity-60">Connect to receive drop</p>
-        </div>
-        <i class="fa-solid fa-wallet text-xl"></i>
-    </div>
-
-    <div class="invite-box">
-        <h4 class="font-black text-xs uppercase mb-1">Invite Frens</h4>
-        <p class="text-zinc-600 text-[10px] font-bold mb-6">Get 10% of their earnings</p>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KOALA ARCADE - SUPREME</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        <div class="frens-list">
-            <div class="fren-item">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center font-black text-[10px]">JD</div>
-                    <span class="font-black text-xs">John Doe</span>
+        :root { --main-bg: #000; --card-bg: #0a0a0a; --accent: #fff; --gray: #555; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; }
+        
+        body { 
+            background: var(--main-bg); 
+            color: #fff; 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+        }
+
+        /* --- SKELETON & LOADER --- */
+        #loading-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .koala-glow {
+            width: 140px; height: 140px; border-radius: 50px;
+            box-shadow: 0 0 40px rgba(255,255,255,0.05);
+            border: 1px solid #1a1a1a; grayscale: 100%;
+        }
+
+        /* --- PROGRESS BARS --- */
+        .lvl-bar { width: 100%; height: 4px; background: #111; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        .lvl-fill { width: 45%; height: 100%; background: #fff; transition: 1s cubic-bezier(0.1, 1, 0.1, 1); }
+
+        /* --- CARDS & LISTS --- */
+        .task-card {
+            background: var(--card-bg); border: 1px solid #111;
+            padding: 16px; border-radius: 24px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: 0.2s;
+        }
+        .task-card:active { transform: scale(0.97); background: #111; }
+        .icon-circle { width: 44px; height: 44px; background: #000; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid #1a1a1a; }
+
+        /* --- NAVIGATION --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
+            border-top: 1px solid #111; padding: 12px 10px 35px;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+        }
+        .nav-link { 
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--gray); font-size: 10px; font-weight: 900; text-transform: uppercase;
+        }
+        .nav-link.active { color: #fff; }
+
+        .page { display: none; height: 100%; overflow-y: auto; padding: 20px 20px 140px; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- BUTTONS --- */
+        .btn-supreme { background: #fff; color: #000; font-weight: 900; width: 100%; padding: 20px; border-radius: 22px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="relative mb-12">
+            <img src="babykoalas.jpg" class="koala-glow">
+            <div class="absolute top-0 left-0 w-full h-full border-2 border-white/10 rounded-[50px] animate-pulse"></div>
+        </div>
+        <div id="check-list" class="w-64">
+            <div class="flex justify-between mb-4 opacity-20 transition-all duration-700" id="l1"><span class="text-[10px] font-black uppercase text-zinc-500">Age Check</span><span class="text-[10px] font-black">...</span></div>
+            <div class="flex justify-between mb-4 opacity-20 transition-all duration-700" id="l2"><span class="text-[10px] font-black uppercase text-zinc-500">Karma Score</span><span class="text-[10px] font-black">...</span></div>
+            <div class="flex justify-between opacity-20 transition-all duration-700" id="l3"><span class="text-[10px] font-black uppercase text-zinc-500">Eligibility</span><span class="text-[10px] font-black">...</span></div>
+        </div>
+    </div>
+
+    <div id="main-wrap" class="hidden">
+        
+        <div id="home" class="page active">
+            <div class="mt-12 mb-10 text-center">
+                <div class="text-[10px] font-black text-zinc-600 uppercase tracking-[0.5em] mb-2">Total Balance</div>
+                <div class="text-7xl font-black tracking-tighter" id="balance-display">0</div>
+                
+                <div class="mt-8 px-6">
+                    <div class="flex justify-between text-[10px] font-black uppercase mb-1">
+                        <span class="text-zinc-500">Level: <span class="text-white">Gold Koala</span></span>
+                        <span class="text-white">75%</span>
+                    </div>
+                    <div class="lvl-bar"><div class="lvl-fill"></div></div>
                 </div>
-                <span class="text-white font-black text-xs">+1,240</span>
             </div>
-            <div class="fren-item">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center font-black text-[10px]">AK</div>
-                    <span class="font-black text-xs">Alex Koala</span>
+
+            <div class="task-card" onclick="triggerAd(this)">
+                <div class="flex items-center gap-4">
+                    <div class="icon-circle text-xl text-white"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <p class="font-black text-sm uppercase">Quick Mine</p>
+                        <p class="text-zinc-600 text-[10px] font-bold">Watch ad to earn +1 $KOALA</p>
+                    </div>
                 </div>
-                <span class="text-white font-black text-xs">+850</span>
+                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
+            </div>
+
+            <div class="task-card opacity-50">
+                <div class="flex items-center gap-4">
+                    <div class="icon-circle text-xl text-white"><i class="fa-solid fa-calendar"></i></div>
+                    <div>
+                        <p class="font-black text-sm uppercase">Daily Streak</p>
+                        <p class="text-zinc-600 text-[10px] font-bold">Claim in 04:22:10</p>
+                    </div>
+                </div>
+                <div class="text-zinc-800 font-black text-xs">LOCK</div>
             </div>
         </div>
 
-        <button class="bg-zinc-900 text-white font-black w-full py-4 rounded-2xl uppercase text-xs mt-6 tracking-widest" onclick="copyRef()">Copy Invite Link</button>
+        <div id="airdrop" class="page">
+            <h2 class="text-4xl font-black italic uppercase mt-10 mb-2">Airdrop</h2>
+            <p class="text-zinc-500 font-bold text-sm mb-10">Complete ecosystem tasks to qualify.</p>
+
+            <div class="bg-zinc-900/30 rounded-[32px] p-6 border border-zinc-900 mb-6">
+                <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-6 tracking-widest">Mandatory Tasks</h3>
+                
+                <div class="flex justify-between items-center mb-6" onclick="completeTask(this)">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-brands fa-telegram text-xl"></i>
+                        <span class="font-black text-xs uppercase">Join Community</span>
+                    </div>
+                    <i class="fa-solid fa-circle-plus text-white"></i>
+                </div>
+
+                <div class="flex justify-between items-center" id="wallet-row" onclick="linkWallet()">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                        <span class="font-black text-xs uppercase">Link TON Wallet</span>
+                    </div>
+                    <span id="w-badge" class="text-[9px] font-black bg-white text-black px-2 py-1 rounded">START</span>
+                </div>
+            </div>
+
+            <div class="bg-white text-black p-6 rounded-[32px] flex items-center justify-between">
+                <div>
+                    <p class="font-black text-[10px] uppercase opacity-50">Referral Program</p>
+                    <p class="font-black text-lg tracking-tighter italic">INVITE YOUR PACK</p>
+                </div>
+                <button class="bg-black text-white px-4 py-2 rounded-xl font-black text-[10px]" onclick="copyRef()">COPY</button>
+            </div>
+        </div>
+
+        <div id="games" class="page flex items-center justify-center">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-cubes text-2xl text-zinc-700"></i>
+                </div>
+                <h3 class="text-xl font-black italic uppercase">Arcade Locked</h3>
+                <p class="text-zinc-600 font-bold text-xs mt-2 px-10">Only available for Verified Koalas after the snapshot.</p>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-link active" onclick="switchPage('home', this)"><i class="fa-solid fa-bone text-lg"></i><span>Home</span></div>
+            <div class="nav-link" onclick="switchPage('games', this)"><i class="fa-solid fa-gamepad text-lg"></i><span>Games</span></div>
+            <div class="nav-link" onclick="switchPage('airdrop', this)"><i class="fa-solid fa-parachute-box text-lg"></i><span>Drop</span></div>
+        </div>
     </div>
-</div>
 
-<script>
-    // Yeni Fonksiyonlar
-    function copyRef() {
-        haptic('success');
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "COPIED!";
-        setTimeout(() => btn.innerText = originalText, 2000);
-    }
+    <script>
+        let userData = { balance: 0, airdrop: 8420, wallet: false };
 
-    // Cüzdan bağlama fonksiyonu güncellemesi
-    function linkWalletSim() {
-        const card = document.getElementById('wallet-card');
-        const status = document.getElementById('w-status-text');
-        
-        haptic('medium');
-        status.innerText = "Connecting...";
-        
-        setTimeout(() => {
-            card.style.background = "#111";
-            card.style.color = "#fff";
-            card.style.borderColor = "#1a1a1a";
-            status.innerText = "UQAz...88x1 Connected";
-            haptic('success');
-            // İlerleme çubuğunu arttır
-            document.querySelector('.progress-fill').style.width = "90%";
-        }, 1500);
-    }
-</script>
+        // --- THE ENGINE ---
+        window.onload = () => {
+            const checks = [
+                { id: 'l1', val: '6.2 YEARS' },
+                { id: 'l2', val: '9.8 / 10' },
+                { id: 'l3', val: 'ELIGIBLE' }
+            ];
+
+            checks.forEach((c, i) => {
+                setTimeout(() => {
+                    const row = document.getElementById(c.id);
+                    row.style.opacity = '1';
+                    row.querySelector('span:last-child').innerText = c.val;
+                    vibrate('light');
+                }, (i + 1) * 1200);
+            });
+
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('main-wrap').classList.remove('hidden');
+                    animateBalance(userData.airdrop);
+                }, 500);
+            }, 5000);
+        };
+
+        function animateBalance(target) {
+            let start = 0;
+            const display = document.getElementById('balance-display');
+            const interval = setInterval(() => {
+                start += Math.floor(target / 40);
+                if(start >= target) {
+                    userData.balance = target;
+                    display.innerText = userData.balance.toLocaleString();
+                    clearInterval(interval);
+                    vibrate('success');
+                } else {
+                    display.innerText = start.toLocaleString();
+                }
+            }, 30);
+        }
+
+        // --- ACTIONS ---
+        function triggerAd(el) {
+            const original = el.innerHTML;
+            el.innerHTML = `<div class="w-full text-center font-black text-[10px] uppercase py-2 animate-pulse">Syncing with blockchain...</div>`;
+            el.style.pointerEvents = 'none';
+            vibrate('medium');
+
+            setTimeout(() => {
+                userData.balance += 1;
+                document.getElementById('balance-display').innerText = userData.balance.toLocaleString();
+                el.innerHTML = original;
+                el.style.pointerEvents = 'all';
+                vibrate('success');
+            }, 2000);
+        }
+
+        function linkWallet() {
+            if(userData.wallet) return;
+            const badge = document.getElementById('w-badge');
+            badge.innerText = "WAIT...";
+            vibrate('medium');
+            
+            setTimeout(() => {
+                userData.wallet = true;
+                badge.innerText = "LINKED";
+                badge.className = "text-[9px] font-black bg-green-500 text-white px-2 py-1 rounded";
+                vibrate('success');
+            }, 1500);
+        }
+
+        function completeTask(el) {
+            const icon = el.querySelector('.fa-circle-plus');
+            icon.className = "fa-solid fa-circle-check text-green-500";
+            vibrate('light');
+        }
+
+        function switchPage(p, el) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.getElementById(p).classList.add('active');
+            el.classList.add('active');
+            vibrate('light');
+        }
+
+        function copyRef() {
+            vibrate('medium');
+            alert("Invite link copied to clipboard!");
+        }
+
+        function vibrate(type) {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                if(type === 'light') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                if(type === 'medium') window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                if(type === 'success') window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+        }
+    </script>
+</body>
+</html>
