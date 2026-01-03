@@ -3,159 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koalas Arcade MK Edition</title>
+    <title>Koalas Arcade - Ultimate MK Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; touch-action: manipulation; }
-
-        /* --- CHECKING SCREEN --- */
-        #loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .banner { width: 90%; max-width: 500px; aspect-ratio: 21/9; border-radius: 20px; object-fit: cover; margin-bottom: 25px; border: 1px solid #1a1a1a; }
-        .progress-bg { width: 280px; height: 5px; background: #111; border-radius: 10px; margin-bottom: 40px; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 0.4s ease; }
-        .row { width: 300px; display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #111; opacity: 0; transform: translateY(10px); transition: 0.5s; }
-        .row.active { opacity: 1; transform: translateY(0); }
-        .val { color: #007aff; font-weight: 900; }
-
-        /* --- GAME UI --- */
-        #game { display: none; height: 100vh; flex-direction: column; align-items: center; padding: 20px; opacity: 0; transition: 0.8s; }
-        .stats-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .bal-box { text-align: center; width: 100%; }
-        .bal-num { font-size: 65px; font-weight: 900; letter-spacing: -3px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
-        /* Clicker Area */
-        .click-area { position: relative; width: 280px; height: 280px; margin: 40px 0; display: flex; align-items: center; justify-content: center; }
-        .main-koala { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 8px solid #0d0d0d; box-shadow: 0 0 50px rgba(0,122,255,0.1); transition: transform 0.1s; cursor: pointer; }
-        .main-koala:active { transform: scale(0.92); }
+        :root {
+            --bg: #000000;
+            --accent: #007aff;
+            --card: #0c0c0c;
+            --text-muted: #555555;
+            --white: #ffffff;
+        }
 
-        /* Energy Bar */
-        .energy-container { width: 100%; max-width: 320px; margin-top: auto; margin-bottom: 40px; }
-        .energy-info { display: flex; justify-content: space-between; font-weight: 900; font-size: 14px; margin-bottom: 8px; }
-        .energy-bg { width: 100%; height: 12px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.2s; }
+        body {
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- 1. DOGS ANALYZE ENGINE --- */
+        #checking-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .wide-banner-container {
+            width: 90%; max-width: 550px; position: relative;
+            border-radius: 24px; overflow: hidden; border: 1px solid #1a1a1a;
+            margin-bottom: 35px; aspect-ratio: 21 / 9;
+        }
+
+        .wide-banner-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .scan-effect {
+            position: absolute; top: -100%; left: 0; width: 100%; height: 60%;
+            background: linear-gradient(180deg, transparent, rgba(0, 122, 255, 0.4), transparent);
+            animation: scanLoop 2.8s infinite linear;
+        }
+
+        @keyframes scanLoop { 0% { top: -60%; } 100% { top: 100%; } }
+
+        .dogs-bar-container { width: 280px; height: 4px; background: #111; border-radius: 10px; margin-bottom: 45px; overflow: hidden; }
+        #dogs-fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 20px #fff; transition: width 0.4s ease; }
+
+        .analyze-box { width: 310px; }
+        .analyze-row {
+            display: flex; justify-content: space-between; padding: 16px 0;
+            border-bottom: 1px solid #111; opacity: 0; transform: translateX(-15px);
+            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .analyze-row.visible { opacity: 1; transform: translateX(0); }
+        .analyze-label { color: var(--text-muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
+        .analyze-value { color: var(--white); font-weight: 900; font-style: italic; font-size: 14px; }
+
+        /* --- 2. GAME UI --- */
+        #main-app { display: none; height: 100vh; flex-direction: column; opacity: 0; transition: 1s ease; }
+        
+        .tab-content { flex: 1; overflow-y: auto; padding: 20px 20px 120px; display: none; }
+        .tab-content.active { display: block; }
+
+        .balance-section { text-align: center; margin-top: 30px; }
+        .bal-title { font-size: 10px; font-weight: 900; color: var(--text-muted); letter-spacing: 5px; text-transform: uppercase; margin-bottom: 5px; }
+        .bal-main { font-size: 75px; font-weight: 900; letter-spacing: -4px; line-height: 1; }
+
+        /* Clicker Engine */
+        .clicker-circle {
+            width: 280px; height: 280px; margin: 40px auto;
+            position: relative; cursor: pointer;
+        }
+        .koala-img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 8px solid #0c0c0c; box-shadow: 0 0 60px rgba(0, 122, 255, 0.1);
+            transition: transform 0.05s;
+        }
+        .koala-img:active { transform: scale(0.94); }
+
+        .energy-bar-wrap { width: 100%; max-width: 340px; margin: 0 auto 30px; }
+        .energy-meta { display: flex; justify-content: space-between; font-weight: 900; font-size: 13px; margin-bottom: 10px; }
+        .energy-track { width: 100%; height: 14px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #1a1a1a; }
+        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.1s; }
 
         /* Floating Points */
-        .plus-one { position: absolute; color: #fff; font-weight: 900; font-size: 28px; pointer-events: none; animation: floatUp 0.8s forwards; z-index: 100; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-        
-        .footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 350px; }
-        .btn-sm { background: #0d0d0d; border: 1px solid #1a1a1a; padding: 15px; border-radius: 18px; font-weight: 900; font-size: 12px; text-align: center; }
+        .float-point { position: absolute; font-weight: 900; font-size: 32px; color: #fff; pointer-events: none; animation: floatAnim 0.7s forwards; z-index: 50; }
+        @keyframes floatAnim { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+
+        /* Navigation Bar */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(20px);
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            padding: 15px 0 35px; border-top: 1px solid #1a1a1a; z-index: 5000;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); font-size: 10px; font-weight: 800; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 20px; }
+
+        /* Task Cards */
+        .task-card {
+            background: var(--card); padding: 18px; border-radius: 22px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px; border: 1px solid #151515;
+        }
+        .task-icon { width: 45px; height: 45px; background: #151515; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 20000; display: none; align-items: center; justify-content: center; padding: 25px; }
+        .modal.open { display: flex; }
+        .m-content { background: #0c0c0c; border: 1px solid #222; border-radius: 40px; width: 100%; padding: 40px 25px; text-align: center; }
+        .btn-full { background: #fff; color: #000; width: 100%; padding: 20px; border-radius: 22px; font-weight: 900; font-size: 16px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <img src="babykoalas.jpg" class="banner" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Analysing...'">
-        <h1 class="text-2xl font-black italic mb-2 uppercase">Who are you?</h1>
-        <div class="progress-bg"><div id="fill"></div></div>
-        <div class="stat-list">
-            <div id="r1" class="row"><span>ACCOUNT AGE</span><span id="v1" class="val">...</span></div>
-            <div id="r2" class="row"><span>PREMIUM</span><span id="v2" class="val">...</span></div>
-            <div id="r3" class="row"><span>ACTIVITY</span><span id="v3" class="val">...</span></div>
-            <div id="r4" class="row"><span>MK RANK</span><span id="v4" class="val">...</span></div>
+    <div id="checking-overlay">
+        <div class="wide-banner-container">
+            <img src="babykoalas.jpg" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=Analyzing+Profile...'">
+            <div class="scan-effect"></div>
+        </div>
+        
+        <h1 class="text-2xl font-black italic tracking-tight mb-2">WHO ARE YOU?</h1>
+        <div class="dogs-bar-container"><div id="dogs-fill"></div></div>
+
+        <div class="analyze-box">
+            <div id="row1" class="analyze-row"><span class="analyze-label">ACCOUNT AGE</span><span id="val1" class="analyze-value">...</span></div>
+            <div id="row2" class="analyze-row"><span class="analyze-label">TG PREMIUM</span><span id="val2" class="analyze-value">...</span></div>
+            <div id="row3" class="analyze-row"><span class="analyze-label">ACTIVITY LEVEL</span><span id="val3" class="analyze-value">...</span></div>
+            <div id="row4" class="analyze-row"><span class="analyze-label">MK STATUS</span><span id="val4" class="analyze-value">...</span></div>
         </div>
     </div>
 
-    <div id="game">
-        <div class="bal-box">
-            <p class="text-zinc-600 font-black text-[10px] tracking-[4px] uppercase italic">Total Koalas</p>
-            <h2 id="balance" class="bal-num">0</h2>
-        </div>
-
-        <div class="click-area" id="tap-target">
-            <img src="koalas.jpg" class="main-koala" onerror="this.src='https://via.placeholder.com/300/222/fff?text=Tap+Me'">
-        </div>
-
-        <div class="energy-container">
-            <div class="energy-info">
-                <span class="text-yellow-500"><i class="fa-solid fa-bolt"></i> ENERGY</span>
-                <span id="energy-text">1000/1000</span>
+    <div id="main-app">
+        
+        <div id="page-home" class="tab-content active">
+            <div class="balance-section">
+                <p class="bal-title">Total Balance</p>
+                <h2 id="balance-display" class="bal-main">0</h2>
             </div>
-            <div class="energy-bg"><div id="energy-fill"></div></div>
+
+            <div class="clicker-circle" id="tap-zone">
+                <img src="koalas.jpg" class="koala-img" onerror="this.src='https://via.placeholder.com/300/222/fff?text=Tap+Koala'">
+            </div>
+
+            <div class="energy-bar-wrap">
+                <div class="energy-meta">
+                    <span class="text-yellow-500"><i class="fa-solid fa-bolt"></i> ENERGY</span>
+                    <span id="energy-text">1000/1000</span>
+                </div>
+                <div class="energy-track"><div id="energy-fill"></div></div>
+            </div>
         </div>
 
-        <div class="footer-btns">
-            <div class="btn-sm" onclick="alert('Set Wallet')"><i class="fa-solid fa-wallet text-blue-500"></i> WALLET</div>
-            <div class="btn-sm" onclick="alert('Invite Frens')"><i class="fa-solid fa-users"></i> FRIENDS</div>
+        <div id="page-tasks" class="tab-content">
+            <h2 class="text-2xl font-black mb-6 uppercase italic">Daily Quests</h2>
+            <div class="task-card" onclick="openModal('m-earn')">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-blue-500"><i class="fa-solid fa-video"></i></div>
+                    <div><h4 class="font-bold text-sm">Watch Video</h4><p class="text-xs text-zinc-500">+500 Koalas</p></div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
+            </div>
+            <div class="task-card" onclick="alert('Soon')">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-zinc-400"><i class="fa-brands fa-x-twitter"></i></div>
+                    <div><h4 class="font-bold text-sm">Follow on X</h4><p class="text-xs text-zinc-500">+1000 Koalas</p></div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
+            </div>
+        </div>
+
+        <div id="page-frens" class="tab-content text-center">
+            <div class="text-7xl mt-10 mb-6">🤝</div>
+            <h2 class="text-2xl font-black uppercase mb-4">Invite Frens</h2>
+            <p class="text-zinc-500 text-sm font-bold px-10 mb-10">Get 10% of your friends' earnings + 2,500 Koala bonus!</p>
+            <div class="bg-[#0a0a0a] p-5 rounded-2xl border border-dashed border-zinc-800 mb-6">
+                <p class="text-[10px] text-zinc-600 font-black mb-1">YOUR REFERRAL LINK</p>
+                <p class="text-blue-500 font-bold text-sm">t.me/KoalasArcadeBot?start=8821</p>
+            </div>
+            <button class="btn-full">SEND INVITE</button>
+        </div>
+
+        <div id="page-wallet" class="tab-content">
+            <h2 class="text-2xl font-black mb-6 uppercase italic">Airdrop</h2>
+            <div class="bg-zinc-900/20 border border-zinc-900 p-10 rounded-[40px] text-center">
+                <div class="text-5xl mb-6">💎</div>
+                <h3 class="text-xl font-black mb-4 uppercase">Connect TON Wallet</h3>
+                <p class="text-zinc-500 text-sm font-bold mb-8">Link your wallet to receive your allocation during the TGE.</p>
+                <button id="wallet-main-btn" onclick="openModal('m-wallet')" class="btn-full m-0 bg-blue-600 text-white">SET WALLET</button>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+            <div class="nav-item" onclick="switchPage('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
+            <div class="nav-item" onclick="switchPage('frens', this)"><i class="fa-solid fa-users"></i><span>Frens</span></div>
+            <div class="nav-item" onclick="switchPage('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
         </div>
     </div>
+
+    <div id="m-earn" class="modal"><div class="m-content"><div class="text-6xl mb-6">🚀</div><h2 class="text-2xl font-black mb-2 uppercase italic">Daily Boost</h2><p class="text-zinc-500 text-sm font-bold mb-8">Watch a video to earn instant 500 Koala tokens.</p><button onclick="watchAd()" class="btn-full">WATCH AND CLAIM</button><button onclick="closeModal('m-earn')" class="mt-4 text-zinc-600 font-black text-xs uppercase">Maybe Later</button></div></div>
+    
+    <div id="m-wallet" class="modal"><div class="m-content"><h2 class="text-xl font-black mb-8 uppercase">Ton Address</h2><input type="text" id="w-input" placeholder="UQ... Enter Address" class="w-full bg-black border border-zinc-800 p-5 rounded-2xl text-center text-blue-500 font-mono text-xs mb-8 outline-none"><button onclick="saveWallet()" class="btn-full m-0">CONFIRM ADDRESS</button></div></div>
 
     <script>
-        let score = 0;
+        // --- GLOBAL STATE ---
+        let balance = 0;
         let energy = 1000;
         const maxEnergy = 1000;
 
-        // --- CHECKING ENGINE ---
-        async function startChecking() {
-            const bar = document.getElementById('fill');
-            const wait = ms => new Promise(res => setTimeout(res, ms));
+        // --- 1. THE CHECKING MOTOR ---
+        async function runDogsAnalyze() {
+            const bar = document.getElementById('dogs-fill');
+            const wait = ms => new Promise(r => setTimeout(r, ms));
 
-            await wait(1000); bar.style.width = "25%"; showRow('r1','v1','5.4 YEARS');
-            await wait(1500); bar.style.width = "50%"; showRow('r2','v2','YES');
-            await wait(1500); bar.style.width = "75%"; showRow('r3','v3','HIGH');
-            await wait(1500); bar.style.width = "100%"; showRow('r4','v4','DIAMOND');
-            await wait(1200);
-
-            // Bakiye set et ve geç
-            score = Math.floor(Math.random() * 5000) + 1000;
-            document.getElementById('balance').innerText = score.toLocaleString();
+            await wait(1000); bar.style.width = "25%"; showRow('row1', 'val1', '5.4 YEARS');
+            await wait(1600); bar.style.width = "50%"; showRow('row2', 'val2', 'ACTIVE');
+            await wait(1600); bar.style.width = "75%"; showRow('row3', 'val3', 'DIAMOND');
+            await wait(1600); bar.style.width = "100%"; showRow('row4', 'val4', 'LEGACY');
             
-            document.getElementById('loader').style.opacity = '0';
+            await wait(1200);
+            finalizeLoader();
+        }
+
+        function showRow(rid, vid, text) {
+            document.getElementById(rid).classList.add('visible');
+            const el = document.getElementById(vid);
+            el.innerText = text;
+            el.style.color = "#007aff";
+        }
+
+        function finalizeLoader() {
+            balance = Math.floor(Math.random() * 8000) + 2500;
+            document.getElementById('balance-display').innerText = balance.toLocaleString();
+            
+            const loader = document.getElementById('checking-overlay');
+            loader.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('game').style.display = 'flex';
-                setTimeout(() => document.getElementById('game').style.opacity = '1', 50);
-            }, 600);
+                loader.style.display = 'none';
+                const app = document.getElementById('main-app');
+                app.style.display = 'flex';
+                setTimeout(() => app.style.opacity = '1', 50);
+            }, 700);
         }
 
-        function showRow(rid, vid, val) {
-            document.getElementById(rid).classList.add('active');
-            document.getElementById(vid).innerText = val;
-        }
-
-        // --- GAME ENGINE ---
-        const target = document.getElementById('tap-target');
-        target.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Çoklu dokunmatik engelleme
-            if (energy >= 10) {
-                handleTap(e.touches[0].clientX, e.touches[0].clientY);
+        // --- 2. GAME ENGINE ---
+        const tapZone = document.getElementById('tap-zone');
+        
+        tapZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (energy >= 5) {
+                const touch = e.touches[0];
+                handleTap(touch.clientX, touch.clientY);
             }
         });
 
         function handleTap(x, y) {
-            score += 10;
-            energy -= 10;
+            balance += 5;
+            energy -= 5;
             updateUI();
-            createFloatingText(x, y);
+            spawnFloat(x, y);
+            
+            // Haptic feed (Sim)
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = score.toLocaleString();
+            document.getElementById('balance-display').innerText = balance.toLocaleString();
             document.getElementById('energy-text').innerText = `${energy}/${maxEnergy}`;
             document.getElementById('energy-fill').style.width = `${(energy/maxEnergy)*100}%`;
         }
 
-        function createFloatingText(x, y) {
-            const el = document.createElement('div');
-            el.className = 'plus-one';
-            el.innerText = '+10';
-            el.style.left = `${x - 20}px`;
-            el.style.top = `${y - 50}px`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 800);
+        function spawnFloat(x, y) {
+            const div = document.createElement('div');
+            div.className = 'float-point';
+            div.innerText = '+5';
+            div.style.left = `${x - 25}px`;
+            div.style.top = `${y - 50}px`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 700);
         }
 
-        // Enerji Yenileme
+        // Regen Energy
         setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(energy + 2, maxEnergy);
+            if(energy < maxEnergy) {
+                energy = Math.min(energy + 3, maxEnergy);
                 updateUI();
             }
         }, 1000);
 
-        window.onload = startChecking;
+        // --- 3. APP LOGIC ---
+        function switchPage(pageId, el) {
+            document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function saveWallet() {
+            const val = document.getElementById('w-input').value;
+            if(val.length > 10) {
+                document.getElementById('wallet-main-btn').innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> ${val.slice(0,4)}...${val.slice(-4)}`;
+                closeModal('m-wallet');
+                balance += 2000;
+                updateUI();
+            }
+        }
+
+        function watchAd() {
+            balance += 500;
+            updateUI();
+            closeModal('m-earn');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.querySelectorAll('.modal').forEach(m => m.classList.remove('open')); }
+
+        window.onload = runDogsAnalyze;
+
     </script>
 </body>
 </html>
