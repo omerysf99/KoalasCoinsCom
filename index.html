@@ -3,152 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | WHO ARE YOU?</title>
+    <title>KOALA ARCADE | THE LEGEND</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; user-select: none; }
-        body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-        /* Sayfalar */
-        .page { display: none; height: 100vh; padding: 20px; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .page.active { display: flex; animation: dogsFade 0.5s ease; }
-        
-        @keyframes dogsFade { from { opacity: 0; } to { opacity: 1; } }
+        :root {
+            --bg: #000000;
+            --white: #ffffff;
+            --grey: #1c1c1e;
+            --text-muted: #8e8e93;
+            --accent: #ffffff;
+        }
 
-        /* DOGS Animasyonlu Yazılar */
-        .scan-text { font-size: 14px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; color: #555; }
-        .scan-active { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
 
-        /* Büyük Sayı Fontu */
-        .dogs-number { font-size: 80px; font-weight: 900; line-height: 1; margin: 20px 0; }
-        .dogs-sub { font-size: 14px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        body {
+            background: var(--bg);
+            color: var(--white);
+            overflow: hidden;
+            height: 100vh;
+        }
 
-        /* Butonlar */
-        .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 320px; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; transition: 0.2s; position: absolute; bottom: 40px; }
-        .dogs-btn:active { transform: scale(0.96); opacity: 0.8; }
+        /* Sayfa Geçişleri */
+        .page {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+            padding: 24px 24px 120px;
+            animation: pageFade 0.3s ease;
+        }
 
-        /* Madenci Sayfası Nav */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #000; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #111; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #444; }
-        .nav-item.active { color: #fff; }
+        .page.active {
+            display: flex;
+        }
 
-        /* Koala Görseli */
-        .koala-main { width: 240px; height: 240px; border-radius: 50%; border: 4px solid #fff; }
+        @keyframes pageFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DOGS Analiz Ekranı Stili */
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            transition: 0.5s;
+        }
+
+        .check-item.done {
+            color: var(--white);
+        }
+
+        .check-item i {
+            font-size: 18px;
+            width: 20px;
+            display: none;
+        }
+
+        .check-item.done i {
+            display: block;
+            color: #34c759;
+        }
+
+        /* Ana Sayfa Koala Butonu */
+        .koala-trigger {
+            width: 280px;
+            height: 280px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 40px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(255,255,255,0.1);
+        }
+
+        .koala-trigger:active {
+            transform: scale(0.95);
+        }
+
+        .koala-trigger img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+        }
+
+        /* DOGS Stil Sekmeler */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85px;
+            background: rgba(0,0,0,0.9);
+            border-top: 1px solid #1c1c1e;
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 20px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex: 1;
+            transition: 0.2s;
+        }
+
+        .nav-btn.active {
+            color: var(--white);
+        }
+
+        .nav-btn i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-btn span {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Görev Kartları (DOGS Style) */
+        .dogs-task {
+            background: var(--grey);
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .task-icon {
+            width: 45px;
+            height: 45px;
+            background: #2c2c2e;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .task-btn {
+            background: #fff;
+            color: #000;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .task-btn:disabled {
+            background: #3a3a3c;
+            color: #8e8e93;
+        }
+
+        /* Yüzen Rakamlar */
+        .tap-pop {
+            position: absolute;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 900;
+            pointer-events: none;
+            animation: tapUp 0.8s ease-out forwards;
+            z-index: 50;
+        }
+
+        @keyframes tapUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-150px); }
+        }
+
+        /* Progress Bar */
+        .energy-wrap {
+            width: 100%;
+            height: 6px;
+            background: #1c1c1e;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .energy-bar {
+            height: 100%;
+            background: #fff;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        /* Scroll Bar Gizle */
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="p-intro" class="page active">
-        <img src="coinkoala.jpg" class="w-24 h-24 rounded-full mb-8 grayscale">
-        <div class="space-y-4 text-left w-full max-w-[280px]">
-            <p id="s1" class="scan-text">Checking account...</p>
-            <p id="s2" class="scan-text">Analyzing Telegram activity...</p>
-            <p id="s3" class="scan-text">Calculating seniority...</p>
-            <p id="s4" class="scan-text">Checking reward eligibility...</p>
-        </div>
-        <button id="age-start-btn" onclick="startAnalysis()" class="dogs-btn">I'M READY</button>
-    </div>
-
-    <div id="p-result" class="page">
-        <h2 class="text-xl font-black italic">YOU ARE A LEGEND</h2>
-        <div class="dogs-number" id="final-years">5</div>
-        <div class="dogs-sub">Years on Telegram</div>
+    <div id="app">
         
-        <div class="mt-12 p-6 border border-white/10 rounded-3xl bg-white/5 w-full max-w-[320px]">
-            <p class="text-xs font-bold text-white/40 uppercase mb-2">Your Reward</p>
-            <p class="text-3xl font-black">+ <span id="reward-amt">25,000</span> $KOALA</p>
+        <div id="p-intro" class="page active items-center justify-center">
+            <img src="coinkoala.jpg" class="w-24 h-24 rounded-full mb-12 grayscale">
+            <div class="w-full max-w-[280px]">
+                <div id="c1" class="check-item"><i class="fa-solid fa-check"></i> Checking account...</div>
+                <div id="c2" class="check-item"><i class="fa-solid fa-check"></i> Analyzing Telegram age...</div>
+                <div id="c3" class="check-item"><i class="fa-solid fa-check"></i> Calculating seniority...</div>
+                <div id="c4" class="check-item"><i class="fa-solid fa-check"></i> Reward eligibility...</div>
+            </div>
+            <button id="start-check-btn" onclick="startDogsCheck()" class="w-full max-w-[320px] bg-white text-black py-5 rounded-2xl font-black text-lg fixed bottom-10">CHECK MY AGE</button>
         </div>
 
-        <button onclick="goToGame()" class="dogs-btn">CONTINUE</button>
-    </div>
-
-    <div id="p-main" class="page">
-        <div class="absolute top-10 left-0 right-0">
-            <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Balance</p>
-            <h1 id="balance" class="text-5xl font-black italic">0</h1>
+        <div id="p-result" class="page items-center justify-center text-center">
+            <p class="text-zinc-500 font-bold uppercase tracking-[0.3em] mb-4">Legendary</p>
+            <h1 class="text-[120px] font-black leading-none mb-2" id="years-text">5</h1>
+            <p class="text-xl font-bold mb-12">Years on Telegram</p>
+            
+            <div class="bg-[#1c1c1e] p-8 rounded-[40px] w-full max-w-[320px]">
+                <p class="text-zinc-500 text-xs font-bold uppercase mb-2">Reward Granted</p>
+                <h3 class="text-4xl font-black" id="reward-text">+25,000 $KOALA</h3>
+            </div>
+            <button onclick="finishOnboarding()" class="w-full max-w-[320px] bg-white text-black py-5 rounded-2xl font-black text-lg fixed bottom-10">CONTINUE</button>
         </div>
 
-        <div class="relative active:scale-95 transition-transform" id="koala-click">
-            <img src="coinkoala.jpg" class="koala-main">
+        <div id="p-home" class="page pt-12">
+            <div class="flex flex-col items-center">
+                <p class="text-zinc-500 font-black text-xs uppercase tracking-[0.4em] mb-2">Total Balance</p>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-7xl font-black" id="main-balance">0</h2>
+                </div>
+
+                <div class="koala-trigger" id="tap-area">
+                    <img src="coinkoala.jpg">
+                </div>
+
+                <div class="w-full max-w-[300px] text-center mt-4">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="text-left">
+                            <p class="text-[10px] font-bold text-zinc-500 uppercase">Energy Limit</p>
+                            <p class="text-sm font-black" id="energy-stat">1000/1000</p>
+                        </div>
+                        <p class="text-[10px] font-black text-zinc-500 uppercase">Level 1</p>
+                    </div>
+                    <div class="energy-wrap">
+                        <div class="energy-bar" id="energy-fill"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="nav-bar">
-            <div class="nav-item active"><i class="fa-solid fa-bone text-xl mb-1"></i>MINE</div>
-            <div class="nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i>TASKS</div>
-            <div class="nav-item"><i class="fa-solid fa-parachute-box text-xl mb-1"></i>AIRDROP</div>
+        <div id="p-tasks" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Tasks</h2>
+            <p class="text-zinc-500 text-sm font-medium mb-10">Complete actions to earn extra.</p>
+
+            <div class="space-y-3" id="task-list">
+                <div class="dogs-task">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon text-blue-400"><i class="fa-brands fa-telegram"></i></div>
+                        <div>
+                            <p class="text-sm font-bold">Join Community</p>
+                            <p class="text-xs font-bold text-zinc-500">+10,000 $KOALA</p>
+                        </div>
+                    </div>
+                    <button onclick="handleTask(this, 10000)" class="task-btn">Check</button>
+                </div>
+
+                <div class="dogs-task">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon text-white"><i class="fa-brands fa-x-twitter"></i></div>
+                        <div>
+                            <p class="text-sm font-bold">Follow X</p>
+                            <p class="text-xs font-bold text-zinc-500">+5,000 $KOALA</p>
+                        </div>
+                    </div>
+                    <button onclick="handleTask(this, 5000)" class="task-btn">Check</button>
+                </div>
+            </div>
         </div>
+
+        <div id="p-market" class="page">
+            <h2 class="text-4xl font-black mb-8 italic uppercase">Boosts</h2>
+            
+            <div class="dogs-task">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-yellow-500"><i class="fa-solid fa-hand-pointer"></i></div>
+                    <div>
+                        <p class="text-sm font-bold">Multitap</p>
+                        <p class="text-xs font-bold text-zinc-500">Lv. <span id="tap-lvl">1</span></p>
+                    </div>
+                </div>
+                <button onclick="buyBoost('tap')" id="btn-boost-tap" class="task-btn">2,000</button>
+            </div>
+
+            <div class="dogs-task">
+                <div class="flex items-center gap-4">
+                    <div class="task-icon text-green-500"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <p class="text-sm font-bold">Energy Cap</p>
+                        <p class="text-xs font-bold text-zinc-500">Lv. <span id="energy-lvl">1</span></p>
+                    </div>
+                </div>
+                <button onclick="buyBoost('energy')" id="btn-boost-energy" class="task-btn">5,000</button>
+            </div>
+        </div>
+
+        <div id="p-airdrop" class="page text-center justify-center">
+            <div class="w-24 h-24 bg-zinc-900 rounded-[30px] flex items-center justify-center text-4xl mx-auto mb-8">
+                <i class="fa-solid fa-parachute-box"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 uppercase">Airdrop</h2>
+            <p class="text-zinc-500 px-8 mb-10 font-medium">Listing is on the way. Keep mining and complete tasks to qualify.</p>
+            
+            <button class="w-full bg-white text-black py-5 rounded-2xl font-black text-lg mb-4">CONNECT WALLET</button>
+            <p class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Powered by TON Blockchain</p>
+        </div>
+
+        <nav class="nav-bar" id="bottom-nav" style="display: none;">
+            <div class="nav-btn active" onclick="nav('home', this)">
+                <i class="fa-solid fa-bone"></i>
+                <span>Mine</span>
+            </div>
+            <div class="nav-btn" onclick="nav('tasks', this)">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Tasks</span>
+            </div>
+            <div class="nav-btn" onclick="nav('market', this)">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Boost</span>
+            </div>
+            <div class="nav-btn" onclick="nav('airdrop', this)">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Airdrop</span>
+            </div>
+        </nav>
+
     </div>
 
     <script>
+        // --- DATA STATE ---
         let state = {
             bal: parseInt(localStorage.getItem('k_bal')) || 0,
-            hasChecked: localStorage.getItem('k_dogs_checked') === 'true'
+            energy: parseInt(localStorage.getItem('k_energy')) || 1000,
+            maxE: parseInt(localStorage.getItem('k_maxE')) || 1000,
+            tapP: parseInt(localStorage.getItem('k_tapP')) || 1,
+            onboarded: localStorage.getItem('k_onboarded') === 'true'
         };
 
-        // Eğer daha önce kontrol ettiyse direkt oyuna yolla
-        if(state.hasChecked) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p-main').classList.add('active');
-            updateUI();
-        }
-
-        function startAnalysis() {
-            const btn = document.getElementById('age-start-btn');
+        // --- DOGS ONBOARDING PROCESS ---
+        function startDogsCheck() {
+            const btn = document.getElementById('start-check-btn');
             btn.style.display = 'none';
 
-            const steps = ['s1', 's2', 's3', 's4'];
-            steps.forEach((id, index) => {
+            const steps = ['c1', 'c2', 'c3', 'c4'];
+            steps.forEach((id, i) => {
                 setTimeout(() => {
-                    document.getElementById(id).classList.add('scan-active');
-                    if(index === steps.length - 1) {
-                        setTimeout(showResult, 1000);
+                    document.getElementById(id).classList.add('done');
+                    if(i === steps.length - 1) {
+                        setTimeout(showDogsResult, 1000);
                     }
-                }, index * 800);
+                }, i * 1200);
             });
         }
 
-        function showResult() {
-            document.getElementById('p-intro').classList.remove('active');
-            document.getElementById('p-result').classList.add('active');
+        function showDogsResult() {
+            const years = Math.floor(Math.random() * 8) + 3;
+            const reward = years * 6800;
             
-            // Rastgele yaş ve ödül (DOGS mantığı)
-            const years = Math.floor(Math.random() * 7) + 3;
-            const reward = years * 5500;
-            
-            document.getElementById('final-years').innerText = years;
-            document.getElementById('reward-amt').innerText = reward.toLocaleString();
+            document.getElementById('years-text').innerText = years;
+            document.getElementById('reward-text').innerText = `+${reward.toLocaleString()} $KOALA`;
             
             state.bal += reward;
+            save();
+
+            document.getElementById('p-intro').classList.remove('active');
+            document.getElementById('p-result').classList.add('active');
         }
 
-        function goToGame() {
-            state.hasChecked = true;
-            localStorage.setItem('k_dogs_checked', 'true');
-            localStorage.setItem('k_bal', state.bal);
+        function finishOnboarding() {
+            state.onboarded = true;
+            localStorage.setItem('k_onboarded', 'true');
             
             document.getElementById('p-result').classList.remove('active');
-            document.getElementById('p-main').classList.add('active');
+            document.getElementById('p-home').classList.add('active');
+            document.getElementById('bottom-nav').style.display = 'flex';
             updateUI();
         }
 
-        // Tıklama Sistemi
-        document.getElementById('koala-click').addEventListener('touchstart', (e) => {
+        // --- GAME MECHANICS ---
+        const tapArea = document.getElementById('tap-area');
+        tapArea.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            state.bal += 1;
+            if(state.energy < state.tapP) return;
+
+            const touch = e.changedTouches[0];
+            
+            // Logic
+            state.bal += state.tapP;
+            state.energy -= state.tapP;
+            
+            // UI
+            createPop(touch.clientX, touch.clientY, `+${state.tapP}`);
             updateUI();
             save();
         });
 
+        function createPop(x, y, txt) {
+            const p = document.createElement('div');
+            p.className = 'tap-pop';
+            p.innerText = txt;
+            p.style.left = `${x - 20}px`;
+            p.style.top = `${y - 40}px`;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 800);
+        }
+
+        // --- TASKS & BOOSTS ---
+        function handleTask(btn, reward) {
+            btn.innerText = 'WAIT';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerText = 'DONE';
+                state.bal += reward;
+                updateUI();
+                save();
+            }, 3000);
+        }
+
+        function buyBoost(type) {
+            if(type === 'tap' && state.bal >= 2000) {
+                state.bal -= 2000;
+                state.tapP++;
+                document.getElementById('tap-lvl').innerText = state.tapP;
+            } else if(type === 'energy' && state.bal >= 5000) {
+                state.bal -= 5000;
+                state.maxE += 500;
+                state.energy = state.maxE;
+                document.getElementById('energy-lvl').innerText = (state.maxE/500) - 1;
+            }
+            updateUI();
+            save();
+        }
+
+        // --- CORE UI ---
         function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(state.bal).toLocaleString();
+            document.getElementById('main-balance').innerText = Math.floor(state.bal).toLocaleString();
+            document.getElementById('energy-stat').innerText = `${state.energy}/${state.maxE}`;
+            document.getElementById('energy-fill').style.width = `${(state.energy / state.maxE) * 100}%`;
+        }
+
+        function nav(page, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById('p-' + page).classList.add('active');
+            el.classList.add('active');
         }
 
         function save() {
             localStorage.setItem('k_bal', state.bal);
+            localStorage.setItem('k_energy', state.energy);
+            localStorage.setItem('k_maxE', state.maxE);
+            localStorage.setItem('k_tapP', state.tapP);
         }
+
+        // Enerji Dolumu (Otomatik)
+        setInterval(() => {
+            if(state.energy < state.maxE) {
+                state.energy = Math.min(state.maxE, state.energy + 2);
+                updateUI();
+            }
+        }, 1500);
+
+        // Sayfa Yükleme Kontrolü
+        window.onload = () => {
+            if(state.onboarded) {
+                document.getElementById('p-intro').classList.remove('active');
+                document.getElementById('p-home').classList.add('active');
+                document.getElementById('bottom-nav').style.display = 'flex';
+                updateUI();
+            }
+        };
     </script>
 </body>
 </html>
