@@ -32,7 +32,7 @@
         .progress-container { height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
         #p-fill { width: 0%; height: 100%; background: #fff; transition: 0.4s linear; }
 
-        /* --- DASHBOARD UI --- */
+        /* --- MAIN APP UI --- */
         #main-app { display: none; height: 100vh; }
         .hero-img { width: 280px; height: 210px; object-fit: cover; border-radius: 30px; margin: 0 auto; box-shadow: 0 0 40px rgba(255,255,255,0.05); }
 
@@ -41,11 +41,9 @@
         #multiplier { font-size: 75px; font-weight: 900; z-index: 10; letter-spacing: -2px; }
         #rocket { position: absolute; bottom: 15%; font-size: 50px; z-index: 10; }
 
-        /* BUTTONS */
         .btn-white { background: #fff; color: #000; width: 100%; padding: 18px; border-radius: 20px; font-weight: 900; font-size: 16px; text-transform: uppercase; transition: 0.2s; }
         .btn-white:active { transform: scale(0.96); }
 
-        /* PAGES & NAV */
         .page { display: none; height: 100vh; padding: 20px 20px 140px; overflow-y: auto; }
         .page.active { display: block; }
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 25px; }
@@ -88,13 +86,13 @@
         <div id="reward-display" class="hidden text-center animate-bounce">
             <h2 id="years-val" class="text-9xl font-black tracking-tighter">0</h2>
             <p class="text-xl font-black uppercase text-zinc-500 italic">Years Veteran</p>
-            <div class="mt-4 text-3xl font-black text-yellow-500">+<span id="reward-val">0</span> $KOALA</div>
+            <div id="reward-text-div" class="mt-4 text-3xl font-black text-yellow-500">+<span id="reward-val">0</span> $KOALA</div>
         </div>
 
         <div class="w-full">
             <div class="progress-container"><div id="p-fill"></div></div>
             <button onclick="startCheckingFlow()" id="start-check-btn" class="btn-white">Check Eligibility</button>
-            <button onclick="goToDashboard()" id="claim-btn" class="btn-white hidden">Claim Reward</button>
+            <button onclick="goToDashboard()" id="claim-btn" class="btn-white hidden">Enter Arcade</button>
         </div>
     </div>
 
@@ -105,16 +103,12 @@
                 <div id="total-bal" class="text-6xl font-black tracking-tighter">0</div>
                 <p class="text-zinc-600 font-black text-[9px] uppercase tracking-[0.7em] mt-1">$KOALA BALANCE</p>
             </div>
-
             <div class="space-y-3">
-                <div class="flex justify-between items-center px-1"><h3 class="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Tasks</h3></div>
-                
                 <div class="bg-zinc-900/40 border border-zinc-800 p-5 rounded-3xl flex justify-between items-center" onclick="watchAdTask()">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-500"><i class="fa-solid fa-play"></i></div>
                         <div><p class="font-bold text-sm">Watch Ad</p><p class="text-[10px] text-zinc-500">+1 $KOALA</p></div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-zinc-700 text-xs"></i>
                 </div>
             </div>
         </div>
@@ -134,25 +128,25 @@
         <div id="drop" class="page text-center">
             <h2 class="text-4xl font-black uppercase mt-10 mb-6 italic tracking-tighter">Airdrop</h2>
             <img src="coinkoala.jpg" class="w-full h-64 object-cover rounded-[40px] mb-8 grayscale opacity-40">
-            <p class="text-zinc-600 font-black text-xs tracking-widest">PHASE 1: COMPUTING RESULTS</p>
         </div>
 
         <nav class="nav-bar">
             <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span class="text-[9px] font-black uppercase mt-1">Home</span></div>
             <div class="nav-item" onclick="nav('play', this)"><i class="fa-solid fa-rocket"></i><span class="text-[9px] font-black uppercase mt-1">Play</span></div>
-            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-parachute-box"></i><span class="text-[9px] font-black uppercase mt-1">Drop</span></div>
+            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-wallet"></i><span class="text-[9px] font-black uppercase mt-1">Drop</span></div>
         </nav>
     </div>
 
     <script>
+        // LocalStorage'dan bakiyeyi ve ödül durumunu al
         let balance = parseInt(localStorage.getItem('k_bal')) || 0;
-        let isDone = localStorage.getItem('k_done') === 'true';
-        let isPlaying = false;
-        let gameLoop;
+        let hasClaimedWelcome = localStorage.getItem('k_welcome_claimed') === 'true';
 
-        window.onload = () => { if(isDone) { document.getElementById('checking-screen').style.display='none'; document.getElementById('main-app').style.display='block'; sync(); } };
+        window.onload = () => { 
+            // Sayfa her açıldığında Checking gösterilecek
+            sync(); 
+        };
 
-        // --- CHECKING FLOW ---
         function startCheckingFlow() {
             document.getElementById('start-check-btn').classList.add('hidden');
             const pFill = document.getElementById('p-fill');
@@ -169,32 +163,43 @@
                         setTimeout(() => {
                             document.getElementById('check-list-container').classList.add('hidden');
                             document.getElementById('check-title').innerText = "Verified!";
-                            document.getElementById('check-subtitle').innerText = "Your account reward is ready";
+                            document.getElementById('check-subtitle').innerText = "Account analysis complete";
                             showReward();
                         }, 1000);
                     }
-                }, idx * 1200);
+                }, idx * 1000);
             });
         }
 
         function showReward() {
-            const age = Math.floor(Math.random() * 6) + 3;
-            const reward = age * 15000;
-            balance += reward;
+            // Yılı rastgele hesapla ama ödülü sadece bir kez ver
+            const age = Math.floor(Math.random() * 5) + 4;
+            const rewardAmount = age * 12500;
+
             document.getElementById('years-val').innerText = age;
-            document.getElementById('reward-val').innerText = reward.toLocaleString();
+            
+            if(!hasClaimedWelcome) {
+                // Eğer ilk kez checking yapıyorsa ödülü ver
+                balance += rewardAmount;
+                hasClaimedWelcome = true;
+                localStorage.setItem('k_welcome_claimed', 'true');
+                document.getElementById('reward-val').innerText = rewardAmount.toLocaleString();
+                document.getElementById('reward-text-div').style.display = 'block';
+            } else {
+                // Daha önce aldıysa sadece "Already Verified" mesajı veya 0 göster
+                document.getElementById('reward-text-div').innerHTML = '<span class="text-zinc-500 text-sm italic uppercase">Account Already Verified</span>';
+            }
+
             document.getElementById('reward-display').classList.remove('hidden');
             document.getElementById('claim-btn').classList.remove('hidden');
             sync();
         }
 
         function goToDashboard() {
-            isDone = true; localStorage.setItem('k_done', 'true');
             document.getElementById('checking-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
         }
 
-        // --- CORE FUNCTIONS ---
         function watchAdTask() {
             const overlay = document.getElementById('ad-overlay');
             const timerText = document.getElementById('ad-timer');
@@ -206,8 +211,17 @@
             }, 1000);
         }
 
-        function sync() { document.getElementById('total-bal').innerText = balance.toLocaleString(); localStorage.setItem('k_bal', balance); }
-        function nav(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); el.classList.add('active'); }
+        function sync() { 
+            document.getElementById('total-bal').innerText = balance.toLocaleString(); 
+            localStorage.setItem('k_bal', balance); 
+        }
+
+        function nav(p, el) { 
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); 
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); 
+            document.getElementById(p).classList.add('active'); 
+            el.classList.add('active'); 
+        }
 
         function handleCrash() {
             const btn = document.getElementById('game-btn');
@@ -218,7 +232,7 @@
                 isPlaying = true; balance -= bet; sync();
                 betInp.disabled = true;
                 let current = 1.00;
-                let crashPoint = (Math.random() > 0.6) ? (Math.random()*4+1.5) : (Math.random()*0.4+1.05);
+                let crashPoint = (Math.random() > 0.6) ? (Math.random()*4+1.5) : (Math.random()*0.3+1.05);
                 btn.innerText = "CASH OUT"; btn.style.backgroundColor = "#ffcc00";
                 gameLoop = setInterval(() => {
                     current += 0.04;
@@ -232,7 +246,7 @@
                             btn.innerText = "Launch"; btn.style.backgroundColor = "#fff";
                             document.getElementById('multiplier').innerText = "1.00x";
                             document.getElementById('rocket').style.transform = "translateY(0)";
-                        }, 1500);
+                        }, 1200);
                     }
                 }, 60);
             } else {
