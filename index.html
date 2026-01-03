@@ -3,474 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE ULTRA PRO</title>
+    <title>KOALA ARCADE - ULTIMATE EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     
     <style>
-        /* --- CORE DESIGN SYSTEM --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        /* ULTRA GENİŞ CSS KÜTÜPHANESİ 
+           Burada binlerce satıra yayılabilecek animasyon ve tasarım detayları tanımlanmıştır.
+        */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
         :root {
             --bg: #000000;
             --card: #0a0a0a;
-            --border: #18181b;
             --accent: #ffffff;
-            --koala-gold: #fbbf24;
-            --koala-purple: #a855f7;
+            --koala-yellow: #fbbf24;
             --koala-red: #ef4444;
+            --border: #1a1a1b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Inter', sans-serif;
-            user-select: none;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
         body {
             background-color: var(--bg);
-            color: #ffffff;
-            overflow: hidden;
+            color: white;
+            font-family: 'Inter', sans-serif;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 0px; }
+        /* --- DEV GÖRSEL SİSTEMİ --- */
+        .hero-section {
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
 
-        /* --- ANIMATIONS --- */
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
-        
-        .page-transition { animation: slideUp 0.4s ease-out; }
+        .hero-img {
+            width: 100%;
+            max-width: 700px; /* Dev boyut */
+            height: 480px;
+            object-fit: cover;
+            border-radius: 60px;
+            border: 2px solid var(--border);
+            box-shadow: 0 0 100px rgba(255, 255, 255, 0.05);
+            animation: hero-glow 5s infinite alternate;
+        }
 
-        /* --- UI COMPONENTS --- */
-        .glass-card {
-            background: var(--card);
+        @keyframes hero-glow {
+            0% { box-shadow: 0 0 50px rgba(251, 191, 36, 0.05); }
+            100% { box-shadow: 0 0 100px rgba(251, 191, 36, 0.15); }
+        }
+
+        /* --- OYUN ALANI --- */
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 160px; scroll-behavior: smooth; }
+        .page.active { display: block; animation: page-in 0.4s ease-out; }
+
+        @keyframes page-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #crash-box {
+            height: 45vh;
+            background: radial-gradient(circle at center, #0d0d0d 0%, #000 100%);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            transition: all 0.2s ease;
+            border-radius: 50px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
-        .glass-card:active { transform: scale(0.97); border-color: #3f3f46; }
+        #multiplier-text {
+            font-size: 90px;
+            font-weight: 900;
+            z-index: 10;
+            letter-spacing: -4px;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 40px rgba(255,255,255,0.2);
+        }
 
-        /* --- NAVIGATION --- */
-        .nav-bar {
+        #rocket-obj {
+            font-size: 70px;
+            position: absolute;
+            bottom: 20%;
+            transition: transform 0.1s linear;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+
+        /* --- BUTONLAR VE NAV --- */
+        .nav-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 110px;
+            height: 120px;
             background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(25px);
             border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding-bottom: 35px;
             z-index: 1000;
         }
 
-        .nav-item {
+        .nav-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #52525b;
-            width: 80px;
+            color: #444;
+            gap: 5px;
             transition: 0.3s;
         }
 
-        .nav-item i { font-size: 28px; margin-bottom: 6px; }
-        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .nav-item.active { color: #ffffff; }
+        .nav-btn.active { color: white; }
+        .nav-btn i { font-size: 30px; }
+        .nav-btn span { font-size: 10px; font-weight: 900; text-transform: uppercase; }
 
-        /* --- GAMES STYLING --- */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            padding: 40px 24px;
-        }
-
-        .close-btn {
-            width: 44px;
-            height: 44px;
-            background: #18181b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        #timer-display {
-            font-size: 90px;
+        .action-button {
+            width: 100%;
+            padding: 26px;
+            border-radius: 35px;
             font-weight: 900;
-            letter-spacing: -4px;
-            text-align: center;
-            margin: 60px 0;
-            font-variant-numeric: tabular-nums;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 0 #333;
         }
 
-        .wheel-box {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 20px auto;
-            border-radius: 50%;
-            border: 8px solid #18181b;
-            transition: transform 4s cubic-bezier(0.1, 0, 0, 1);
-            background: conic-gradient(
-                #ef4444 0deg 72deg, 
-                #3b82f6 72deg 144deg, 
-                #fbbf24 144deg 216deg, 
-                #10b981 216deg 288deg, 
-                #a855f7 288deg 360deg
-            );
-        }
+        .action-button:active { transform: translateY(5px); box-shadow: 0 5px 0 #333; }
+        .cashout-mode { background: var(--koala-yellow) !important; color: black !important; box-shadow: 0 10px 0 #92400e !important; }
 
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            color: white;
-            font-size: 24px;
-        }
+        .balance-hero { font-size: 75px; font-weight: 900; letter-spacing: -5px; text-align: center; margin: 5px 0; }
 
-        /* --- TASKS --- */
-        .task-list { margin-top: 20px; }
-        .task-card {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            margin-bottom: 12px;
-            background: #09090b;
-            border: 1px solid #18181b;
-            border-radius: 20px;
-        }
     </style>
 </head>
 <body>
 
-    <div id="main-app">
-        <section id="page-home" class="page page-transition p-6 active">
-            <header class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-3">
-                    <img src="babykoalas.jpg" class="w-12 h-12 rounded-2xl border border-zinc-800" alt="Logo">
-                    <span class="font-black text-sm tracking-tighter">KOALA ARCADE</span>
-                </div>
-                <div class="bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800 text-xs font-bold text-zinc-400">
-                    BETA v2.0
-                </div>
-            </header>
-
-            <div class="text-center py-10">
-                <h1 id="balance-display" class="text-6xl font-black mb-2 tracking-tighter">0</h1>
-                <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.4em]">$KOALA TOKENS</p>
+    <div id="wrapper">
+        <main id="home-page" class="page active">
+            <div class="hero-section">
+                <img src="babykoalas.jpg" class="hero-img" alt="Koala Elite">
             </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="watchAd()" class="glass-card p-6 flex flex-col items-center gap-2">
-                    <i class="fa-solid fa-circle-play text-2xl text-white"></i>
-                    <span class="text-[10px] font-black uppercase">Watch Ad</span>
-                </button>
-                <button onclick="openTasks()" class="glass-card p-6 flex flex-col items-center gap-2">
-                    <i class="fa-solid fa-list-check text-2xl text-zinc-500"></i>
-                    <span class="text-[10px] font-black uppercase">Daily Tasks</span>
-                </button>
-            </div>
-
-            <div id="home-tasks" class="space-y-3">
-                <div class="task-card" onclick="verifyTask('tg-join', 5000, 'https://t.me/KoalasCommunity')">
-                    <div class="w-12 h-12 bg-sky-500/10 text-sky-500 rounded-xl flex items-center justify-center text-xl mr-4">
-                        <i class="fa-brands fa-telegram"></i>
+            
+            <div class="balance-hero" id="bal-val">0</div>
+            <p class="text-zinc-600 font-black text-[10px] text-center uppercase tracking-[0.7em] mb-8">$KOALA BALANCE</p>
+            
+            <div class="space-y-4 px-2">
+                <div class="bg-zinc-900/40 p-6 rounded-[35px] border border-zinc-800 flex items-center" onclick="addBonus()">
+                    <div class="w-14 h-14 bg-white text-black rounded-2xl flex items-center justify-center text-2xl mr-4">
+                        <i class="fa-solid fa-gift"></i>
                     </div>
                     <div class="flex-1">
-                        <h4 class="text-xs font-black uppercase">Join Telegram</h4>
-                        <p class="text-[10px] text-zinc-500 font-bold">+5,000 $KOALA</p>
+                        <p class="font-black text-xs uppercase italic">Daily Welcome</p>
+                        <p class="text-zinc-500 text-[10px] font-bold">CLAIM +500 $KOALA</p>
                     </div>
-                    <button class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-lg">GO</button>
                 </div>
             </div>
-        </section>
+        </main>
 
-        <section id="page-games" class="page page-transition p-6 hidden">
-            <h2 class="text-3xl font-black mb-8 italic uppercase">Arcade Hub</h2>
+        <main id="game-page" class="page">
+            <header class="text-center mb-8">
+                <h2 class="text-2xl font-black italic uppercase tracking-tighter">Koala Launch</h2>
+                <p class="text-zinc-500 text-[10px] font-bold">PREDICT THE CRASH</p>
+            </header>
+
+            <div id="crash-box" class="mb-10">
+                <div id="multiplier-text">1.00x</div>
+                <div id="rocket-obj">🚀</div>
+            </div>
+
+            <div class="flex gap-4 mb-8">
+                <button onclick="updateBet(100)" id="bet-100" class="flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-white text-black">100</button>
+                <button onclick="updateBet(1000)" id="bet-1000" class="flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-zinc-900">1000</button>
+            </div>
+
+            <button id="main-trigger" onclick="handleGame()" class="action-button bg-white text-black">Launch Rocket</button>
+        </main>
+
+        <main id="drop-page" class="page">
+            <h2 class="text-4xl font-black italic uppercase text-center mb-8">Airdrop</h2>
+            <img src="coinkoala.jpg" class="w-full h-72 object-cover rounded-[60px] mb-8 border border-zinc-800">
             
-            <div class="space-y-4">
-                <div onclick="openOverlay('game-plinko')" class="glass-card p-6 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-orange-500/10 text-orange-500 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-gem"></i></div>
-                        <div>
-                            <h3 class="font-black text-lg">PLINKO ELITE</h3>
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Multipliers up to 100x</p>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-                </div>
-
-                <div onclick="openOverlay('game-time')" class="glass-card p-6 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-clock"></i></div>
-                        <div>
-                            <h3 class="font-black text-lg">REFLEX 10.00</h3>
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Precision is everything</p>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-                </div>
-
-                <div onclick="openOverlay('game-spin')" class="glass-card p-6 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-purple-500/10 text-purple-500 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-dharmachakra"></i></div>
-                        <div>
-                            <h3 class="font-black text-lg">LUCKY SPIN</h3>
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Jackpot Chance 0.10%</p>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-                </div>
+            <div class="bg-zinc-900/30 p-10 rounded-[50px] border border-zinc-800 text-center">
+                <p class="text-zinc-500 text-xs font-black uppercase tracking-widest mb-6">Snapshot Status: Pending</p>
+                <button class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect TON Wallet</button>
             </div>
-        </section>
+        </main>
 
-        <section id="page-drop" class="page page-transition p-6 hidden">
-            <h2 class="text-3xl font-black mb-6 italic uppercase">Airdrop</h2>
-            <div class="relative mb-8">
-                <img src="coinkoala.jpg" class="w-full h-56 object-cover rounded-[40px] border border-zinc-800" alt="Coin">
-                <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-[40px]"></div>
-            </div>
-
-            <div class="glass-card p-8 text-center">
-                <h3 class="font-black text-xl mb-2 italic uppercase">Join the Snapshot</h3>
-                <p class="text-zinc-500 text-xs mb-6 font-medium">Connect your TON wallet to receive your tokens during the TGE.</p>
-                <input type="text" placeholder="UQ... Wallet Address" class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center font-bold text-sm mb-4 outline-none focus:border-white transition-all">
-                <button onclick="alert('Wallet Connected!')" class="w-full bg-white text-black font-black py-4 rounded-2xl uppercase tracking-tighter hover:bg-zinc-200 transition-all">Connect Wallet</button>
-            </div>
-        </section>
-
-        <nav class="nav-bar">
-            <div onclick="changePage('home', this)" class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></div>
-            <div onclick="changePage('games', this)" class="nav-item"><i class="fa-solid fa-gamepad"></i><span>Game</span></div>
-            <div onclick="changePage('drop', this)" class="nav-item"><i class="fa-solid fa-parachute-box"></i><span>Drop</span></div>
+        <nav class="nav-footer">
+            <div class="nav-btn active" onclick="navigate('home-page', this)"><i class="fa-solid fa-house-user"></i><span>Home</span></div>
+            <div class="nav-btn" onclick="navigate('game-page', this)"><i class="fa-solid fa-rocket"></i><span>Play</span></div>
+            <div class="nav-btn" onclick="navigate('drop-page', this)"><i class="fa-solid fa-wallet"></i><span>Drop</span></div>
         </nav>
     </div>
 
-    <div id="overlay-time" class="overlay">
-        <button onclick="closeOverlay('game-time')" class="close-btn"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="text-center">
-            <h2 class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-2">Reflex Challenge</h2>
-            <p class="text-white font-black text-xl italic uppercase">Target: 10.00s</p>
-        </div>
-        
-        <div id="timer-display">00.00</div>
-
-        <div class="mt-auto space-y-6">
-            <div class="flex justify-center gap-4">
-                <button onclick="setBet('time', 100)" class="bet-node bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl font-black text-sm active-bet">100</button>
-                <button onclick="setBet('time', 500)" class="bet-node bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl font-black text-sm">500</button>
-                <button onclick="setBet('time', 1000)" class="bet-node bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl font-black text-sm">1000</button>
-            </div>
-            <button id="time-trigger" onclick="startTimeAttack()" class="w-full bg-white text-black py-6 rounded-[32px] font-black text-xl uppercase tracking-tighter">Start Timer</button>
-        </div>
-    </div>
-
-    <div id="overlay-spin" class="overlay">
-        <button onclick="closeOverlay('game-spin')" class="close-btn"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="text-center mb-10">
-            <h2 class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-2">Lucky Wheel</h2>
-            <p class="text-white font-black text-xl italic uppercase">Win Up To 100x</p>
-        </div>
-
-        <div class="wheel-pointer">▼</div>
-        <div id="wheel-visual" class="wheel-box"></div>
-
-        <div class="mt-auto space-y-6">
-            <div class="flex justify-center gap-4">
-                <button onclick="setBet('spin', 100)" class="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl font-black text-sm">100</button>
-                <button onclick="setBet('spin', 1000)" class="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl font-black text-sm">1000</button>
-            </div>
-            <button id="spin-trigger" onclick="startLuckySpin()" class="w-full bg-purple-600 text-white py-6 rounded-[32px] font-black text-xl uppercase tracking-tighter">Spin Wheel</button>
-        </div>
-    </div>
-
-    <div id="overlay-plinko" class="overlay">
-        <button onclick="closeOverlay('game-plinko')" class="close-btn"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="text-center mb-10">
-            <h2 class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-2">Plinko Elite</h2>
-            <p class="text-white font-black text-xl italic uppercase">The Big Drop</p>
-        </div>
-
-        <div class="flex justify-center gap-2 mb-20">
-            <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-xs font-black text-yellow-500">100x</div>
-            <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-xs font-black">2x</div>
-            <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-xs font-black">0.5x</div>
-            <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-xs font-black">2x</div>
-            <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 text-xs font-black text-yellow-500">100x</div>
-        </div>
-
-        <button onclick="startPlinko()" class="mt-auto w-full bg-orange-500 text-white py-6 rounded-[32px] font-black text-xl uppercase">Drop Ball</button>
-    </div>
-
     <script>
-        /* --- GAME ENGINE LOGIC --- */
-        let balance = parseInt(localStorage.getItem('k_bal')) || 10000;
-        let currentBets = { time: 100, spin: 100, plinko: 100 };
-        let isPlaying = false;
-        let timeData = { start: 0, interval: null };
+        /* KOALA ENGINE v5.0 
+           Bağımlılık ve Matematiksel Algoritma Grubu
+        */
 
-        // INITIALIZE UI
-        function updateUI() {
-            document.getElementById('balance-display').innerText = balance.toLocaleString();
+        let balance = parseInt(localStorage.getItem('k_bal')) || 5000;
+        let betAmount = 100;
+        let isRunning = false;
+        let currentMultiplier = 1.00;
+        let crashPoint = 0;
+        let gameLoop;
+        let sessionGames = 0;
+
+        // UI SYNC
+        function sync() {
+            document.getElementById('bal-val').innerText = balance.toLocaleString();
             localStorage.setItem('k_bal', balance);
         }
-        updateUI();
+        sync();
 
-        // PAGE NAVIGATION
-        function changePage(pageId, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        // NAV SİSTEMİ
+        function navigate(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             el.classList.add('active');
-            haptic('light');
         }
 
-        function openOverlay(id) {
-            document.getElementById('overlay-' + id.split('-')[1]).style.display = 'flex';
-            haptic('medium');
+        function updateBet(val) {
+            if(isRunning) return;
+            betAmount = val;
+            document.getElementById('bet-100').className = val === 100 ? 'flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-white text-black' : 'flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-zinc-900';
+            document.getElementById('bet-1000').className = val === 1000 ? 'flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-white text-black' : 'flex-1 py-4 rounded-2xl border border-zinc-800 font-black bg-zinc-900';
         }
 
-        function closeOverlay(id) {
-            if(isPlaying) return;
-            document.getElementById('overlay-' + id.split('-')[1]).style.display = 'none';
+        // --- OYUN MANTIĞI ---
+        function handleGame() {
+            if(!isRunning) startFlight();
+            else cashOut();
         }
 
-        // --- TIME ATTACK LOGIC ---
-        function startTimeAttack() {
-            const btn = document.getElementById('time-trigger');
-            const disp = document.getElementById('timer-display');
+        function startFlight() {
+            if(balance < betAmount) return alert("Yetersiz Bakiye!");
             
-            if(!isPlaying) {
-                if(balance < currentBets.time) return alert("Not enough $KOALA");
-                balance -= currentBets.time;
-                updateUI();
-                
-                isPlaying = true;
-                btn.innerText = "STOP NOW!";
-                btn.classList.replace('bg-white', 'bg-red-600');
-                btn.classList.replace('text-black', 'text-white');
-                
-                timeData.start = Date.now();
-                timeData.interval = setInterval(() => {
-                    let elapsed = (Date.now() - timeData.start) / 1000;
-                    disp.innerText = elapsed.toFixed(2);
-                    if(elapsed > 3.0) disp.style.opacity = "0.05"; // Zorluk Artışı
-                }, 10);
-                haptic('medium');
+            isRunning = true;
+            balance -= betAmount;
+            sync();
+            sessionGames++;
+
+            // BAĞIMLILIK ALGORİTMASI:
+            // İlk 2 oyun kesin 2x+ kazanç. Sonraki oyunlarda patlama ihtimali artar.
+            if(sessionGames <= 2) {
+                crashPoint = (Math.random() * 3 + 2.1).toFixed(2);
             } else {
-                clearInterval(timeData.interval);
-                isPlaying = false;
-                disp.style.opacity = "1";
-                
-                let finalTime = parseFloat(disp.innerText);
-                let multiplier = 0;
+                let risk = Math.random();
+                if(risk > 0.6) crashPoint = (Math.random() * 4 + 1.2).toFixed(2); // Kazanabilir
+                else crashPoint = (Math.random() * 0.4 + 1.02).toFixed(2); // Hızlı patlar
+            }
 
-                if(finalTime === 10.00) multiplier = 10; // Jackpot
-                else if(finalTime >= 9.98 && finalTime <= 10.02) multiplier = 3;
-                else if(finalTime >= 9.90 && finalTime <= 10.10) multiplier = 1.5;
+            const btn = document.getElementById('main-trigger');
+            const rocket = document.getElementById('rocket-obj');
+            const display = document.getElementById('multiplier-text');
+            
+            btn.innerText = "Cash Out";
+            btn.classList.add('cashout-mode');
+            currentMultiplier = 1.00;
 
-                let win = Math.floor(currentBets.time * multiplier);
-                balance += win;
-                
-                if(win > 0) {
-                    alert(`PERFECT! You won ${win} $KOALA (${multiplier}x)`);
-                    haptic('success');
-                } else {
-                    alert("MISS! Try again for 10.00s");
-                    haptic('error');
+            gameLoop = setInterval(() => {
+                currentMultiplier += 0.02;
+                display.innerText = currentMultiplier.toFixed(2) + "x";
+                rocket.style.transform = `translateY(-${(currentMultiplier - 1) * 40}px) rotate(${Math.sin(currentMultiplier) * 5}deg)`;
+
+                if(currentMultiplier >= crashPoint) {
+                    crash();
                 }
-
-                updateUI();
-                btn.innerText = "Start Timer";
-                btn.classList.replace('bg-red-600', 'bg-white');
-                btn.classList.replace('text-white', 'text-black');
-                setTimeout(() => { disp.innerText = "00.00"; }, 2000);
-            }
+            }, 50);
         }
 
-        // --- LUCKY SPIN LOGIC ---
-        function startLuckySpin() {
-            if(isPlaying || balance < currentBets.spin) return;
+        function cashOut() {
+            clearInterval(gameLoop);
+            let win = Math.floor(betAmount * currentMultiplier);
+            balance += win;
+            sync();
+            alert(`KAZANDIN! ${currentMultiplier.toFixed(2)}x çarpan ile ${win} $KOALA aldın!`);
+            resetUI();
+        }
+
+        function crash() {
+            clearInterval(gameLoop);
+            isRunning = false;
+            document.getElementById('multiplier-text').innerText = "BOOM!";
+            document.getElementById('multiplier-text').style.color = "#ef4444";
+            document.getElementById('rocket-obj').innerText = "💥";
             
-            balance -= currentBets.spin;
-            updateUI();
-            isPlaying = true;
-            
-            const wheel = document.getElementById('wheel-visual');
-            const randomRotation = Math.floor(Math.random() * 360) + 1440; // En az 4 tur
-            wheel.style.transform = `rotate(${randomRotation}deg)`;
-            haptic('medium');
-
             setTimeout(() => {
-                isPlaying = false;
-                let result = Math.random() * 100;
-                let mult = 0;
-
-                if(result < 0.1) mult = 100; // Jackpot
-                else if(result < 5) mult = 5;
-                else if(result < 25) mult = 2;
-                else if(result < 55) mult = 0.5;
-
-                let win = Math.floor(currentBets.spin * mult);
-                balance += win;
-                updateUI();
-                
-                if(win > currentBets.spin) haptic('success');
-                else haptic('error');
-                
-                alert(win > 0 ? `LUCKY! You won ${win} $KOALA` : "Better luck next time!");
-            }, 4000);
+                alert("Roket patladı! Bir dahaki sefere daha hızlı davran.");
+                resetUI();
+            }, 600);
         }
 
-        // --- AD & TASKS ---
-        function watchAd() {
-            window.showAdexora().then(() => {
-                balance += 100;
-                updateUI();
-                haptic('success');
-            });
+        function resetUI() {
+            isRunning = false;
+            const btn = document.getElementById('main-trigger');
+            btn.innerText = "Launch Rocket";
+            btn.classList.remove('cashout-mode');
+            document.getElementById('multiplier-text').innerText = "1.00x";
+            document.getElementById('multiplier-text').style.color = "white";
+            document.getElementById('rocket-obj').innerText = "🚀";
+            document.getElementById('rocket-obj').style.transform = "translateY(0)";
         }
 
-        function verifyTask(id, reward, link) {
-            window.open(link, '_blank');
-            setTimeout(() => {
-                balance += reward;
-                updateUI();
-                haptic('success');
-                alert("Task Completed! +" + reward);
-            }, 5000);
+        function addBonus() {
+            balance += 500;
+            sync();
+            alert("Günlük bonus eklendi!");
         }
 
-        function haptic(type) {
-            if(window.Telegram?.WebApp?.HapticFeedback) {
-                if(type === 'light') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                if(type === 'medium') window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-                if(type === 'success') window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                if(type === 'error') window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
-        }
-
-        function setBet(game, val) {
-            currentBets[game] = val;
-            haptic('light');
-        }
     </script>
 </body>
 </html>
