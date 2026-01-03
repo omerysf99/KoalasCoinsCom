@@ -16,114 +16,106 @@
         #checking-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
-            padding: 40px 24px;
+            padding: 50px 24px; justify-content: space-between;
         }
 
         .check-item {
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
-            opacity: 0; transform: translateY(10px); transition: 0.5s ease forwards;
+            display: flex; align-items: center; justify-content: space-between;
+            background: #0a0a0a; border: 1px solid #151515;
+            padding: 18px; border-radius: 20px; margin-bottom: 12px;
+            opacity: 0; transform: translateX(-20px); transition: 0.5s ease forwards;
         }
-        .check-item.active { opacity: 1; transform: translateY(0); }
-        .check-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #333; }
-        .check-dot.done { background: #fff; border-color: #fff; box-shadow: 0 0 10px #fff; }
+        .check-item.active { opacity: 1; transform: translateX(0); }
+        .check-icon { color: #555; font-size: 18px; transition: 0.3s; }
+        .check-icon.done { color: #fff; transform: scale(1.2); text-shadow: 0 0 10px #fff; }
 
-        .progress-line { height: 2px; background: #1a1a1a; width: 100%; position: relative; overflow: hidden; border-radius: 10px; }
-        .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: #fff; width: 0%; transition: 0.3s; }
+        .progress-container { height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        #p-fill { width: 0%; height: 100%; background: #fff; transition: 0.4s linear; }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD UI --- */
         #main-app { display: none; height: 100vh; }
-        .hero-img { width: 100%; max-width: 320px; height: 220px; object-fit: cover; border-radius: 30px; margin: 0 auto; }
+        .hero-img { width: 280px; height: 210px; object-fit: cover; border-radius: 30px; margin: 0 auto; box-shadow: 0 0 40px rgba(255,255,255,0.05); }
 
         /* --- CRASH UI --- */
-        .crash-canvas { 
-            background: #050505; border: 1px solid #111; border-radius: 35px; 
-            height: 300px; display: flex; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden;
-        }
-        #multiplier { font-size: 80px; font-weight: 900; z-index: 10; font-variant-numeric: tabular-nums; }
+        .crash-canvas { background: #050505; border: 1px solid #111; border-radius: 35px; height: 300px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        #multiplier { font-size: 75px; font-weight: 900; z-index: 10; letter-spacing: -2px; }
         #rocket { position: absolute; bottom: 15%; font-size: 50px; z-index: 10; }
 
         /* BUTTONS */
-        .btn-dogs { 
-            background: #fff; color: #000; width: 100%; padding: 18px; 
-            border-radius: 18px; font-weight: 800; font-size: 16px; transition: 0.2s;
-        }
-        .btn-dogs:active { transform: scale(0.97); }
+        .btn-white { background: #fff; color: #000; width: 100%; padding: 18px; border-radius: 20px; font-weight: 900; font-size: 16px; text-transform: uppercase; transition: 0.2s; }
+        .btn-white:active { transform: scale(0.96); }
 
-        .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #000; border-top: 1px solid #111;
-            display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 25px;
-        }
+        /* PAGES & NAV */
+        .page { display: none; height: 100vh; padding: 20px 20px 140px; overflow-y: auto; }
+        .page.active { display: block; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 25px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; }
         .nav-item.active { color: #fff; }
 
-        .page { display: none; height: 100vh; padding: 15px 20px 140px; overflow-y: auto; }
-        .page.active { display: block; }
-
-        #ad-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; 
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
+        #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div id="ad-overlay">
-        <p class="text-zinc-500 text-[10px] font-black mb-4 tracking-[0.3em]">REKLAM İZLENİYOR</p>
-        <div class="w-12 h-12 border-4 border-zinc-800 border-t-white rounded-full animate-spin"></div>
-        <p id="ad-timer" class="mt-6 text-4xl font-black">15</p>
+        <p class="text-zinc-600 font-black text-[10px] tracking-[0.5em] mb-6">WATCHING ADVERTISEMENT</p>
+        <div class="w-14 h-14 border-4 border-zinc-900 border-t-white rounded-full animate-spin"></div>
+        <div id="ad-timer" class="mt-8 text-5xl font-black">15</div>
     </div>
 
     <div id="checking-screen">
-        <div class="mt-10 mb-20 text-center">
-            <i class="fa-solid fa-shield-dog text-6xl mb-6"></i>
-            <h1 class="text-3xl font-black italic uppercase">Koala Verify</h1>
+        <div class="text-center">
+            <i class="fa-solid fa-shield-dog text-6xl mb-4 mt-6"></i>
+            <h1 class="text-3xl font-black italic uppercase tracking-tighter" id="check-title">Account Check</h1>
+            <p class="text-zinc-500 font-bold text-sm mt-2" id="check-subtitle">Verifying your status on Koala Arcade</p>
         </div>
 
-        <div id="checklist-area" class="flex-grow">
-            <div class="check-item" id="c1">
-                <div class="check-dot" id="d1"></div>
-                <p class="text-sm font-bold text-zinc-400">Account age analysis...</p>
+        <div id="check-list-container" class="w-full">
+            <div class="check-item" id="ci1">
+                <span class="font-bold text-sm">Account Age Analysis</span>
+                <i class="fa-solid fa-circle-check check-icon" id="ic1"></i>
             </div>
-            <div class="check-item" id="c2">
-                <div class="check-dot" id="d2"></div>
-                <p class="text-sm font-bold text-zinc-400">Activity level check...</p>
+            <div class="check-item" id="ci2">
+                <span class="font-bold text-sm">Premium Activity Check</span>
+                <i class="fa-solid fa-circle-check check-icon" id="ic2"></i>
             </div>
-            <div class="check-item" id="c3">
-                <div class="check-dot" id="d3"></div>
-                <p class="text-sm font-bold text-zinc-400">Veteran status verification...</p>
+            <div class="check-item" id="ci3">
+                <span class="font-bold text-sm">Veteran Badge Eligibility</span>
+                <i class="fa-solid fa-circle-check check-icon" id="ic3"></i>
             </div>
         </div>
 
-        <div id="final-result" class="hidden text-center mb-10 animate-pulse">
-            <div class="text-zinc-500 font-black text-xs uppercase tracking-widest mb-2">You are a legend!</div>
+        <div id="reward-display" class="hidden text-center animate-bounce">
             <h2 id="years-val" class="text-9xl font-black tracking-tighter">0</h2>
-            <p class="text-xl font-bold text-white uppercase italic">Years on Telegram</p>
-            <div class="mt-6 text-2xl font-black text-yellow-500">+<span id="reward-val">0</span> $KOALA</div>
+            <p class="text-xl font-black uppercase text-zinc-500 italic">Years Veteran</p>
+            <div class="mt-4 text-3xl font-black text-yellow-500">+<span id="reward-val">0</span> $KOALA</div>
         </div>
 
         <div class="w-full">
-            <div class="progress-line mb-6"><div id="p-fill" class="progress-fill"></div></div>
-            <button onclick="runAdvancedCheck()" id="start-btn" class="btn-dogs">Start Verification</button>
-            <button onclick="finalize()" id="continue-btn" class="btn-dogs hidden">Claim & Enter</button>
+            <div class="progress-container"><div id="p-fill"></div></div>
+            <button onclick="startCheckingFlow()" id="start-check-btn" class="btn-white">Check Eligibility</button>
+            <button onclick="goToDashboard()" id="claim-btn" class="btn-white hidden">Claim Reward</button>
         </div>
     </div>
 
     <div id="main-app">
         <div id="home" class="page active">
-            <div class="flex justify-center mb-4"><img src="babykoalas.jpg" class="hero-img"></div>
-            <div class="text-center mb-8">
+            <div class="flex justify-center mb-6"><img src="babykoalas.jpg" class="hero-img"></div>
+            <div class="text-center mb-10">
                 <div id="total-bal" class="text-6xl font-black tracking-tighter">0</div>
                 <p class="text-zinc-600 font-black text-[9px] uppercase tracking-[0.7em] mt-1">$KOALA BALANCE</p>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-4 px-2 tracking-widest">Available Tasks</h3>
-            <div class="task-card bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl flex justify-between items-center mb-2" onclick="watchAdTask()">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-play-circle text-xl text-yellow-500"></i>
-                    <div><p class="text-sm font-bold">Watch Ads</p><p class="text-[10px] text-zinc-500">+1 $KOALA</p></div>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center px-1"><h3 class="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Tasks</h3></div>
+                
+                <div class="bg-zinc-900/40 border border-zinc-800 p-5 rounded-3xl flex justify-between items-center" onclick="watchAdTask()">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-500"><i class="fa-solid fa-play"></i></div>
+                        <div><p class="font-bold text-sm">Watch Ad</p><p class="text-[10px] text-zinc-500">+1 $KOALA</p></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-700 text-xs"></i>
                 </div>
-                <button class="bg-white text-black px-4 py-1 rounded-full text-[10px] font-black">WATCH</button>
             </div>
         </div>
 
@@ -133,22 +125,22 @@
                 <div id="rocket">🚀</div>
             </div>
             <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3 mb-6">
-                <span class="text-zinc-500 font-black text-xs">BET</span>
+                <span class="text-zinc-500 font-black text-[10px]">BET</span>
                 <input type="number" id="bet-input" class="bg-transparent border-none outline-none text-white font-black w-full text-xl" value="100">
             </div>
-            <button onclick="handleCrash()" id="game-btn" class="btn-dogs">Launch Flight</button>
+            <button onclick="handleCrash()" id="game-btn" class="btn-white">Launch</button>
         </div>
 
         <div id="drop" class="page text-center">
-            <h2 class="text-4xl font-black uppercase mt-10 mb-6 italic">Airdrop</h2>
-            <img src="coinkoala.jpg" class="w-full h-64 object-cover rounded-3xl mb-8 grayscale brightness-50">
-            <p class="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Snapshot is coming...</p>
+            <h2 class="text-4xl font-black uppercase mt-10 mb-6 italic tracking-tighter">Airdrop</h2>
+            <img src="coinkoala.jpg" class="w-full h-64 object-cover rounded-[40px] mb-8 grayscale opacity-40">
+            <p class="text-zinc-600 font-black text-xs tracking-widest">PHASE 1: COMPUTING RESULTS</p>
         </div>
 
         <nav class="nav-bar">
             <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span class="text-[9px] font-black uppercase mt-1">Home</span></div>
             <div class="nav-item" onclick="nav('play', this)"><i class="fa-solid fa-rocket"></i><span class="text-[9px] font-black uppercase mt-1">Play</span></div>
-            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-wallet"></i><span class="text-[9px] font-black uppercase mt-1">Drop</span></div>
+            <div class="nav-item" onclick="nav('drop', this)"><i class="fa-solid fa-parachute-box"></i><span class="text-[9px] font-black uppercase mt-1">Drop</span></div>
         </nav>
     </div>
 
@@ -160,58 +152,57 @@
 
         window.onload = () => { if(isDone) { document.getElementById('checking-screen').style.display='none'; document.getElementById('main-app').style.display='block'; sync(); } };
 
-        // --- ENHANCED CHECKING SYSTEM ---
-        function runAdvancedCheck() {
-            document.getElementById('start-btn').classList.add('hidden');
-            const items = ['c1', 'c2', 'c3'];
-            const dots = ['d1', 'd2', 'd3'];
-            const progress = document.getElementById('p-fill');
-            
+        // --- CHECKING FLOW ---
+        function startCheckingFlow() {
+            document.getElementById('start-check-btn').classList.add('hidden');
+            const pFill = document.getElementById('p-fill');
+            const items = ['ci1', 'ci2', 'ci3'];
+            const icons = ['ic1', 'ic2', 'ic3'];
+
             items.forEach((id, idx) => {
                 setTimeout(() => {
                     document.getElementById(id).classList.add('active');
-                    progress.style.width = ((idx + 1) * 33) + "%";
-                    setTimeout(() => { document.getElementById(dots[idx]).classList.add('done'); }, 500);
-                    
+                    pFill.style.width = ((idx + 1) * 33.3) + "%";
+                    setTimeout(() => { document.getElementById(icons[idx]).classList.add('done'); }, 400);
+
                     if(idx === 2) {
                         setTimeout(() => {
-                            document.getElementById('checklist-area').classList.add('hidden');
-                            showFinal();
-                        }, 1200);
+                            document.getElementById('check-list-container').classList.add('hidden');
+                            document.getElementById('check-title').innerText = "Verified!";
+                            document.getElementById('check-subtitle').innerText = "Your account reward is ready";
+                            showReward();
+                        }, 1000);
                     }
-                }, idx * 1000);
+                }, idx * 1200);
             });
         }
 
-        function showFinal() {
-            const age = Math.floor(Math.random() * 5) + 4;
-            const reward = age * 12500;
+        function showReward() {
+            const age = Math.floor(Math.random() * 6) + 3;
+            const reward = age * 15000;
             balance += reward;
             document.getElementById('years-val').innerText = age;
             document.getElementById('reward-val').innerText = reward.toLocaleString();
-            document.getElementById('final-result').classList.remove('hidden');
-            document.getElementById('continue-btn').classList.remove('hidden');
+            document.getElementById('reward-display').classList.remove('hidden');
+            document.getElementById('claim-btn').classList.remove('hidden');
             sync();
         }
 
-        function finalize() {
+        function goToDashboard() {
             isDone = true; localStorage.setItem('k_done', 'true');
-            document.getElementById('checking-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('checking-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-            }, 300);
+            document.getElementById('checking-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
         }
 
-        // --- OTHER FUNCTIONS ---
+        // --- CORE FUNCTIONS ---
         function watchAdTask() {
             const overlay = document.getElementById('ad-overlay');
             const timerText = document.getElementById('ad-timer');
             overlay.style.display = 'flex';
-            let timeLeft = 15;
-            const interval = setInterval(() => {
-                timeLeft--; timerText.innerText = timeLeft;
-                if(timeLeft <= 0) { clearInterval(interval); overlay.style.display = 'none'; balance += 1; sync(); alert("1 $KOALA Claimed!"); }
+            let t = 15;
+            const iv = setInterval(() => {
+                t--; timerText.innerText = t;
+                if(t <= 0) { clearInterval(iv); overlay.style.display='none'; balance+=1; sync(); alert("1 $KOALA Earned!"); }
             }, 1000);
         }
 
@@ -223,11 +214,11 @@
             const betInp = document.getElementById('bet-input');
             let bet = parseInt(betInp.value);
             if(!isPlaying) {
-                if(isNaN(bet) || balance < bet || bet <= 0) return alert("Hatalı Bet!");
+                if(isNaN(bet) || balance < bet || bet <= 0) return alert("Low balance!");
                 isPlaying = true; balance -= bet; sync();
                 betInp.disabled = true;
                 let current = 1.00;
-                let crashPoint = (Math.random() > 0.6) ? (Math.random()*5+1.5) : (Math.random()*0.3+1.05);
+                let crashPoint = (Math.random() > 0.6) ? (Math.random()*4+1.5) : (Math.random()*0.4+1.05);
                 btn.innerText = "CASH OUT"; btn.style.backgroundColor = "#ffcc00";
                 gameLoop = setInterval(() => {
                     current += 0.04;
@@ -238,17 +229,17 @@
                         document.getElementById('multiplier').innerText = "BOOM!";
                         betInp.disabled = false;
                         setTimeout(() => {
-                            btn.innerText = "Launch Flight"; btn.style.backgroundColor = "#fff";
+                            btn.innerText = "Launch"; btn.style.backgroundColor = "#fff";
                             document.getElementById('multiplier').innerText = "1.00x";
                             document.getElementById('rocket').style.transform = "translateY(0)";
-                        }, 1200);
+                        }, 1500);
                     }
                 }, 60);
             } else {
                 clearInterval(gameLoop); isPlaying = false;
                 let win = Math.floor(bet * parseFloat(document.getElementById('multiplier').innerText));
                 balance += win; sync(); betInp.disabled = false;
-                btn.innerText = "Launch Flight"; btn.style.backgroundColor = "#fff";
+                btn.innerText = "Launch"; btn.style.backgroundColor = "#fff";
                 document.getElementById('multiplier').innerText = "1.00x";
                 document.getElementById('rocket').style.transform = "translateY(0)";
                 alert("Won: " + win);
