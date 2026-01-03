@@ -3,283 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koala Arcade - Airdrop Edition</title>
+    <title>Koala Arcade - MK Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
         
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            overflow: hidden;
-            height: 100vh;
-            touch-action: manipulation;
-            user-select: none;
-        }
+        body { background-color: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; touch-action: manipulation; user-select: none; }
 
-        /* --- CHECKING SCREEN --- */
+        /* --- 1. CHECKING EKRANI --- */
         #checking-screen {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s ease;
         }
-        .checking-banner {
-            width: 90%; max-width: 480px; aspect-ratio: 21/9; border-radius: 24px;
-            object-fit: cover; margin-bottom: 30px; border: 1px solid #1a1a1a;
-            box-shadow: 0 0 30px rgba(255,255,255,0.05);
-        }
-        .checking-text {
-            font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
-            margin-bottom: 20px;
-        }
-        .checking-progress-bar {
-            width: 250px; height: 4px; background: #111; border-radius: 10px;
-            overflow: hidden;
-        }
-        #checking-fill {
-            width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff;
-            transition: width 2s linear; /* Total 2 seconds for checking */
-        }
+        .baby-banner { width: 85%; max-width: 400px; border-radius: 30px; margin-bottom: 40px; }
+        .progress-container { width: 250px; height: 4px; background: #111; border-radius: 10px; overflow: hidden; }
+        #progress-fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 3s linear; }
 
-        /* --- AIRDROP CLAIM SCREEN --- */
-        #airdrop-screen {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
+        /* --- 2. CONGRATS EKRANI (Görseldeki Tasarım) --- */
+        #congrats-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
-            text-align: center;
-            transition: opacity 0.6s ease;
+            padding: 30px; text-align: center;
         }
-        .airdrop-top-badge {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(255, 255, 255, 0.1); border-radius: 20px;
-            padding: 6px 15px; font-size: 13px; font-weight: 600;
-            margin-bottom: 50px;
-        }
-        .airdrop-main-title {
-            font-size: 38px; font-weight: 900; line-height: 1;
-            margin-bottom: 10px;
-        }
-        .airdrop-sub-title {
-            font-size: 15px; font-weight: 600; color: #aaa;
-            margin-bottom: 50px;
-        }
-        .airdrop-coin-icon {
-            width: 90px; height: 90px; border-radius: 50%;
-            background: #222; display: flex; align-items: center; justify-content: center;
-            margin-bottom: 15px;
-            border: 1px solid #333;
-        }
-        .airdrop-coin-icon img { width: 50px; height: 50px; object-fit: contain; }
-        .airdrop-coin-label {
-            font-size: 13px; font-weight: 800; color: #888;
-            margin-bottom: 10px;
-        }
-        .airdrop-amount {
-            font-size: 60px; font-weight: 900; letter-spacing: -2px;
-            margin-bottom: 80px;
-        }
-        .airdrop-claim-btn {
-            background: #fff; color: #000; width: 100%; max-width: 400px;
-            padding: 22px; border-radius: 28px; font-size: 18px; font-weight: 900;
-            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.2);
-        }
+        .airdrop-badge { background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 60px; }
+        .main-title { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
+        .sub-title { font-size: 16px; color: #888; font-weight: 600; margin-bottom: 60px; }
+        .coin-box { width: 100px; height: 100px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; margin-bottom: 20px; }
+        .coin-box img { width: 60%; border-radius: 50%; }
+        .amount-text { font-size: 65px; font-weight: 900; letter-spacing: -2px; margin-bottom: 80px; }
+        .claim-btn { background: #fff; color: #000; width: 100%; max-width: 400px; padding: 22px; border-radius: 25px; font-size: 18px; font-weight: 900; position: absolute; bottom: 40px; }
 
-        /* --- MAIN APP UI (from previous code) --- */
-        #app {
-            display: none; /* Hidden by default, shown after airdrop */
-            flex-direction: column; height: 100vh; padding: 20px 20px 100px;
-            opacity: 0; transition: opacity 0.6s ease;
-        }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .user-chip { background: #111; padding: 8px 15px; border-radius: 20px; border: 1px solid #222; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; }
-        .balance-card { text-align: center; margin-bottom: 40px; }
-        .balance-label { font-size: 10px; font-weight: 900; color: #555; letter-spacing: 5px; text-transform: uppercase; }
-        .balance-val { font-size: 72px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
-        .tap-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .main-button { width: 280px; height: 280px; position: relative; cursor: pointer; }
-        .main-button img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 10px solid #0a0a0a; box-shadow: 0 0 80px rgba(0, 122, 255, 0.15); transition: transform 0.05s ease-out; }
-        .main-button:active img { transform: scale(0.92); }
-        .tap-particle { position: absolute; color: #fff; font-weight: 900; font-size: 35px; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.2); } }
-        .energy-section { width: 100%; max-width: 350px; margin: 0 auto 20px; }
-        .energy-header { display: flex; justify-content: space-between; font-weight: 900; font-size: 14px; margin-bottom: 10px; }
-        .energy-bar-bg { width: 100%; height: 14px; background: #111; border-radius: 20px; border: 1px solid #1a1a1a; overflow: hidden; }
-        #energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.2s; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px); border-top: 1px solid #111; display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 0 35px; z-index: 1000; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #444; font-size: 10px; font-weight: 800; transition: 0.3s; }
-        .nav-btn.active { color: #007aff; }
-        .nav-btn i { font-size: 20px; }
-        .page-view { display: none; flex-direction: column; height: 100%; }
-        .page-view.active { display: flex; }
+        /* --- 3. OYUN ARAYÜZÜ --- */
+        #game-app { display: none; flex-direction: column; height: 100vh; padding: 20px; opacity: 0; transition: opacity 0.5s; }
+        .balance-box { text-align: center; margin-top: 40px; }
+        .bal-label { font-size: 10px; font-weight: 900; color: #555; letter-spacing: 4px; text-transform: uppercase; }
+        .bal-val { font-size: 70px; font-weight: 900; letter-spacing: -3px; }
+        .koala-target { width: 280px; height: 280px; margin: auto; position: relative; cursor: pointer; }
+        .koala-target img { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #0d0d0d; box-shadow: 0 0 50px rgba(255,255,255,0.05); transition: transform 0.05s; }
+        .koala-target:active img { transform: scale(0.94); }
+        
+        .energy-box { width: 100%; max-width: 350px; margin: 0 auto 100px; }
+        .energy-fill-bg { width: 100%; height: 12px; background: #111; border-radius: 20px; margin-top: 10px; border: 1px solid #222; overflow: hidden; }
+        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.2s; }
+
+        .float-text { position: absolute; font-weight: 900; font-size: 32px; color: #fff; pointer-events: none; animation: upFade 0.8s forwards; z-index: 100; }
+        @keyframes upFade { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #050505; display: grid; grid-template-columns: repeat(4, 1fr); padding: 15px 0 35px; border-top: 1px solid #111; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #444; font-size: 10px; font-weight: 800; }
+        .nav-item.active { color: #007aff; }
     </style>
 </head>
 <body>
 
     <div id="checking-screen">
-        <img src="babykoalas.jpg" class="checking-banner" onerror="this.src='https://via.placeholder.com/600x250/111/fff?text=ANALYZING+PROFILE...'">
-        <h1 class="checking-text">Analyzing your $KOALA profile...</h1>
-        <div class="checking-progress-bar">
-            <div id="checking-fill"></div>
+        <img src="image_2faea3.png" class="baby-banner" alt="Checking">
+        <p class="mb-4 font-bold text-zinc-400">Analyzing your $KOALA profile...</p>
+        <div class="progress-container">
+            <div id="progress-fill"></div>
         </div>
     </div>
 
-    <div id="airdrop-screen">
-        <div class="airdrop-top-badge">
-            <img src="babykoalas.jpg" class="w-5 h-5 rounded-full" onerror="this.src='https://via.placeholder.com/20/111/fff?text=K'">
-            Your $KOALA airdrop is here!
+    <div id="congrats-screen">
+        <div class="airdrop-badge">🎉 Your $KOALA airdrop is here!</div>
+        <h1 class="main-title">Congrats, KOALA!</h1>
+        <p class="sub-title">The wait is over—you've earned your reward</p>
+        
+        <div class="coin-box">
+            <img src="koalas.jpg" alt="Coin">
         </div>
+        <p class="text-zinc-500 font-black text-sm mb-2">$KOATS</p>
+        <div id="airdrop-val" class="amount-text">682.73</div>
 
-        <h1 class="airdrop-main-title">Congrats, KOALA!</h1>
-        <p class="airdrop-sub-title">The wait is over—you've earned your reward</p>
-
-        <div class="airdrop-coin-icon">
-            <img src="koalas.jpg" onerror="this.src='https://via.placeholder.com/50/222/fff?text=K'">
-        </div>
-        <p class="airdrop-coin-label">$KOALA</p>
-        <p id="airdrop-amount-display" class="airdrop-amount">0.00</p>
-
-        <button class="airdrop-claim-btn" onclick="claimAirdrop()">Claim airdrop</button>
+        <button class="claim-btn" onclick="goToGame()">Claim airdrop</button>
     </div>
 
-    <div id="app">
-        <div class="header-top">
-            <div class="user-chip">
-                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-[10px]">K</div>
-                <span>KOALA_USER</span>
+    <div id="game-app">
+        <div class="balance-box">
+            <p class="bal-label">Total Balance</p>
+            <h2 id="main-balance" class="bal-val">0</h2>
+        </div>
+
+        <div class="koala-target" id="tap-btn">
+            <img src="koalas.jpg">
+        </div>
+
+        <div class="energy-box">
+            <div class="flex justify-between font-black text-xs">
+                <span class="text-yellow-400">⚡ <span id="energy-num">1000</span>/1000</span>
+                <span class="text-zinc-600">Lvl 1</span>
             </div>
-            <div class="user-chip" onclick="alert('Wallet Syncing...')">
-                <i class="fa-solid fa-wallet text-blue-500"></i>
-                <span>CONNECT</span>
+            <div class="energy-fill-bg">
+                <div id="energy-bar"></div>
             </div>
         </div>
 
-        <div id="view-home" class="page-view active">
-            <div class="balance-card">
-                <p class="balance-label">Total Allocation</p>
-                <h2 id="balance-num" class="balance-val">0</h2>
-            </div>
-
-            <div class="tap-wrapper">
-                <div class="main-button" id="tap-target">
-                    <img src="koalas.jpg" onerror="this.src='https://via.placeholder.com/300/222/fff?text=TAP'">
-                </div>
-            </div>
-
-            <div class="energy-section">
-                <div class="energy-header">
-                    <span class="text-yellow-400">⚡ <span id="energy-count">1000</span>/1000</span>
-                    <span class="text-zinc-600">LEVEL 1</span>
-                </div>
-                <div class="energy-bar-bg">
-                    <div id="energy-fill"></div>
-                </div>
-            </div>
+        <div class="nav-bar">
+            <div class="nav-item active"><i class="fa-solid fa-house text-xl"></i><span>Home</span></div>
+            <div class="nav-item"><i class="fa-solid fa-tasks text-xl"></i><span>Tasks</span></div>
+            <div class="nav-item"><i class="fa-solid fa-users text-xl"></i><span>Frens</span></div>
+            <div class="nav-item"><i class="fa-solid fa-wallet text-xl"></i><span>Wallet</span></div>
         </div>
-
-        <div id="view-tasks" class="page-view">
-            <h2 class="text-2xl font-black mb-6 italic">DAILY QUESTS</h2>
-            <div class="space-y-3">
-                <div class="bg-[#0d0d0d] p-5 rounded-2xl border border-[#1a1a1a] flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <i class="fa-brands fa-youtube text-red-500 text-2xl"></i>
-                        <div><p class="font-bold text-sm">Watch Video</p><p class="text-xs text-zinc-500">+500 $KOALA</p></div>
-                    </div>
-                    <button class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-full">GO</button>
-                </div>
-                <div class="bg-[#0d0d0d] p-5 rounded-2xl border border-[#1a1a1a] flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <i class="fa-brands fa-x-twitter text-white text-2xl"></i>
-                        <div><p class="font-bold text-sm">Follow X</p><p class="text-xs text-zinc-500">+1000 $KOALA</p></div>
-                    </div>
-                    <button class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-full">GO</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-frens" class="page-view text-center">
-            <div class="text-7xl mt-10 mb-6">🐨</div>
-            <h2 class="text-3xl font-black mb-2 uppercase">Invite Frens</h2>
-            <p class="text-zinc-500 text-sm font-bold mb-10">Get 10% of your friends' earnings!</p>
-            <button class="bg-white text-black w-full py-5 rounded-2xl font-black text-lg">INVITE A FREND</button>
-        </div>
-
-        <div id="view-wallet" class="page-view">
-            <div class="bg-[#0d0d0d] p-10 rounded-[40px] border border-[#1a1a1a] text-center mt-10">
-                <i class="fa-solid fa-gem text-6xl text-blue-500 mb-6"></i>
-                <h3 class="text-xl font-black mb-4">Airdrop Coming Soon</h3>
-                <p class="text-zinc-500 text-sm font-bold mb-10">Your allocation is based on your total balance and activity.</p>
-                <button class="bg-blue-600 text-white w-full py-5 rounded-2xl font-black">LINK TON WALLET</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <div class="nav-btn active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
-        <div class="nav-btn" onclick="nav('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
-        <div class="nav-btn" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>Frens</span></div>
-        <div class="nav-btn" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
     </div>
 
     <script>
-        let balance = 0;
+        let score = 0;
         let energy = 1000;
         const maxEnergy = 1000;
-        let hasClaimedAirdrop = localStorage.getItem('hasClaimedAirdrop') === 'true'; // Check if already claimed
 
-        // --- INITIAL APP FLOW ---
-        async function initializeApp() {
-            if (!hasClaimedAirdrop) {
-                // Show checking screen
-                document.getElementById('checking-screen').style.display = 'flex';
-                document.getElementById('checking-fill').style.width = '100%'; // Start progress bar
+        // Akış Yönetimi
+        window.onload = () => {
+            const fill = document.getElementById('progress-fill');
+            fill.style.width = '100%';
 
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for checking
-
-                document.getElementById('checking-screen').style.opacity = '0';
-                await new Promise(resolve => setTimeout(resolve, 600)); // Fade out checking screen
-                document.getElementById('checking-screen').style.display = 'none';
-
-                // Show airdrop claim screen
-                document.getElementById('airdrop-screen').style.display = 'flex';
-                
-                // Random airdrop amount (e.g., between 500 and 1000)
-                const airdropAmount = (Math.random() * (500 - 100) + 100).toFixed(2);
-                document.getElementById('airdrop-amount-display').innerText = airdropAmount;
-                balance = parseFloat(airdropAmount); // Set initial balance from airdrop
-            } else {
-                // If already claimed, go directly to main app
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('app').style.opacity = '1';
-                updateUI(); // Update UI with stored balance if any (add localStorage for balance later)
-            }
-        }
-
-        function claimAirdrop() {
-            document.getElementById('airdrop-screen').style.opacity = '0';
+            // 3 saniye sonra congrats ekranına geç
             setTimeout(() => {
-                document.getElementById('airdrop-screen').style.display = 'none';
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('app').style.opacity = '1';
-                updateUI(); // Update main app balance
+                document.getElementById('checking-screen').style.display = 'none';
+                document.getElementById('congrats-screen').style.display = 'flex';
+                
+                // Rastgele airdrop miktarı belirle (600-800 arası)
+                const randomAirdrop = (Math.random() * (800 - 600) + 600).toFixed(2);
+                document.getElementById('airdrop-val').innerText = randomAirdrop;
+                score = parseFloat(randomAirdrop);
+            }, 3200);
+        };
 
-                localStorage.setItem('hasClaimedAirdrop', 'true'); // Mark airdrop as claimed
-                hasClaimedAirdrop = true; // Update in-memory flag
-            }, 600);
+        function goToGame() {
+            document.getElementById('congrats-screen').style.display = 'none';
+            const app = document.getElementById('game-app');
+            app.style.display = 'flex';
+            setTimeout(() => app.style.opacity = '1', 50);
+            updateUI();
         }
 
-
-        // --- MAIN APP FUNCTIONS (from previous code) ---
-        function updateUI() {
-            document.getElementById('balance-num').innerText = balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('energy-count').innerText = energy;
-            document.getElementById('energy-fill').style.width = `${(energy/maxEnergy)*100}%`;
-        }
-
-        const tapTarget = document.getElementById('tap-target');
-        tapTarget.addEventListener('touchstart', (e) => {
+        // Tıklama Motoru
+        const tapBtn = document.getElementById('tap-btn');
+        tapBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (energy >= 5) {
                 const touch = e.touches[0];
@@ -288,42 +148,36 @@
         });
 
         function handleTap(x, y) {
-            balance += 0.05; // Adjust tap amount to be more like GOATS (e.g., 0.05 per tap)
+            score += 1;
             energy -= 5;
             updateUI();
-            createParticle(x, y);
             
-            if(window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
-        }
-
-        function createParticle(x, y) {
+            // Uçan sayı
             const p = document.createElement('div');
-            p.className = 'tap-particle';
-            p.innerText = '+0.05';
-            p.style.left = `${x - 20}px`;
+            p.className = 'float-text';
+            p.innerText = '+1';
+            p.style.left = `${x - 15}px`;
             p.style.top = `${y - 40}px`;
             document.body.appendChild(p);
             setTimeout(() => p.remove(), 800);
-        }
-
-        function nav(pageId, el) {
-            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            document.getElementById('view-' + pageId).classList.add('active');
-            el.classList.add('active');
+            // Titreşim
+            if(navigator.vibrate) navigator.vibrate(10);
         }
 
+        function updateUI() {
+            document.getElementById('main-balance').innerText = score.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('energy-num').innerText = energy;
+            document.getElementById('energy-bar').style.width = `${(energy/maxEnergy)*100}%`;
+        }
+
+        // Enerji Yenileme
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy = Math.min(energy + 3, maxEnergy);
+                energy = Math.min(energy + 2, maxEnergy);
                 updateUI();
             }
         }, 1000);
-
-        window.onload = initializeApp;
     </script>
 </body>
 </html>
