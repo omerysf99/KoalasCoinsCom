@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | FINAL</title>
+    <title>KOALA ARCADE | PRO</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -20,20 +20,18 @@
         .page.active { display: flex; }
         @keyframes dogsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
-        .check-item.done { color: #fff; }
-        .spinner { width: 16px; height: 16px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .check-icon { display: none; color: #fff; }
-        .check-item.done .check-icon { display: block; }
-        .check-item.done .spinner { display: none; }
-
-        .koala-box { width: 200px; height: 200px; background: #fff; border-radius: 50px; margin: 15px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        .koala-box { width: 180px; height: 180px; background: #fff; border-radius: 45px; margin: 15px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
-        .card { background: var(--card); border: 1px solid #1a1a1a; padding: 18px; border-radius: 24px; margin-bottom: 12px; transition: 0.2s; }
-        .card.selected { border-color: #fff; background: #111; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
         
+        .card { background: var(--card); border: 1px solid #1a1a1a; padding: 18px; border-radius: 24px; margin-bottom: 12px; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
+
+        /* Roadmap Stili */
+        .roadmap-item { position: relative; padding-left: 30px; border-left: 2px solid #222; margin-bottom: 20px; }
+        .roadmap-item::before { content: ''; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; background: #222; border-radius: 50%; }
+        .roadmap-item.active { border-left-color: #fff; }
+        .roadmap-item.active::before { background: #fff; box-shadow: 0 0 10px #fff; }
+
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
         .nav-item.active { color: #fff; }
@@ -42,77 +40,72 @@
 <body>
 
 <div id="app" class="h-full flex flex-col">
-    <div id="p-check" class="page active">
-        <h1 class="text-4xl font-black italic uppercase mt-10 leading-tight">Güvenlik<br>Analizi</h1>
-        <div class="flex-1 mt-10">
-            <div id="c1" class="check-item"><span>Hesap Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c2" class="check-item"><span>Koala Gücü</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c3" class="check-item"><span>Bot Kontrolü</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-        </div>
-        <div id="btn-c-box" class="mt-auto"><div onclick="startAnalysis()" class="btn-main">Analizi Başlat</div></div>
-    </div>
-
-    <div id="p-reward" class="page text-center justify-center">
-        <div class="koala-box mx-auto mb-6"><img src="coinkoala.jpg"></div>
-        <h1 id="gift-amt" class="text-6xl font-black italic mb-2">0</h1>
-        <p class="text-zinc-500 font-bold text-xs uppercase mb-12">$KOALA Hediye Puan</p>
-        <div onclick="toHome()" class="btn-main">Madenciliği Başlat</div>
-    </div>
-
-    <div id="p-home" class="page">
+    <div id="p-home" class="page active">
         <div class="text-center mb-6">
             <h2 id="bal-txt" class="text-6xl font-black italic mb-8">0.00</h2>
             <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
         </div>
-
         <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Sabit Hız</p><p class="text-xl font-black italic">+128.50</p></div>
             <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Boost</p><p id="boost-txt" class="text-xl font-black italic">+0.00</p></div>
         </div>
-
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1 tracking-widest">Hızlandırıcılar</h3>
-        <div class="card flex justify-between items-center" onclick="watchAd('hourly')">
-            <div><p class="font-black italic text-xs uppercase">Saatlik Boost</p><p class="text-[9px] text-zinc-500 font-bold">+10.00 PPH (1 Saat)</p></div>
-            <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">İZLE</div>
-        </div>
-        <div class="card flex justify-between items-center" onclick="watchAd('daily')">
-            <div><p class="font-black italic text-xs uppercase">Günlük Boost</p><p class="text-[9px] text-zinc-500 font-bold">+5.00 PPH (24 Saat)</p></div>
+        <div class="card flex justify-between items-center" onclick="watchAd()">
+            <div><p class="font-black italic text-xs uppercase">Hızlandırıcı Reklam</p><p class="text-[9px] text-zinc-500 font-bold">+10.00 PPH (1 Saat)</p></div>
             <div class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">İZLE</div>
         </div>
     </div>
 
-    <div id="p-wallet" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-4">Borsa Seç</h2>
-        <p class="text-zinc-500 text-[10px] font-black uppercase mb-8 ml-1 leading-relaxed">Airdrop dağıtımı için listelendiğimiz<br>borsalardan birini seçin.</p>
+    <div id="p-ref" class="page">
+        <h2 class="text-4xl font-black italic uppercase mb-6">Referans</h2>
+        <div class="card text-center py-8">
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Davet Başına</p>
+            <h3 class="text-3xl font-black italic uppercase">+10,000 $KOALA</h3>
+        </div>
+        <div id="ref-list" class="flex-1 space-y-2 mt-4 overflow-y-auto"></div>
+        <div onclick="copyRef()" class="btn-main mt-4">Davet Linkini Kopyala</div>
+    </div>
+
+    <div id="p-airdrop" class="page">
+        <h2 class="text-4xl font-black italic uppercase mb-8">Airdrop</h2>
         
-        <div id="ex-list" class="space-y-3">
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1 tracking-widest">Borsa Seçimi</h3>
+        <div id="ex-list" class="space-y-3 mb-10">
             <div class="card flex items-center gap-4" id="ex-bin" onclick="saveEx('Binance')">
-                <img src="binance.jpg" class="w-12 h-12 rounded-xl grayscale">
+                <img src="binance.jpg" class="w-10 h-10 rounded-lg grayscale">
                 <p class="font-black italic uppercase">Binance</p>
             </div>
             <div class="card flex items-center gap-4" id="ex-okx" onclick="saveEx('OKX')">
-                <img src="okx.jpg" class="w-12 h-12 rounded-xl grayscale">
+                <img src="okx.jpg" class="w-10 h-10 rounded-lg grayscale">
                 <p class="font-black italic uppercase">OKX</p>
             </div>
-            <div class="card flex items-center gap-4" id="ex-bit" onclick="saveEx('Bitget')">
-                <img src="bitget.jpg" class="w-12 h-12 rounded-xl grayscale">
-                <p class="font-black italic uppercase">Bitget</p>
-            </div>
+        </div>
+        <div id="ex-done" class="hidden card text-center py-6 border-white/40 mb-10">
+            <p class="text-[10px] font-black uppercase text-zinc-500 mb-1">Seçili Borsa</p>
+            <h4 id="sel-name" class="text-2xl font-black italic uppercase">None</h4>
+            <p onclick="resetEx()" class="text-[10px] underline mt-3 opacity-30">Değiştir</p>
         </div>
 
-        <div id="ex-done" class="hidden text-center py-10">
-            <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fa-solid fa-check text-3xl"></i>
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1 tracking-widest">Roadmap</h3>
+        <div class="px-2">
+            <div class="roadmap-item active">
+                <p class="font-black italic text-xs uppercase">Faz 1: Madencilik</p>
+                <p class="text-[10px] text-zinc-500 font-bold">Koala Arcade başlatıldı ve kazım başladı. (Şu an)</p>
             </div>
-            <h3 id="sel-name" class="text-3xl font-black italic uppercase">Binance</h3>
-            <p class="text-zinc-500 text-[10px] font-bold mt-2">BORSASI SEÇİLDİ</p>
-            <div onclick="resetEx()" class="mt-8 text-zinc-700 text-[10px] font-black underline uppercase">Değiştir</div>
+            <div class="roadmap-item">
+                <p class="font-black italic text-xs uppercase">Faz 2: Borsa Listeleme</p>
+                <p class="text-[10px] text-zinc-500 font-bold">Seçilen borsalarda $KOALA listelenecek.</p>
+            </div>
+            <div class="roadmap-item">
+                <p class="font-black italic text-xs uppercase">Faz 3: Airdrop Dağıtımı</p>
+                <p class="text-[10px] text-zinc-500 font-bold">Puanlar borsa hesaplarına aktarılacak.</p>
+            </div>
         </div>
     </div>
 
-    <nav id="navbar" class="nav-bar" style="display:none">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>KAZAN</span></div>
-        <div class="nav-item" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>BORSA</span></div>
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>Maden</span></div>
+        <div class="nav-item" onclick="nav('ref', this)"><i class="fa-solid fa-users"></i><span>Ref</span></div>
+        <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
     </nav>
 </div>
 
@@ -131,46 +124,22 @@
     let uid = localStorage.getItem('k_id') || 'u' + Math.random().toString(36).substr(2, 7);
     localStorage.setItem('k_id', uid);
 
-    let u = { bal: 0, lu: Date.now(), cd: false, ex: '', b_h_exp: 0, b_d_exp: 0 };
+    let u = { bal: 0, lu: Date.now(), ex: '', refs: [], boostExp: 0 };
 
     async function init() {
         const doc = await db.collection("users").doc(uid).get();
         if (doc.exists) {
             u = { ...u, ...doc.data() };
-            const diff = (Date.now() - u.lu) / 1000;
-            let pph = 128.50;
-            if(u.b_h_exp > Date.now()) pph += 10;
-            if(u.b_d_exp > Date.now()) pph += 5;
-            u.bal += (pph / 3600) * diff;
-            if(u.cd) { show('home'); document.getElementById('navbar').style.display = 'flex'; }
-        } else { show('check'); }
+            const gap = (Date.now() - u.lu) / 1000;
+            let pph = 128.50 + (u.boostExp > Date.now() ? 10 : 0);
+            u.bal += (pph / 3600) * gap;
+        }
         updateUI(); loop();
     }
 
-    function startAnalysis() {
-        document.getElementById('btn-c-box').style.display = 'none';
-        ['c1', 'c2', 'c3'].forEach((c, i) => {
-            setTimeout(() => {
-                document.getElementById(c).classList.add('done');
-                if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 5000) + 1000;
-                    u.bal += bonus;
-                    document.getElementById('gift-amt').innerText = bonus.toLocaleString();
-                    setTimeout(() => show('reward'), 800);
-                }
-            }, (i+1) * 1500);
-        });
-    }
-
-    function toHome() { u.cd = true; u.lu = Date.now(); sync(); show('home'); document.getElementById('navbar').style.display = 'flex'; }
-
-    function watchAd(type) {
-        alert("Reklam Hazırlanıyor...");
-        setTimeout(() => {
-            if(type === 'hourly') u.b_h_exp = Date.now() + (3600 * 1000);
-            else u.b_d_exp = Date.now() + (86400 * 1000);
-            sync(); alert("Boost Aktif Edildi!");
-        }, 1500);
+    function watchAd() {
+        u.boostExp = Date.now() + (3600 * 1000);
+        sync(); alert("Boost Aktif! +10 PPH");
     }
 
     function saveEx(name) { u.ex = name; sync(); updateUI(); }
@@ -178,21 +147,16 @@
 
     function loop() {
         setInterval(() => {
-            if(u.cd) {
-                let currentBoost = 0;
-                if(u.b_h_exp > Date.now()) currentBoost += 10;
-                if(u.b_d_exp > Date.now()) currentBoost += 5;
-                document.getElementById('boost-txt').innerText = currentBoost.toFixed(2);
-                u.bal += ((128.50 + currentBoost) / 3600);
-                u.lu = Date.now();
-                updateUI();
-            }
+            let b = u.boostExp > Date.now() ? 10 : 0;
+            document.getElementById('boost-txt').innerText = b.toFixed(2);
+            u.bal += ((128.50 + b) / 3600);
+            u.lu = Date.now();
+            document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }, 1000);
-        setInterval(() => { if(u.cd) sync(); }, 15000);
+        setInterval(sync, 20000);
     }
 
     function updateUI() {
-        document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         if(u.ex) {
             document.getElementById('ex-list').classList.add('hidden');
             document.getElementById('ex-done').classList.remove('hidden');
@@ -201,11 +165,22 @@
             document.getElementById('ex-list').classList.remove('hidden');
             document.getElementById('ex-done').classList.add('hidden');
         }
+        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 text-[10px] opacity-40">Ref: ${r}</div>`; });
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 opacity-20 text-[10px] uppercase font-black">Ref Bulunmuyor</p>';
+    }
+
+    function copyRef() {
+        const link = window.location.origin + window.location.pathname + '?ref=' + uid;
+        navigator.clipboard.writeText(link); alert("Kopyalandı!");
     }
 
     async function sync() { await db.collection("users").doc(uid).set(u); }
-    function show(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('p-' + id).classList.add('active'); }
-    function nav(id, el) { show(id); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
 
     window.onload = init;
 </script>
