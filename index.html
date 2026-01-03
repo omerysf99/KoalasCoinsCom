@@ -11,7 +11,7 @@
         
         body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- 1. ANALİZ EKRANI (babykoalas.jpg) --- */
+        /* --- 1. ANALİZ EKRANI --- */
         #checking-screen {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -20,7 +20,7 @@
         .progress-container { width: 200px; height: 3px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
         #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 3.5s linear; }
 
-        /* --- 2. CONGRATS EKRANI (coinkoala.jpg) --- */
+        /* --- 2. CONGRATS EKRANI --- */
         #congrats-screen {
             position: fixed; inset: 0; background: #000; z-index: 9000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -28,26 +28,23 @@
         }
         .main-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
         .sub-title { font-size: 14px; color: #888; margin-bottom: 50px; }
-        
-        /* Madeni Para Görseli (coinkoala.jpg) */
-        .koala-coin-large { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 2px solid #333; margin-bottom: 20px; box-shadow: 0 0 40px rgba(255,255,255,0.1); }
-        
+        .koala-coin-large { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 2px solid #333; margin-bottom: 20px; }
         .amount-text { font-size: 55px; font-weight: 900; letter-spacing: -1px; margin-bottom: 60px; }
         .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 350px; padding: 18px; border-radius: 16px; font-weight: 700; font-size: 16px; position: absolute; bottom: 40px; }
 
-        /* --- 3. ANA ARAYÜZ (Leaderboard & Tasks) --- */
+        /* --- 3. ANA ARAYÜZ --- */
         #main-interface {
             display: none; height: 100vh; flex-direction: column; padding: 20px; opacity: 0; transition: opacity 0.5s;
         }
         .user-summary { text-align: center; padding: 40px 0; }
         .user-balance { font-size: 48px; font-weight: 900; margin-bottom: 4px; }
         
-        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; transition: background 0.2s; }
+        .dogs-row:active { background: #1a1a1a; }
         .dogs-row i { font-size: 20px; width: 30px; text-align: center; }
         .dogs-row-label { font-weight: 700; font-size: 14px; flex: 1; margin-left: 12px; }
         .dogs-row-val { font-weight: 700; color: #888; }
 
-        /* Alt Navigasyon */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #1a1a1a; display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0 30px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-item.active { color: #fff; }
@@ -73,32 +70,29 @@
         <div class="user-summary">
             <img src="coinkoala.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border border-zinc-800 object-cover">
             <div class="user-balance" id="top-balance">0</div>
-            <p class="text-zinc-500 font-bold text-xs uppercase tracking-tighter">$KOALA Rewards</p>
+            <p class="text-zinc-500 font-bold text-xs uppercase tracking-tighter">TOTAL $KOALA</p>
         </div>
 
         <div class="overflow-y-auto pb-24">
-            <h3 class="text-sm font-bold mb-4 text-zinc-400">YOUR STATS</h3>
-            <div class="dogs-row">
-                <i class="fa-solid fa-calendar-check text-white"></i>
-                <div class="dogs-row-label">Account Age</div>
-                <div class="dogs-row-val">5.4 Yrs</div>
-            </div>
-            <div class="dogs-row">
-                <i class="fa-solid fa-star text-white"></i>
-                <div class="dogs-row-label">Premium Status</div>
-                <div class="dogs-row-val">Yes</div>
+            <h3 class="text-sm font-bold mb-4 text-zinc-400 uppercase tracking-widest">Tasks</h3>
+            
+            <div class="dogs-row" onclick="window.open('Https://t.me/KoalasCommunity', '_blank'); addPoints(100)">
+                <i class="fa-brands fa-telegram text-blue-400"></i>
+                <div class="dogs-row-label">Join Community</div>
+                <div class="dogs-row-val">+100</div>
             </div>
 
-            <h3 class="text-sm font-bold mt-6 mb-4 text-zinc-400">TASKS</h3>
-            <div class="dogs-row">
-                <i class="fa-brands fa-telegram"></i>
-                <div class="dogs-row-label">Join Community</div>
-                <div class="dogs-row-val">+1000</div>
+            <div class="dogs-row" onclick="watchAd()">
+                <i class="fa-solid fa-rectangle-ad text-green-400"></i>
+                <div class="dogs-row-label">Watch Ads</div>
+                <div class="dogs-row-val">+1</div>
             </div>
+
+            <h3 class="text-sm font-bold mt-6 mb-4 text-zinc-400 uppercase tracking-widest">Your Stats</h3>
             <div class="dogs-row">
-                <i class="fa-brands fa-x-twitter"></i>
-                <div class="dogs-row-label">Follow our X</div>
-                <div class="dogs-row-val">+2000</div>
+                <i class="fa-solid fa-calendar-check"></i>
+                <div class="dogs-row-label">Account Age</div>
+                <div class="dogs-row-val">Premium</div>
             </div>
         </div>
 
@@ -114,13 +108,10 @@
 
         window.onload = () => {
             document.getElementById('progress-fill').style.width = '100%';
-
             setTimeout(() => {
                 document.getElementById('checking-screen').style.display = 'none';
                 document.getElementById('congrats-screen').style.display = 'flex';
-                
-                // DOGS tarzı tam sayı ödül (550 gibi)
-                const reward = Math.floor(Math.random() * (9000 - 3000) + 3000);
+                const reward = Math.floor(Math.random() * (5000 - 1000) + 1000);
                 document.getElementById('final-amount').innerText = reward.toLocaleString();
                 myBalance = reward;
             }, 3800);
@@ -131,7 +122,27 @@
             const main = document.getElementById('main-interface');
             main.style.display = 'flex';
             setTimeout(() => main.style.opacity = '1', 50);
-            
+            updateBalanceUI();
+        }
+
+        function addPoints(pts) {
+            myBalance += pts;
+            updateBalanceUI();
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+        }
+
+        function watchAd() {
+            // Buraya gerçek reklam SDK'nı (AdsGram vb.) bağlayabilirsin
+            alert("Ad is playing..."); 
+            setTimeout(() => {
+                addPoints(1);
+                alert("Reward: +1 KOALA added!");
+            }, 2000);
+        }
+
+        function updateBalanceUI() {
             document.getElementById('top-balance').innerText = myBalance.toLocaleString();
         }
     </script>
