@@ -40,7 +40,19 @@
         .ex-item.selected span { color: #fff; }
 
         /* --- GAME --- */
-        .flip-area { background: #080808; border: 1px solid var(--border); border-radius: 40px; padding: 30px; text-align: center; margin-bottom: 20px; }
+        .game-section { background: #080808; border: 1px solid var(--border); border-radius: 40px; padding: 30px; text-align: center; margin-bottom: 20px; }
+        
+        /* Spin Slot Specifics */
+        .slot-machine { display: flex; justify-content: center; gap: 5px; margin-bottom: 25px; height: 80px; overflow: hidden; }
+        .reel { width: 70px; height: 80px; border: 1px solid #333; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #111; }
+        .reel i { font-size: 36px; line-height: 80px; transition: transform 0.2s ease-out; }
+        .reel.spinning i { animation: spinReel 0.3s infinite linear; }
+        @keyframes spinReel {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-80px); }
+        }
+
+        /* Coin Flip Specifics */
         #coin { width: 110px; height: 110px; background: #fff; border-radius: 50%; margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;}
         #coin img { width: 100%; height: 100%; object-fit: cover; }
         .bet-input { background: #000; border: 2px solid #1a1a1a; border-radius: 20px; padding: 15px; width: 100%; color: #fff; text-align: center; font-weight: 900; font-size: 24px; margin-bottom: 15px; }
@@ -90,7 +102,7 @@
                 <i class="fa-solid fa-chevron-right text-zinc-800"></i>
             </div>
 
-            <div class="card" onclick="task(this, 500)">
+            <div class="card" onclick="task(this, 500, 'https://t.me/KoalasCommunity')">
                 <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-zinc-900"><i class="fa-brands fa-telegram"></i></div>
                 <div class="flex-1"><p class="font-black text-xs uppercase">Join Community</p><p class="text-zinc-600 text-[9px] font-bold">+500 $KOALA</p></div>
                 <span class="bg-white text-black text-[10px] font-black px-3 py-1 rounded-lg">START</span>
@@ -98,16 +110,33 @@
         </div>
 
         <div id="games" class="page">
-            <h2 class="text-3xl font-black italic uppercase text-center mt-6 mb-8">Koala Flip</h2>
-            <div class="flip-area">
+            <h2 class="text-3xl font-black italic uppercase text-center mt-6 mb-8">Koala Casino</h2>
+            
+            <h3 class="text-xl font-black italic uppercase text-center mt-8 mb-4">Koala Flip</h3>
+            <div class="game-section">
                 <div id="coin"><img src="coinkoala.jpg" id="coin-img"></div>
-                <input type="number" id="bet-input" class="bet-input" placeholder="0.00">
+                <input type="number" id="bet-input-flip" class="bet-input" placeholder="0.00">
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button onclick="setBet('half')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">1/2 BAL</button>
-                    <button onclick="setBet('all')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">ALL IN</button>
+                    <button onclick="setBet('half', 'flip')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">1/2 BAL</button>
+                    <button onclick="setBet('all', 'flip')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">ALL IN</button>
                 </div>
+                <button id="flip-btn" onclick="flip()" class="w-full bg-white text-black font-black py-4 rounded-2xl uppercase tracking-tighter shadow-lg shadow-white/5 active:scale-95 transition-all">Flip to Double</button>
             </div>
-            <button id="flip-btn" onclick="flip()" class="w-full bg-white text-black font-black py-5 rounded-3xl uppercase tracking-tighter shadow-lg shadow-white/5 active:scale-95 transition-all">Flip to Double</button>
+
+            <h3 class="text-xl font-black italic uppercase text-center mt-8 mb-4">Koala Slots</h3>
+            <div class="game-section">
+                <div class="slot-machine">
+                    <div class="reel" id="reel1"><i><img src="coinkoala.jpg" class="w-full h-full object-cover"></i></div>
+                    <div class="reel" id="reel2"><i><img src="coinkoala.jpg" class="w-full h-full object-cover"></i></div>
+                    <div class="reel" id="reel3"><i><img src="coinkoala.jpg" class="w-full h-full object-cover"></i></div>
+                </div>
+                <input type="number" id="bet-input-slot" class="bet-input" placeholder="0.00">
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="setBet('half', 'slot')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">1/2 BAL</button>
+                    <button onclick="setBet('all', 'slot')" class="bg-zinc-900 text-[10px] font-black py-4 rounded-2xl">ALL IN</button>
+                </div>
+                <button id="spin-btn" onclick="spin()" class="w-full bg-white text-black font-black py-4 rounded-2xl uppercase tracking-tighter shadow-lg shadow-white/5 active:scale-95 transition-all">Spin Koala</button>
+            </div>
         </div>
 
         <div id="airdrop" class="page">
@@ -137,6 +166,13 @@
         let wallet = localStorage.getItem('k_wal') || null;
         let exchange = localStorage.getItem('k_ex') || 'Binance';
         let exIcon = localStorage.getItem('k_ex_img') || 'binance.jpg';
+
+        // Slot oyunundaki semboller: Koala, Jackpot, X
+        const slotSymbols = [
+            '<img src="coinkoala.jpg" class="w-full h-full object-cover">', // Normal Koala
+            '<i class="fa-solid fa-gem text-yellow-400"></i>',        // Jackpot (Altın Koala sembolü)
+            '<i class="fa-solid fa-times text-red-500"></i>'           // Kaybetme (X)
+        ];
 
         window.onload = () => {
             setTimeout(() => {
@@ -188,23 +224,29 @@
             setTimeout(() => { balance += 1; save(); updateBal(); el.innerHTML = h; haptic('success'); }, 2000);
         }
 
-        function task(el, rew) {
-            const b = el.querySelector('span'); b.innerText = "CHECKING..."; haptic('light');
+        function task(el, rew, link) {
+            const b = el.querySelector('span');
+            if(link) window.open(link, '_blank');
+            
+            b.innerText = "CHECKING..."; 
+            haptic('light');
+            
             setTimeout(() => {
                 balance += rew; save(); updateBal();
                 el.classList.add('task-done'); b.innerHTML = `<i class="fa-solid fa-check"></i>`;
                 haptic('success');
-            }, 2500);
+            }, 4000);
         }
 
-        function setBet(t) {
-            const inp = document.getElementById('bet-input');
+        function setBet(t, gameType) {
+            const inputId = (gameType === 'flip') ? 'bet-input-flip' : 'bet-input-slot';
+            const inp = document.getElementById(inputId);
             inp.value = (t === 'all') ? balance : Math.floor(balance/2);
             haptic('light');
         }
 
         function flip() {
-            const bet = parseInt(document.getElementById('bet-input').value);
+            const bet = parseInt(document.getElementById('bet-input-flip').value);
             const coin = document.getElementById('coin');
             if(!bet || bet <= 0) return showPop("Enter bet amount!");
             if(bet > balance) return showPop("Not enough $KOALA!");
@@ -227,6 +269,80 @@
                 coin.style.transform = "rotateY(0) scale(1)";
             }, 1200);
         }
+
+        // --- YENİ SPIN FONKSİYONU ---
+        function spin() {
+            const bet = parseInt(document.getElementById('bet-input-slot').value);
+            if(!bet || bet <= 0) return showPop("Enter bet amount!");
+            if(bet > balance) return showPop("Not enough $KOALA!");
+
+            document.getElementById('spin-btn').disabled = true;
+            const reels = [
+                document.getElementById('reel1'),
+                document.getElementById('reel2'),
+                document.getElementById('reel3')
+            ];
+
+            // Makara animasyonunu başlat
+            reels.forEach(reel => reel.classList.add('spinning'));
+            haptic('medium');
+
+            setTimeout(() => {
+                const results = [];
+                reels.forEach((reel, index) => {
+                    const randomIndex = Math.floor(Math.random() * slotSymbols.length);
+                    results.push(randomIndex);
+                    // Animasyonu durdur ve sonucu göster
+                    reel.classList.remove('spinning');
+                    reel.innerHTML = slotSymbols[randomIndex];
+                    // Her makara farklı bir zamanda durur
+                    // setTimeout(() => {
+                    //     reel.classList.remove('spinning');
+                    //     reel.innerHTML = slotSymbols[randomIndex];
+                    // }, 500 + index * 200); 
+                });
+
+                let winAmount = 0;
+                let message = "";
+
+                // Kazanma durumlarını kontrol et
+                const s1 = results[0];
+                const s2 = results[1];
+                const s3 = results[2];
+
+                // 3x Jackpot (Altın Koala)
+                if (s1 === 1 && s2 === 1 && s3 === 1) {
+                    winAmount = bet * 10;
+                    message = `JACKPOT! You won ${winAmount} $KOALA (10x)`;
+                    haptic('success');
+                } 
+                // 3x Normal Koala
+                else if (s1 === 0 && s2 === 0 && s3 === 0) {
+                    winAmount = bet * 3;
+                    message = `BIG WIN! You won ${winAmount} $KOALA (3x)`;
+                    haptic('success');
+                }
+                // 2x Normal Koala
+                else if ((s1 === 0 && s2 === 0) || (s1 === 0 && s3 === 0) || (s2 === 0 && s3 === 0)) {
+                    winAmount = Math.floor(bet * 1.5);
+                    message = `You won ${winAmount} $KOALA (1.5x)`;
+                    haptic('success');
+                }
+                // Kayıp
+                else {
+                    winAmount = -bet;
+                    message = `You lost ${bet} $KOALA. Try again!`;
+                    haptic('error');
+                }
+
+                balance += winAmount;
+                save(); updateBal();
+                showPop(message);
+                document.getElementById('spin-btn').disabled = false;
+                
+            }, 2000); // Spin süresi
+        }
+
 
         function saveW() {
             const val = document.getElementById('w-input-field').value.trim();
