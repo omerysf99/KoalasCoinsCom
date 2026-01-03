@@ -1,175 +1,143 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE - DOGS EDITION</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+<style>
+    /* Home Sekmesi - Günlük Ödül Tasarımı */
+    .daily-checkin-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 20px;
+    }
+    .day-box {
+        background: #111;
+        border-radius: 16px;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #1a1a1a;
+    }
+    .day-box.completed { background: #fff; color: #000; border-color: #fff; }
+    .day-box.current { border-color: #fff; animation: pulse-border 2s infinite; }
+    @keyframes pulse-border { 0%, 100% { border-color: #333; } 50% { border-color: #fff; } }
 
-        /* --- CHECKING SCREEN --- */
-        #checking-screen {
-            position: fixed; inset: 0; background: #000; z-index: 100000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 40px; text-align: center;
-        }
-        .koala-avatar { width: 130px; height: 130px; border-radius: 45px; margin-bottom: 50px; grayscale: 100%; border: 1px solid #1a1a1a; }
-        .scanner-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #fff; box-shadow: 0 0 15px #fff; animation: scan 2s linear infinite; }
-        @keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
-        .check-row { display: flex; justify-content: space-between; width: 100%; max-width: 280px; margin-bottom: 25px; opacity: 0.1; transition: 0.5s; }
-        .check-row.active { opacity: 1; }
-        .check-label { font-size: 11px; font-weight: 900; color: #555; text-transform: uppercase; letter-spacing: 1px; }
-        .check-val { font-size: 11px; font-weight: 900; color: #fff; }
+    /* Airdrop Sekmesi - Davet Kartı */
+    .invite-box {
+        background: linear-gradient(135deg, #111 0%, #050505 100%);
+        border-radius: 32px;
+        padding: 24px;
+        border: 1px solid #1a1a1a;
+        margin-top: 20px;
+    }
+    .frens-list { margin-top: 15px; }
+    .fren-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 0; border-bottom: 1px solid #111;
+    }
+    
+    /* İlerleme Çubuğu */
+    .progress-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #fff; width: 65%; transition: 1s ease; }
+</style>
 
-        /* --- MAIN UI --- */
-        .balance-huge { font-size: 84px; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-        .dogs-card { background: #111; border-radius: 24px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
-        .dogs-card:active { background: #1a1a1a; transform: scale(0.97); }
-
-        /* --- NAV --- */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 0 35px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 800; gap: 4px; text-transform: uppercase; }
-        .nav-item.active { color: #fff; }
-
-        .page-content { display: none; height: 100%; overflow-y: auto; padding: 20px 20px 140px; }
-        .active-page { display: flex; flex-direction: column; }
-    </style>
-</head>
-<body>
-
-    <div id="checking-screen">
-        <div class="relative w-32 h-32 mb-10 overflow-hidden rounded-[40px]">
-            <img src="babykoalas.jpg" class="w-full h-full object-cover grayscale">
-            <div class="scanner-line"></div>
-        </div>
-        <h2 class="text-xl font-black italic uppercase mb-10">Analysing your pack</h2>
-        <div class="check-row" id="c1"><span class="check-label">Account Seniority</span><span class="check-val">...</span></div>
-        <div class="check-row" id="c2"><span class="check-label">Activity Level</span><span class="check-val">...</span></div>
-        <div class="check-row" id="c3"><span class="check-label">Premium Bonus</span><span class="check-val">...</span></div>
+<div id="page-home" class="page active">
+    <div class="balance-hero">
+        <div class="balance-val" id="total-bal">0</div>
+        <p class="text-zinc-500 font-black text-xs tracking-widest mt-4 uppercase">$KOALA</p>
     </div>
 
-    <div id="main-app" class="hidden">
-        
-        <div id="page-home" class="page-content active-page">
-            <div class="mt-16 mb-12 text-center">
-                <div class="balance-huge" id="balance">0</div>
-                <p class="text-zinc-500 font-black text-xs tracking-widest uppercase mt-4">$KOALA</p>
-            </div>
-
-            <div class="dogs-card" onclick="playAd(this)">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center text-white text-xl"><i class="fa-solid fa-play"></i></div>
-                    <div>
-                        <p class="font-black text-sm uppercase">Watch Ads</p>
-                        <p class="text-zinc-600 text-[10px] font-bold">+1 $KOALA per video</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-zinc-800"></i>
-            </div>
+    <div class="mb-10 px-2">
+        <div class="flex justify-between items-end mb-4">
+            <h3 class="text-white font-black text-xs uppercase tracking-tighter">Daily Check-in</h3>
+            <span class="text-zinc-600 text-[10px] font-bold">DAY 3 / 7</span>
         </div>
-
-        <div id="page-games" class="page-content flex items-center justify-center text-center">
-            <div>
-                <i class="fa-solid fa-lock text-5xl text-zinc-900 mb-6"></i>
-                <h2 class="text-2xl font-black uppercase italic">Soon</h2>
-                <p class="text-zinc-600 font-bold text-sm px-10">Games will be unlocked after the snapshot.</p>
-            </div>
-        </div>
-
-        <div id="page-airdrop" class="page-content">
-            <h2 class="text-4xl font-black italic uppercase mt-10 mb-8">Airdrop</h2>
-            <div class="bg-zinc-950 rounded-[32px] p-6 border border-zinc-900">
-                <div class="flex justify-between items-center py-4 border-b border-zinc-900">
-                    <span class="font-black text-xs uppercase">OG Verification</span>
-                    <i class="fa-solid fa-check-circle text-white"></i>
-                </div>
-                <div class="flex justify-between items-center py-4">
-                    <span class="font-black text-xs uppercase">Activity Score</span>
-                    <span class="text-[10px] font-black uppercase bg-white text-black px-2 py-0.5 rounded">Elite</span>
-                </div>
-            </div>
-            <div class="mt-8 p-6 bg-zinc-900 rounded-[32px] text-center">
-                <p class="text-zinc-500 font-black text-[10px] uppercase mb-1">Listing Date</p>
-                <p class="font-black text-lg">Q1 2026</p>
-            </div>
-        </div>
-
-        <div class="nav-bar">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bone"></i><span>Home</span></div>
-            <div class="nav-item" onclick="nav('games', this)"><i class="fa-solid fa-paw"></i><span>Games</span></div>
-            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+        <div class="daily-checkin-grid">
+            <div class="day-box completed"><span class="block text-[10px] font-black">D1</span><i class="fa-solid fa-check text-[10px]"></i></div>
+            <div class="day-box completed"><span class="block text-[10px] font-black">D2</span><i class="fa-solid fa-check text-[10px]"></i></div>
+            <div class="day-box current"><span class="block text-[10px] font-black">D3</span><span class="text-[10px] font-black">+50</span></div>
+            <div class="day-box"><span class="block text-[10px] font-black">D4</span><span class="text-[10px] font-black">+100</span></div>
         </div>
     </div>
 
-    <script>
-        let currentBalance = 0;
-        const reward = 4850; // Başlangıç ödülü
+    <h3 class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-4 ml-2">Earn More</h3>
+    <div class="dogs-card mb-3" onclick="startAd(this)">
+        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-xl"><i class="fa-solid fa-video"></i></div>
+        <div class="flex-1">
+            <p class="font-black text-sm uppercase">Watch & Earn</p>
+            <p class="text-zinc-600 text-[10px] font-bold">Limited: 5/10 Daily</p>
+        </div>
+        <div class="text-right">
+            <span class="text-white font-black text-xs">+10</span>
+        </div>
+    </div>
+</div>
 
-        // --- CHECKING LOGIC ---
-        window.onload = () => {
-            const steps = [
-                {id: 'c1', val: '5.2 YEARS'},
-                {id: 'c2', val: 'LEGENDARY'},
-                {id: 'c3', val: 'ACTIVE'}
-            ];
+<div id="page-airdrop" class="page">
+    <h2 class="text-4xl font-black italic uppercase mt-16 mb-4">Airdrop</h2>
+    
+    <div class="mb-8 px-2">
+        <div class="flex justify-between text-[10px] font-black uppercase mb-2">
+            <span class="text-zinc-500">Eligibility Score</span>
+            <span class="text-white">65%</span>
+        </div>
+        <div class="progress-bg"><div class="progress-fill"></div></div>
+    </div>
 
-            steps.forEach((s, i) => {
-                setTimeout(() => {
-                    const row = document.getElementById(s.id);
-                    row.classList.add('active');
-                    row.querySelector('.check-val').innerText = s.val;
-                    if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-                }, (i + 1) * 1500);
-            });
+    <div id="wallet-card" class="bg-white text-black rounded-[32px] p-6 mb-6 flex justify-between items-center" onclick="linkWalletSim()">
+        <div>
+            <p class="font-black text-xs uppercase">TON Wallet</p>
+            <p id="w-status-text" class="text-[10px] font-bold opacity-60">Connect to receive drop</p>
+        </div>
+        <i class="fa-solid fa-wallet text-xl"></i>
+    </div>
 
-            setTimeout(() => {
-                document.getElementById('checking-screen').style.display = 'none';
-                document.getElementById('main-app').classList.remove('hidden');
-                animateBalance(reward);
-            }, 6000);
-        };
+    <div class="invite-box">
+        <h4 class="font-black text-xs uppercase mb-1">Invite Frens</h4>
+        <p class="text-zinc-600 text-[10px] font-bold mb-6">Get 10% of their earnings</p>
+        
+        <div class="frens-list">
+            <div class="fren-item">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center font-black text-[10px]">JD</div>
+                    <span class="font-black text-xs">John Doe</span>
+                </div>
+                <span class="text-white font-black text-xs">+1,240</span>
+            </div>
+            <div class="fren-item">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center font-black text-[10px]">AK</div>
+                    <span class="font-black text-xs">Alex Koala</span>
+                </div>
+                <span class="text-white font-black text-xs">+850</span>
+            </div>
+        </div>
 
-        function animateBalance(target) {
-            let start = 0;
-            const el = document.getElementById('balance');
-            const timer = setInterval(() => {
-                start += Math.floor(target / 40);
-                if(start >= target) {
-                    currentBalance = target;
-                    el.innerText = currentBalance.toLocaleString();
-                    clearInterval(timer);
-                } else {
-                    el.innerText = start.toLocaleString();
-                }
-            }, 30);
-        }
+        <button class="bg-zinc-900 text-white font-black w-full py-4 rounded-2xl uppercase text-xs mt-6 tracking-widest" onclick="copyRef()">Copy Invite Link</button>
+    </div>
+</div>
 
-        // --- ADS LOGIC ---
-        function playAd(el) {
-            const inner = el.innerHTML;
-            el.innerHTML = `<div class="w-full text-center font-black text-xs uppercase py-3 italic">Playing Ad...</div>`;
-            el.style.pointerEvents = 'none';
+<script>
+    // Yeni Fonksiyonlar
+    function copyRef() {
+        haptic('success');
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "COPIED!";
+        setTimeout(() => btn.innerText = originalText, 2000);
+    }
 
-            setTimeout(() => {
-                currentBalance += 1;
-                document.getElementById('balance').innerText = currentBalance.toLocaleString();
-                el.innerHTML = inner;
-                el.style.pointerEvents = 'all';
-                if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }, 2500);
-        }
-
-        // --- NAV ---
-        function nav(page, el) {
-            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active-page');
-            el.classList.add('active');
-        }
-    </script>
-</body>
-</html>
+    // Cüzdan bağlama fonksiyonu güncellemesi
+    function linkWalletSim() {
+        const card = document.getElementById('wallet-card');
+        const status = document.getElementById('w-status-text');
+        
+        haptic('medium');
+        status.innerText = "Connecting...";
+        
+        setTimeout(() => {
+            card.style.background = "#111";
+            card.style.color = "#fff";
+            card.style.borderColor = "#1a1a1a";
+            status.innerText = "UQAz...88x1 Connected";
+            haptic('success');
+            // İlerleme çubuğunu arttır
+            document.querySelector('.progress-fill').style.width = "90%";
+        }, 1500);
+    }
+</script>
