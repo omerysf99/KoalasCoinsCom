@@ -3,40 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | AGE CHECK</title>
+    <title>KOALA ARCADE | ECOSYSTEM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        :root { --bg: #000; --white: #fff; --grey: #111; --accent: #34c759; }
+        :root { --bg: #000; --white: #fff; --grey: #111; --accent: #34c759; --ton: #0088cc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
 
-        /* Sayfa Geçişleri */
-        .page { display: none; height: 100vh; flex-direction: column; padding: 20px; animation: fadeIn 0.4s ease; overflow-y: auto; }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 20px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; }
         .page.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Age Check Animasyonları */
-        .status-line { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; font-weight: 700; color: #333; transition: 0.4s; }
-        .status-line.done { color: #fff; }
-        .status-line i { color: var(--accent); opacity: 0; transform: scale(0.5); transition: 0.4s; }
-        .status-line.done i { opacity: 1; transform: scale(1); }
-
-        /* Kartlar */
+        /* Kart Stilleri */
         .card { background: var(--grey); border-radius: 28px; padding: 20px; border: 1px solid #1a1a1a; margin-bottom: 16px; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; transition: 0.2s; }
         .btn-main:active { transform: scale(0.96); }
 
+        /* Borsa & Cüzdan Modalı */
+        #connect-modal { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 2000; align-items: center; justify-content: center; padding: 20px;
+            backdrop-filter: blur(15px);
+        }
+        .ex-item { 
+            background: #151515; padding: 16px; border-radius: 20px; 
+            display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
+            border: 1px solid #222; cursor: pointer;
+        }
+        .ex-logo { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; }
+
+        /* Input Stili */
+        .ton-input {
+            background: #000; border: 1px solid #333; border-radius: 18px;
+            padding: 16px; width: 100%; color: #fff; font-family: monospace;
+            font-size: 14px; margin-top: 20px; outline: none; text-align: center;
+        }
+
         /* Navigasyon */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; backdrop-filter: blur(10px); }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; padding-bottom: 20px; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item i { font-size: 22px; margin-bottom: 4px; }
 
-        .koala-img { width: 220px; height: 220px; background: #fff; border-radius: 50px; margin: 30px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; }
-        .koala-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+        .main-img-box { width: 220px; height: 220px; background: #fff; border-radius: 54px; margin: 20px auto; transform: rotate(-3deg); overflow: hidden; border: 4px solid #111; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .main-img-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -44,180 +57,220 @@
 <body>
 
     <div id="app">
-        <div id="p-age-check" class="page active items-center justify-center">
-            <img src="coinkoala.jpg" class="w-24 h-24 rounded-[35px] grayscale mb-10 shadow-2xl">
-            <h2 class="text-2xl font-black mb-2 italic uppercase">Hesap Analizi</h2>
-            <p class="text-zinc-600 text-[10px] font-black tracking-[0.3em] mb-10 uppercase">Koala Protocol</p>
-            
-            <div class="w-full max-w-[280px]">
-                <div id="check-1" class="status-line"><i class="fa-solid fa-circle-check"></i> Hesap yaşı kontrol ediliyor...</div>
-                <div id="check-2" class="status-line"><i class="fa-solid fa-circle-check"></i> OG Statüsü sorgulanıyor...</div>
-                <div id="check-3" class="status-line"><i class="fa-solid fa-circle-check"></i> Aktivite puanı hesaplanıyor...</div>
-                <div id="check-4" class="status-line"><i class="fa-solid fa-circle-check"></i> $KOALA ödülü hazırlanıyor...</div>
-            </div>
-            
-            <button onclick="startAgeAnalysis()" id="btn-start-check" class="btn-main mt-10">ANALİZİ BAŞLAT</button>
-        </div>
-
-        <div id="p-age-result" class="page items-center justify-center text-center">
-            <p class="text-zinc-600 font-black uppercase tracking-[0.5em] mb-2 text-[10px]">Tebrikler!</p>
-            <div class="text-[120px] font-black leading-none mb-2 italic" id="years-count">0</div>
-            <p class="text-xl font-bold mb-10 uppercase tracking-widest text-zinc-400">Telegram Yılı</p>
-            
-            <div class="card w-full max-w-[340px] bg-gradient-to-b from-zinc-900 to-black">
-                <p class="text-[10px] text-zinc-600 font-black uppercase mb-1">Hesap Yaşı Ödülü</p>
-                <h3 class="text-4xl font-black text-white italic">+<span id="age-reward">0</span> $KOALA</h3>
-            </div>
-            <button onclick="enterApp()" class="btn-main mt-10">MADENCİLİĞE BAŞLA</button>
-        </div>
-
-        <div id="p-home" class="page">
-            <div class="flex justify-between items-center mb-10">
-                <div class="text-[10px] font-black text-zinc-500 tracking-widest uppercase italic">Mining Session</div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black">ONLINE</span></div>
-            </div>
-            <div class="text-center flex-1">
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">Total Balance</p>
-                <h2 class="text-6xl font-black mb-10 italic" id="main-bal">0.00</h2>
-                <div class="koala-img"><img src="coinkoala.jpg"></div>
-                <div class="card mt-12 flex justify-between items-center text-left">
-                    <div><p class="text-[10px] text-zinc-500 font-black uppercase">Maden Hızı</p><p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p></div>
-                    <i class="fa-solid fa-bolt text-yellow-500 text-xl"></i>
+        <div id="p-home" class="page active">
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-[10px] font-black text-zinc-500 tracking-[0.3em] uppercase italic">Koala Arcade Alpha</div>
+                <div class="flex items-center gap-2 bg-green-500/10 px-3 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black text-green-500 uppercase">Mining Active</span>
                 </div>
             </div>
-        </div>
-
-        <div id="p-frens" class="page text-center">
-            <h2 class="text-4xl font-black mb-2 italic uppercase">Ekip</h2>
-            <p class="text-zinc-600 text-[10px] font-black mb-10 uppercase tracking-widest">Arkadaşlarını Getir, Daha Fazla Kazan</p>
             
-            <div class="card py-10">
-                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fa-solid fa-user-plus text-3xl text-zinc-600"></i>
-                </div>
-                <h3 class="text-xl font-black mb-3 text-white uppercase italic">Arkadaşlarını Çağır</h3>
-                <p class="text-xs text-zinc-500 mb-8 px-6 leading-relaxed">
-                    Referansınla katılan her arkadaşın için anında <span class="text-white font-bold">20,000 $KOALA</span> kazanırsın.
-                </p>
+            <div class="text-center flex-1 flex flex-col justify-center">
+                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">My Balance</p>
+                <h2 class="text-6xl font-black mb-10 italic tracking-tighter" id="total-bal">0.00</h2>
                 
-                <div class="flex gap-2">
-                    <button onclick="copyLink()" class="w-1/4 bg-zinc-900 text-white rounded-2xl py-4"><i class="fa-solid fa-copy"></i></button>
-                    <button onclick="shareInvite()" class="w-3/4 btn-main !text-sm">DAVET ET</button>
+                <div class="main-img-box"><img src="coinkoala.jpg"></div>
+
+                <div class="card mt-12 flex justify-between items-center bg-zinc-900/30">
+                    <div class="text-left">
+                        <p class="text-[10px] text-zinc-500 font-black uppercase mb-1">Hash Rate</p>
+                        <p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p>
+                    </div>
+                    <div class="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div id="p-frens" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Frens</h2>
+            <p class="text-zinc-600 text-[10px] font-black mb-10 uppercase tracking-widest">Invite frens to earn more</p>
             
-            <div id="fren-list-empty" class="opacity-30 mt-10">
-                <p class="text-[10px] font-black uppercase tracking-widest italic">Henüz kimseyi davet etmedin</p>
+            <div class="card py-10 text-center">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-users-rays text-3xl text-zinc-500"></i>
+                </div>
+                <h3 class="text-xl font-black mb-2">Invite a Fren</h3>
+                <p class="text-xs text-zinc-500 mb-8 px-10">Get <span class="text-white">20,000 $KOALA</span> for every friend who joins.</p>
+                <button onclick="shareInvite()" class="btn-main uppercase tracking-tighter">Share Invite Link</button>
             </div>
         </div>
 
         <div id="p-airdrop" class="page">
-             <h2 class="text-4xl font-black mb-10 italic uppercase">Airdrop</h2>
-             <div class="card">
-                <h4 class="text-[11px] font-black text-white uppercase mb-6 tracking-widest italic">İşlem Takibi</h4>
-                <div class="flex items-center gap-4 mb-6"><i class="fa-solid fa-check-circle text-green-500"></i><p class="text-xs font-bold text-zinc-400">Madencilik: Aktif</p></div>
-                <div class="flex items-center gap-4 mb-6"><i class="fa-solid fa-spinner animate-spin text-zinc-600"></i><p class="text-xs font-bold text-zinc-400">Borsa Bağlantısı: Bekleniyor</p></div>
-                <div class="flex items-center gap-4 opacity-30"><i class="fa-solid fa-lock text-zinc-600"></i><p class="text-xs font-bold text-zinc-400">Snapshot: Kilitli</p></div>
-             </div>
+            <h2 class="text-4xl font-black mb-2 italic uppercase">Airdrop</h2>
+            <p class="text-zinc-600 text-[10px] font-black mb-10 uppercase tracking-widest">Connect exchange & wallet</p>
+
+            <div class="card text-center py-10 mb-6 border-dashed border-zinc-800">
+                <div id="status-disconnected">
+                    <i class="fa-solid fa-wallet text-4xl mb-6 text-zinc-800"></i>
+                    <p class="text-xs text-zinc-400 mb-8 px-10">Connect your exchange wallet to receive airdrop rewards.</p>
+                    <button onclick="openConnectModal()" class="btn-main !py-4 !text-sm">CONNECT EXCHANGE</button>
+                </div>
+                
+                <div id="status-connected" style="display: none;">
+                    <div class="flex flex-col items-center">
+                        <img id="active-ex-img" src="" class="w-16 h-16 rounded-2xl mb-4 border border-white/10">
+                        <p class="text-green-500 font-black text-[10px] uppercase mb-1 tracking-widest">Connected</p>
+                        <h4 id="active-ex-name" class="text-2xl font-black italic mb-4 uppercase">EXCHANGE</h4>
+                        <div class="bg-black/40 p-4 rounded-xl w-full border border-zinc-900">
+                            <p class="text-[9px] text-zinc-600 font-black uppercase mb-1">Your TON Address</p>
+                            <p id="active-addr" class="text-[11px] font-mono text-zinc-300 break-all"></p>
+                        </div>
+                        <button onclick="disconnectEx()" class="mt-6 text-[10px] font-black text-zinc-700 uppercase underline">Change Wallet</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 class="text-[11px] font-black text-zinc-500 uppercase mb-4 tracking-widest italic italic">Phase Roadmap</h4>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-green-500"></i><p class="text-xs font-bold">Mining Launch</p></div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-spinner animate-spin text-zinc-700"></i><p class="text-xs font-bold">Exchange Integration</p></div>
+                    <div class="flex items-center gap-3 opacity-30"><i class="fa-solid fa-circle text-zinc-800"></i><p class="text-xs font-bold">Token Distribution</p></div>
+                </div>
+            </div>
         </div>
 
-        <nav id="bottom-nav" class="nav-bar" style="display: none;">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>MADEN</span></div>
-            <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
-            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
+        <div id="connect-modal">
+            <div id="modal-step-1" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="font-black text-xl italic uppercase">Choose Exchange</h3>
+                    <i class="fa-solid fa-xmark text-zinc-600" onclick="closeConnectModal()"></i>
+                </div>
+                <div class="ex-item" onclick="chooseEx('Binance', 'binance.jpg')">
+                    <img src="binance.jpg" class="ex-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black text-white">Binance</span>
+                </div>
+                <div class="ex-item" onclick="chooseEx('OKX', 'okx.jpg')">
+                    <img src="okx.jpg" class="ex-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black text-white">OKX</span>
+                </div>
+                <div class="ex-item" onclick="chooseEx('Bitget', 'bitget.jpg')">
+                    <img src="bitget.jpg" class="ex-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
+                    <span class="font-black text-white">Bitget</span>
+                </div>
+            </div>
+
+            <div id="modal-step-2" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5" style="display: none;">
+                <div class="text-center mb-6">
+                    <img id="temp-ex-img" src="" class="w-16 h-16 rounded-2xl mx-auto mb-4 border border-white/10">
+                    <h3 id="temp-ex-name" class="font-black text-xl italic uppercase">EXCHANGE</h3>
+                    <p class="text-xs text-zinc-500 mt-2 italic">Enter your TON deposit address from the exchange.</p>
+                </div>
+                <input type="text" id="wallet-input" class="ton-input" placeholder="Paste your TON address here...">
+                <div class="flex gap-2 mt-8">
+                    <button onclick="toggleModalStep(1)" class="w-1/3 bg-zinc-900 text-white font-bold rounded-2xl py-4 text-xs">BACK</button>
+                    <button onclick="confirmConnect()" class="w-2/3 btn-main !text-xs !py-4">SAVE ADDRESS</button>
+                </div>
+            </div>
+        </div>
+
+        <nav id="bottom-nav" class="nav-bar">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>Mining</span></div>
+            <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>Frens</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
         </nav>
     </div>
 
     <script>
-        let userData = {
-            bal: parseFloat(localStorage.getItem('koala_bal_v6')) || 0,
-            onboarded: localStorage.getItem('koala_onboard_v6') === 'true',
-            refCode: "REF" + Math.floor(100000 + Math.random() * 900000)
+        // DURUM YÖNETİMİ
+        let appState = {
+            bal: parseFloat(localStorage.getItem('koala_bal_v7')) || 15500.00,
+            ex: localStorage.getItem('koala_ex_name_v7') || '',
+            img: localStorage.getItem('koala_ex_img_v7') || '',
+            addr: localStorage.getItem('koala_ex_addr_v7') || ''
         };
 
-        // 1. AGE CHECKING SİSTEMİ
-        function startAgeAnalysis() {
-            document.getElementById('btn-start-check').style.display = 'none';
-            let steps = ['check-1', 'check-2', 'check-3', 'check-4'];
-            steps.forEach((id, i) => {
-                setTimeout(() => {
-                    document.getElementById(id).classList.add('done');
-                    if(i === 3) setTimeout(showAgeResult, 1000);
-                }, i * 1200);
-            });
-        }
+        let tempSelection = { name: '', img: '' };
 
-        function showAgeResult() {
-            const age = Math.floor(Math.random() * 9) + 2; // 2-11 yaş arası
-            const reward = age * 22500;
-            userData.bal += reward;
-            document.getElementById('years-count').innerText = age;
-            document.getElementById('age-reward').innerText = reward.toLocaleString();
-            
-            document.getElementById('p-age-check').classList.remove('active');
-            document.getElementById('p-age-result').classList.add('active');
-            save();
-        }
-
-        function enterApp() {
-            userData.onboarded = true;
-            document.getElementById('p-age-result').classList.remove('active');
-            document.getElementById('p-home').classList.add('active');
-            document.getElementById('bottom-nav').style.display = 'flex';
-            save();
-            updateUI();
-        }
-
-        // 2. REFERANS PAYLAŞIM SİSTEMİ
-        function shareInvite() {
-            const botLink = "https://t.me/KoalaArcadeBot?start=" + userData.refCode;
-            const shareText = encodeURIComponent(
-                "🐨 Koala Arcade'de Telegram yaşım için " + userData.bal.toLocaleString() + " $KOALA kazandım!\n\n" +
-                "🚀 Sen de hesabını analiz et ve madenciliğe başla.\n\n" +
-                "🔗 Katıl: " + botLink
-            );
-            window.open(`https://t.me/share/url?url=${botLink}&text=${shareText}`, '_blank');
-        }
-
-        function copyLink() {
-            const botLink = "https://t.me/KoalaArcadeBot?start=" + userData.refCode;
-            navigator.clipboard.writeText(botLink);
-            alert("Referans linkin kopyalandı!");
-        }
-
-        // MADENCİLİK VE UI
+        // MADENCİLİK MOTORU
         setInterval(() => {
-            if(userData.onboarded) {
-                userData.bal += (128.50 / 3600);
-                updateUI();
-                save();
-            }
+            appState.bal += (128.50 / 3600);
+            updateUI();
+            saveData();
         }, 1000);
 
         function updateUI() {
-            document.getElementById('main-bal').innerText = userData.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('total-bal').innerText = appState.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            const disc = document.getElementById('status-disconnected');
+            const conn = document.getElementById('status-connected');
+            if(appState.ex && appState.addr) {
+                disc.style.display = 'none';
+                conn.style.display = 'block';
+                document.getElementById('active-ex-name').innerText = appState.ex;
+                document.getElementById('active-ex-img').src = appState.img;
+                document.getElementById('active-addr').innerText = appState.addr;
+            } else {
+                disc.style.display = 'block';
+                conn.style.display = 'none';
+            }
         }
 
-        function nav(p, el) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
-            document.getElementById('p-' + p).classList.add('active');
-            el.classList.add('active');
+        // BAĞLANTI SİSTEMİ
+        function openConnectModal() { toggleModalStep(1); document.getElementById('connect-modal').style.display = 'flex'; }
+        function closeConnectModal() { document.getElementById('connect-modal').style.display = 'none'; }
+        
+        function toggleModalStep(step) {
+            document.getElementById('modal-step-1').style.display = step === 1 ? 'block' : 'none';
+            document.getElementById('modal-step-2').style.display = step === 2 ? 'block' : 'none';
         }
 
-        function save() {
-            localStorage.setItem('koala_bal_v6', userData.bal);
-            localStorage.setItem('koala_onboard_v6', userData.onboarded);
+        function chooseEx(name, img) {
+            tempSelection.name = name;
+            tempSelection.img = img;
+            document.getElementById('temp-ex-name').innerText = name;
+            document.getElementById('temp-ex-img').src = img;
+            toggleModalStep(2);
         }
 
-        window.onload = () => {
-            if(userData.onboarded) {
-                document.getElementById('p-age-check').classList.remove('active');
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('bottom-nav').style.display = 'flex';
+        function confirmConnect() {
+            const addr = document.getElementById('wallet-input').value;
+            if(addr.length < 10) return alert("Please enter a valid TON address!");
+            
+            appState.ex = tempSelection.name;
+            appState.img = tempSelection.img;
+            appState.addr = addr;
+            
+            saveData();
+            updateUI();
+            closeConnectModal();
+            alert("Wallet successfully linked to " + appState.ex);
+        }
+
+        function disconnectEx() {
+            if(confirm("Do you want to disconnect this wallet?")) {
+                appState.ex = ''; appState.img = ''; appState.addr = '';
+                saveData();
                 updateUI();
             }
-        };
+        }
+
+        // NAVİGASYON
+        function nav(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('p-' + pageId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // REFERANS PAYLAŞIM
+        function shareInvite() {
+            const link = "https://t.me/KoalaArcadeBot?start=REF" + Math.floor(Math.random() * 999999);
+            const text = encodeURIComponent("🐨 Hey! I'm mining $KOALA in Koala Arcade. Join my team and get 20k bonus!\n\n🔗 Join here: " + link);
+            window.open(`https://t.me/share/url?url=${link}&text=${text}`, '_blank');
+        }
+
+        function saveData() {
+            localStorage.setItem('koala_bal_v7', appState.bal);
+            localStorage.setItem('koala_ex_name_v7', appState.ex);
+            localStorage.setItem('koala_ex_img_v7', appState.img);
+            localStorage.setItem('koala_ex_addr_v7', appState.addr);
+        }
+
+        window.onload = updateUI;
     </script>
 </body>
 </html>
