@@ -3,503 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE SUPREME</title>
+    <title>KOALA TIME ATTACK PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        
-        :root {
-            --bg: #000;
-            --card: #0d0d0d;
-            --border: #1a1a1a;
-            --accent: #fff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-        }
+        :root { --bg: #000; --card: #0d0d0d; --border: #1a1a1a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
 
         /* --- LOADER --- */
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-box { width: 120px; height: 120px; border-radius: 40px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .scan { position: absolute; width: 100%; height: 3px; background: #fff; box-shadow: 0 0 10px #fff; animation: scan 2s infinite; }
+        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
 
-        .logo-box {
-            width: 140px;
-            height: 140px;
-            border-radius: 45px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            position: relative;
-        }
+        /* --- APP STRUCTURE --- */
+        #app { display: none; height: 100%; flex-direction: column; }
+        .page { display: none; height: 100%; overflow-y: auto; padding: 20px 24px 140px; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        .logo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .bal-display { font-size: 50px; font-weight: 900; letter-spacing: -2px; text-align: center; margin: 10px 0; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .task-done { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
 
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background: #fff;
-            box-shadow: 0 0 15px #fff;
-            animation: scanMove 2s infinite;
-        }
+        /* --- TIME ATTACK GAME --- */
+        #game-area { position: relative; width: 100%; height: 300px; background: #050505; border: 2px solid var(--border); border-radius: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; }
+        #timer-display { font-size: 72px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -2px; z-index: 10; transition: color 0.3s; }
+        .hidden-timer { color: transparent; text-shadow: 0 0 15px rgba(255,255,255,0.05); }
+        .game-bg-img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.1; z-index: 1; }
 
-        @keyframes scanMove {
-            0%, 100% { top: 0; }
-            50% { top: 100%; }
-        }
+        /* BET CONTROLS */
+        .bet-box { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 15px; margin-top: 20px; }
+        .bet-btn { background: #1a1a1a; padding: 8px 15px; border-radius: 12px; font-size: 12px; font-weight: 900; border: 1px solid #333; }
+        
+        .btn-game { width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; text-transform: uppercase; transition: 0.2s; cursor: pointer; font-size: 18px; border: none; }
+        .btn-start { background: #fff; color: #000; }
+        .btn-stop { background: #ff3b30; color: #fff; }
 
-        /* --- UI STRUCTURE --- */
-        #app {
-            display: none;
-            height: 100%;
-            flex-direction: column;
-        }
-
-        .page {
-            display: none;
-            height: 100%;
-            overflow-y: auto;
-            padding: 20px 24px 140px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bal-display {
-            font-size: 60px;
-            font-weight: 900;
-            letter-spacing: -3px;
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        /* --- TASK CARDS --- */
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .task-done {
-            opacity: 0.5;
-            pointer-events: none;
-            filter: grayscale(0.8);
-            border-color: transparent;
-        }
-
-        .btn-verifying {
-            background: #27272a !important;
-            color: #71717a !important;
-            cursor: not-allowed;
-        }
-
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        /* --- PLINKO ENGINE --- */
-        #plinko-board {
-            position: relative;
-            width: 100%;
-            height: 420px;
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
-            border: 2px solid var(--border);
-            border-radius: 35px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .peg {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #333;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 5px rgba(255,255,255,0.1);
-        }
-
-        .ball {
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            z-index: 10;
-            border: 1.5px solid #fff;
-            box-shadow: 0 0 12px #fff;
-            background: #000;
-        }
-
-        .ball img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .multiplier-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 6px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-        }
-
-        .slot {
-            flex: 1;
-            margin: 0 2px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 900;
-            color: #000;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        /* --- NAVIGATION --- */
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            padding: 15px 0 35px;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #444;
-            font-size: 10px;
-            font-weight: 900;
-            gap: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-item.active {
-            color: #fff;
-        }
-
-        .nav-item i {
-            font-size: 18px;
-        }
+        /* --- NAV --- */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); padding: 15px 0 35px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 900; gap: 5px; text-transform: uppercase; }
+        .nav-item.active { color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div class="logo-box">
-            <img src="babykoalas.jpg">
-            <div class="scan-line"></div>
-        </div>
-        <p class="text-zinc-500 font-black text-[11px] uppercase tracking-[0.3em] mt-8">Initializing KoalaOS</p>
+        <div class="logo-box"><img src="babykoalas.jpg"><div class="scan"></div></div>
+        <p class="text-zinc-600 font-black text-[10px] mt-6 tracking-widest uppercase">Koala System Online</p>
     </div>
 
     <div id="app">
-        
         <div id="home" class="page active">
             <div class="text-center py-6">
-                <div class="inline-flex items-center gap-2 bg-zinc-900 px-5 py-2 rounded-full border border-zinc-800 mb-6">
+                <div class="inline-flex items-center gap-2 bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800 mb-4">
                     <img id="ex-img" src="binance.jpg" class="w-4 h-4 rounded-full">
                     <span id="ex-name" class="text-[10px] font-black uppercase text-zinc-400">Binance</span>
                 </div>
-                <div class="bal-display" id="main-balance">0</div>
-                <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em]">$KOALA</p>
+                <div class="bal-display" id="total-bal">0</div>
+                <p class="text-zinc-600 font-black text-[10px] uppercase tracking-[0.4em]">$KOALA</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-10">
-                <div class="cursor-pointer text-center p-4 rounded-3xl bg-zinc-900/50 border border-zinc-800" onclick="updateEx('Binance', 'binance.jpg')">
-                    <img src="binance.jpg" class="w-8 h-8 mx-auto mb-2 rounded-xl">
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('Binance', 'binance.jpg')">
+                    <img src="binance.jpg" class="w-7 h-7 mx-auto rounded-lg">
                 </div>
-                <div class="cursor-pointer text-center p-4 rounded-3xl bg-zinc-900/50 border border-zinc-800" onclick="updateEx('OKX', 'okx.jpg')">
-                    <img src="okx.jpg" class="w-8 h-8 mx-auto mb-2 rounded-xl">
+                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('OKX', 'okx.jpg')">
+                    <img src="okx.jpg" class="w-7 h-7 mx-auto rounded-lg">
                 </div>
-                <div class="cursor-pointer text-center p-4 rounded-3xl bg-zinc-900/50 border border-zinc-800" onclick="updateEx('Bitget', 'bitget.jpg')">
-                    <img src="bitget.jpg" class="w-8 h-8 mx-auto mb-2 rounded-xl">
+                <div class="cursor-pointer p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-center" onclick="changeEx('Bitget', 'bitget.jpg')">
+                    <img src="bitget.jpg" class="w-7 h-7 mx-auto rounded-lg">
                 </div>
             </div>
 
-            <h3 class="text-[10px] font-black text-zinc-700 uppercase mb-4 tracking-widest px-2">Earning Missions</h3>
-            
-            <div id="mission-tg" class="card" onclick="startMission('mission-tg', 1500, 'https://t.me/KoalasCommunity')">
-                <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-800 text-2xl">
-                    <i class="fa-brands fa-telegram text-sky-400"></i>
-                </div>
+            <div id="task-community" class="card" onclick="verifyTask('task-community', 2500, 'https://t.me/KoalasCommunity')">
+                <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center border border-zinc-800 text-2xl"><i class="fa-brands fa-telegram text-sky-400"></i></div>
                 <div class="flex-1">
-                    <p class="font-black text-[13px] uppercase">Join Community</p>
-                    <p class="text-green-500 text-[10px] font-black tracking-wider">+1,500 $KOALA</p>
+                    <p class="font-black text-xs uppercase">Join Community</p>
+                    <p class="text-zinc-600 text-[10px] font-bold">+2,500 $KOALA</p>
                 </div>
-                <button class="m-btn bg-white text-black text-[10px] font-black px-5 py-2.5 rounded-xl uppercase min-w-[90px]">Start</button>
+                <button class="task-btn bg-white text-black text-[10px] font-black px-4 py-2 rounded-xl uppercase">Start</button>
             </div>
         </div>
 
-        <div id="games" class="page">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-black italic uppercase tracking-tighter">Koala Plinko</h2>
-                <p class="text-zinc-600 text-[9px] font-black uppercase tracking-[0.2em]">Risk for Reward</p>
+        <div id="games" class="page text-center">
+            <h2 class="text-2xl font-black italic uppercase mt-4 mb-2 tracking-tighter">Koala Time Attack</h2>
+            <p class="text-zinc-600 text-[10px] font-black uppercase mb-4">WIN 2X IF YOU STOP AT 10.00s!</p>
+            
+            <div id="game-area">
+                <img src="coinkoala.jpg" class="game-bg-img">
+                <div id="timer-display">00.00</div>
+                <p id="game-status" class="absolute bottom-6 text-[10px] font-black uppercase text-zinc-600 tracking-widest">Set Bet and Start</p>
             </div>
 
-            <div id="plinko-board">
-                <div class="multiplier-bar" id="plinko-slots"></div>
-            </div>
-
-            <div class="mt-8 px-2">
-                <div class="flex justify-between items-center mb-4 text-zinc-500 font-black text-[10px] uppercase">
-                    <span>Cost: 100 $KOALA</span>
-                    <span>Bal: <span id="game-bal-txt">0</span></span>
+            <div class="bet-box">
+                <p class="text-[10px] font-black text-zinc-500 uppercase mb-3">Your Bet Amount</p>
+                <div class="flex items-center justify-center gap-6 mb-4">
+                    <button onclick="adjustBet(-100)" class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 font-bold">-</button>
+                    <span id="bet-display" class="text-2xl font-black">100</span>
+                    <button onclick="adjustBet(100)" class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 font-bold">+</button>
                 </div>
-                <button id="drop-btn" onclick="triggerPlinko()" class="w-full bg-white text-black font-black py-5 rounded-[2rem] uppercase text-lg shadow-2xl shadow-white/5 active:scale-95 transition-transform">Drop Ball</button>
+                <div class="flex justify-center gap-2">
+                    <button onclick="setBet(100)" class="bet-btn">100</button>
+                    <button onclick="setBet(500)" class="bet-btn">500</button>
+                    <button onclick="setBet(1000)" class="bet-btn">1000</button>
+                    <button onclick="setBet(balance)" class="bet-btn text-zinc-400">MAX</button>
+                </div>
+            </div>
+
+            <div class="mt-6 px-2">
+                <button id="game-btn" onclick="handleGame()" class="btn-game btn-start">Start (Bet: <span id="btn-bet-val">100</span>)</button>
             </div>
         </div>
 
         <div id="airdrop" class="page">
-            <h2 class="text-3xl font-black italic uppercase text-center mt-12 mb-10 text-zinc-400">Genesis Drop</h2>
-            <div class="bg-zinc-900/50 p-8 rounded-[3rem] border border-zinc-800 text-center backdrop-blur-sm">
-                <i class="fa-solid fa-wallet text-5xl mb-6 text-zinc-700"></i>
-                <p class="text-zinc-500 font-bold text-xs mb-8">Connect your TON wallet to receive airdrop allocations.</p>
-                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-5 text-center font-bold text-white mb-6 focus:border-white transition-colors" placeholder="UQ... Wallet Address">
-                <button onclick="saveW()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-widest">Link Wallet</button>
+            <h2 class="text-3xl font-black italic uppercase text-center mt-12 mb-8 text-zinc-400">Claim Drop</h2>
+            <div class="bg-zinc-900 p-8 rounded-[40px] border border-zinc-800 text-center">
+                <input type="text" id="w-input" class="w-full bg-black border-2 border-zinc-800 rounded-2xl p-4 text-center font-bold text-white mb-4" placeholder="TON Wallet Address">
+                <button onclick="saveWallet()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase">Connect Wallet</button>
             </div>
         </div>
 
         <nav class="nav">
-            <div class="nav-item active" onclick="navigate('home', this)">
-                <i class="fa-solid fa-house"></i>
-                <span>Home</span>
-            </div>
-            <div class="nav-item" onclick="navigate('games', this)">
-                <i class="fa-solid fa-braille"></i>
-                <span>Plinko</span>
-            </div>
-            <div class="nav-item" onclick="navigate('airdrop', this)">
-                <i class="fa-solid fa-parachute-box"></i>
-                <span>Drop</span>
-            </div>
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+            <div class="nav-item" onclick="nav('games', this)"><i class="fa-solid fa-clock"></i><span>Time</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Drop</span></div>
         </nav>
     </div>
 
     <script>
         let balance = parseInt(localStorage.getItem('k_bal')) || 10000;
-        const pBoard = document.getElementById('plinko-board');
-        const pRows = 9;
-        const pMultis = [10, 5, 2, 0.5, 0.2, 0.5, 2, 5, 10];
-        const pColors = ["#f43f5e", "#f59e0b", "#fbbf24", "#10b981", "#3b82f6", "#10b981", "#fbbf24", "#f59e0b", "#f43f5e"];
+        let currentBet = 100;
+        let isPlaying = false;
+        let startTime;
+        let timerInterval;
 
         window.onload = () => {
-            initPlinkoSys();
-            checkMissions();
+            checkCompletedTasks();
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                syncAll();
+                syncUI();
             }, 2500);
         };
 
-        // --- CHECKING & MISSION SYSTEM ---
-        function startMission(id, reward, link) {
-            if(localStorage.getItem(id + '_complete')) return;
+        // --- BETTING LOGIC ---
+        function adjustBet(amt) {
+            if (isPlaying) return;
+            currentBet = Math.max(100, currentBet + amt);
+            if (currentBet > balance) currentBet = balance;
+            updateBetUI();
+            haptic('light');
+        }
 
-            const card = document.getElementById(id);
-            const btn = card.querySelector('.m-btn');
+        function setBet(amt) {
+            if (isPlaying) return;
+            currentBet = Math.max(100, amt);
+            if (currentBet > balance) currentBet = Math.max(100, balance);
+            updateBetUI();
+            haptic('medium');
+        }
 
+        function updateBetUI() {
+            document.getElementById('bet-display').innerText = currentBet.toLocaleString();
+            document.getElementById('btn-bet-val').innerText = currentBet.toLocaleString();
+        }
+
+        // --- GAME LOGIC ---
+        function handleGame() {
+            const btn = document.getElementById('game-btn');
+            const display = document.getElementById('timer-display');
+            const status = document.getElementById('game-status');
+
+            if (!isPlaying) {
+                if (balance < currentBet) return showNotify("Insufficient $KOALA!");
+                
+                balance -= currentBet;
+                syncUI();
+                isPlaying = true;
+                
+                btn.innerText = "STOP NOW!";
+                btn.className = "btn-game btn-stop";
+                display.classList.remove('hidden-timer');
+                display.style.color = "white";
+                status.innerText = "Counting...";
+
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    let elapsed = (Date.now() - startTime) / 1000;
+                    display.innerText = elapsed.toFixed(2);
+                    
+                    // Zorluk: 3.5 sn sonra gizle
+                    if (elapsed > 3.50 && elapsed < 11.00) {
+                        display.classList.add('hidden-timer');
+                        status.innerText = "Sshh... Internal Clock!";
+                    }
+                }, 10);
+                haptic('medium');
+            } else {
+                isPlaying = false;
+                clearInterval(timerInterval);
+                btn.disabled = true;
+                display.classList.remove('hidden-timer');
+                
+                let finalTime = (Date.now() - startTime) / 1000;
+                let formattedTime = finalTime.toFixed(2);
+                display.innerText = formattedTime;
+
+                if (formattedTime === "10.00") {
+                    let win = currentBet * 2;
+                    balance += win;
+                    display.style.color = "#4cd964";
+                    status.innerText = `JACKPOT! +${win.toLocaleString()} $KOALA`;
+                    haptic('success');
+                } else {
+                    display.style.color = "#ff3b30";
+                    status.innerText = "MISSED! Bet Lost.";
+                    haptic('error');
+                }
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = `Start (Bet: ${currentBet})`;
+                    btn.className = "btn-game btn-start";
+                    status.innerText = "Ready for Next Round?";
+                    display.style.color = "white";
+                    updateBetUI();
+                }, 3000);
+                syncUI();
+            }
+        }
+
+        // --- TASK & UTILS ---
+        function verifyTask(taskId, reward, link) {
+            if(localStorage.getItem(taskId)) return;
+            const card = document.getElementById(taskId);
+            const b = card.querySelector('.task-btn');
             window.open(link, '_blank');
-            hapticAction('medium');
-
-            // Verification State
-            btn.disabled = true;
-            btn.classList.add('btn-verifying');
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch spinner mr-2"></i> Checking`;
-
-            // Wait 6 seconds for "Check" simulation
+            b.classList.add('btn-verifying');
+            b.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i>`;
             setTimeout(() => {
                 balance += reward;
-                localStorage.setItem(id + '_complete', 'true');
-                
-                btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i> Done`;
-                btn.classList.remove('btn-verifying');
-                btn.classList.add('bg-green-500', 'text-white');
+                localStorage.setItem(taskId, 'done');
                 card.classList.add('task-done');
-                
-                hapticAction('success');
-                syncAll();
-                notify(`Verified! +${reward.toLocaleString()} $KOALA`);
+                b.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                syncUI();
+                haptic('success');
             }, 6000);
         }
 
-        function checkMissions() {
-            const missions = ['mission-tg'];
-            missions.forEach(m => {
-                if(localStorage.getItem(m + '_complete')) {
-                    const el = document.getElementById(m);
-                    el.classList.add('task-done');
-                    const b = el.querySelector('.m-btn');
-                    b.innerHTML = `<i class="fa-solid fa-check mr-1"></i> Done`;
-                    b.classList.add('bg-green-500', 'text-white');
-                }
-            });
-        }
-
-        // --- PLINKO GAMEPLAY ---
-        function initPlinkoSys() {
-            // Render Pegs
-            for (let r = 2; r <= pRows; r++) {
-                for (let i = 0; i < r; i++) {
-                    const peg = document.createElement('div');
-                    peg.className = 'peg';
-                    peg.style.top = (r * 40) + 'px';
-                    peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 34}px)`;
-                    pBoard.appendChild(peg);
-                }
+        function checkCompletedTasks() {
+            if(localStorage.getItem('task-community')) {
+                const el = document.getElementById('task-community');
+                el.classList.add('task-done');
+                el.querySelector('.task-btn').innerHTML = `<i class="fa-solid fa-check"></i>`;
             }
-            // Render Bottom Slots
-            const slotsDiv = document.getElementById('plinko-slots');
-            pMultis.forEach((m, i) => {
-                const s = document.createElement('div');
-                s.className = 'slot';
-                s.style.background = pColors[i];
-                s.innerText = m + 'x';
-                slotsDiv.appendChild(s);
-            });
         }
 
-        function triggerPlinko() {
-            if (balance < 100) return notify("Not enough $KOALA!");
-            
-            balance -= 100;
-            syncAll();
-            hapticAction('light');
-
-            const ball = document.createElement('div');
-            ball.className = 'ball';
-            ball.innerHTML = '<img src="coinkoala.jpg">';
-            ball.style.top = '15px';
-            ball.style.left = '50%';
-            pBoard.appendChild(ball);
-
-            let row = 0;
-            let path = 0; 
-
-            const dropInterval = setInterval(() => {
-                row++;
-                // Physics randomness
-                path += Math.random() > 0.5 ? 0.5 : -0.5;
-                
-                ball.style.top = (row * 40 + 15) + 'px';
-                ball.style.left = `calc(50% + ${path * 34}px)`;
-                hapticAction('light');
-
-                if (row >= pRows) {
-                    clearInterval(dropInterval);
-                    const slotIdx = Math.max(0, Math.min(8, Math.round(path + 4)));
-                    const winAmt = Math.floor(100 * pMultis[slotIdx]);
-                    
-                    balance += winAmt;
-                    hapticAction('success');
-                    
-                    setTimeout(() => {
-                        ball.style.opacity = '0';
-                        setTimeout(() => ball.remove(), 200);
-                        syncAll();
-                    }, 400);
-                }
-            }, 250);
-        }
-
-        // --- UTILS & CORE ---
-        function syncAll() {
-            document.getElementById('main-balance').innerText = balance.toLocaleString();
-            document.getElementById('game-bal-txt').innerText = balance.toLocaleString();
+        function syncUI() {
+            document.getElementById('total-bal').innerText = balance.toLocaleString();
             localStorage.setItem('k_bal', balance);
         }
 
-        function navigate(pageId, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            el.classList.add('active');
-            hapticAction('light');
-        }
-
-        function updateEx(name, img) {
-            document.getElementById('ex-name').innerText = name;
-            document.getElementById('ex-img').src = img;
-            hapticAction('medium');
-        }
-
-        function notify(msg) {
+        function showNotify(msg) {
             if(window.Telegram?.WebApp?.showAlert) window.Telegram.WebApp.showAlert(msg);
             else alert(msg);
         }
 
-        function hapticAction(type) {
-            const h = window.Telegram?.WebApp?.HapticFeedback;
-            if(!h) return;
-            if(type === 'light') h.impactOccurred('light');
-            if(type === 'medium') h.impactOccurred('medium');
-            if(type === 'success') h.notificationOccurred('success');
+        function changeEx(n, i) {
+            document.getElementById('ex-name').innerText = n;
+            document.getElementById('ex-img').src = i;
+            haptic('light');
         }
 
-        function saveW() {
-            const val = document.getElementById('w-input').value;
-            if(val.length < 15) return notify("Please enter a valid TON address.");
-            notify("Wallet address linked successfully!");
-            hapticAction('success');
+        function nav(p, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active'); el.classList.add('active');
+            haptic('light');
+        }
+
+        function haptic(t) {
+            const h = window.Telegram?.WebApp?.HapticFeedback;
+            if(!h) return;
+            if(t === 'light') h.impactOccurred('light');
+            if(t === 'medium') h.impactOccurred('medium');
+            if(t === 'success') h.notificationOccurred('success');
+            if(t === 'error') h.notificationOccurred('warning');
+        }
+
+        function saveWallet() {
+            showNotify("Wallet connected!");
+            haptic('success');
         }
     </script>
 </body>
