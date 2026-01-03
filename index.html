@@ -3,220 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | SOCIAL MINING</title>
+    <title>KOALA ARCADE | RESMİ MADENCİLİK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        :root { --bg: #000; --white: #fff; --grey: #111; --text-muted: #888; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
+        :root { 
+            --bg: #000000; 
+            --white: #ffffff; 
+            --card-bg: #111111; 
+            --text-muted: #888888;
+            --accent: #34c759;
+        }
 
-        .page { display: none; height: 100vh; flex-direction: column; padding: 24px 20px 120px; animation: pageFade 0.3s ease; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--white); 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* --- SAYFA YAPISI --- */
+        .page { 
+            display: none; 
+            height: 100vh; 
+            flex-direction: column; 
+            padding: 24px 20px 140px; 
+            animation: pageFade 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
         .page.active { display: flex; }
-        @keyframes pageFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pageFade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* DOGS Style Checklines */
-        .check-step { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 600; color: #444; transition: 0.5s; }
+        /* --- DOGS STİLİ KONTROL ADIMLARI --- */
+        .check-container { width: 100%; max-width: 300px; margin: 40px auto; }
+        .check-step { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            margin-bottom: 24px; 
+            font-weight: 700; 
+            color: #333; 
+            transition: all 0.6s ease;
+            font-size: 16px;
+        }
         .check-step.active { color: #fff; }
-        .check-step i { color: #34c759; display: none; }
-        .check-step.active i { display: block; }
+        .check-step i { 
+            color: var(--accent); 
+            font-size: 18px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.4s ease;
+        }
+        .check-step.active i { opacity: 1; transform: scale(1); }
 
-        /* Koala Avatar & Stats */
-        .koala-box { width: 180px; height: 180px; background: #fff; border-radius: 40px; margin: 20px auto; overflow: hidden; transform: rotate(-3deg); box-shadow: 15px 15px 0px rgba(255,255,255,0.05); }
-        .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+        /* --- AGE GENERATOR EKRANI --- */
+        .age-number { 
+            font-size: 120px; 
+            font-weight: 900; 
+            line-height: 1; 
+            letter-spacing: -6px; 
+            margin: 20px 0;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
+        }
 
-        /* Navigasyon */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #222; display: flex; justify-content: space-around; padding-bottom: 25px; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; flex: 1; }
+        /* --- ANA EKRAN VE MADENCİLİK --- */
+        .koala-card { 
+            width: 220px; 
+            height: 220px; 
+            background: #fff; 
+            border-radius: 48px; 
+            margin: 30px auto; 
+            overflow: hidden; 
+            transform: rotate(-2deg);
+            box-shadow: 20px 20px 0px rgba(255,255,255,0.03);
+            transition: 0.3s;
+        }
+        .koala-card img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+
+        /* --- YOL HARİTASI (ROADMAP) --- */
+        .roadmap-item {
+            position: relative;
+            padding-left: 30px;
+            border-left: 2px solid #222;
+            padding-bottom: 30px;
+        }
+        .roadmap-item.completed { border-left-color: var(--white); }
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: #222;
+            border-radius: 50%;
+        }
+        .roadmap-item.completed::before { background: var(--white); box-shadow: 0 0 10px #fff; }
+
+        /* --- NAVİGASYON --- */
+        .nav-bar { 
+            position: fixed; 
+            bottom: 0; left: 0; right: 0; 
+            height: 95px; 
+            background: rgba(0,0,0,0.98); 
+            border-top: 1px solid #1a1a1a; 
+            display: flex; 
+            justify-content: space-around; 
+            padding-bottom: 30px; 
+            z-index: 1000; 
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; flex: 1; transition: 0.3s; }
         .nav-item.active { color: #fff; }
         .nav-item i { font-size: 22px; margin-bottom: 4px; }
-        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Kartlar */
-        .card { background: var(--grey); border-radius: 24px; padding: 20px; margin-bottom: 12px; }
-        .btn-white { background: #fff; color: #000; padding: 14px; border-radius: 16px; font-weight: 900; font-size: 14px; width: 100%; text-align: center; }
-        .btn-white:active { transform: scale(0.98); }
-
-        .status-badge { background: #1a1a1a; padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        /* --- BUTONLAR VE KARTLAR --- */
+        .btn-main { 
+            background: #fff; color: #000; 
+            padding: 18px; border-radius: 20px; 
+            font-weight: 900; font-size: 16px; 
+            width: 100%; text-align: center; 
+            transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.97); opacity: 0.9; }
+        .glass-card { background: var(--card-bg); border-radius: 28px; padding: 20px; margin-bottom: 16px; border: 1px solid #1a1a1a; }
         
-        /* Mining Power Animasyonu */
-        .mining-glow { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .badge { background: #1a1a1a; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; color: var(--text-muted); }
+
+        /* Kaydırma Çubuğunu Gizle */
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <div id="p-check" class="page active items-center justify-center">
-            <div class="mb-12"><img src="coinkoala.jpg" class="w-20 h-20 rounded-3xl grayscale"></div>
-            <div class="w-full max-w-[260px]">
-                <div id="s1" class="check-step"><i class="fa-solid fa-check"></i> Account analysis...</div>
-                <div id="s2" class="check-step"><i class="fa-solid fa-check"></i> Telegram seniority...</div>
-                <div id="s3" class="check-step"><i class="fa-solid fa-check"></i> Mining power setup...</div>
+        <div id="p-intro" class="page active items-center justify-center">
+            <div class="mb-10 relative">
+                <img src="coinkoala.jpg" class="w-24 h-24 rounded-[32px] grayscale shadow-2xl">
+                <div class="absolute -bottom-2 -right-2 bg-white text-black text-[10px] font-black px-2 py-1 rounded-md">V.1.0</div>
             </div>
-            <button onclick="runAnalysis()" id="btn-run" class="btn-white fixed bottom-10 max-w-[320px]">START ANALYSIS</button>
+            
+            <h2 class="text-2xl font-black mb-2 text-center italic">TELEGRAM YAŞINIZ?</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-8 uppercase tracking-widest">Analiz Başlatılıyor</p>
+
+            <div class="check-container">
+                <div id="s1" class="check-step"><i class="fa-solid fa-circle-check"></i> Hesap durumu kontrolü...</div>
+                <div id="s2" class="check-step"><i class="fa-solid fa-circle-check"></i> Katılım yılı hesaplanıyor...</div>
+                <div id="s3" class="check-step"><i class="fa-solid fa-circle-check"></i> OG statüsü doğrulanıyor...</div>
+                <div id="s4" class="check-step"><i class="fa-solid fa-circle-check"></i> Ödül tahsis ediliyor...</div>
+            </div>
+
+            <button onclick="startAgeAnalysis()" id="btn-start" class="btn-main fixed bottom-10 max-w-[340px]">HESABIMI TARA</button>
         </div>
 
         <div id="p-result" class="page items-center justify-center text-center">
-            <h1 class="text-7xl font-black mb-2" id="res-years">0</h1>
-            <p class="text-zinc-500 font-bold uppercase tracking-widest mb-10">Years on Telegram</p>
-            <div class="card w-full max-w-[320px]">
-                <p class="text-[10px] text-zinc-500 font-black uppercase mb-1">Initial Balance</p>
-                <h3 class="text-3xl font-black">+<span id="res-reward">0</span> $KOALA</h3>
+            <p class="text-zinc-500 font-black uppercase tracking-[0.4em] mb-2">Sen Bir Efsanesin</p>
+            <div class="age-number" id="final-age">0</div>
+            <p class="text-xl font-bold mb-12 uppercase tracking-tighter">Yıldır Telegram'dasın</p>
+            
+            <div class="glass-card w-full max-w-[340px] border-white/10">
+                <p class="text-[10px] text-zinc-500 font-black uppercase mb-2">Başlangıç Ödülün</p>
+                <h3 class="text-4xl font-black">+<span id="initial-reward">0</span> $KOALA</h3>
             </div>
-            <button onclick="startMining()" class="btn-white fixed bottom-10 max-w-[320px]">START MINING</button>
+            <button onclick="enterMining()" class="btn-main fixed bottom-10 max-w-[340px]">KAZMAYA BAŞLA</button>
         </div>
 
         <div id="p-home" class="page">
             <div class="flex justify-between items-center mb-10">
-                <div class="status-badge">Koala Miner v1.0</div>
-                <div class="status-badge text-white">Online <span class="text-green-500 ml-1">●</span></div>
+                <div class="badge tracking-widest">KOALA NETWORK</div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-bold">AKTİF</span>
+                </div>
             </div>
 
             <div class="text-center flex-1 flex flex-col justify-center">
-                <p class="text-zinc-500 font-black text-xs uppercase tracking-[0.4em] mb-2">Mining Balance</p>
-                <h2 class="text-6xl font-black mb-8 italic tracking-tighter" id="bal-main">0</h2>
+                <p class="text-zinc-500 font-black text-xs uppercase tracking-[0.5em] mb-2">Toplam Bakiye</p>
+                <h2 class="text-6xl font-black mb-10 italic tracking-tighter" id="main-balance">0</h2>
                 
-                <div class="koala-box">
+                <div class="koala-card shadow-white/5">
                     <img src="coinkoala.jpg">
                 </div>
 
-                <div class="mt-10 card flex justify-between items-center border border-white/5">
+                <div class="mt-12 glass-card flex justify-between items-center">
                     <div class="text-left">
-                        <p class="text-[10px] text-zinc-500 font-black uppercase">Mining Power</p>
-                        <p class="text-xl font-black"><span id="power-val">125</span> <span class="text-xs text-zinc-400">$KOALA / h</span></p>
+                        <p class="text-[10px] text-zinc-500 font-black uppercase">Üretim Hızı</p>
+                        <p class="text-2xl font-black text-white"><span id="power-val">128.50</span> <span class="text-xs text-zinc-500 font-bold">$KOALA/sa</span></p>
                     </div>
-                    <i class="fa-solid fa-microchip text-2xl text-zinc-700 mining-glow"></i>
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-bolt-lightning text-xl text-yellow-500"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="p-tasks" class="page">
-            <h2 class="text-3xl font-black mb-6 italic uppercase">Social Tasks</h2>
-            <div class="space-y-3">
-                <div class="card flex justify-between items-center">
-                    <div>
-                        <p class="text-sm font-bold">Join Community</p>
-                        <p class="text-xs text-zinc-500">+10,000 $KOALA</p>
+            <h2 class="text-4xl font-black mb-2 italic uppercase">GÖREVLER</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-10 uppercase tracking-widest">Ekstra Kazanç Sağla</p>
+
+            <div class="space-y-4">
+                <div class="glass-card flex justify-between items-center py-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-[#0088cc]/10 text-[#0088cc] rounded-2xl flex items-center justify-center text-2xl">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Kanala Katıl</p>
+                            <p class="text-xs font-black text-green-500">+15.000 $KOALA</p>
+                        </div>
                     </div>
-                    <button onclick="completeTask(this, 10000)" class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-full">CHECK</button>
+                    <button onclick="doTask(this, 15000)" class="bg-white text-black font-black px-5 py-2 rounded-xl text-xs">YAP</button>
                 </div>
-                <div class="card flex justify-between items-center">
-                    <div>
-                        <p class="text-sm font-bold">Follow Koala on X</p>
-                        <p class="text-xs text-zinc-500">+5,000 $KOALA</p>
+
+                <div class="glass-card flex justify-between items-center py-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/10 text-white rounded-2xl flex items-center justify-center text-2xl">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">X'te Takip Et</p>
+                            <p class="text-xs font-black text-green-500">+10.000 $KOALA</p>
+                        </div>
                     </div>
-                    <button onclick="completeTask(this, 5000)" class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-full">CHECK</button>
+                    <button onclick="doTask(this, 10000)" class="bg-white text-black font-black px-5 py-2 rounded-xl text-xs">YAP</button>
                 </div>
             </div>
         </div>
 
-        <div id="p-frens" class="page text-center">
-            <h2 class="text-3xl font-black mb-2 italic uppercase">Frens</h2>
-            <p class="text-zinc-500 text-sm mb-10">Invite frens, get 10% of their mining.</p>
+        <div id="p-frens" class="page">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">EKİP</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-10 uppercase tracking-widest">Arkadaşlarını Davet Et</p>
             
-            <div class="card flex items-center justify-between py-10">
-                <div class="w-full">
-                    <p class="text-zinc-500 text-xs font-black uppercase mb-2">Your Invite Link</p>
-                    <p class="text-sm font-mono text-white/60 mb-6">t.me/koala_bot?start=ref102</p>
-                    <button onclick="copyLink()" class="btn-white">COPY LINK</button>
-                </div>
+            <div class="glass-card text-center py-12">
+                <i class="fa-solid fa-user-plus text-5xl mb-6 text-zinc-800"></i>
+                <h3 class="text-xl font-black mb-2">Ekibini Kur!</h3>
+                <p class="text-xs text-zinc-500 mb-8 px-6 font-medium">Her davet için %10 üretim bonusu ve 20.000 $KOALA kazanırsın.</p>
+                <button onclick="copyInvite()" class="btn-main">DAVET LİNKİNİ KOPYALA</button>
             </div>
 
-            <div class="mt-4 card text-left">
-                <p class="text-[10px] text-zinc-500 font-black uppercase mb-4">0 Invitations</p>
-                <p class="text-xs text-zinc-600 italic">No frens invited yet. Start building your team!</p>
+            <div class="mt-4">
+                <p class="text-[10px] text-zinc-500 font-black uppercase mb-4 tracking-widest">Davetlerin (0)</p>
+                <div class="glass-card text-center py-6 border-dashed border-zinc-800 bg-transparent">
+                    <p class="text-xs text-zinc-700 font-bold">Henüz kimse yok...</p>
+                </div>
             </div>
         </div>
 
-        <nav class="nav-bar" id="bottom-nav" style="display: none;">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>Mine</span></div>
-            <div class="nav-item" onclick="nav('tasks', this)"><i class="fa-solid fa-list-check"></i><span>Tasks</span></div>
-            <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-user-group"></i><span>Frens</span></div>
+        <div id="p-airdrop" class="page overflow-y-auto">
+            <h2 class="text-4xl font-black mb-2 italic uppercase">AIRDROP</h2>
+            <p class="text-zinc-500 text-sm font-bold mb-10 uppercase tracking-widest">Yol Haritası ve Listeleme</p>
+
+            <div class="glass-card mb-8">
+                <div class="roadmap-item completed">
+                    <h4 class="font-black text-sm">FAZ 1: Başlangıç</h4>
+                    <p class="text-[11px] text-zinc-500 font-medium">Yaş analizi ve topluluk madenciliğinin başlatılması.</p>
+                </div>
+                <div class="roadmap-item completed">
+                    <h4 class="font-black text-sm">FAZ 2: Genişleme</h4>
+                    <p class="text-[11px] text-zinc-500 font-medium">Görevler sistemi ve referans ödüllerinin aktif edilmesi.</p>
+                </div>
+                <div class="roadmap-item">
+                    <h4 class="font-black text-sm">FAZ 3: Cüzdan Bağlama</h4>
+                    <p class="text-[11px] text-zinc-500 font-medium">TON cüzdan entegrasyonu ve Snapshot alımı.</p>
+                </div>
+                <div class="roadmap-item">
+                    <h4 class="font-black text-sm">FAZ 4: Listeleme</h4>
+                    <p class="text-[11px] text-zinc-500 font-medium">DEX ve CEX borsalarında $KOALA listelemesi.</p>
+                </div>
+            </div>
+
+            <button class="btn-main opacity-50 cursor-not-allowed">CÜZDAN BAĞLA (YAKINDA)</button>
+        </div>
+
+        <nav id="bottom-nav" class="nav-bar" style="display: none;">
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house-chimney"></i><span>ANA</span></div>
+            <div class="nav-item" onclick="nav('tasks', this)"><i class="fa-solid fa-bolt"></i><span>GÖREV</span></div>
+            <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
         </nav>
     </div>
 
     <script>
-        let state = {
-            bal: parseFloat(localStorage.getItem('k_bal')) || 0,
-            power: 125.5, // Saatlik kazanç
-            onboarded: localStorage.getItem('k_onboarded') === 'true'
+        // --- UYGULAMA VERİSİ ---
+        let appState = {
+            bal: parseFloat(localStorage.getItem('k_bal_v2')) || 0,
+            power: 128.50,
+            onboarded: localStorage.getItem('k_onboard_v2') === 'true',
+            age: parseInt(localStorage.getItem('k_age_v2')) || 0
         };
 
-        // --- ONBOARDING ---
-        function runAnalysis() {
-            const btn = document.getElementById('btn-run');
-            btn.style.display = 'none';
-            ['s1', 's2', 's3'].forEach((id, i) => {
+        // --- YAŞ HESAPLAMA (AGE GENERATOR) ---
+        function startAgeAnalysis() {
+            document.getElementById('btn-start').style.display = 'none';
+            const steps = ['s1', 's2', 's3', 's4'];
+            
+            steps.forEach((id, index) => {
                 setTimeout(() => {
                     document.getElementById(id).classList.add('active');
-                    if(i === 2) setTimeout(showResult, 1000);
-                }, i * 1500);
+                    if(index === steps.length - 1) {
+                        setTimeout(showAgeResult, 1000);
+                    }
+                }, index * 1200);
             });
         }
 
-        function showResult() {
-            const years = Math.floor(Math.random() * 7) + 2;
-            const bonus = years * 12500;
-            document.getElementById('res-years').innerText = years;
-            document.getElementById('res-reward').innerText = bonus.toLocaleString();
-            state.bal += bonus;
-            document.getElementById('p-check').classList.remove('active');
+        function showAgeResult() {
+            const calculatedAge = Math.floor(Math.random() * 8) + 3; // 3-11 yaş arası
+            const reward = calculatedAge * 15500;
+            
+            appState.age = calculatedAge;
+            appState.bal += reward;
+            
+            document.getElementById('final-age').innerText = calculatedAge;
+            document.getElementById('initial-reward').innerText = reward.toLocaleString();
+            
+            document.getElementById('p-intro').classList.remove('active');
             document.getElementById('p-result').classList.add('active');
+            save();
         }
 
-        function startMining() {
-            state.onboarded = true;
-            localStorage.setItem('k_onboarded', 'true');
+        function enterMining() {
+            appState.onboarded = true;
             document.getElementById('p-result').classList.remove('active');
             document.getElementById('p-home').classList.add('active');
             document.getElementById('bottom-nav').style.display = 'flex';
+            save();
             updateUI();
         }
 
-        // --- MINING ENGINE (PASİF KAZANÇ) ---
-        // Her 1 saniyede bakiyeyi güncelle (power / 3600)
+        // --- MADENCİLİK MOTORU (Saniyede Güncelleme) ---
         setInterval(() => {
-            if(state.onboarded) {
-                const perSecond = state.power / 3600;
-                state.bal += perSecond;
+            if(appState.onboarded) {
+                const yieldPerSec = appState.power / 3600;
+                appState.bal += yieldPerSec;
                 updateUI();
-                localStorage.setItem('k_bal', state.bal);
+                save();
             }
         }, 1000);
 
+        // --- ARAYÜZ GÜNCELLEME ---
         function updateUI() {
-            // Bakiyeyi 4 ondalık basamakla göster (Mining hissi için)
-            document.getElementById('bal-main').innerText = state.bal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('power-val').innerText = state.power;
+            document.getElementById('main-balance').innerText = appState.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('power-val').innerText = appState.power.toFixed(2);
         }
 
-        function nav(page, el) {
+        function nav(pageId, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('p-' + page).classList.add('active');
+            document.getElementById('p-' + pageId).classList.add('active');
             el.classList.add('active');
         }
 
-        function completeTask(btn, reward) {
-            btn.innerText = 'WAIT';
+        function doTask(btn, reward) {
+            btn.innerText = 'KONTROL...';
             btn.disabled = true;
             setTimeout(() => {
-                btn.innerText = 'DONE';
-                state.bal += reward;
+                btn.innerText = 'ALINDI';
+                appState.bal += reward;
                 updateUI();
+                save();
             }, 3000);
         }
 
-        function copyLink() {
-            alert("Invite link copied!");
+        function copyInvite() {
+            alert("Davet linki kopyalandı!");
         }
 
+        function save() {
+            localStorage.setItem('k_bal_v2', appState.bal);
+            localStorage.setItem('k_onboard_v2', appState.onboarded);
+            localStorage.setItem('k_age_v2', appState.age);
+        }
+
+        // --- AÇILIŞ KONTROLÜ ---
         window.onload = () => {
-            if(state.onboarded) {
-                document.getElementById('p-check').classList.remove('active');
+            if(appState.onboarded) {
+                document.getElementById('p-intro').classList.remove('active');
                 document.getElementById('p-home').classList.add('active');
                 document.getElementById('bottom-nav').style.display = 'flex';
                 updateUI();
