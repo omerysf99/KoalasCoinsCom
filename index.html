@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,6 @@
         .page.active { display: flex; }
         @keyframes dogsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Checking Stili */
         .check-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
         .check-item.done { color: #fff; }
         .spinner { width: 16px; height: 16px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -31,7 +30,10 @@
         .card { background: var(--card); border: 1px solid #1a1a1a; padding: 18px; border-radius: 24px; margin-bottom: 12px; }
         .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
         
-        .roadmap-item { position: relative; padding-left: 30px; border-left: 2px solid #222; margin-bottom: 20px; }
+        /* 4 Maddelik Roadmap Stili */
+        .roadmap-container { padding: 5px 10px; }
+        .roadmap-item { position: relative; padding-left: 30px; border-left: 2px solid #222; padding-bottom: 25px; }
+        .roadmap-item:last-child { border-left: 0; }
         .roadmap-item::before { content: ''; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; background: #222; border-radius: 50%; }
         .roadmap-item.active { border-left-color: #fff; }
         .roadmap-item.active::before { background: #fff; box-shadow: 0 0 10px #fff; }
@@ -45,19 +47,19 @@
 
 <div id="app" class="h-full flex flex-col">
     <div id="p-check" class="page">
-        <h1 class="text-4xl font-black italic uppercase mt-10">Checking<br>Account</h1>
+        <h1 class="text-4xl font-black italic uppercase mt-10">Checking<br>Status</h1>
         <div class="flex-1 mt-10">
-            <div id="c1" class="check-item"><span>Telegram Age</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c2" class="check-item"><span>Premium Status</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c3" class="check-item"><span>Koala Score</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c1" class="check-item"><span>Hesap Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c2" class="check-item"><span>Koala Gücü</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c3" class="check-item"><span>Referans Puanı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
         </div>
-        <div onclick="startAnalysis()" id="btn-c" class="btn-main">Analizi Başlat</div>
+        <div onclick="startAnalysis()" id="btn-c" class="btn-main">Sistemi Analiz Et</div>
     </div>
 
     <div id="p-reward" class="page text-center justify-center">
         <div class="koala-box mx-auto mb-6"><img src="coinkoala.jpg"></div>
         <h1 id="gift-amt" class="text-6xl font-black italic mb-2">0</h1>
-        <p class="text-zinc-500 font-bold text-xs uppercase mb-12">$KOALA Puanı Kazandın</p>
+        <p class="text-zinc-500 font-bold text-xs uppercase mb-12">$KOALA OG Bonusu</p>
         <div onclick="toHome()" class="btn-main">Madenciliği Başlat</div>
     </div>
 
@@ -67,8 +69,8 @@
             <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Sabit Hız</p><p class="text-xl font-black italic">+128.50</p></div>
-            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Boost</p><p id="boost-txt" class="text-xl font-black italic">+0.00</p></div>
+            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Temel Hız</p><p class="text-xl font-black italic">+128.50</p></div>
+            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Bonus Hız</p><p id="boost-txt" class="text-xl font-black italic">+0.00</p></div>
         </div>
         <div class="card flex justify-between items-center" onclick="watchAd()">
             <div><p class="font-black italic text-xs uppercase">Hızlandırıcı Reklam</p><p class="text-[9px] text-zinc-500 font-bold">+10.00 PPH (1 Saat)</p></div>
@@ -77,30 +79,46 @@
     </div>
 
     <div id="p-ref" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-6">Davet Et</h2>
+        <h2 class="text-4xl font-black italic uppercase mb-6">Referanslar</h2>
         <div class="card text-center py-8">
-            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Arkadaş Başına</p>
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Davet Başına</p>
             <h3 class="text-3xl font-black italic uppercase">+10,000 $KOALA</h3>
         </div>
         <div id="ref-list" class="flex-1 space-y-2 mt-4 overflow-y-auto"></div>
-        <div onclick="copyRef()" class="btn-main mt-4">Davet Linkini Kopyala</div>
+        <div onclick="copyRef()" class="btn-main mt-4">Arkadaşlarını Davet Et</div>
     </div>
 
     <div id="p-airdrop" class="page">
         <h2 class="text-4xl font-black italic uppercase mb-8">Airdrop</h2>
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1">Borsa Seçimi</h3>
+        
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1 tracking-widest">Borsa Seçimi</h3>
         <div id="ex-list" class="space-y-3 mb-10">
             <div class="card flex items-center gap-4" onclick="saveEx('Binance')"><img src="binance.jpg" class="w-10 h-10 rounded-lg grayscale"><p class="font-black italic uppercase">Binance</p></div>
             <div class="card flex items-center gap-4" onclick="saveEx('OKX')"><img src="okx.jpg" class="w-10 h-10 rounded-lg grayscale"><p class="font-black italic uppercase">OKX</p></div>
         </div>
         <div id="ex-done" class="hidden card text-center py-6 mb-10 border-white/40">
             <h4 id="sel-name" class="text-2xl font-black italic uppercase">None</h4>
-            <p onclick="resetEx()" class="text-[10px] underline mt-3 opacity-30">Borsayı Değiştir</p>
+            <p onclick="resetEx()" class="text-[10px] underline mt-3 opacity-30">Borsayı Güncelle</p>
         </div>
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1">Roadmap</h3>
-        <div class="px-2">
-            <div class="roadmap-item active"><p class="font-black italic text-xs uppercase">Faz 1: Madencilik</p><p class="text-[10px] text-zinc-500">Kazım başladı.</p></div>
-            <div class="roadmap-item"><p class="font-black italic text-xs uppercase">Faz 2: Listeleme</p><p class="text-[10px] text-zinc-500">Borsa anlaşmaları.</p></div>
+
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-6 ml-1 tracking-widest">Koala Yol Haritası</h3>
+        <div class="roadmap-container">
+            <div class="roadmap-item active">
+                <p class="font-black italic text-xs uppercase">1. Madencilik Dönemi</p>
+                <p class="text-[10px] text-zinc-500">Topluluğun büyümesi ve saniyelik $KOALA kazımı. (Aktif)</p>
+            </div>
+            <div class="roadmap-item">
+                <p class="font-black italic text-xs uppercase">2. Borsa Doğrulaması</p>
+                <p class="text-[10px] text-zinc-500">Seçilen borsalar ile entegrasyon ve kullanıcı onayı.</p>
+            </div>
+            <div class="roadmap-item">
+                <p class="font-black italic text-xs uppercase">3. TGE ve Listeleme</p>
+                <p class="text-[10px] text-zinc-500">Token üretim etkinliği ve borsalarda işlem başlangıcı.</p>
+            </div>
+            <div class="roadmap-item">
+                <p class="font-black italic text-xs uppercase">4. Airdrop Dağıtımı</p>
+                <p class="text-[10px] text-zinc-500">Tüm puanların borsa cüzdanlarına transfer edilmesi.</p>
+            </div>
         </div>
     </div>
 
@@ -148,7 +166,7 @@
             setTimeout(() => {
                 document.getElementById(c).classList.add('done');
                 if(i === 2) {
-                    const bonus = Math.floor(Math.random() * 15000) + 5000;
+                    const bonus = Math.floor(Math.random() * 10000) + 5000;
                     u.bal += bonus;
                     document.getElementById('gift-amt').innerText = bonus.toLocaleString();
                     setTimeout(() => show('reward'), 1000);
@@ -170,19 +188,19 @@
             u.bal += ((128.50 + b) / 3600); u.lu = Date.now();
             document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }, 1000);
-        setInterval(() => { if(u.cd) sync(); }, 20000);
+        setInterval(() => { if(u.cd) sync(); }, 15000);
     }
 
-    function watchAd() { u.boostExp = Date.now() + (3600 * 1000); sync(); alert("Boost Aktif!"); }
+    function watchAd() { u.boostExp = Date.now() + (3600 * 1000); sync(); alert("Hızlandırıcı Boost Aktif!"); }
     function saveEx(n) { u.ex = n; sync(); updateUI(); }
     function resetEx() { u.ex = ''; sync(); updateUI(); }
-    function copyRef() { navigator.clipboard.writeText(window.location.origin + '?ref=' + uid); alert("Kopyalandı!"); }
+    function copyRef() { navigator.clipboard.writeText(window.location.origin + '?ref=' + uid); alert("Link Kopyalandı!"); }
 
     function updateUI() {
         if(u.ex) { document.getElementById('ex-list').classList.add('hidden'); document.getElementById('ex-done').classList.remove('hidden'); document.getElementById('sel-name').innerText = u.ex; }
         else { document.getElementById('ex-list').classList.remove('hidden'); document.getElementById('ex-done').classList.add('hidden'); }
-        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 text-[10px] opacity-40">Ref: ${r}</div>`; });
-        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 opacity-20 text-[10px]">No referrals yet</p>';
+        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 text-[10px] opacity-40">Ref ID: ${r}</div>`; });
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 opacity-20 text-[10px]">Henüz referansınız bulunmuyor</p>';
     }
 
     async function sync() { await db.collection("users").doc(uid).set(u); }
