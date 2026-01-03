@@ -13,31 +13,35 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; }
 
-        /* Sayfa Yapısı */
         .page { display: none; height: 100vh; flex-direction: column; padding: 24px 20px 140px; animation: fadeIn 0.4s ease; }
         .page.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Kartlar & Butonlar */
         .card { background: var(--grey); border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; }
         .btn-white { background: #fff; color: #000; padding: 18px; border-radius: 22px; font-weight: 900; width: 100%; text-align: center; }
         .btn-white:active { transform: scale(0.96); }
 
         /* Borsa Seçici Modal */
         #exchange-modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
             z-index: 2000; align-items: center; justify-content: center; padding: 20px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
         .exchange-option { 
             background: #151515; padding: 16px; border-radius: 20px; 
             display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
             border: 1px solid #222; transition: 0.2s;
         }
-        .exchange-option:active { transform: scale(0.98); background: #222; }
         .ex-img { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
 
-        /* Navigasyon */
+        /* Input Alanı */
+        .address-input {
+            background: #000; border: 1px solid #333; border-radius: 16px;
+            padding: 15px; width: 100%; color: #fff; font-family: monospace;
+            font-size: 13px; margin-top: 20px; outline: none; text-align: center;
+        }
+        .address-input:focus { border-color: #555; }
+
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #1a1a1a; display: flex; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #fff; }
@@ -52,91 +56,89 @@
 <body>
 
     <div id="app">
-        <div id="p-intro" class="page active items-center justify-center">
-            <img src="coinkoala.jpg" class="w-24 h-24 rounded-[35px] grayscale mb-10 shadow-2xl">
-            <h2 class="text-2xl font-black mb-1 italic uppercase">Analiz Yapılıyor</h2>
-            <div class="w-full max-w-[280px] mt-8 opacity-40">
-                <p class="mb-4 font-bold text-sm text-white">● Hesap taranıyor...</p>
-                <p class="mb-4 font-bold text-sm text-white">● Aktivite doğrulanıyor...</p>
-                <p class="font-bold text-sm text-white">● Ödül hazırlanıyor...</p>
-            </div>
-            <button onclick="startAnaliz()" id="btn-run" class="btn-white fixed bottom-10 max-w-[340px]">BAŞLAT</button>
-        </div>
-
-        <div id="p-home" class="page">
+        <div id="p-home" class="page active">
             <div class="flex justify-between items-center mb-10">
-                <div class="text-[10px] font-black text-zinc-500">KOALA NETWORK</div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black">MADEN AKTİF</span></div>
+                <div class="text-[10px] font-black text-zinc-500 italic">KOALA NETWORK</div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black uppercase">Aktif</span></div>
             </div>
             <div class="text-center flex-1 flex flex-col justify-center">
                 <p class="text-zinc-600 font-black text-[11px] uppercase tracking-[0.5em] mb-2">Bakiyen</p>
                 <h2 class="text-6xl font-black mb-10 italic" id="main-bal">0.00</h2>
                 <div class="koala-box"><img src="coinkoala.jpg"></div>
                 <div class="mt-12 card flex justify-between items-center text-left">
-                    <div>
-                        <p class="text-[10px] text-zinc-500 font-black uppercase">Üretim Gücü</p>
-                        <p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p>
-                    </div>
+                    <div><p class="text-[10px] text-zinc-500 font-black uppercase">Üretim Gücü</p><p class="text-2xl font-black text-white italic">128.50 <span class="text-xs text-zinc-600">$KOALA/h</span></p></div>
                     <i class="fa-solid fa-bolt text-yellow-500 text-xl"></i>
                 </div>
             </div>
         </div>
 
         <div id="p-airdrop" class="page">
-            <h2 class="text-4xl font-black mb-2 italic uppercase text-center">Airdrop</h2>
-            <p class="text-zinc-600 text-[10px] font-black mb-10 uppercase tracking-widest text-center">Borsa ve Cüzdan Yönetimi</p>
+            <h2 class="text-4xl font-black mb-10 italic uppercase text-center">Airdrop</h2>
 
             <div class="card text-center py-10 mb-6 border-dashed border-zinc-800">
                 <div id="ex-off">
                     <i class="fa-solid fa-building-columns text-4xl mb-6 text-zinc-800"></i>
-                    <p class="text-xs text-zinc-400 mb-8 px-10 leading-relaxed">Listeleme sırasında ödüllerini almak için bir borsa bağlamalısın.</p>
-                    <button onclick="openExModal()" class="btn-white !text-sm !py-4">BORSA SEÇ</button>
+                    <p class="text-xs text-zinc-400 mb-8 px-10">Ödül listelemesi için borsanı bağla ve TON adresini gir.</p>
+                    <button onclick="openExModal()" class="btn-white !text-sm">BORSA BAĞLA</button>
                 </div>
                 
                 <div id="ex-on" style="display: none;">
                     <div class="flex flex-col items-center">
-                        <img id="connected-ex-img" src="" class="w-20 h-20 rounded-2xl mb-4 border-2 border-white/10">
-                        <p class="text-green-500 font-black text-sm mb-1 uppercase tracking-tighter">BAĞLANTI BAŞARILI</p>
-                        <h4 id="connected-ex-name" class="text-2xl font-black italic mb-6">BORSA</h4>
-                        <button onclick="disconnectEx()" class="text-[10px] font-black text-zinc-600 uppercase border border-zinc-800 px-4 py-2 rounded-lg">Değiştir</button>
+                        <img id="connected-ex-img" src="" class="w-16 h-16 rounded-2xl mb-3 border border-white/10">
+                        <h4 id="connected-ex-name" class="text-xl font-black italic">BORSA</h4>
+                        <div class="bg-black/50 p-3 rounded-xl mt-4 w-full">
+                            <p class="text-[9px] text-zinc-500 font-black uppercase mb-1">Kayıtlı TON Adresi</p>
+                            <p id="connected-addr" class="text-[10px] font-mono text-zinc-300 break-all"></p>
+                        </div>
+                        <button onclick="disconnectEx()" class="mt-6 text-[10px] font-black text-zinc-600 uppercase underline">Bağlantıyı Değiştir</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="card bg-zinc-900/20">
-                <h4 class="text-[10px] font-black text-zinc-500 uppercase mb-4">Ödül Takvimi</h4>
-                <div class="flex items-center gap-4 opacity-50"><i class="fa-solid fa-clock text-sm"></i><p class="text-xs font-bold">Snapshot: Yakında Duyurulacak</p></div>
             </div>
         </div>
 
         <div id="exchange-modal">
-            <div class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5">
+            <div id="step-1" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="font-black text-xl italic uppercase">Borsa Seç</h3>
-                    <button onclick="closeExModal()" class="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="closeExModal()" class="text-zinc-500"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 
-                <div class="exchange-option" onclick="connectEx('Binance', 'binance.jpg')">
+                <div class="exchange-option" onclick="selectEx('Binance', 'binance.jpg')">
                     <img src="binance.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
                     <span class="font-black text-white">Binance</span>
                 </div>
                 
-                <div class="exchange-option" onclick="connectEx('OKX', 'okx.jpg')">
+                <div class="exchange-option" onclick="selectEx('OKX', 'okx.jpg')">
                     <img src="okx.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
                     <span class="font-black text-white">OKX</span>
                 </div>
                 
-                <div class="exchange-option" onclick="connectEx('Bitget', 'bitget.jpg')">
+                <div class="exchange-option" onclick="selectEx('Bitget', 'bitget.jpg')">
                     <img src="bitget.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/825/825540.png'">
                     <span class="font-black text-white">Bitget</span>
                 </div>
             </div>
+
+            <div id="step-2" class="w-full max-w-[340px] bg-[#0a0a0a] rounded-[40px] p-8 border border-white/5" style="display: none;">
+                <div class="text-center mb-6">
+                    <img id="temp-ex-img" src="" class="w-16 h-16 rounded-2xl mx-auto mb-4">
+                    <h3 id="temp-ex-name" class="font-black text-xl italic uppercase">BORSA</h3>
+                    <p class="text-xs text-zinc-500 mt-2 italic">Lütfen borsadaki TON (Cüzdan) adresini yapıştır.</p>
+                </div>
+                
+                <input type="text" id="ton-address-input" class="address-input" placeholder="UQ... veya EQA...">
+                
+                <div class="flex gap-2 mt-6">
+                    <button onclick="showStep(1)" class="w-1/3 bg-zinc-900 text-white font-bold rounded-2xl py-4 text-xs">GERİ</button>
+                    <button onclick="finishConnection()" class="w-2/3 btn-white !text-xs !py-4">ADRESİ KAYDET</button>
+                </div>
+            </div>
         </div>
 
-        <div id="p-tasks" class="page"><h2 class="text-2xl font-black uppercase italic mb-6">Görevler</h2><div class="card flex justify-between items-center"><div><p class="text-sm font-bold">Kanala Katıl</p><p class="text-xs text-green-500">+15k</p></div><a href="https://t.me/koalascommunity" target="_blank" class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-lg">KATIL</a></div></div>
-        <div id="p-frens" class="page text-center"><h2 class="text-2xl font-black uppercase italic mb-6">Ekip</h2><div class="card py-10"><i class="fa-solid fa-users text-4xl mb-4 text-zinc-800"></i><p class="text-xs text-zinc-500 mb-8">Arkadaşlarını davet et, hızı artır.</p><button onclick="share()" class="btn-white !text-sm">DAVET ET</button></div></div>
+        <div id="p-tasks" class="page"><h2 class="text-2xl font-black mb-6 italic">GÖREVLER</h2><div class="card"><p class="text-sm font-bold">Kanal Görevi</p><p class="text-xs text-green-500">Tamamlandı</p></div></div>
+        <div id="p-frens" class="page text-center"><h2 class="text-2xl font-black mb-6 italic">EKİP</h2><div class="card py-10"><i class="fa-solid fa-users text-4xl mb-4 text-zinc-800"></i><p class="text-xs text-zinc-500">Henüz ekip üyesi yok.</p></div></div>
 
-        <nav id="bottom-nav" class="nav-bar" style="display: none;">
+        <nav id="bottom-nav" class="nav-bar">
             <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-cube"></i><span>MADEN</span></div>
             <div class="nav-item" onclick="nav('tasks', this)"><i class="fa-solid fa-bolt"></i><span>GÖREV</span></div>
             <div class="nav-item" onclick="nav('frens', this)"><i class="fa-solid fa-users"></i><span>EKİP</span></div>
@@ -146,31 +148,19 @@
 
     <script>
         let userData = {
-            bal: parseFloat(localStorage.getItem('koala_bal_v4')) || 0,
-            onboard: localStorage.getItem('koala_onboard_v4') === 'true',
-            ex: localStorage.getItem('koala_ex_name') || '',
-            exImg: localStorage.getItem('koala_ex_img') || ''
+            bal: parseFloat(localStorage.getItem('koala_bal_v5')) || 15500.00,
+            exName: localStorage.getItem('koala_ex_name_v5') || '',
+            exImg: localStorage.getItem('koala_ex_img_v5') || '',
+            exAddr: localStorage.getItem('koala_ex_addr_v5') || ''
         };
 
-        function startAnaliz() {
-            document.getElementById('btn-run').innerText = "Taranıyor...";
-            setTimeout(() => {
-                userData.onboard = true;
-                userData.bal += 55000; // Başlangıç hediyesi
-                save();
-                document.getElementById('p-intro').classList.remove('active');
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('bottom-nav').style.display = 'flex';
-                updateUI();
-            }, 2000);
-        }
+        let tempEx = { name: '', img: '' };
 
+        // MADENCİLİK
         setInterval(() => {
-            if(userData.onboard) {
-                userData.bal += (128.50 / 3600);
-                updateUI();
-                save();
-            }
+            userData.bal += (128.50 / 3600);
+            updateUI();
+            save();
         }, 1000);
 
         function updateUI() {
@@ -178,34 +168,58 @@
             
             const off = document.getElementById('ex-off');
             const on = document.getElementById('ex-on');
-            if(userData.ex) {
+            if(userData.exName && userData.exAddr) {
                 off.style.display = 'none';
                 on.style.display = 'block';
-                document.getElementById('connected-ex-name').innerText = userData.ex;
+                document.getElementById('connected-ex-name').innerText = userData.exName;
                 document.getElementById('connected-ex-img').src = userData.exImg;
+                document.getElementById('connected-addr').innerText = userData.exAddr;
             } else {
                 off.style.display = 'block';
                 on.style.display = 'none';
             }
         }
 
-        // Borsa Yönetimi
-        function openExModal() { document.getElementById('exchange-modal').style.display = 'flex'; }
+        // BORSA SEÇİM SÜRECİ
+        function openExModal() { 
+            showStep(1);
+            document.getElementById('exchange-modal').style.display = 'flex'; 
+        }
         function closeExModal() { document.getElementById('exchange-modal').style.display = 'none'; }
 
-        function connectEx(name, img) {
-            userData.ex = name;
-            userData.exImg = img;
+        function showStep(step) {
+            document.getElementById('step-1').style.display = step === 1 ? 'block' : 'none';
+            document.getElementById('step-2').style.display = step === 2 ? 'block' : 'none';
+        }
+
+        function selectEx(name, img) {
+            tempEx.name = name;
+            tempEx.img = img;
+            document.getElementById('temp-ex-name').innerText = name;
+            document.getElementById('temp-ex-img').src = img;
+            showStep(2);
+        }
+
+        function finishConnection() {
+            const addr = document.getElementById('ton-address-input').value;
+            if(addr.length < 10) {
+                alert("Lütfen geçerli bir TON adresi girin!");
+                return;
+            }
+            userData.exName = tempEx.name;
+            userData.exImg = tempEx.img;
+            userData.exAddr = addr;
             save();
             updateUI();
             closeExModal();
-            alert(name + " başarıyla bağlandı!");
+            alert("Borsa ve Adres Başarıyla Bağlandı!");
         }
 
         function disconnectEx() {
-            if(confirm("Borsa bağlantısını değiştirmek istiyor musun?")) {
-                userData.ex = '';
+            if(confirm("Bağlantıyı kesmek istediğine emin misin?")) {
+                userData.exName = '';
                 userData.exImg = '';
+                userData.exAddr = '';
                 save();
                 updateUI();
             }
@@ -218,27 +232,14 @@
             el.classList.add('active');
         }
 
-        function share() {
-            const link = "https://t.me/KoalaArcadeBot?start=ref123";
-            const text = encodeURIComponent("🐨 Koala Arcade'de madencilik yap! Telegram yaşın kadar ödül kazan.");
-            window.open(`https://t.me/share/url?url=${link}&text=${text}`, '_blank');
-        }
-
         function save() {
-            localStorage.setItem('koala_bal_v4', userData.bal);
-            localStorage.setItem('koala_onboard_v4', userData.onboard);
-            localStorage.setItem('koala_ex_name', userData.ex);
-            localStorage.setItem('koala_ex_img', userData.exImg);
+            localStorage.setItem('koala_bal_v5', userData.bal);
+            localStorage.setItem('koala_ex_name_v5', userData.exName);
+            localStorage.setItem('koala_ex_img_v5', userData.exImg);
+            localStorage.setItem('koala_ex_addr_v5', userData.exAddr);
         }
 
-        window.onload = () => {
-            if(userData.onboard) {
-                document.getElementById('p-intro').classList.remove('active');
-                document.getElementById('p-home').classList.add('active');
-                document.getElementById('bottom-nav').style.display = 'flex';
-                updateUI();
-            }
-        };
+        window.onload = updateUI;
     </script>
 </body>
 </html>
