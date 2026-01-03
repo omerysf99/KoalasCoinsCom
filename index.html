@@ -3,183 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE PRO</title>
+    <title>KOALA - GOATS STYLE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
         
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        :root { --main: #ffffff; --bg: #000000; --accent: #1a1a1a; }
 
-        /* --- CHECKING ANIMATIONS --- */
-        .scan-line { height: 2px; background: linear-gradient(90deg, transparent, #fff, transparent); position: relative; animation: scan 2s infinite; }
-        @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
-        .success-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        body { 
+            background-color: var(--bg); color: var(--main); 
+            font-family: 'Space Grotesk', sans-serif; 
+            margin: 0; overflow: hidden; height: 100vh;
+        }
 
-        /* --- HOME COMPONENTS --- */
-        .stat-card { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; text-align: center; }
-        .daily-btn { background: linear-gradient(45deg, #1e1e1e, #111); border: 1px solid #333; border-radius: 15px; padding: 12px; width: 100%; margin-top: 15px; font-weight: 700; color: #aaa; }
+        /* --- GOATS LOADING --- */
+        #checking-screen {
+            position: fixed; inset: 0; background: #000; z-index: 100000;
+            display: flex; flex-direction: column; padding: 40px 20px;
+        }
+        .terminal-text { font-family: monospace; font-size: 12px; color: #555; margin-bottom: 5px; }
+        .progress-line { width: 100%; height: 1px; background: #222; margin: 20px 0; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: #fff; transition: width 0.3s; }
 
-        /* --- GAMES (CLOSED) --- */
-        .maintenance-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed #333; }
-
-        /* --- NAV & MODALS --- */
-        #ton-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; display: none; align-items: flex-end; }
-        #ton-modal { width: 100%; background: #1c1c1e; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 24px; transform: translateY(100%); transition: 0.3s; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 0 35px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 800; gap: 4px; }
+        /* --- NAV BAR (GOATS STYLE) --- */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #000; border-top: 1px solid #1a1a1a;
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            padding: 10px 0 30px; z-index: 1000;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; gap: 5px; }
         .nav-item.active { color: #fff; }
+        .nav-item i { font-size: 20px; }
+        .nav-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- CARDS --- */
+        .goats-card {
+            background: #0a0a0a; border: 1px solid #151515;
+            border-radius: 12px; padding: 20px; margin-bottom: 10px;
+        }
+        .action-btn {
+            background: #fff; color: #000; font-weight: 700;
+            padding: 15px; border-radius: 8px; width: 100%;
+            text-transform: uppercase; font-size: 14px;
+        }
+
         .page-content { display: none; height: 100%; overflow-y: auto; padding: 20px 20px 120px; }
         .active-page { display: flex; flex-direction: column; }
+
+        /* Maintenance Overlay */
+        .lock-screen {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div id="screen-checking" class="fixed inset-0 bg-black z-[100000] flex flex-col items-center justify-center p-10">
-        <div class="relative mb-10">
-            <img src="babykoalas.jpg" class="w-48 h-48 rounded-[40px] object-cover grayscale opacity-50">
-            <div class="absolute inset-0 border-4 border-white/20 rounded-[40px] overflow-hidden">
-                <div class="scan-line"></div>
-            </div>
+    <div id="checking-screen">
+        <div class="mt-20">
+            <h1 class="text-3xl font-bold mb-2">KOALA</h1>
+            <p class="text-zinc-500 text-sm font-medium">VERIFYING YOUR ASSETS...</p>
         </div>
-        <div class="w-full max-w-xs space-y-4">
-            <div id="check-1" class="flex justify-between items-center opacity-30 transition-all duration-500">
-                <span class="text-zinc-500 font-bold uppercase text-[11px] tracking-widest">Account Seniority</span>
-                <span class="text-white font-black">WAITING...</span>
-            </div>
-            <div id="check-2" class="flex justify-between items-center opacity-30 transition-all duration-500">
-                <span class="text-zinc-500 font-bold uppercase text-[11px] tracking-widest">Activity Score</span>
-                <span class="text-white font-black">WAITING...</span>
-            </div>
-            <div id="check-3" class="flex justify-between items-center opacity-30 transition-all duration-500">
-                <span class="text-zinc-500 font-bold uppercase text-[11px] tracking-widest">Bot Verification</span>
-                <span class="text-white font-black">WAITING...</span>
-            </div>
+        
+        <div class="mt-auto mb-10">
+            <div id="terminal-logs"></div>
+            <div class="progress-line"><div id="progress-fill" class="progress-fill"></div></div>
         </div>
     </div>
 
-    <div id="main-app" class="hidden h-screen flex flex-col">
+    <div id="main-app" class="hidden h-screen">
         
         <div id="page-home" class="page-content active-page">
-            <div class="flex justify-between items-center mb-10 mt-6">
-                <div class="bg-zinc-900 px-4 py-1 rounded-full text-[10px] font-black tracking-tighter">RANK #1,204</div>
-                <i class="fa-solid fa-bell text-zinc-700"></i>
+            <div class="mt-10 mb-12">
+                <p class="text-zinc-500 font-bold text-xs uppercase tracking-widest mb-2">Total Balance</p>
+                <h1 id="balance" class="text-6xl font-bold tracking-tighter">0</h1>
             </div>
-            
-            <div class="text-center mb-10">
-                <div class="relative inline-block mb-4">
-                    <img src="coinkoala.jpg" class="w-24 h-24 rounded-full border-4 border-zinc-900 mx-auto shadow-2xl">
-                    <div class="absolute -bottom-1 -right-1 bg-white text-black text-[10px] font-black px-2 py-0.5 rounded-lg">OG</div>
+
+            <div class="goats-card flex justify-between items-center">
+                <div>
+                    <p class="text-zinc-500 text-[10px] font-bold uppercase">Daily Check-in</p>
+                    <p class="text-sm font-bold mt-1">Day 1 / 7</p>
                 </div>
-                <h1 id="main-balance" class="text-5xl font-black tracking-tighter">0</h1>
-                <p class="text-zinc-600 font-bold text-[10px] uppercase tracking-[0.2em] mt-2">$KOALA ASSETS</p>
+                <button class="bg-zinc-800 px-4 py-2 rounded text-xs font-bold" onclick="this.innerText='DONE'">CLAIM</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="stat-card"><div class="text-[9px] text-zinc-600 font-black uppercase mb-1">Invited</div><div class="font-black text-xl">12</div></div>
-                <div class="stat-card"><div class="text-[9px] text-zinc-600 font-black uppercase mb-1">Tasks</div><div class="font-black text-xl">8/12</div></div>
+            <div class="mt-6">
+                <h3 class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-4">Missions</h3>
+                <div class="goats-card flex items-center gap-4">
+                    <div class="w-10 h-10 bg-zinc-900 rounded flex items-center justify-center"><i class="fa-brands fa-telegram"></i></div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold">Join Community</p>
+                        <p class="text-zinc-500 text-[10px]">+1,000 $KOALA</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-zinc-800"></i>
+                </div>
             </div>
-
-            <button class="daily-btn" onclick="this.innerText='CLAIMED ✅'; this.style.color='#fff'">
-                CLAIM DAILY REWARD (+50)
-            </button>
         </div>
 
         <div id="page-games" class="page-content">
-            <h2 class="text-3xl font-black mt-8 mb-6 uppercase tracking-tighter">Arcade</h2>
-            <div class="maintenance-overlay flex-1 p-8">
-                <div class="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-hammer text-3xl text-zinc-500"></i>
-                </div>
-                <h3 class="font-black text-xl uppercase mb-2">Under Maintenance</h3>
-                <p class="text-zinc-500 text-sm font-bold">We are upgrading our servers for a better gaming experience. Back in 12:45:00</p>
-                <div class="mt-8 w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                    <div class="bg-white w-1/3 h-full"></div>
-                </div>
+            <div class="lock-screen">
+                <div class="text-4xl mb-4">🔒</div>
+                <h2 class="text-xl font-bold uppercase tracking-tighter">Arcade Locked</h2>
+                <p class="text-zinc-500 text-sm mt-2">Season 1 begins in 48 hours.</p>
             </div>
         </div>
 
         <div id="page-airdrop" class="page-content">
-            <h2 class="text-3xl font-black mt-8 mb-2 uppercase tracking-tighter">Airdrop</h2>
-            <p class="text-zinc-500 font-bold text-sm mb-8">Maximize your eligibility before the snapshot.</p>
-
-            <div class="bg-[#0d0d0d] border border-zinc-900 rounded-[30px] p-8 text-center mb-6">
-                <div id="wallet-icon-box" class="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <i class="fa-solid fa-wallet text-2xl text-zinc-700"></i>
-                </div>
-                <h4 id="wallet-title" class="font-black text-xl mb-6">Connect TON Wallet</h4>
-                <button id="wallet-btn" class="bg-white text-black w-full py-4 rounded-2xl font-black" onclick="openModal()">LINK WALLET</button>
-                <div id="wallet-info" class="hidden mt-4 text-green-500 font-bold text-xs uppercase">Verified: UQBx...4kL9</div>
+            <div class="mt-10 mb-8">
+                <h2 class="text-3xl font-bold uppercase tracking-tighter">Airdrop</h2>
+                <p class="text-zinc-500 text-sm">Tasks to be eligible for $KOALA.</p>
             </div>
 
-            <h3 class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4 ml-2">Airdrop Checklist</h3>
-            <div class="space-y-3">
-                <div class="flex justify-between items-center bg-zinc-950 p-4 rounded-2xl">
-                    <span class="text-sm font-bold">Wallet Linked</span>
-                    <i class="fa-solid fa-circle-check text-zinc-800"></i>
+            <div id="wallet-section">
+                <div id="not-connected">
+                    <div class="goats-card text-center py-10">
+                        <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fa-solid fa-wallet text-xl"></i>
+                        </div>
+                        <h4 class="font-bold mb-8">Link your TON wallet</h4>
+                        <button class="action-btn" onclick="openWalletModal()">Connect Wallet</button>
+                    </div>
                 </div>
-                <div class="flex justify-between items-center bg-zinc-950 p-4 rounded-2xl">
-                    <span class="text-sm font-bold">Premium Membership</span>
-                    <i class="fa-solid fa-circle-check text-zinc-800"></i>
+
+                <div id="connected-ui" class="hidden">
+                    <div class="goats-card">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-white rounded flex items-center justify-center"><i class="fa-solid fa-check text-black text-xs"></i></div>
+                            <span class="font-bold text-sm uppercase">Wallet Connected</span>
+                        </div>
+                        <p id="addr-text" class="text-zinc-500 font-mono text-xs mb-6">UQ...4kL9</p>
+                        <button class="text-zinc-700 text-[10px] font-bold uppercase" onclick="location.reload()">Disconnect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-2">
+                <div class="goats-card flex justify-between items-center opacity-50">
+                    <span class="text-xs font-bold uppercase">Pass Verification</span>
+                    <i class="fa-solid fa-lock text-[10px]"></i>
+                </div>
+                <div class="goats-card flex justify-between items-center opacity-50">
+                    <span class="text-xs font-bold uppercase">Hold 10,000 $KOALA</span>
+                    <i class="fa-solid fa-lock text-[10px]"></i>
                 </div>
             </div>
         </div>
 
         <div class="nav-bar">
-            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house-chimney text-xl"></i><span>HOME</span></div>
-            <div class="nav-item" onclick="nav('games', this)"><i class="fa-solid fa-gamepad text-xl"></i><span>GAMES</span></div>
-            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-wallet text-xl"></i><span>AIRDROP</span></div>
+            <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-ghost"></i><span>HOME</span></div>
+            <div class="nav-item" onclick="nav('games', this)"><i class="fa-solid fa-bolt"></i><span>GAMES</span></div>
+            <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>AIRDROP</span></div>
         </div>
     </div>
 
-    <div id="ton-modal-overlay" onclick="closeModal()">
-        <div id="ton-modal" onclick="event.stopPropagation()">
-            <h3 class="text-xl font-black mb-6">Select Provider</h3>
-            <div class="bg-zinc-800 p-4 rounded-2xl flex items-center gap-4 mb-3" onclick="linkSim('Telegram Wallet')">
-                <img src="https://cryptologos.cc/logos/telegram-messenger-logo.png" class="w-10 h-10">
-                <span class="font-black">Wallet on Telegram</span>
+    <div id="modal-overlay" class="fixed inset-0 bg-black/90 z-[200000] hidden flex-col justify-end">
+        <div class="bg-zinc-950 p-6 rounded-t-3xl border-t border-zinc-900">
+            <div class="flex justify-between items-center mb-6">
+                <span class="font-bold uppercase text-xs tracking-widest">Select Wallet</span>
+                <i class="fa-solid fa-xmark" onclick="closeWalletModal()"></i>
             </div>
-            <div class="bg-zinc-800 p-4 rounded-2xl flex items-center gap-4" onclick="linkSim('Tonkeeper')">
-                <img src="https://tonkeeper.com/assets/img/tonkeeper_logo.png" class="w-10 h-10">
-                <span class="font-black">Tonkeeper</span>
+            <div class="space-y-3">
+                <div class="goats-card flex items-center gap-4 mb-0" onclick="connectSim('Telegram Wallet')">
+                    <img src="https://cryptologos.cc/logos/telegram-messenger-logo.png" class="w-8 h-8">
+                    <span class="font-bold text-sm">Wallet on Telegram</span>
+                </div>
+                <div class="goats-card flex items-center gap-4 mb-0" onclick="connectSim('Tonkeeper')">
+                    <img src="https://tonkeeper.com/assets/img/tonkeeper_logo.png" class="w-8 h-8">
+                    <span class="font-bold text-sm">Tonkeeper</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CHECKING SEQUENCE ---
+        // --- GOATS LOADING SEQUENCE ---
+        const logs = [
+            "Initializing protocol...",
+            "Checking account age...",
+            "Validating premium status...",
+            "Analyzing activity data...",
+            "Calculating $KOALA allocation...",
+            "Ready."
+        ];
+
         window.onload = () => {
-            const steps = [
-                {id: 'check-1', text: '5.4 YEARS ✅'},
-                {id: 'check-2', text: 'HIGH ACTIVITY ✅'},
-                {id: 'check-3', text: 'HUMAN VERIFIED ✅'}
-            ];
+            let i = 0;
+            const logBox = document.getElementById('terminal-logs');
+            const bar = document.getElementById('progress-fill');
 
-            steps.forEach((step, i) => {
-                setTimeout(() => {
-                    const el = document.getElementById(step.id);
-                    el.style.opacity = '1';
-                    el.querySelector('.font-black').innerText = step.text;
-                    el.classList.add('success-pop');
-                }, 1500 * (i + 1));
-            });
-
-            setTimeout(() => {
-                document.getElementById('screen-checking').style.display = 'none';
-                document.getElementById('main-app').classList.remove('hidden');
-                animateBalance(3450);
-            }, 5500);
+            const interval = setInterval(() => {
+                if(i < logs.length) {
+                    const p = document.createElement('p');
+                    p.className = 'terminal-text';
+                    p.innerText = `> ${logs[i]}`;
+                    logBox.appendChild(p);
+                    bar.style.width = ((i + 1) / logs.length * 100) + '%';
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('checking-screen').style.display = 'none';
+                        document.getElementById('main-app').classList.remove('hidden');
+                        countUp(4820);
+                    }, 1000);
+                }
+            }, 800);
         };
 
-        function animateBalance(target) {
-            let curr = 0;
-            const el = document.getElementById('main-balance');
-            const int = setInterval(() => {
-                curr += 50;
-                el.innerText = curr.toLocaleString();
-                if(curr >= target) clearInterval(int);
-            }, 20);
+        function countUp(target) {
+            let current = 0;
+            const el = document.getElementById('balance');
+            const step = target / 50;
+            const timer = setInterval(() => {
+                current += step;
+                el.innerText = Math.floor(current).toLocaleString();
+                if(current >= target) {
+                    el.innerText = target.toLocaleString();
+                    clearInterval(timer);
+                }
+            }, 30);
         }
 
         function nav(page, el) {
@@ -189,24 +233,16 @@
             el.classList.add('active');
         }
 
-        function openModal() {
-            document.getElementById('ton-modal-overlay').style.display = 'flex';
-            setTimeout(() => document.getElementById('ton-modal').style.transform = 'translateY(0)', 10);
-        }
+        function openWalletModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+        function closeWalletModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
-        function closeModal() {
-            document.getElementById('ton-modal').style.transform = 'translateY(100%)';
-            setTimeout(() => document.getElementById('ton-modal-overlay').style.display = 'none', 300);
-        }
-
-        function linkSim(name) {
-            closeModal();
-            document.getElementById('wallet-btn').innerText = "CONNECTING...";
+        function connectSim(name) {
+            closeWalletModal();
+            document.querySelector('#not-connected button').innerText = "LINKING...";
             setTimeout(() => {
-                document.getElementById('wallet-btn').style.display = 'none';
-                document.getElementById('wallet-title').innerText = name + " LINKED";
-                document.getElementById('wallet-info').classList.remove('hidden');
-                document.getElementById('wallet-icon-box').innerHTML = '<i class="fa-solid fa-link text-2xl text-green-500"></i>';
+                document.getElementById('not-connected').classList.add('hidden');
+                document.getElementById('connected-ui').classList.remove('hidden');
+                document.getElementById('addr-text').innerText = "UQ" + Math.random().toString(36).substr(2, 12).toUpperCase();
             }, 1500);
         }
     </script>
