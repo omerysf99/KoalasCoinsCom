@@ -3,205 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | TELEGRAM AGE</title>
+    <title>KOALA ARCADE | WHO ARE YOU?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;600;800;900&display=swap');
-        :root { --primary: #00ffa3; --energy: #fbbf24; --bg: #000; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; user-select: none; }
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
-
-        /* Sayfa ve Navigasyon (Önceki kodlardan korundu) */
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 20px 140px; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 95px; background: rgba(5,5,5,0.9); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: 25px; backdrop-filter: blur(10px); z-index: 1000; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 9px; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
-        .nav-btn.active { color: #fff; }
-        .nav-btn i { font-size: 22px; margin-bottom: 4px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; user-select: none; }
+        body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        /* Görev Kartları */
-        .task-card { background: var(--glass); border: 1px solid var(--border); padding: 18px; border-radius: 24px; margin-bottom: 12px; transition: 0.3s; }
-        .btn-check { background: var(--primary); color: #000; padding: 10px 20px; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+        /* Sayfalar */
+        .page { display: none; height: 100vh; padding: 20px; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .page.active { display: flex; animation: dogsFade 0.5s ease; }
         
-        /* Telegram Age Scanner Görseli */
-        .scanner-line { width: 100%; height: 2px; background: var(--primary); position: absolute; top: 0; box-shadow: 0 0 15px var(--primary); animation: scan 2s infinite linear; display: none; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes dogsFade { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Önceki Stillere Eklemeler */
-        .koala-circle { width: 260px; height: 260px; object-fit: cover; border-radius: 50%; border: 8px solid #0a0a0a; margin: 0 auto; display: block;}
-        .float-text { position: absolute; font-weight: 900; font-size: 32px; pointer-events: none; animation: float 0.8s ease-out forwards; z-index: 2000; font-family: 'Orbitron'; }
-        @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        /* DOGS Animasyonlu Yazılar */
+        .scan-text { font-size: 14px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; color: #555; }
+        .scan-active { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+
+        /* Büyük Sayı Fontu */
+        .dogs-number { font-size: 80px; font-weight: 900; line-height: 1; margin: 20px 0; }
+        .dogs-sub { font-size: 14px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Butonlar */
+        .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 320px; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 16px; transition: 0.2s; position: absolute; bottom: 40px; }
+        .dogs-btn:active { transform: scale(0.96); opacity: 0.8; }
+
+        /* Madenci Sayfası Nav */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #000; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #111; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #444; }
+        .nav-item.active { color: #fff; }
+
+        /* Koala Görseli */
+        .koala-main { width: 240px; height: 240px; border-radius: 50%; border: 4px solid #fff; }
     </style>
 </head>
 <body>
 
-    <div id="app">
-        <div id="p-main" class="page active text-center">
-            <div class="flex justify-between items-center mb-6">
-                <div class="bg-zinc-900 px-4 py-2 rounded-full text-[10px] font-bold">⚡ <span id="energy-txt">1000/1000</span></div>
-                <button onclick="toggleMode()" id="mode-toggle" class="text-amber-500 font-black text-[10px] uppercase">Enerji Modu</button>
-            </div>
-            <h1 id="balance" class="text-6xl font-black italic mb-8">0</h1>
-            <div class="relative inline-block" id="koala-btn">
-                <img src="coinkoala.jpg" class="koala-circle shadow-2xl">
-            </div>
+    <div id="p-intro" class="page active">
+        <img src="coinkoala.jpg" class="w-24 h-24 rounded-full mb-8 grayscale">
+        <div class="space-y-4 text-left w-full max-w-[280px]">
+            <p id="s1" class="scan-text">Checking account...</p>
+            <p id="s2" class="scan-text">Analyzing Telegram activity...</p>
+            <p id="s3" class="scan-text">Calculating seniority...</p>
+            <p id="s4" class="scan-text">Checking reward eligibility...</p>
+        </div>
+        <button id="age-start-btn" onclick="startAnalysis()" class="dogs-btn">I'M READY</button>
+    </div>
+
+    <div id="p-result" class="page">
+        <h2 class="text-xl font-black italic">YOU ARE A LEGEND</h2>
+        <div class="dogs-number" id="final-years">5</div>
+        <div class="dogs-sub">Years on Telegram</div>
+        
+        <div class="mt-12 p-6 border border-white/10 rounded-3xl bg-white/5 w-full max-w-[320px]">
+            <p class="text-xs font-bold text-white/40 uppercase mb-2">Your Reward</p>
+            <p class="text-3xl font-black">+ <span id="reward-amt">25,000</span> $KOALA</p>
         </div>
 
-        <div id="p-check" class="page">
-            <h2 class="text-4xl font-black italic mb-6 tracking-tighter uppercase">Görevler</h2>
+        <button onclick="goToGame()" class="dogs-btn">CONTINUE</button>
+    </div>
 
-            <div id="age-module" class="task-card relative overflow-hidden border-primary/30 bg-primary/5">
-                <div id="scanner" class="scanner-line"></div>
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary text-xl">
-                            <i class="fa-brands fa-telegram"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold">Hesap Yaşını Kontrol Et</p>
-                            <p class="text-[10px] text-zinc-400 italic">Telegram'da ne kadar eskiyiz?</p>
-                        </div>
-                    </div>
-                    <button id="age-btn" onclick="checkTelegramAge()" class="w-full btn-check">Hesabımı Tara</button>
-                    
-                    <div id="age-result" class="hidden text-center p-4 border-t border-white/5 mt-2 animate-pulse">
-                        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Hesabınız Tam</p>
-                        <h3 id="age-years" class="text-3xl font-black text-primary">4 YILLIK</h3>
-                        <p id="age-reward" class="text-xs text-white font-bold mt-1">+25,000 $KOALA eklendi!</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="task-card flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <i class="fa-brands fa-x-twitter text-2xl"></i>
-                    <div>
-                        <p class="text-sm font-bold">X'te Takip Et</p>
-                        <p class="text-[10px] text-primary">+5,000 $KOALA</p>
-                    </div>
-                </div>
-                <button onclick="completeTask(this, 5000)" class="btn-check">Kontrol</button>
-            </div>
+    <div id="p-main" class="page">
+        <div class="absolute top-10 left-0 right-0">
+            <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Balance</p>
+            <h1 id="balance" class="text-5xl font-black italic">0</h1>
         </div>
 
-        <div id="p-market" class="page"><h2 class="text-3xl font-black italic">Market</h2></div>
-        <div id="p-crew" class="page"><h2 class="text-3xl font-black italic text-center">Ekibini Davet Et</h2></div>
-        <div id="p-airdrop" class="page"><h2 class="text-3xl font-black italic">Airdrop Yakında</h2></div>
+        <div class="relative active:scale-95 transition-transform" id="koala-click">
+            <img src="coinkoala.jpg" class="koala-main">
+        </div>
 
-        <nav class="nav-bar">
-            <div class="nav-btn active" onclick="nav('main', this)"><i class="fa-solid fa-fire"></i><span>Oyna</span></div>
-            <div class="nav-btn" onclick="nav('check', this)"><i class="fa-solid fa-list-check"></i><span>Check</span></div>
-            <div class="nav-btn" onclick="nav('market', this)"><i class="fa-solid fa-shop"></i><span>Market</span></div>
-            <div class="nav-btn" onclick="nav('crew', this)"><i class="fa-solid fa-user-group"></i><span>Ekip</span></div>
-            <div class="nav-btn" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
-        </nav>
+        <div class="nav-bar">
+            <div class="nav-item active"><i class="fa-solid fa-bone text-xl mb-1"></i>MINE</div>
+            <div class="nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i>TASKS</div>
+            <div class="nav-item"><i class="fa-solid fa-parachute-box text-xl mb-1"></i>AIRDROP</div>
+        </div>
     </div>
 
     <script>
         let state = {
-            bal: parseFloat(localStorage.getItem('k_bal')) || 0,
-            energy: 1000,
-            mode: 'MINE',
-            ageChecked: localStorage.getItem('k_age_checked') === 'true'
+            bal: parseInt(localStorage.getItem('k_bal')) || 0,
+            hasChecked: localStorage.getItem('k_dogs_checked') === 'true'
         };
 
-        // --- TELEGRAM AGE KONTROLÜ ---
-        function checkTelegramAge() {
-            if(state.ageChecked) {
-                alert("Zaten kontrol ettiniz!");
-                return;
-            }
-
-            const btn = document.getElementById('age-btn');
-            const scanner = document.getElementById('scanner');
-            const result = document.getElementById('age-result');
-            
-            btn.disabled = true;
-            btn.innerText = "Taranıyor...";
-            scanner.style.display = "block";
-
-            // Sahte Tarama Süresi (3 Saniye)
-            setTimeout(() => {
-                scanner.style.display = "none";
-                btn.classList.add('hidden');
-                
-                // Rastgele bir yaş belirleyelim (Gerçek botta bu API'den gelir)
-                const years = Math.floor(Math.random() * 8) + 1;
-                const reward = years * 10000;
-                
-                document.getElementById('age-years').innerText = `${years} YILLIK`;
-                document.getElementById('age-reward').innerText = `+${reward.toLocaleString()} $KOALA Eklendi!`;
-                result.classList.remove('hidden');
-
-                state.bal += reward;
-                state.ageChecked = true;
-                localStorage.setItem('k_age_checked', 'true');
-                localStorage.setItem('k_bal', state.bal);
-                updateUI();
-            }, 3000);
-        }
-
-        // --- GÖREV TAMAMLAMA ---
-        function completeTask(btn, reward) {
-            btn.innerText = "...";
-            setTimeout(() => {
-                btn.innerText = "Tamamlandı";
-                btn.disabled = true;
-                btn.style.opacity = "0.5";
-                state.bal += reward;
-                updateUI();
-                localStorage.setItem('k_bal', state.bal);
-            }, 1500);
-        }
-
-        // --- TEMEL OYUN FONKSİYONLARI ---
-        const koalaBtn = document.getElementById('koala-btn');
-        koalaBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.changedTouches[0];
-            if(state.mode === 'MINE') {
-                state.bal += 1;
-                createFloat(touch.clientX, touch.clientY, "+1", "#fff");
-            } else {
-                state.energy = Math.min(1000, state.energy + 5);
-                createFloat(touch.clientX, touch.clientY, "+5⚡", "#fbbf24");
-            }
+        // Eğer daha önce kontrol ettiyse direkt oyuna yolla
+        if(state.hasChecked) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('p-main').classList.add('active');
             updateUI();
+        }
+
+        function startAnalysis() {
+            const btn = document.getElementById('age-start-btn');
+            btn.style.display = 'none';
+
+            const steps = ['s1', 's2', 's3', 's4'];
+            steps.forEach((id, index) => {
+                setTimeout(() => {
+                    document.getElementById(id).classList.add('scan-active');
+                    if(index === steps.length - 1) {
+                        setTimeout(showResult, 1000);
+                    }
+                }, index * 800);
+            });
+        }
+
+        function showResult() {
+            document.getElementById('p-intro').classList.remove('active');
+            document.getElementById('p-result').classList.add('active');
+            
+            // Rastgele yaş ve ödül (DOGS mantığı)
+            const years = Math.floor(Math.random() * 7) + 3;
+            const reward = years * 5500;
+            
+            document.getElementById('final-years').innerText = years;
+            document.getElementById('reward-amt').innerText = reward.toLocaleString();
+            
+            state.bal += reward;
+        }
+
+        function goToGame() {
+            state.hasChecked = true;
+            localStorage.setItem('k_dogs_checked', 'true');
+            localStorage.setItem('k_bal', state.bal);
+            
+            document.getElementById('p-result').classList.remove('active');
+            document.getElementById('p-main').classList.add('active');
+            updateUI();
+        }
+
+        // Tıklama Sistemi
+        document.getElementById('koala-click').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            state.bal += 1;
+            updateUI();
+            save();
         });
-
-        function createFloat(x, y, txt, color) {
-            const d = document.createElement('div');
-            d.className = 'float-text';
-            d.innerText = txt; d.style.left = x + 'px'; d.style.top = y + 'px'; d.style.color = color;
-            document.body.appendChild(d);
-            setTimeout(() => d.remove(), 800);
-        }
-
-        function toggleMode() {
-            state.mode = state.mode === 'MINE' ? 'ENERGY' : 'MINE';
-            document.getElementById('mode-toggle').innerText = state.mode === 'MINE' ? 'Enerji Modu' : 'Madencilik';
-        }
 
         function updateUI() {
             document.getElementById('balance').innerText = Math.floor(state.bal).toLocaleString();
-            document.getElementById('energy-txt').innerText = `${state.energy}/1000`;
-            if(state.ageChecked) {
-                document.getElementById('age-btn').classList.add('hidden');
-                document.getElementById('age-result').classList.remove('hidden');
-            }
         }
 
-        function nav(p, el) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById('p-' + p).classList.add('active');
-            el.classList.add('active');
+        function save() {
+            localStorage.setItem('k_bal', state.bal);
         }
-
-        window.onload = updateUI;
     </script>
 </body>
 </html>
