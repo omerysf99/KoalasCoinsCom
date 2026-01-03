@@ -39,8 +39,9 @@
         .user-summary { text-align: center; padding: 40px 0; }
         .user-balance { font-size: 48px; font-weight: 900; margin-bottom: 4px; }
         
-        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; transition: background 0.2s; }
-        .dogs-row:active { background: #1a1a1a; }
+        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .dogs-row:active { transform: scale(0.98); background: #151515; }
+        .dogs-row.disabled { opacity: 0.5; cursor: default; pointer-events: none; }
         .dogs-row i { font-size: 20px; width: 30px; text-align: center; }
         .dogs-row-label { font-weight: 700; font-size: 14px; flex: 1; margin-left: 12px; }
         .dogs-row-val { font-weight: 700; color: #888; }
@@ -54,7 +55,7 @@
 
     <div id="checking-screen">
         <img src="babykoalas.jpg" class="baby-banner">
-        <p class="mb-4 text-xs font-bold tracking-widest text-zinc-500 uppercase">Analyzing your profile</p>
+        <p class="mb-4 text-xs font-bold tracking-widest text-zinc-500 uppercase">Analyzing profile</p>
         <div class="progress-container"><div id="progress-fill"></div></div>
     </div>
 
@@ -76,23 +77,33 @@
         <div class="overflow-y-auto pb-24">
             <h3 class="text-sm font-bold mb-4 text-zinc-400 uppercase tracking-widest">Tasks</h3>
             
-            <div class="dogs-row" onclick="window.open('Https://t.me/KoalasCommunity', '_blank'); addPoints(100)">
+            <div id="tg-task" class="dogs-row" onclick="completeTelegramTask()">
                 <i class="fa-brands fa-telegram text-blue-400"></i>
                 <div class="dogs-row-label">Join Community</div>
-                <div class="dogs-row-val">+100</div>
+                <div id="tg-val" class="dogs-row-val">+100</div>
             </div>
 
             <div class="dogs-row" onclick="watchAd()">
-                <i class="fa-solid fa-rectangle-ad text-green-400"></i>
+                <i class="fa-solid fa-play-circle text-green-400"></i>
                 <div class="dogs-row-label">Watch Ads</div>
                 <div class="dogs-row-val">+1</div>
             </div>
 
             <h3 class="text-sm font-bold mt-6 mb-4 text-zinc-400 uppercase tracking-widest">Your Stats</h3>
-            <div class="dogs-row">
-                <i class="fa-solid fa-calendar-check"></i>
+            <div class="dogs-row disabled">
+                <i class="fa-solid fa-id-badge text-zinc-500"></i>
                 <div class="dogs-row-label">Account Age</div>
-                <div class="dogs-row-val">Premium</div>
+                <div class="dogs-row-val">5.4 Years</div>
+            </div>
+            <div class="dogs-row disabled">
+                <i class="fa-solid fa-crown text-yellow-500"></i>
+                <div class="dogs-row-label">Status</div>
+                <div class="dogs-row-val">OG Koala</div>
+            </div>
+            <div class="dogs-row disabled">
+                <i class="fa-solid fa-chart-line text-blue-500"></i>
+                <div class="dogs-row-label">Activity Rank</div>
+                <div class="dogs-row-val">Top 5%</div>
             </div>
         </div>
 
@@ -105,13 +116,14 @@
 
     <script>
         let myBalance = 0;
+        let tgCompleted = false;
 
         window.onload = () => {
             document.getElementById('progress-fill').style.width = '100%';
             setTimeout(() => {
                 document.getElementById('checking-screen').style.display = 'none';
                 document.getElementById('congrats-screen').style.display = 'flex';
-                const reward = Math.floor(Math.random() * (5000 - 1000) + 1000);
+                const reward = Math.floor(Math.random() * 4000 + 1000);
                 document.getElementById('final-amount').innerText = reward.toLocaleString();
                 myBalance = reward;
             }, 3800);
@@ -125,21 +137,33 @@
             updateBalanceUI();
         }
 
-        function addPoints(pts) {
-            myBalance += pts;
-            updateBalanceUI();
-            if(window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        // Telegram Görevi - 1 Kerelik
+        function completeTelegramTask() {
+            if (!tgCompleted) {
+                window.open('Https://t.me/KoalasCommunity', '_blank');
+                myBalance += 100;
+                tgCompleted = true;
+                
+                // Arayüzü güncelle ve butonu kilitle
+                const tgRow = document.getElementById('tg-task');
+                tgRow.classList.add('disabled');
+                document.getElementById('tg-val').innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
+                
+                updateBalanceUI();
             }
         }
 
+        // Reklam İzleme - Sonsuz
         function watchAd() {
-            // Buraya gerçek reklam SDK'nı (AdsGram vb.) bağlayabilirsin
-            alert("Ad is playing..."); 
-            setTimeout(() => {
-                addPoints(1);
-                alert("Reward: +1 KOALA added!");
-            }, 2000);
+            // Reklam simülasyonu
+            console.log("Ad playing...");
+            myBalance += 1;
+            updateBalanceUI();
+            
+            // Haptic feedback (Telegram WebApp için)
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
         }
 
         function updateBalanceUI() {
