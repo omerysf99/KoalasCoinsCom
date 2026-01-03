@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | REFERRAL EDITION</title>
+    <title>KOALA ARCADE | ULTIMATE</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #0c0c0c; --white: #fff; }
+        :root { --bg: #000; --card: #0c0c0c; --white: #fff; --accent: #34c759; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background: var(--bg); color: var(--white); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; animation: dogsIn 0.4s ease; }
+
+        .page { display: none; flex: 1; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; animation: dogsIn 0.3s ease-out; }
         .page.active { display: flex; }
         @keyframes dogsIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Checking Animasyonu */
         .check-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #333; font-weight: 700; }
         .check-item.done { color: #fff; }
         .spinner { width: 16px; height: 16px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -23,82 +29,100 @@
         .check-icon { display: none; color: #fff; }
         .check-item.done .check-icon { display: block; }
         .check-item.done .spinner { display: none; }
-        .koala-box { width: 210px; height: 210px; background: #fff; border-radius: 55px; margin: 15px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+
+        /* UI Elemanları */
+        .koala-box { width: 200px; height: 200px; background: #fff; border-radius: 50px; margin: 15px auto; overflow: hidden; transform: rotate(-1.5deg); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .koala-box img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
         .card { background: var(--card); border: 1px solid #1a1a1a; padding: 18px; border-radius: 24px; margin-bottom: 12px; }
-        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.9); border-top: 1px solid #111; display: flex; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .btn-main { background: #fff; color: #000; padding: 18px; border-radius: 20px; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.97); }
+
+        /* Alt Nav */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 800; text-transform: uppercase; gap: 4px; }
         .nav-item.active { color: #fff; }
-        input { background: #111; border: 1px solid #222; padding: 18px; border-radius: 18px; color: #fff; width: 100%; outline: none; margin-bottom: 10px; }
+        .nav-item i { font-size: 20px; }
     </style>
 </head>
 <body>
 
 <div id="app" class="h-full flex flex-col">
-    <div id="p-check" class="page">
-        <h1 class="text-4xl font-black italic uppercase mt-10">Checking<br>Account</h1>
+    <div id="p-check" class="page active">
+        <h1 class="text-4xl font-black italic uppercase mt-10">Analiz<br>Ediliyor</h1>
         <div class="flex-1 mt-10">
-            <div id="c1" class="check-item"><span>Account Age</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c2" class="check-item"><span>Koala Score</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
-            <div id="c3" class="check-item"><span>Security Check</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c1" class="check-item"><span>Hesap Yaşı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c2" class="check-item"><span>Premium Kontrol</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
+            <div id="c3" class="check-item"><span>Güvenlik Puanı</span><div class="st"><div class="spinner"></div><i class="fa-solid fa-check check-icon"></i></div></div>
         </div>
-        <div onclick="startCheck()" id="btn-c" class="btn-main">Analizi Başlat</div>
+        <div id="btn-c-box" class="mt-auto"><div onclick="startAnalysis()" class="btn-main">Sistemi Başlat</div></div>
     </div>
 
     <div id="p-reward" class="page text-center justify-center">
-        <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
-        <h1 id="r-amt" class="text-6xl font-black italic mb-2">0</h1>
-        <p class="text-zinc-500 font-bold text-xs uppercase mb-10">$KOALA OG BONUS</p>
-        <div onclick="finishOn()" class="btn-main">Sisteme Gir</div>
+        <div class="koala-box mx-auto mb-6"><img src="coinkoala.jpg"></div>
+        <h1 id="gift-amt" class="text-6xl font-black italic mb-2">0</h1>
+        <p class="text-zinc-500 font-bold text-xs uppercase mb-12">$KOALA Hediye Edildi</p>
+        <div onclick="toHome()" class="btn-main">Kazanmaya Başla</div>
     </div>
 
     <div id="p-home" class="page">
         <div class="text-center mb-6">
-            <h2 id="b-h" class="text-6xl font-black italic mb-8">0.00</h2>
+            <p class="text-zinc-600 font-black text-[10px] uppercase tracking-widest mb-1">Bakiyen</p>
+            <h2 id="bal-txt" class="text-6xl font-black italic mb-6">0.00</h2>
             <div class="koala-box mx-auto"><img src="coinkoala.jpg"></div>
         </div>
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Hız</p><p class="text-xl font-black italic">+128.50</p></div>
-            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Ref Bonus</p><p id="ref-b-ui" class="text-xl font-black italic">0</p></div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Normal Hız</p><p class="text-xl font-black italic">+128.50</p></div>
+            <div class="card"><p class="text-[9px] text-zinc-500 font-black uppercase">Reklam Boost</p><p id="boost-txt" class="text-xl font-black italic">+0.00</p></div>
         </div>
-        <div class="card flex justify-between items-center" onclick="doTask()">
-            <div><p class="font-black italic uppercase text-xs">Kanala Katıl</p><p class="text-[9px] text-zinc-500 font-bold">+5,000 $KOALA</p></div>
-            <div id="t-ui" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">YAP</div>
+
+        <div class="card bg-zinc-900/50 border-dashed border-zinc-700 text-center py-6" onclick="watchAd()">
+            <i class="fa-solid fa-circle-play text-2xl mb-2"></i>
+            <p class="font-black italic text-xs uppercase">Reklam İzle & Boost Kazan</p>
+            <p class="text-[9px] text-zinc-500 font-bold mt-1">+10.00 PPH (1 Saat)</p>
+        </div>
+
+        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 mt-6 ml-1 tracking-widest">Görevler</h3>
+        <div class="card flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-telegram text-xl"></i>
+                <div><p class="font-black italic text-xs uppercase">Kanala Katıl</p><p class="text-[9px] text-zinc-500 font-bold">+5,000 $KOALA</p></div>
+            </div>
+            <div id="t1-ui" onclick="doTask(1, 'https://t.me/KoalasCommunity', 5000)" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase">Yap</div>
         </div>
     </div>
 
     <div id="p-ref" class="page">
-        <h2 class="text-4xl font-black italic uppercase mb-6">Arkadaşlarını<br>Davet Et</h2>
-        <div class="card text-center py-8">
-            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Davet Başına</p>
-            <h3 class="text-3xl font-black italic">+10,000 $KOALA</h3>
+        <h2 class="text-4xl font-black italic uppercase mb-6">Davet Et</h2>
+        <div class="card text-center py-10">
+            <p class="text-zinc-500 text-[10px] font-black uppercase mb-2">Arkadaş Başına</p>
+            <h3 class="text-3xl font-black italic uppercase">+10,000 $KOALA</h3>
         </div>
-        <h3 class="text-zinc-600 font-black text-[10px] uppercase mb-4 ml-1">Davet Edilenler (<span id="ref-count">0</span>)</h3>
-        <div id="ref-list" class="flex-1 space-y-2 mb-6"></div>
-        <div onclick="copyLink()" class="btn-main">Davet Linkini Kopyala</div>
+        <div id="ref-list" class="flex-1 space-y-2 mt-4 overflow-y-auto"></div>
+        <div onclick="copyRef()" class="btn-main mt-4">Link Kopyala</div>
     </div>
 
     <div id="p-wallet" class="page">
         <h2 class="text-4xl font-black italic uppercase mb-10">Cüzdan</h2>
-        <div id="w-form">
-            <input type="text" id="w-in" placeholder="TON Cüzdan Adresi">
-            <div onclick="saveW()" class="btn-main">Kaydet</div>
+        <div id="w-setup">
+            <input type="text" id="w-in" class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl w-full text-white outline-none mb-4" placeholder="TON Cüzdan Adresi">
+            <div onclick="saveW()" class="btn-main">Adresi Kaydet</div>
         </div>
-        <div id="w-saved" class="hidden card text-center py-10">
-            <i class="fa-solid fa-circle-check text-4xl mb-4"></i>
-            <p id="s-addr" class="text-[10px] font-mono break-all px-4"></p>
+        <div id="w-done" class="hidden text-center card py-12">
+            <i class="fa-solid fa-shield-check text-4xl mb-4"></i>
+            <p id="saved-addr" class="text-[10px] font-mono break-all opacity-50 px-4"></p>
         </div>
     </div>
 
-    <nav id="nav" class="nav-bar" style="display:none">
-        <div class="nav-item active" onclick="nv('home', this)"><i class="fa-solid fa-bolt"></i><span>Kazan</span></div>
-        <div class="nav-item" onclick="nv('ref', this)"><i class="fa-solid fa-users"></i><span>Ref</span></div>
-        <div class="nav-item" onclick="nv('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Cüzdan</span></div>
+    <nav id="navbar" class="nav-bar" style="display:none">
+        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>KAZAN</span></div>
+        <div class="nav-item" onclick="nav('ref', this)"><i class="fa-solid fa-users"></i><span>REF</span></div>
+        <div class="nav-item" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>CÜZDAN</span></div>
     </nav>
 </div>
 
 <script>
+    // FIREBASE AYARLARI
     const firebaseConfig = {
         apiKey: "AIzaSyAJbCj95zZf2VTGH196clZpu5nYm47ESpY",
         authDomain: "koalascombom.firebaseapp.com",
@@ -110,92 +134,128 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let uid = localStorage.getItem('k_uid') || 'u' + Math.random().toString(36).substr(2, 7);
-    localStorage.setItem('k_uid', uid);
+    let uid = localStorage.getItem('k_id') || 'u' + Math.random().toString(36).substr(2, 7);
+    localStorage.setItem('k_id', uid);
 
-    let u = { bal: 0, lu: Date.now(), cd: false, ts: false, ad: '', refs: [], refBy: '' };
+    let u = { bal: 0, lu: Date.now(), cd: false, ts: [], ad: '', refs: [], refBy: '', boostExp: 0 };
 
     async function init() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refId = urlParams.get('ref');
+        const params = new URLSearchParams(window.location.search);
+        const refLink = params.get('ref');
 
         const doc = await db.collection("users").doc(uid).get();
         if (doc.exists) {
             u = { ...u, ...doc.data() };
-            const gap = (Date.now() - u.lu) / 1000;
-            u.bal += (128.50 / 3600) * gap;
-            if(u.cd) { show('home'); document.getElementById('nav').style.display = 'flex'; }
+            // Offline Madencilik Hesabı
+            const diff = (Date.now() - u.lu) / 1000;
+            let currentPPH = 128.50;
+            if (u.boostExp > Date.now()) currentPPH += 10;
+            u.bal += (currentPPH / 3600) * diff;
+            
+            if(u.cd) { show('home'); document.getElementById('navbar').style.display = 'flex'; }
         } else {
-            if(refId && refId !== uid) u.refBy = refId;
+            if(refLink && refLink !== uid) u.refBy = refLink;
             show('check');
         }
-        update(); loop();
+        updateUI();
+        loop();
     }
 
-    function startCheck() {
-        document.getElementById('btn-c').style.display = 'none';
+    function startAnalysis() {
+        document.getElementById('btn-c-box').style.display = 'none';
         ['c1', 'c2', 'c3'].forEach((c, i) => {
             setTimeout(() => {
                 document.getElementById(c).classList.add('done');
                 if(i === 2) {
-                    const g = Math.floor(Math.random() * 10000) + 5000;
-                    u.bal += g; document.getElementById('r-amt').innerText = g.toLocaleString();
-                    setTimeout(() => show('reward'), 1000);
+                    const bonus = Math.floor(Math.random() * 8000) + 2000;
+                    u.bal += bonus;
+                    document.getElementById('gift-amt').innerText = bonus.toLocaleString();
+                    setTimeout(() => show('reward'), 800);
                 }
-            }, (i + 1) * 1500);
+            }, (i+1) * 1500);
         });
     }
 
-    function finishOn() {
+    function toHome() {
         u.cd = true; u.lu = Date.now();
         if(u.refBy) processRef(u.refBy);
-        sync(); show('home'); document.getElementById('nav').style.display = 'flex';
+        sync(); show('home'); document.getElementById('navbar').style.display = 'flex';
     }
 
     async function processRef(hostId) {
         const hostDoc = await db.collection("users").doc(hostId).get();
         if(hostDoc.exists) {
-            let hostData = hostDoc.data();
-            if(!hostData.refs.includes(uid)) {
-                hostData.refs.push(uid);
-                hostData.bal += 10000;
-                await db.collection("users").doc(hostId).set(hostData);
+            let data = hostDoc.data();
+            if(!data.refs.includes(uid)) {
+                data.refs.push(uid);
+                data.bal += 10000;
+                await db.collection("users").doc(hostId).set(data);
             }
         }
     }
 
-    function doTask() {
-        window.open('https://t.me/KoalasCommunity', '_blank');
-        setTimeout(() => { if(!u.ts) { u.ts = true; u.bal += 5000; sync(); update(); } }, 2000);
+    // Reklam Boost Fonksiyonu
+    function watchAd() {
+        alert("Reklam yükleniyor..."); // Buraya reklam SDK kodunu koyabilirsin
+        setTimeout(() => {
+            u.boostExp = Date.now() + (3600 * 1000); // 1 saatlik boost
+            sync();
+            alert("Harika! 1 saat boyunca +10 PPH kazandın.");
+        }, 2000);
+    }
+
+    function doTask(id, url, amt) {
+        window.open(url, '_blank');
+        setTimeout(() => {
+            if(!u.ts.includes(id)) {
+                u.ts.push(id); u.bal += amt; sync(); updateUI();
+                alert("Ödül Eklendi!");
+            }
+        }, 2000);
     }
 
     function loop() {
-        setInterval(() => { if(u.cd) { u.bal += (128.50 / 3600); u.lu = Date.now(); update(); } }, 1000);
-        setInterval(() => { if(u.cd) sync(); }, 20000);
+        setInterval(() => {
+            if(u.cd) {
+                let pph = 128.50;
+                if(u.boostExp > Date.now()) {
+                    pph += 10;
+                    document.getElementById('boost-txt').innerText = "10.00";
+                } else {
+                    document.getElementById('boost-txt').innerText = "0.00";
+                }
+                u.bal += (pph / 3600);
+                u.lu = Date.now();
+                updateUI();
+            }
+        }, 1000);
+        setInterval(() => { if(u.cd) sync(); }, 15000);
     }
 
-    function update() {
-        document.getElementById('b-h').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        document.getElementById('ref-count').innerText = u.refs.length;
-        document.getElementById('ref-b-ui').innerText = (u.refs.length * 10000).toLocaleString();
-        if(u.ts) document.getElementById('t-ui').innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
-        if(u.ad) { document.getElementById('w-form').classList.add('hidden'); document.getElementById('w-saved').classList.remove('hidden'); document.getElementById('s-addr').innerText = u.ad; }
-        
-        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 !text-xs opacity-60">Davet Edilen: ${r}</div>`; });
-        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center text-zinc-800 py-10 text-xs uppercase font-black">Henüz Kimse Yok</p>';
+    function updateUI() {
+        document.getElementById('bal-txt').innerText = u.bal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if(u.ts.includes(1)) document.getElementById('t1-ui').innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
+        if(u.ad) {
+            document.getElementById('w-setup').classList.add('hidden');
+            document.getElementById('w-done').classList.remove('hidden');
+            document.getElementById('saved-addr').innerText = u.ad;
+        }
+        let rH = ''; u.refs.forEach(r => { rH += `<div class="card !py-3 !text-[10px] opacity-50">Ref: ${r}</div>`; });
+        document.getElementById('ref-list').innerHTML = rH || '<p class="text-center py-10 opacity-20 text-xs">Henüz ref yok</p>';
     }
 
-    function copyLink() {
+    function copyRef() {
         const link = window.location.origin + window.location.pathname + '?ref=' + uid;
         navigator.clipboard.writeText(link); alert("Link Kopyalandı!");
     }
 
-    function saveW() { const val = document.getElementById('w-in').value; if(val.length > 10) { u.ad = val; sync(); update(); } }
+    function saveW() { const val = document.getElementById('w-in').value; if(val.length > 5) { u.ad = val; sync(); updateUI(); } }
     async function sync() { await db.collection("users").doc(uid).set(u); }
     function show(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('p-' + id).classList.add('active'); }
-    function nv(id, el) { show(id); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+    function nav(id, el) { show(id); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
 
     window.onload = init;
 </script>
+
 </body>
 </html>
