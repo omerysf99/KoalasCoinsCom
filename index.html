@@ -3,179 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koala Arcade - MK Edition</title>
+    <title>Koala Arcade - DOGS Style</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        body { background-color: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow: hidden; height: 100vh; touch-action: manipulation; user-select: none; }
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* --- 1. CHECKING EKRANI (babykoalas.jpg) --- */
+        /* --- 1. CHECKING EKRANI --- */
         #checking-screen {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .baby-banner { width: 85%; max-width: 400px; border-radius: 30px; margin-bottom: 40px; }
-        .progress-container { width: 250px; height: 4px; background: #111; border-radius: 10px; overflow: hidden; }
-        #progress-fill { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; transition: width 3.5s linear; }
+        .baby-banner { width: 80%; max-width: 350px; border-radius: 20px; margin-bottom: 30px; }
+        .progress-container { width: 200px; height: 3px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
+        #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 3.5s linear; }
 
-        /* --- 2. CONGRATS EKRANI (image_fddba9.png Tasarımı) --- */
+        /* --- 2. CONGRATS / AIRDROP EKRANI --- */
         #congrats-screen {
             position: fixed; inset: 0; background: #000; z-index: 9000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 30px; text-align: center;
         }
-        .airdrop-badge { background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 60px; }
-        .main-title { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
-        .sub-title { font-size: 16px; color: #888; font-weight: 600; margin-bottom: 60px; }
-        .coin-box { width: 100px; height: 100px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; margin-bottom: 20px; }
-        .coin-box img { width: 80%; border-radius: 50%; }
-        .amount-text { font-size: 65px; font-weight: 900; letter-spacing: -2px; margin-bottom: 80px; }
-        .claim-btn { background: #fff; color: #000; width: 90%; max-width: 400px; padding: 22px; border-radius: 25px; font-size: 18px; font-weight: 900; position: absolute; bottom: 40px; }
+        .main-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .sub-title { font-size: 14px; color: #888; margin-bottom: 50px; }
+        .koala-logo-large { width: 120px; height: 120px; border-radius: 50%; border: 1px solid #333; margin-bottom: 20px; }
+        .amount-text { font-size: 55px; font-weight: 900; letter-spacing: -1px; margin-bottom: 60px; }
+        .dogs-btn { background: #fff; color: #000; width: 100%; max-width: 350px; padding: 18px; border-radius: 16px; font-weight: 700; font-size: 16px; position: absolute; bottom: 40px; }
 
-        /* --- 3. ANA OYUN ARAYÜZÜ --- */
-        #game-app { display: none; flex-direction: column; height: 100vh; padding: 20px; opacity: 0; transition: opacity 0.5s; }
-        .balance-box { text-align: center; margin-top: 40px; }
-        .bal-label { font-size: 10px; font-weight: 900; color: #555; letter-spacing: 4px; text-transform: uppercase; }
-        .bal-val { font-size: 70px; font-weight: 900; letter-spacing: -3px; }
-        .koala-target { width: 280px; height: 280px; margin: auto; position: relative; cursor: pointer; }
-        .koala-target img { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #0d0d0d; box-shadow: 0 0 50px rgba(255,255,255,0.05); transition: transform 0.05s; }
-        .koala-target:active img { transform: scale(0.94); }
+        /* --- 3. DOGS MAIN INTERFACE (Leaderboard & Tasks) --- */
+        #main-interface {
+            display: none; height: 100vh; flex-direction: column; padding: 20px; opacity: 0; transition: opacity 0.5s;
+        }
+        .user-summary { text-align: center; padding: 40px 0; }
+        .user-balance { font-size: 48px; font-weight: 900; }
         
-        .energy-box { width: 100%; max-width: 350px; margin: 0 auto 100px; }
-        .energy-fill-bg { width: 100%; height: 12px; background: #111; border-radius: 20px; margin-top: 10px; border: 1px solid #222; overflow: hidden; }
-        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #fcd535, #fff); transition: width 0.2s; }
+        /* Satır Stilleri */
+        .dogs-row { background: #0d0d0d; border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .dogs-row i { font-size: 20px; width: 30px; text-align: center; }
+        .dogs-row-label { font-weight: 700; font-size: 14px; flex: 1; margin-left: 12px; }
+        .dogs-row-val { font-weight: 700; color: #888; }
 
-        .float-text { position: absolute; font-weight: 900; font-size: 32px; color: #fff; pointer-events: none; animation: upFade 0.8s forwards; z-index: 100; }
-        @keyframes upFade { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
-
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #050505; display: grid; grid-template-columns: repeat(4, 1fr); padding: 15px 0 35px; border-top: 1px solid #111; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #444; font-size: 10px; font-weight: 800; }
-        .nav-item.active { color: #007aff; }
+        /* Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #1a1a1a; display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0 30px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
+        .nav-item.active { color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="checking-screen">
-        <img src="babykoalas.jpg" class="baby-banner" alt="Analyzing">
-        <p class="mb-4 font-bold text-zinc-400">Analyzing your $KOALA profile...</p>
-        <div class="progress-container">
-            <div id="progress-fill"></div>
-        </div>
+        <img src="babykoalas.jpg" class="baby-banner">
+        <p class="mb-4 text-xs font-bold tracking-widest text-zinc-500 uppercase">Analyzing your profile</p>
+        <div class="progress-container"><div id="progress-fill"></div></div>
     </div>
 
     <div id="congrats-screen">
-        <div class="airdrop-badge">🎉 Your $KOALA airdrop is here!</div>
-        <h1 class="main-title">Congrats, KOALA!</h1>
-        <p class="sub-title">The wait is over—you've earned your reward</p>
-        
-        <div class="coin-box">
-            <img src="koalas.jpg" alt="Airdrop Coin">
-        </div>
-        <p class="text-zinc-500 font-black text-sm mb-2">$KOATS</p>
-        <div id="airdrop-val" class="amount-text">550.51</div>
-
-        <button class="claim-btn" onclick="goToGame()">Claim airdrop</button>
+        <h1 class="main-title">You're a Legend!</h1>
+        <p class="sub-title">Based on your activity, you've earned</p>
+        <img src="koalas.jpg" class="koala-logo-large">
+        <div class="amount-text" id="final-amount">0.00</div>
+        <button class="dogs-btn" onclick="openMain()">CONTINUE</button>
     </div>
 
-    <div id="game-app">
-        <div class="balance-box">
-            <p class="bal-label">Total Balance</p>
-            <h2 id="main-balance" class="bal-val">0</h2>
+    <div id="main-interface">
+        <div class="user-summary">
+            <img src="koalas.jpg" class="w-20 h-20 rounded-full mx-auto mb-4 border border-zinc-800">
+            <div class="user-balance" id="top-balance">0</div>
+            <p class="text-zinc-500 font-bold text-xs uppercase tracking-tighter">$KOALA Rewards</p>
         </div>
 
-        <div class="koala-target" id="tap-btn">
-            <img src="koalas.jpg">
-        </div>
-
-        <div class="energy-box">
-            <div class="flex justify-between font-black text-xs">
-                <span class="text-yellow-400">⚡ <span id="energy-num">1000</span>/1000</span>
-                <span class="text-zinc-600">Lvl 1</span>
+        <div class="overflow-y-auto pb-24">
+            <h3 class="text-sm font-bold mb-4 text-zinc-400">YOUR STATS</h3>
+            <div class="dogs-row">
+                <i class="fa-solid fa-calendar-check text-blue-500"></i>
+                <div class="dogs-row-label">Account Age</div>
+                <div class="dogs-row-val">5.4 Yrs</div>
             </div>
-            <div class="energy-fill-bg">
-                <div id="energy-bar"></div>
+            <div class="dogs-row">
+                <i class="fa-solid fa-star text-yellow-500"></i>
+                <div class="dogs-row-label">Premium Status</div>
+                <div class="dogs-row-val">Yes</div>
+            </div>
+            <div class="dogs-row">
+                <i class="fa-solid fa-bolt text-purple-500"></i>
+                <div class="dogs-row-label">Activity Rank</div>
+                <div class="dogs-row-val">Top 5%</div>
+            </div>
+
+            <h3 class="text-sm font-bold mt-6 mb-4 text-zinc-400">TASKS</h3>
+            <div class="dogs-row">
+                <i class="fa-brands fa-telegram"></i>
+                <div class="dogs-row-label">Join Community</div>
+                <div class="dogs-row-val">+1000</div>
+            </div>
+            <div class="dogs-row">
+                <i class="fa-brands fa-x-twitter"></i>
+                <div class="dogs-row-label">Follow our X</div>
+                <div class="dogs-row-val">+2000</div>
             </div>
         </div>
 
-        <div class="nav-bar">
-            <div class="nav-item active"><i class="fa-solid fa-house text-xl"></i><span>Home</span></div>
-            <div class="nav-item"><i class="fa-solid fa-tasks text-xl"></i><span>Tasks</span></div>
-            <div class="nav-item"><i class="fa-solid fa-users text-xl"></i><span>Frens</span></div>
-            <div class="nav-item"><i class="fa-solid fa-wallet text-xl"></i><span>Wallet</span></div>
+        <div class="bottom-nav">
+            <div class="nav-item active"><i class="fa-solid fa-house-chimney text-xl"></i><span>HOME</span></div>
+            <div class="nav-item"><i class="fa-solid fa-trophy text-xl"></i><span>LEADERBOARD</span></div>
+            <div class="nav-item"><i class="fa-solid fa-wallet text-xl"></i><span>AIRDROP</span></div>
         </div>
     </div>
 
     <script>
-        let score = 0;
-        let energy = 1000;
-        const maxEnergy = 1000;
+        let myBalance = 0;
 
         window.onload = () => {
-            const fill = document.getElementById('progress-fill');
-            setTimeout(() => { fill.style.width = '100%'; }, 100);
+            // Barı başlat
+            document.getElementById('progress-fill').style.width = '100%';
 
+            // Analiz bitişi
             setTimeout(() => {
-                document.getElementById('checking-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('checking-screen').style.display = 'none';
-                    document.getElementById('congrats-screen').style.display = 'flex';
-                }, 500);
+                document.getElementById('checking-screen').style.display = 'none';
+                document.getElementById('congrats-screen').style.display = 'flex';
+                
+                // Rastgele ödül
+                const reward = (Math.random() * (9000 - 3000) + 3000).toFixed(0);
+                document.getElementById('final-amount').innerText = reward;
+                myBalance = reward;
             }, 3800);
         };
 
-        function goToGame() {
-            document.getElementById('congrats-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('congrats-screen').style.display = 'none';
-                const app = document.getElementById('game-app');
-                app.style.display = 'flex';
-                setTimeout(() => app.style.opacity = '1', 50);
-                
-                const initialAirdrop = parseFloat(document.getElementById('airdrop-val').innerText);
-                score = initialAirdrop;
-                updateUI();
-            }, 500);
-        }
-
-        const tapBtn = document.getElementById('tap-btn');
-        tapBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (energy >= 5) {
-                const touch = e.touches[0];
-                handleTap(touch.clientX, touch.clientY);
-            }
-        });
-
-        function handleTap(x, y) {
-            score += 1;
-            energy -= 5;
-            updateUI();
+        function openMain() {
+            document.getElementById('congrats-screen').style.display = 'none';
+            const main = document.getElementById('main-interface');
+            main.style.display = 'flex';
+            setTimeout(() => main.style.opacity = '1', 50);
             
-            const p = document.createElement('div');
-            p.className = 'float-text';
-            p.innerText = '+1';
-            p.style.left = `${x - 15}px`;
-            p.style.top = `${y - 40}px`;
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 800);
-            
-            if(navigator.vibrate) navigator.vibrate(10);
+            document.getElementById('top-balance').innerText = myBalance;
         }
-
-        function updateUI() {
-            document.getElementById('main-balance').innerText = score.toLocaleString(undefined, {minimumFractionDigits: 2});
-            document.getElementById('energy-num').innerText = energy;
-            document.getElementById('energy-bar').style.width = `${(energy/maxEnergy)*100}%`;
-        }
-
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(energy + 2, maxEnergy);
-                updateUI();
-            }
-        }, 1000);
     </script>
 </body>
 </html>
