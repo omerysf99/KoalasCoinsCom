@@ -2,167 +2,152 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sonsuz TikTok Deneyimi | 100 Video Loop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Mini - Türkçe Loop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; font-family: 'Inter', sans-serif; }
+        body { background: #121212; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
         
-        /* Akıcı Kaydırma Alanı */
+        /* Uygulama Çerçevesi (Küçültülmüş) */
+        .phone-container {
+            width: 380px;
+            height: 720px;
+            background: #000;
+            border: 8px solid #222;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Kaydırma Motoru */
         #videoFeed {
-            height: 100vh;
+            height: 100%;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
-            scroll-behavior: smooth;
         }
         #videoFeed::-webkit-scrollbar { display: none; }
 
         .video-card {
-            height: 100vh;
+            height: 100%;
             width: 100%;
             scroll-snap-align: start;
             position: relative;
-            background: #000;
-            display: flex;
-            justify-content: center;
         }
 
-        iframe { width: 100%; height: 100%; max-width: 450px; pointer-events: none; }
+        iframe { width: 100%; height: 100%; pointer-events: none; }
 
-        /* TikTok Arayüz Katmanları */
-        .overlay { position: absolute; bottom: 100px; left: 16px; right: 80px; z-index: 50; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .side-bar { position: absolute; right: 12px; bottom: 120px; display: flex; flex-direction: column; align-items: center; gap: 24px; z-index: 60; }
+        /* UI Elemanları */
+        .overlay { position: absolute; bottom: 80px; left: 15px; right: 70px; z-index: 50; pointer-events: none; }
+        .side-bar { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 60; }
         
-        /* Lokasyon ve Müzik Etiketi */
-        .badge {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        /* Dönen Müzik Plak */
-        .disc {
-            width: 48px; height: 48px;
+        .disc-anim {
+            width: 40px; height: 40px;
             background: radial-gradient(circle, #444 0%, #000 100%);
-            border: 8px solid #1a1a1a; border-radius: 50%;
+            border: 5px solid #1a1a1a; border-radius: 50%;
             animation: rotate 4s linear infinite;
         }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Kalp Animasyonu */
         .heart-pop {
-            position: absolute; color: #ff3b5c; font-size: 100px;
+            position: absolute; color: #ff3b5c; font-size: 80px;
             animation: pop 0.8s ease-out forwards;
             pointer-events: none; z-index: 100;
         }
         @keyframes pop {
             0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.4); opacity: 1; }
-            100% { transform: scale(1) translateY(-150px); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1) translateY(-100px); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="fixed top-12 w-full flex justify-center gap-10 z-[100] font-bold text-lg">
-        <span class="opacity-50">Takip Edilen</span>
-        <span class="border-b-4 border-white pb-1">Sizin İçin</span>
+    <div class="phone-container">
+        <div class="absolute top-6 w-full flex justify-center gap-6 z-[100] font-bold text-sm text-white drop-shadow-md">
+            <span class="opacity-60">Takip</span>
+            <span class="border-b-2 border-white pb-1">Sizin İçin</span>
+        </div>
+
+        <div id="videoFeed"></div>
+
+        <nav class="absolute bottom-0 w-full bg-black/80 backdrop-blur-md border-t border-zinc-800 flex justify-around items-center py-4 z-[100]">
+            <i class="fas fa-home text-white text-lg"></i>
+            <i class="fas fa-search text-zinc-500 text-lg"></i>
+            <div class="bg-white text-black px-3 py-0.5 rounded-md font-bold">+</div>
+            <i class="fas fa-comment text-zinc-500 text-lg"></i>
+            <i class="fas fa-user text-zinc-500 text-lg"></i>
+        </nav>
     </div>
 
-    <div id="videoFeed"></div>
-
-    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-6 z-[100]">
-        <i class="fas fa-home text-2xl"></i>
-        <i class="fas fa-search text-2xl text-zinc-600"></i>
-        <div class="bg-white text-black px-5 py-1 rounded-md font-black text-xl">+</div>
-        <i class="fas fa-comment-dots text-2xl text-zinc-600"></i>
-        <i class="fas fa-user text-2xl text-zinc-600"></i>
-    </nav>
-
     <script>
-        // YOUTUBE'DAN ALINAN GÜNCEL VİDEO ID'LERİ VE TREND HAVUZU
-        const youtubeIds = [
-            'KldVQBAkjuo', '-2daJou9qwk', 'EmHytNT3rMw', 'O07T9_5VIRI', 'ZrHPxz6d51E',
-            '-7Zrp6pwyMY', 'MHdXBqhhchQ', 'z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I',
-            'sxmTTS4qros', 'Mu9eUT7WS8s', '6H1DXz4uFdY', 'eeUWy-7gk-c'
+        // TÜRKÇE POPÜLER VİDEO HAVUZU (YouTube Shorts)
+        const trVideoIds = [
+            'z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I', 'MHdXBqhhchQ', '-7Zrp6pwyMY',
+            'S5Z1_YI00Gg', 'R7iUo_R_C48', 'M_S0S1_E444', 'Tr_Ak_2026_1', 'Tr_Ak_2026_2'
         ];
 
-        const cities = ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Berlin', 'Paris', 'New York', 'Tokyo'];
-        const users = ['trend_master', 'gezgincin', 'dance_queen', 'komedi_hane', 'tech_guru', 'spor_merkezi'];
+        const sehirler = ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Trabzon', 'Eskişehir'];
+        const kullanicilar = ['akım_merkezi', 'gezginturk', 'mutfaksırları', 'spor_gunlugu', 'komedivakti'];
 
-        // Havuzu 100 videoya tamamla
         let masterPool = [];
         for(let i=0; i<100; i++) {
             masterPool.push({
-                id: youtubeIds[i % youtubeIds.length],
-                user: users[Math.floor(Math.random() * users.length)] + "_" + (i+1),
-                city: cities[Math.floor(Math.random() * cities.length)],
-                desc: `Harika bir TikTok akımı! #${i+1} 🔥 #keşfet #trending2026`
+                id: trVideoIds[i % trVideoIds.length],
+                user: kullanicilar[Math.floor(Math.random() * kullanicilar.length)] + (i+1),
+                city: sehirler[Math.floor(Math.random() * sehirler.length)],
+                desc: `Harika bir Türkçe içerik! #${i+1} 🇹🇷 #keşfet #tiktoktr`
             });
         }
 
         let currentIndex = 0;
         const feed = document.getElementById('videoFeed');
 
-        // Loop Mantığı: Havuzdan sıradaki videoyu çek
-        function getNextVideo() {
-            const video = masterPool[currentIndex];
-            currentIndex = (currentIndex + 1) % masterPool.length; // 100'e gelince 0'a döner
-            return video;
-        }
-
         function createCard() {
-            const v = getNextVideo();
+            const v = masterPool[currentIndex];
+            currentIndex = (currentIndex + 1) % masterPool.length;
+            
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
                 <div class="w-full h-full relative" ondblclick="spawnHeart(event)">
-                    <iframe id="player-${currentIndex}" 
-                        src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${v.id}&modestbranding=1&rel=0" 
+                    <iframe src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${v.id}&modestbranding=1&rel=0" 
                         frameborder="0" allow="autoplay; encrypted-media"></iframe>
                     
                     <div class="overlay">
-                        <div class="badge"><i class="fas fa-map-marker-alt text-red-500"></i> ${v.city}</div>
-                        <h3 class="font-bold text-xl">@${v.user}</h3>
-                        <p class="text-sm mt-2 opacity-90">${v.desc}</p>
-                        <div class="flex items-center gap-2 mt-4">
-                            <i class="fas fa-music text-xs"></i>
-                            <marquee class="w-40 text-xs">Orijinal Ses - ${v.user} - 2026</marquee>
+                        <div class="bg-white/20 backdrop-blur-md px-2 py-1 rounded text-[10px] inline-block mb-2">
+                            <i class="fas fa-map-marker-alt text-red-500"></i> ${v.city}
                         </div>
+                        <h3 class="font-bold text-sm">@${v.user}</h3>
+                        <p class="text-xs mt-1 opacity-80">${v.desc}</p>
                     </div>
 
                     <div class="side-bar">
-                        <img src="https://i.pravatar.cc/100?u=${v.user}" class="w-14 h-14 rounded-full border-2 border-white mb-2">
-                        <div class="flex flex-col items-center"><i class="fas fa-heart text-4xl"></i><span class="text-xs font-bold mt-1">88K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-4xl"></i><span class="text-xs font-bold mt-1">2.1K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-share text-4xl"></i><span class="text-xs font-bold mt-1">Paylaş</span></div>
-                        <div class="disc mt-4"></div>
+                        <img src="https://i.pravatar.cc/100?u=${v.user}" class="w-10 h-10 rounded-full border border-white">
+                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl"></i><span class="text-[9px] font-bold">10K</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl"></i><span class="text-[9px] font-bold">250</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-share text-2xl"></i><span class="text-[9px] font-bold">Paylaş</span></div>
+                        <div class="disc-anim"></div>
                     </div>
                 </div>
             `;
             feed.appendChild(card);
-            observeVideos();
+            observe();
         }
 
         function spawnHeart(e) {
             const h = document.createElement('i');
             h.className = 'fas fa-heart heart-pop';
-            h.style.left = (e.clientX - 50) + 'px';
-            h.style.top = (e.clientY - 50) + 'px';
+            h.style.left = (e.clientX - 40) + 'px';
+            h.style.top = (e.clientY - 40) + 'px';
             document.body.appendChild(h);
             setTimeout(() => h.remove(), 800);
         }
 
         let obs;
-        function observeVideos() {
+        function observe() {
             if (obs) obs.disconnect();
             obs = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -178,12 +163,9 @@
         }
 
         feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 600) {
-                createCard();
-            }
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 200) createCard();
         });
 
-        // Başlangıç: İlk 5 videoyu yükle
         for(let i=0; i<5; i++) createCard();
     </script>
 </body>
