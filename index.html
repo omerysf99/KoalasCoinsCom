@@ -3,110 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini YouTube Shorts Viewer</title>
+    <title>YouTube Shorts Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f0f0f; color: white; font-family: 'Roboto', sans-serif; }
+        body { background-color: #0f0f0f; color: white; overflow-x: hidden; }
         .shorts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
             padding: 20px;
         }
-        .aspect-shorts {
-            aspect-ratio: 9 / 16;
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
+        .aspect-shorts { aspect-ratio: 9 / 16; border-radius: 12px; overflow: hidden; position: relative; }
+        
+        /* Video İzleme Penceresi (Modal) */
+        #videoModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
-        .video-card:hover { transform: scale(1.03); transition: transform 0.2s ease; }
+        .modal-content {
+            width: 90%;
+            max-width: 400px;
+            height: 80vh;
+            position: relative;
+        }
     </style>
 </head>
 <body>
 
-    <header class="flex items-center justify-between px-4 py-3 sticky top-0 bg-[#0f0f0f] z-50">
-        <div class="flex items-center gap-2">
-            <div class="bg-red-600 p-1 rounded-lg">
-                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
-            </div>
-            <span class="text-xl font-bold tracking-tighter">ShortsX</span>
+    <header class="flex items-center justify-between px-6 py-4 sticky top-0 bg-[#0f0f0f] border-b border-zinc-800 z-50">
+        <div class="flex items-center gap-2 text-red-500">
+            <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
+            <span class="text-white font-bold text-xl tracking-tight">MiniShorts</span>
         </div>
-
-        <div class="flex-1 max-w-md mx-4">
-            <input id="searchBar" type="text" placeholder="Shorts videolarında ara..." 
-                   class="w-full bg-[#121212] border border-[#333] px-5 py-2 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500">
-        </div>
-
-        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></div>
+        <input id="search" type="text" placeholder="Shorts ara..." class="bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-full w-1/3 focus:outline-none focus:border-red-500">
+        <div class="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700"></div>
     </header>
 
-    <main>
-        <div id="loader" class="text-center mt-20 text-gray-400">Videolar getiriliyor...</div>
-        <div id="shortsGrid" class="shorts-grid"></div>
-    </main>
+    <main id="container" class="shorts-grid"></main>
+
+    <div id="videoModal">
+        <button onclick="closeVideo()" class="absolute top-5 right-5 text-white text-4xl">&times;</button>
+        <div class="modal-content">
+            <iframe id="player" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="border-radius: 15px;"></iframe>
+        </div>
+    </div>
 
     <script>
         const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-        const grid = document.getElementById('shortsGrid');
-        const loader = document.getElementById('loader');
-        const searchBar = document.getElementById('searchBar');
+        const container = document.getElementById('container');
+        const modal = document.getElementById('videoModal');
+        const player = document.getElementById('player');
 
-        async function getShorts(keyword = 'trending shorts') {
-            loader.style.display = 'block';
-            grid.innerHTML = '';
-            
+        async function loadVideos(query = 'shorts') {
+            container.innerHTML = '<p class="col-span-full text-center py-10">Yükleniyor...</p>';
             try {
-                // YouTube API'den kısa videoları (Shorts) çekmek için parametreler
-                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${encodeURIComponent(keyword)}&type=video&videoDuration=short&key=${API_KEY}`;
-                
-                const res = await fetch(url);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${query}&type=video&videoDuration=short&key=${API_KEY}`);
                 const data = await res.json();
-
-                if (data.items) {
-                    renderVideos(data.items);
-                } else {
-                    loader.innerText = "Video bulunamadı.";
-                }
-            } catch (err) {
-                loader.innerText = "Hata: API Kotası dolmuş veya anahtar yanlış olabilir.";
-                console.error(err);
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        function renderVideos(videos) {
-            videos.forEach(item => {
-                const videoId = item.id.videoId;
-                const title = item.snippet.title;
-                const thumb = item.snippet.thumbnails.high.url;
-
-                const card = `
-                    <div class="video-card cursor-pointer group" onclick="window.open('https://www.youtube.com/shorts/${videoId}', '_blank')">
+                
+                container.innerHTML = '';
+                data.items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "cursor-pointer group";
+                    div.onclick = () => openVideo(item.id.videoId);
+                    div.innerHTML = `
                         <div class="aspect-shorts">
-                            <img src="${thumb}" class="w-full h-full object-cover">
-                            <div class="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 p-2 rounded text-[10px]">
-                                İzlemek için tıkla
-                            </div>
+                            <img src="${item.snippet.thumbnails.high.url}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all"></div>
                         </div>
-                        <div class="mt-2 px-1">
-                            <h3 class="text-xs font-medium line-clamp-2 leading-tight">${title}</h3>
-                        </div>
-                    </div>
-                `;
-                grid.innerHTML += card;
-            });
+                        <p class="mt-2 text-sm font-medium line-clamp-2">${item.snippet.title}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                container.innerHTML = 'Hata oluştu. API anahtarını kontrol edin.';
+            }
         }
 
-        searchBar.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                getShorts(searchBar.value);
-            }
-        });
+        function openVideo(id) {
+            // YouTube Embed linkini Shorts formatında açar
+            player.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Arka plan kaymasın
+        }
 
-        // Sayfa açıldığında varsayılan yükleme
-        getShorts();
+        function closeVideo() {
+            player.src = ""; // Videoyu durdur
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('search').onkeypress = (e) => {
+            if(e.key === 'Enter') loadVideos(e.target.value);
+        }
+
+        // Kapatma tuşu dışında bir yere tıklanırsa kapat
+        modal.onclick = (e) => { if(e.target === modal) closeVideo(); };
+
+        loadVideos();
     </script>
 </body>
 </html>
