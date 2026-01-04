@@ -3,490 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | NEXUS GEN V4</title>
+    <title>KOALA ARCADE | VERIFIED</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* 1. CORE ARCHITECTURE & CSS VARIABLES (LINE 20-200) */
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Syncopate:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;700&display=swap');
         
-        :root {
-            --bg-master: #050505;
-            --accent: #00ff88;
-            --danger: #ff3b3b;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --koala-gold: linear-gradient(135deg, #ffd700, #b8860b);
-        }
+        :root { --accent: #00ff88; --bg: #000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+        /* --- VERIFY SCREEN (DOĞRULAMA) --- */
+        #verify-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #koala-3d-container { position: absolute; width: 100%; height: 60%; top: 10%; }
+        .verify-content { z-index: 10; text-align: center; margin-top: 250px; }
+        .status-text { font-family: 'Syncopate'; font-size: 12px; letter-spacing: 4px; color: var(--accent); margin-bottom: 20px; }
+
+        /* --- GAME UI (OYUN EKRANI) --- */
+        #game-screen { display: none; opacity: 0; height: 100vh; padding: 60px 25px; }
         
-        body { 
-            background: var(--bg-master); 
-            color: #fff; 
-            height: 100vh; 
-            width: 100vw; 
-            overflow: hidden; 
-            position: fixed; 
-            touch-action: manipulation;
+        .main-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 40px; padding: 30px; text-align: center; backdrop-filter: blur(10px);
         }
 
-        /* 2. ADVANCED UI ANIMATIONS (LINE 201-500) */
-        .neon-glow { text-shadow: 0 0 15px var(--accent); }
-        .glass-panel { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 32px; }
-        
-        .page { 
-            display: none; 
-            height: 100vh; 
-            padding: 100px 24px 140px; 
-            overflow-y: auto; 
-            position: absolute;
-            width: 100%;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .tap-target {
+            width: 240px; height: 240px; margin: 40px auto;
+            background: radial-gradient(circle, rgba(0,255,136,0.15) 0%, transparent 70%);
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
-        .page.active { display: block; animation: slideIn 0.6s forwards; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: scale(1.1) translateY(30px); filter: blur(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        .koala-coin {
+            width: 180px; height: 180px; border-radius: 50%; border: 6px solid #1a1a1a;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: transform 0.05s;
         }
+        .koala-coin:active { transform: scale(0.92); }
 
-        /* 3. GAMIFIED TAPPING INTERFACE (LINE 501-1000) */
-        .tap-area {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, rgba(0,0,0,0) 70%);
-        }
-
-        .tap-circle {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: #111;
-            border: 8px solid #222;
-            box-shadow: 0 0 40px rgba(0,0,0,1);
-            position: relative;
-            z-index: 5;
-            transition: transform 0.1s;
-            overflow: hidden;
-        }
-
-        .tap-circle:active { transform: scale(0.92); }
-        
-        .floating-text {
-            position: absolute;
-            color: var(--accent);
-            font-weight: 900;
-            font-size: 24px;
-            pointer-events: none;
-            z-index: 100;
-            animation: floatUp 0.8s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
-
-        /* 4. ADMIN & MODERATION UI (LINE 1001-1500) */
-        #admin-nexus {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 99999;
-            display: none;
-            padding: 40px 20px;
-        }
-
-        .user-stat-card {
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        /* 5. NAVIGATION SYSTEM (LINE 1501-2000) */
+        /* Navigasyon */
         nav {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            height: 75px;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            z-index: 10000;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; background: rgba(15,15,15,0.9); border-radius: 25px;
+            display: flex; padding: 15px; border: 1px solid #222; z-index: 100;
         }
+        .nav-btn { flex: 1; text-align: center; color: #555; font-size: 20px; }
+        .nav-btn.active { color: var(--accent); }
 
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #555;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .nav-item.active { color: var(--accent); }
-        .nav-item i { font-size: 20px; }
+        /* Floating Text */
+        .float-val { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: up 0.7s forwards; }
+        @keyframes up { to { transform: translateY(-100px); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div id="boot-sequence" style="position:fixed; inset:0; background:#000; z-index:100000; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <div id="three-container" style="position:absolute; inset:0; opacity:0.3;"></div>
-        <h1 style="font-family:'Syncopate'; font-weight:700; font-size:32px; letter-spacing:10px; z-index:2;" class="neon-glow">KOALA</h1>
-        <div class="w-48 h-1 bg-zinc-900 mt-6 rounded-full overflow-hidden z-2">
-            <div id="boot-bar" class="h-full bg-emerald-500 w-0 transition-all duration-500"></div>
+    <div id="verify-screen">
+        <div id="koala-3d-container"></div>
+        <div class="verify-content">
+            <p class="status-text" id="status-label">BAĞLANTI KURULUYOR...</p>
+            <div class="w-48 h-1 bg-zinc-900 rounded-full overflow-hidden mx-auto">
+                <div id="progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-300"></div>
+            </div>
         </div>
-        <p id="boot-status" class="text-[9px] uppercase tracking-widest text-zinc-500 mt-4 z-2">Initializing Neural Link...</p>
     </div>
 
-    <div id="ban-screen" style="display:none; position:fixed; inset:0; background:#000; z-index:200000; text-align:center; padding:100px 20px;">
-        <i class="fa-solid fa-triangle-exclamation text-red-600 text-7xl mb-10"></i>
-        <h2 class="text-4xl font-black mb-4">ACCESS DENIED</h2>
-        <p class="text-zinc-500">Biyometrik verileriniz sistemden silindi. Banlandınız.</p>
-    </div>
-
-    <div id="admin-nexus">
+    <div id="game-screen">
         <div class="flex justify-between items-center mb-10">
-            <h2 class="text-2xl font-black">NEXUS CONTROL</h2>
-            <button onclick="toggleAdmin(false)" class="text-zinc-600">EXIT</button>
+            <div class="flex items-center gap-2 bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest" id="ui-handle">@USER</span>
+            </div>
+            <i class="fa-solid fa-shield-halved text-emerald-500 text-xl"></i>
         </div>
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="glass-panel p-5">
-                <p class="text-[10px] text-zinc-500 uppercase">Live Users</p>
-                <h4 id="adm-user-count" class="text-3xl font-black">0</h4>
+
+        <div class="main-card">
+            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px] mb-2">TOPLAM KOALA</p>
+            <h1 id="ui-bal" class="text-6xl font-black italic">0</h1>
+        </div>
+
+        <div class="tap-target" id="tap-zone">
+            <img src="coinkoala.jpg" class="koala-coin" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-zinc-900 p-4 rounded-3xl border border-zinc-800 text-center" onclick="watchAd()">
+                <i class="fa-solid fa-rectangle-ad text-emerald-500 mb-2"></i>
+                <p class="text-[10px] font-bold uppercase">Reklam İzle</p>
             </div>
-            <div class="glass-panel p-5">
-                <p class="text-[10px] text-zinc-500 uppercase">Eco Pool</p>
-                <h4 id="adm-pool" class="text-3xl font-black text-emerald-500">0</h4>
+            <div class="bg-zinc-900 p-4 rounded-3xl border border-zinc-800 text-center">
+                <i class="fa-solid fa-rocket text-orange-500 mb-2"></i>
+                <p class="text-[10px] font-bold uppercase">Turbo Aktif</p>
             </div>
         </div>
-        <div id="user-monitoring-list" class="overflow-y-auto max-h-[60vh]">
-            </div>
+
+        <nav>
+            <div class="nav-btn active"><i class="fa-solid fa-house"></i></div>
+            <div class="nav-btn"><i class="fa-solid fa-tasks"></i></div>
+            <div class="nav-btn"><i class="fa-solid fa-users"></i></div>
+            <div class="nav-btn"><i class="fa-solid fa-wallet"></i></div>
+        </nav>
     </div>
-
-    <main id="app-core">
-        
-        <section id="page-home" class="page active">
-            <div class="flex justify-between items-center mb-12">
-                <div class="glass-panel px-4 py-2 flex items-center gap-3">
-                    <img id="ui-ex-icon" src="binance.jpg" class="w-6 h-6 rounded-full" onerror="this.src='https://cdn-icons-png.flaticon.com/512/12106/12106478.png'">
-                    <span id="ui-ex-name" class="text-[10px] font-black uppercase">Binance</span>
-                </div>
-                <div class="glass-panel px-4 py-2">
-                    <span class="text-[10px] font-black uppercase text-emerald-400">Gen V.4 Online</span>
-                </div>
-            </div>
-
-            <div class="text-center mb-10">
-                <h2 id="ui-balance" class="text-7xl font-black italic tracking-tighter">0</h2>
-                <p class="text-[10px] text-zinc-500 uppercase tracking-[5px] mt-2">Circulating Koalas</p>
-            </div>
-
-            <div class="tap-area" id="tap-trigger">
-                <div class="tap-circle">
-                    <img src="coinkoala.jpg" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
-                </div>
-            </div>
-
-            <div class="mt-12 text-center">
-                <button onclick="watchAd()" class="k-btn w-full bg-white text-black py-5 shadow-2xl shadow-emerald-500/20">
-                    <i class="fa-solid fa-play mr-2"></i> WATCH ADS 1 KOALA
-                </button>
-            </div>
-        </section>
-
-        <section id="page-squad" class="page">
-            <h1 class="text-4xl font-black italic mb-2">SQUAD</h1>
-            <p class="text-zinc-500 text-xs mb-8 uppercase font-bold">Build your empire, claim 5k bonus.</p>
-            
-            <div class="glass-panel p-8 text-center mb-6">
-                <h3 id="ui-ref-count" class="text-6xl font-black mb-2">0</h3>
-                <p class="text-[10px] text-zinc-500 uppercase font-black">Total Invites</p>
-                <div class="h-px bg-zinc-800 my-6"></div>
-                <p class="text-xs font-bold" onclick="copyRef()">CODE: <span id="ui-my-ref" class="text-emerald-400">---</span> <i class="fa-regular fa-copy ml-2"></i></p>
-            </div>
-
-            <div id="ref-input-container" class="space-y-4">
-                <input type="text" id="ref-field" class="w-full bg-transparent border-2 border-zinc-800 p-5 rounded-3xl text-center text-xl font-bold uppercase focus:border-emerald-500 outline-none transition-all" placeholder="REFERRAL CODE">
-                <button onclick="claimRef()" class="k-btn w-full bg-emerald-500 text-white">SUBMIT CODE</button>
-            </div>
-
-            <div id="squad-list" class="mt-10 space-y-3 pb-20">
-                </div>
-        </section>
-
-        <section id="page-tasks" class="page">
-            <h1 class="text-4xl font-black italic mb-8 uppercase">Missions</h1>
-            
-            <div class="glass-panel p-6 flex justify-between items-center mb-4">
-                <div>
-                    <h4 class="font-black text-sm uppercase">Join Nexus Channel</h4>
-                    <p class="text-xs text-emerald-500 font-bold">+10,000 KOALA</p>
-                </div>
-                <button id="task-btn-channel" onclick="doTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">GO</button>
-            </div>
-        </section>
-
-        <section id="page-exchange" class="page">
-            <h1 class="text-4xl font-black italic mb-8 uppercase">Exchange</h1>
-            <div class="space-y-4" id="exchange-list">
-                </div>
-        </section>
-
-    </main>
-
-    <nav>
-        <div class="nav-item active" onclick="navigate('home', this)"><i class="fa-solid fa-ghost"></i><span>Core</span></div>
-        <div class="nav-item" onclick="navigate('tasks', this)"><i class="fa-solid fa-bolt"></i><span>Missions</span></div>
-        <div class="nav-item" onclick="navigate('squad', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
-        <div class="nav-item" onclick="navigate('exchange', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
-    </nav>
 
 <script>
-/* 6. JAVASCRIPT MASTER LOGIC (LINE 3501-4360)
-    ---------------------------------------------------
-    This section handles Firebase data stream, Admin Biometrics,
-    Encryption, and 3D Rendering engine.
-*/
+    // --- FIREBASE VE TG AYARLARI ---
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-const ADMIN_ID = "8392479231";
-const CONFIG = {
-    apiKey: "AIza...", // Add your real key
-    projectId: "koalascombom"
-};
-
-firebase.initializeApp(CONFIG);
-const db = firebase.firestore();
-const tg = window.Telegram.WebApp;
-tg.expand();
-tg.enableClosingConfirmation();
-
-// Global State
-let user = {
-    id: tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_" + Math.random().toString(36).substr(2, 9),
-    handle: tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : (tg.initDataUnsafe?.user?.first_name || "Guest"),
-    data: {
-        bal: 0,
-        exchange: "Binance",
-        isBanned: false,
-        usedRef: false,
-        refCode: "KOA-" + Math.floor(100000 + Math.random() * 900000),
-        referrals: [],
-        tasks: [],
-        lastTap: Date.now()
-    }
-};
-
-// 1. Initializer Engine
-async function bootApp() {
-    const bootBar = document.getElementById('boot-bar');
-    const status = document.getElementById('boot-status');
+    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_MODE";
+    let myHandle = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : "KoalaUser";
     
-    // Step 1: WebGL Init
-    init3DEffect();
-    bootBar.style.width = "30%";
-    status.innerText = "Syncing with Blockchain...";
+    let userData = { bal: 0, handle: myHandle };
 
-    // Step 2: Firebase Sync
-    const userDoc = await db.collection("users").doc(user.id).get();
-    if(userDoc.exists) {
-        user.data = { ...user.data, ...userDoc.data() };
-        if(user.data.handle !== user.handle) db.collection("users").doc(user.id).update({ handle: user.handle });
-    } else {
-        await db.collection("users").doc(user.id).set(user.data);
-    }
-    
-    bootBar.style.width = "70%";
-    status.innerText = "Verifying Biometrics...";
+    // --- 3D KOALA RENDER (THREE.JS) ---
+    function init3D() {
+        const container = document.getElementById('koala-3d-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
 
-    // Step 3: Security Check
-    if(user.data.isBanned) {
-        document.getElementById('ban-screen').style.display = 'block';
-        return;
-    }
-
-    if(user.id === ADMIN_ID) document.getElementById('adm-btn').style.display = 'block';
-
-    bootBar.style.width = "100%";
-    setTimeout(() => {
-        gsap.to("#boot-sequence", { opacity: 0, duration: 1, onComplete: () => {
-            document.getElementById('boot-sequence').remove();
-            renderAll();
-        }});
-    }, 800);
-}
-
-// 2. 3D Background Effect (Three.js)
-function init3DEffect() {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('three-container').appendChild(renderer.domElement);
-
-    const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true });
-    const torus = new THREE.Mesh(geometry, material);
-    scene.add(torus);
-
-    camera.position.z = 30;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        torus.rotation.x += 0.01;
-        torus.rotation.y += 0.005;
-        renderer.render(scene, camera);
-    }
-    animate();
-}
-
-// 3. Navigation Engine
-function navigate(pageId, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    
-    tg.HapticFeedback.impactOccurred('medium');
-}
-
-// 4. Admin Nexus Engine (Complete Real-time Monitor)
-async function openAdmin() {
-    document.getElementById('admin-nexus').style.display = 'block';
-    const list = document.getElementById('user-monitoring-list');
-    
-    db.collection("users").onSnapshot(snap => {
-        let totalPool = 0;
-        list.innerHTML = "";
-        snap.forEach(doc => {
-            const u = doc.data();
-            totalPool += u.bal;
-            list.innerHTML += `
-                <div class="user-stat-card ${u.isBanned ? 'border-red-500 opacity-50' : ''}">
-                    <div>
-                        <p class="font-bold text-white">${u.handle}</p>
-                        <p class="text-[8px] text-zinc-600">${doc.id}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-emerald-400 font-black">${Math.floor(u.bal).toLocaleString()}</p>
-                        <div class="flex gap-2 mt-2">
-                            <button onclick="modifyBal('${doc.id}', ${u.bal})" class="text-[8px] bg-zinc-800 px-2 py-1 rounded">EDIT</button>
-                            <button onclick="banUser('${doc.id}', ${u.isBanned})" class="text-[8px] ${u.isBanned ? 'bg-green-600' : 'bg-red-600'} px-2 py-1 rounded">
-                                ${u.isBanned ? 'UNBAN' : 'BAN'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
+        // Koala yerine dönen şık bir altın küre/para simülasyonu (Placeholder)
+        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x00ff88, 
+            emissive: 0x004422,
+            shininess: 100, 
+            wireframe: true 
         });
-        document.getElementById('adm-user-count').innerText = snap.size;
-        document.getElementById('adm-pool').innerText = Math.floor(totalPool).toLocaleString();
-    });
-}
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
 
-async function banUser(uid, status) {
-    if(confirm("Confirm Action?")) {
-        await db.collection("users").doc(uid).update({ isBanned: !status });
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        camera.position.z = 40;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.y += 0.02;
+            mesh.rotation.x += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
     }
-}
 
-// 5. Core Game Loops
-const tapTrigger = document.getElementById('tap-trigger');
-tapTrigger.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    createFloatText(touch.pageX, touch.pageY);
-    
-    user.data.bal += 0.05; // Base tap reward
-    updateBalanceUI();
-});
+    // --- DOĞRULAMA SÜRECİ ---
+    async function startVerify() {
+        init3D();
+        const bar = document.getElementById('progress-bar');
+        const label = document.getElementById('status-label');
 
-function createFloatText(x, y) {
-    const el = document.createElement('div');
-    el.className = 'floating-text';
-    el.innerText = '+0.05';
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 800);
-    tg.HapticFeedback.impactOccurred('light');
-}
+        // Adım 1: Bağlantı
+        await new Promise(r => setTimeout(r, 1500));
+        bar.style.width = "40%";
+        label.innerText = "VERİLER ÇEKİLİYOR...";
 
-async function watchAd() {
-    if(window.showAdexora) {
-        window.showAdexora().then(() => reward(1)).catch(() => reward(1));
-    } else { reward(1); }
-}
+        // Firebase Veri Çekme
+        const doc = await db.collection("users").doc(myId).get();
+        if(doc.exists) {
+            userData = doc.data();
+        } else {
+            await db.collection("users").doc(myId).set(userData);
+        }
 
-async function reward(amt) {
-    user.data.bal += amt;
-    await db.collection("users").doc(user.id).update({ bal: user.data.bal });
-    updateBalanceUI();
-}
+        // Adım 2: Güvenlik
+        await new Promise(r => setTimeout(r, 1500));
+        bar.style.width = "80%";
+        label.innerText = "GÜVENLİK KONTROLÜ...";
 
-// 6. Referral & UI Rendering
-function renderAll() {
-    updateBalanceUI();
-    document.getElementById('ui-my-ref').innerText = user.data.refCode;
-    document.getElementById('ui-ref-count').innerText = user.data.referrals.length;
-    
-    // Squad List Rendering
-    const sList = document.getElementById('squad-list');
-    sList.innerHTML = "";
-    user.data.referrals.forEach(r => {
-        sList.innerHTML += `
-            <div class="glass-panel p-4 flex justify-between items-center">
-                <span class="font-bold">${r}</span>
-                <span class="text-emerald-500 font-black">+5,000</span>
-            </div>
-        `;
+        // Adım 3: Tamamlandı
+        await new Promise(r => setTimeout(r, 1000));
+        bar.style.width = "100%";
+        label.innerText = "DOĞRULANDI!";
+
+        // Geçiş Animasyonu
+        gsap.to("#verify-screen", { 
+            opacity: 0, 
+            scale: 1.5, 
+            duration: 0.8, 
+            onComplete: () => {
+                document.getElementById('verify-screen').remove();
+                showGame();
+            }
+        });
+    }
+
+    function showGame() {
+        const game = document.getElementById('game-screen');
+        game.style.display = 'block';
+        gsap.to(game, { opacity: 1, duration: 1 });
+        renderUI();
+    }
+
+    // --- OYUN MEKANİĞİ ---
+    const tapZone = document.getElementById('tap-zone');
+    tapZone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        
+        // Bakiye artır
+        userData.bal += 0.1;
+        renderUI();
+
+        // Sayı fırlatma efekti
+        const float = document.createElement('div');
+        float.className = 'float-val';
+        float.innerText = '+0.1';
+        float.style.left = touch.pageX + 'px';
+        float.style.top = touch.pageY + 'px';
+        document.body.appendChild(float);
+        setTimeout(() => float.remove(), 700);
+
+        tg.HapticFeedback.impactOccurred('light');
     });
 
-    if(user.data.usedRef) document.getElementById('ref-input-container').style.display = 'none';
-}
-
-function updateBalanceUI() {
-    document.getElementById('ui-balance').innerText = Math.floor(user.data.bal).toLocaleString();
-}
-
-// Auto-Save Loop
-setInterval(() => {
-    if(!user.data.isBanned) {
-        db.collection("users").doc(user.id).update({ bal: user.data.bal });
+    async function watchAd() {
+        userData.bal += 1;
+        await db.collection("users").doc(myId).update({ bal: userData.bal });
+        renderUI();
+        alert("1 Koala Ödül Alındı!");
     }
-}, 10000);
 
-window.onload = bootApp;
+    function renderUI() {
+        document.getElementById('ui-bal').innerText = Math.floor(userData.bal).toLocaleString();
+        document.getElementById('ui-handle').innerText = userData.handle;
+    }
+
+    // 10 saniyede bir otomatik kaydet
+    setInterval(() => {
+        if(myId !== "DEV_MODE") {
+            db.collection("users").doc(myId).update({ bal: userData.bal });
+        }
+    }, 10000);
+
+    window.onload = startVerify;
 </script>
 </body>
 </html>
