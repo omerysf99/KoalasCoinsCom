@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Shorts Hub</title>
+    <title>Shorts Pro App</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { 
@@ -12,145 +12,148 @@
             font-family: -apple-system, sans-serif; 
         }
 
-        /* 1. BAŞLANGIÇ ANA SAYFASI */
-        #welcomePage {
-            height: 100vh; width: 100%;
-            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            text-align: center; color: white; padding: 20px;
-        }
-        #welcomePage h1 { font-size: 32px; margin-bottom: 10px; letter-spacing: -1px; }
-        #welcomePage p { color: #aaa; margin-bottom: 30px; font-size: 14px; }
-        .start-btn {
-            background: #fff; color: #000; padding: 15px 40px;
-            border-radius: 30px; font-weight: bold; font-size: 16px;
-            text-decoration: none; transition: transform 0.2s;
-        }
-        .start-btn:active { transform: scale(0.95); }
-
         /* ALT NAVİGASYON */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 60px;
-            background: #000; display: flex; justify-content: space-around;
-            align-items: center; z-index: 1000; border-top: 1px solid #222;
-            display: none; /* Başlangıçta gizli */
+            position: fixed; bottom: 0; width: 100%; height: 65px;
+            background: #0f0f0f; display: flex; justify-content: space-around;
+            align-items: center; z-index: 2000; border-top: 1px solid #222;
         }
-        .nav-item { color: white; text-align: center; font-size: 10px; opacity: 0.5; }
-        .nav-item.active { opacity: 1; }
-        .nav-item b { font-size: 20px; display: block; margin-bottom: 3px; font-style: normal; }
+        .nav-item { color: white; text-align: center; font-size: 10px; opacity: 0.5; cursor: pointer; flex: 1; }
+        .nav-item.active { opacity: 1; border-top: 2px solid #fff; }
+        .nav-item b { font-size: 22px; display: block; margin-bottom: 2px; font-style: normal; }
 
-        /* SAYFALAR */
-        .page { display: none; height: calc(100vh - 60px); width: 100%; }
+        /* SAYFA YAPISI */
+        .page { display: none; height: calc(100vh - 65px); width: 100%; overflow-y: auto; }
         .active-page { display: block; }
 
-        /* SHORTS AKIŞI */
-        #shortsPage { overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        /* 1. SEKME: ANA SAYFA (WELCOME) */
+        #homePage {
+            background: linear-gradient(135deg, #121212 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 30px; color: white;
+        }
+        .hero-icon { font-size: 70px; margin-bottom: 20px; }
+        .welcome-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; width: 100%; }
+
+        /* 2. SEKME: SHORTS (AKIŞ) */
+        #shortsPage { overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; background: #000; }
         #shortsPage::-webkit-scrollbar { display: none; }
-        .short-container { width: 100%; height: 100%; scroll-snap-align: start; position: relative; }
+        .short-unit { width: 100%; height: 100%; scroll-snap-align: start; position: relative; }
         video { width: 100%; height: 100%; object-fit: cover; }
+        .overlay { position: absolute; bottom: 20px; left: 15px; color: white; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        /* ETKİLEŞİM */
-        .side-bar { position: absolute; right: 10px; bottom: 40px; display: flex; flex-direction: column; gap: 20px; }
-        .video-meta { position: absolute; bottom: 20px; left: 15px; color: white; pointer-events: none; }
-
-        /* GEÇMİŞ */
-        #historyPage { background: #0f0f0f; color: white; padding: 20px; overflow-y: auto; }
-        .history-card { background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        /* 3. SEKME: GEÇMİŞ */
+        #historyPage { background: #0f0f0f; color: white; padding: 20px; }
+        .history-card { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid #fff; }
     </style>
 </head>
 <body>
 
-<div id="welcomePage">
-    <div style="font-size: 60px; margin-bottom: 20px;">📱</div>
-    <h1>Shorts'a Hoş Geldin</h1>
-    <p>En iyi kısa videoları keşfetmeye hazır mısın?</p>
-    <div class="start-btn" onclick="launchApp()">Hemen Başla</div>
+<div id="homePage" class="page active-page">
+    <div class="hero-icon">🏠</div>
+    <div class="welcome-card">
+        <h1>Hoş Geldin!</h1>
+        <p style="color: #aaa; margin: 15px 0;">Keşfetmeye başlamak için alt taraftaki Shorts ikonuna tıkla.</p>
+        <div style="font-size: 13px; color: #666;">Bugün 4 yeni video seni bekliyor.</div>
+    </div>
 </div>
 
-<div id="shortsPage" class="page"></div>
+<div id="shortsPage" class="page">
+    </div>
 
 <div id="historyPage" class="page">
-    <h2 style="margin-bottom: 20px;">İzleme Geçmişi</h2>
-    <div id="histList"></div>
+    <h2 style="margin-bottom: 25px; font-size: 24px;">İzleme Geçmişi</h2>
+    <div id="histList">
+        <p style="color: #555; text-align: center; margin-top: 50px;" id="emptyMsg">Henüz video izlemedin.</p>
+    </div>
 </div>
 
-<nav class="bottom-nav" id="mainNav">
-    <div class="nav-item active" id="nav-shorts" onclick="switchTab('shortsPage')"><b>🎞️</b>Shorts</div>
-    <div class="nav-item" id="nav-history" onclick="switchTab('historyPage')"><b>🕒</b>Geçmiş (<span id="hCount">0</span>)</div>
+<nav class="bottom-nav">
+    <div class="nav-item active" id="btn-home" onclick="switchTab('homePage')"><b>🏠</b>Ana Sayfa</div>
+    <div class="nav-item" id="btn-shorts" onclick="switchTab('shortsPage')"><b>🎞️</b>Shorts</div>
+    <div class="nav-item" id="btn-history" onclick="switchTab('historyPage')"><b>🕒</b>Geçmiş (<span id="hCount">0</span>)</div>
 </nav>
 
 <script>
-    const videoFiles = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
-    let watchHistory = new Set();
+    const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
+    let historySet = new Set();
     let isMuted = true;
 
-    function launchApp() {
-        document.getElementById('welcomePage').style.display = 'none';
-        document.getElementById('mainNav').style.display = 'flex';
-        document.getElementById('shortsPage').classList.add('active-page');
-        buildShorts();
-    }
-
+    // Shorts Videolarını İnşa Et
     function buildShorts() {
         const container = document.getElementById('shortsPage');
-        videoFiles.forEach((file, index) => {
+        reels.forEach((file, i) => {
             container.innerHTML += `
-                <div class="short-container">
-                    <video src="${file}" loop muted playsinline onclick="toggleAudio()"></video>
-                    <div class="side-bar">
-                        <div style="color:white; text-align:center;">❤️<br><small>1.2B</small></div>
-                        <div style="color:white; text-align:center;">💬<br><small>85</small></div>
-                        <div style="color:white; text-align:center;">✈️</div>
-                    </div>
-                    <div class="video-meta">
-                        <h3>Kanal #${index + 1}</h3>
-                        <p>Video dosyası: ${file}</p>
+                <div class="short-unit">
+                    <video src="${file}" loop muted playsinline onclick="toggleGlobalMute()"></video>
+                    <div class="overlay">
+                        <h3>Kısa Video #${i+1}</h3>
+                        <p style="font-size: 13px; opacity: 0.8;">@icerik_ureticisi</p>
                     </div>
                 </div>`;
         });
-        initObserver();
+        setupObserver();
     }
 
-    function switchTab(id) {
+    // Sekme Değiştirme
+    function switchTab(targetId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active-page');
-        document.getElementById('nav-' + (id === 'shortsPage' ? 'shorts' : 'history')).classList.add('active');
-        if (id !== 'shortsPage') document.querySelectorAll('video').forEach(v => v.pause());
+        
+        document.getElementById(targetId).classList.add('active-page');
+        document.getElementById('btn-' + targetId.replace('Page', '')).classList.add('active');
+
+        // Shorts sayfasında değilsek videoları durdur
+        if (targetId !== 'shortsPage') {
+            document.querySelectorAll('video').forEach(v => v.pause());
+        }
     }
 
-    function toggleAudio() {
+    // Ses Kontrolü
+    function toggleGlobalMute() {
         isMuted = !isMuted;
-        document.querySelectorAll('video').forEach(vid => vid.muted = isMuted);
+        document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
-    function initObserver() {
+    // İzleme ve Geçmiş Mantığı
+    function setupObserver() {
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 if (e.isIntersecting) {
-                    e.target.muted = isMuted;
-                    e.target.play().catch(() => {});
-                    const src = e.target.getAttribute('src');
-                    if (!watchHistory.has(src)) {
-                        watchHistory.add(src);
-                        updateHistory(src);
+                    const video = e.target;
+                    video.muted = isMuted;
+                    video.play().catch(() => {});
+                    
+                    // Geçmişe ekle (Sadece 1 kez)
+                    const src = video.getAttribute('src');
+                    if (!historySet.has(src)) {
+                        historySet.add(src);
+                        addToHistoryUI(src);
                     }
-                } else { e.target.pause(); }
+                } else {
+                    e.target.pause();
+                }
             });
         }, { threshold: 0.7 });
         document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
-    function updateHistory(name) {
+    function addToHistoryUI(fileName) {
         const list = document.getElementById('histList');
+        const emptyMsg = document.getElementById('emptyMsg');
+        if(emptyMsg) emptyMsg.remove();
+
         list.innerHTML = `
             <div class="history-card">
-                <p><b>${name}</b></p>
-                <small style="color:#aaa;">Az önce izlendi</small>
+                <p><b>${fileName}</b></p>
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">İzlendi • ${new Date().toLocaleTimeString()}</p>
             </div>` + list.innerHTML;
-        document.getElementById('hCount').innerText = watchHistory.size;
+        
+        document.getElementById('hCount').innerText = historySet.size;
     }
+
+    // Uygulamayı Başlat
+    buildShorts();
 </script>
 </body>
 </html>
