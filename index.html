@@ -3,115 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOGS Pro</title>
+    <title>DOGS World</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; }
-        .dogs-text { font-weight: 900; letter-spacing: -0.05em; }
-        .loader-line { height: 2px; width: 0%; background: #fff; transition: width 0.3s ease; }
-        .hidden { display: none; }
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+        
+        /* Karakter Tıklama Animasyonu */
+        .character-tap { transition: transform 0.05s active; }
+        .character-tap:active { transform: scale(0.92); }
+
+        /* Puan Uçuş Efekti */
+        .plus-one {
+            position: absolute;
+            color: #fff;
+            font-weight: 900;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+
+        .nav-active { color: #fff; opacity: 1 !important; border-top: 2px solid #fff; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
+<body class="flex flex-col h-screen">
 
-    <div id="screen-start" class="w-full max-w-md text-center">
-        <div class="mb-10 animate-bounce">
-            <i class="fas fa-dog text-8xl text-white"></i>
-            <span class="text-9xl block">🦴</span>
+    <header class="p-6 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black">D</div>
+            <span class="text-xs font-bold tracking-widest uppercase italic">Dogs World</span>
         </div>
-        <h1 class="text-5xl dogs-text mb-4 uppercase italic">Who are you?</h1>
-        <p class="text-gray-400 text-sm mb-10 px-10">Uygulama yaşın ve aktiviten kontrol edilerek puanın hesaplanacak.</p>
-        <button onclick="startChecking()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg active:scale-95 transition-transform uppercase">Hesabımı Kontrol Et</button>
-    </div>
-
-    <div id="screen-checking" class="w-full max-w-md hidden">
-        <h2 class="text-3xl dogs-text mb-12 uppercase italic">Checking your stats...</h2>
-        <div class="space-y-8">
-            <div class="check-item opacity-20 transition-opacity duration-500" id="check-1">
-                <div class="flex justify-between mb-2">
-                    <span class="text-sm font-bold uppercase">Hesap Yaşı Kontrol Ediliyor</span>
-                    <i class="fas fa-check text-green-500 hidden" id="icon-1"></i>
-                </div>
-                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
-                    <div id="bar-1" class="h-full bg-white w-0 transition-all duration-1000"></div>
-                </div>
-            </div>
-
-            <div class="check-item opacity-20 transition-opacity duration-500" id="check-2">
-                <div class="flex justify-between mb-2">
-                    <span class="text-sm font-bold uppercase">Aktivite Analiz Ediliyor</span>
-                    <i class="fas fa-check text-green-500 hidden" id="icon-2"></i>
-                </div>
-                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
-                    <div id="bar-2" class="h-full bg-white w-0 transition-all duration-1000"></div>
-                </div>
-            </div>
-
-            <div class="check-item opacity-20 transition-opacity duration-500" id="check-3">
-                <div class="flex justify-between mb-2">
-                    <span class="text-sm font-bold uppercase">Referanslar Taranıyor</span>
-                    <i class="fas fa-check text-green-500 hidden" id="icon-3"></i>
-                </div>
-                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
-                    <div id="bar-3" class="h-full bg-white w-0 transition-all duration-1000"></div>
-                </div>
-            </div>
+        <div class="glass px-4 py-2 rounded-2xl flex items-center gap-2">
+            <i class="fas fa-wallet text-gray-400 text-xs"></i>
+            <span class="text-[10px] font-mono">aw01...l9</span>
         </div>
-        <p class="mt-20 text-[10px] text-gray-600 font-mono text-center uppercase tracking-widest">Client ID: aw01joj8wk4rnll9</p>
-    </div>
+    </header>
 
-    <div id="screen-result" class="w-full max-w-md text-center hidden animate-fade-in">
-        <p class="text-gray-400 text-sm uppercase font-bold mb-2">You are a legend!</p>
-        <h2 class="text-7xl dogs-text mb-4">6,840</h2>
-        <p class="text-xl font-bold uppercase mb-10 text-white/50">$DOGS KAZANDIN</p>
+    <main class="flex-1 flex flex-col items-center justify-center px-6 relative">
         
-        <div class="bg-white/5 rounded-3xl p-6 mb-8 border border-white/10">
-            <div class="flex justify-between items-center py-2 border-b border-white/5">
-                <span class="text-xs text-gray-400 uppercase">Hesap Yaşı (4 yıl)</span>
-                <span class="font-bold">+4,200</span>
+        <div class="text-center mb-10">
+            <div class="flex items-center justify-center gap-3 mb-1">
+                <span class="text-6xl font-black italic tracking-tighter" id="score">6,840</span>
+                <span class="text-2xl">🦴</span>
             </div>
-            <div class="flex justify-between items-center py-2">
-                <span class="text-xs text-gray-400 uppercase">Premium Durumu</span>
-                <span class="font-bold text-cyan-400">+2,640</span>
-            </div>
+            <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em]">Total Balance</p>
         </div>
 
-        <button class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg uppercase shadow-xl shadow-white/10">Arkadaşlarını Davet Et</button>
-    </div>
+        <div class="relative group" onclick="handleTap(event)">
+            <div class="w-64 h-64 bg-white/5 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl group-active:bg-white/10 transition-colors"></div>
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Scooter&backgroundColor=000000" 
+                 class="w-72 h-72 relative z-10 character-tap cursor-pointer drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                 alt="Dogs Character">
+        </div>
 
-    <script src="https://kit.fontawesome.com/your-font-awesome-key.js" crossorigin="anonymous"></script>
+        <div class="w-full max-w-xs mt-16">
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-400"></i>
+                    <span class="text-xs font-bold" id="energy-text">1000 / 1000</span>
+                </div>
+                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Recharging</span>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="energy-bar" class="h-full bg-white w-full transition-all duration-300"></div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="p-6 pb-10 flex justify-around items-center glass rounded-t-[3rem]">
+        <div class="flex flex-col items-center gap-1 opacity-40 nav-active">
+            <i class="fas fa-paw text-xl"></i>
+            <span class="text-[8px] font-black uppercase">Home</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 opacity-40">
+            <i class="fas fa-tasks text-xl"></i>
+            <span class="text-[8px] font-black uppercase">Tasks</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 opacity-40">
+            <i class="fas fa-users text-xl"></i>
+            <span class="text-[8px] font-black uppercase">Friends</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 opacity-40">
+            <i class="fas fa-rocket text-xl"></i>
+            <span class="text-[8px] font-black uppercase">Boost</span>
+        </div>
+    </nav>
+
     <script>
-        function startChecking() {
-            // İlk ekranı gizle, analiz ekranını aç
-            document.getElementById('screen-start').classList.add('hidden');
-            document.getElementById('screen-checking').classList.remove('hidden');
+        let score = 6840;
+        let energy = 1000;
+        const maxEnergy = 1000;
 
-            const steps = [1, 2, 3];
-            let delay = 0;
+        function handleTap(e) {
+            if (energy <= 0) return;
 
-            steps.forEach((step, index) => {
-                setTimeout(() => {
-                    // Satırı aktifleştir
-                    document.getElementById(`check-${step}`).classList.replace('opacity-20', 'opacity-100');
-                    // Barı doldur
-                    document.getElementById(`bar-${step}`).style.width = '100%';
-                    
-                    // İşlem bitince tik ikonunu göster
-                    setTimeout(() => {
-                        document.getElementById(`icon-${step}`).classList.remove('hidden');
-                    }, 1000);
+            // Puanı Artır
+            score += 10;
+            energy -= 5;
+            
+            // UI Güncelle
+            document.getElementById('score').innerText = score.toLocaleString();
+            document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
+            document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + '%';
 
-                }, delay);
-                delay += 1500;
-            });
+            // Puan Uçuş Efekti
+            const plus = document.createElement('div');
+            plus.className = 'plus-one';
+            plus.innerText = '+10';
+            plus.style.left = e.pageX + 'px';
+            plus.style.top = e.pageY + 'px';
+            document.body.appendChild(plus);
 
-            // Tüm işlemler bitince sonuç ekranına geç
-            setTimeout(() => {
-                document.getElementById('screen-checking').classList.add('hidden');
-                document.getElementById('screen-result').classList.remove('hidden');
-            }, delay + 1000);
+            // 1 saniye sonra elementi kaldır
+            setTimeout(() => plus.remove(), 800);
         }
+
+        // Enerji Yenileme (Saniyede +1)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy += 1;
+                document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
+                document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + '%';
+            }
+        }, 1000);
     </script>
 </body>
 </html>
