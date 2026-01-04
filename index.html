@@ -3,51 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube TR | Keşfet</title>
+    <title>YouTube TR | İzle ve Keşfet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --yt-bg: #0f0f0f; --yt-text: #ffffff; --yt-hover: #272727;
-            --yt-red: #ff0000; --yt-gray: #aaa; --yt-border: rgba(255,255,255,0.1);
+            --yt-red: #ff0000; --yt-blue: #3ea6ff; --yt-border: rgba(255,255,255,0.1);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--yt-bg); color: var(--yt-text); font-family: "Roboto", sans-serif; overflow: hidden; }
 
         /* HEADER */
         header { height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; position: fixed; width: 100%; top: 0; background: var(--yt-bg); z-index: 2000; }
-        .search-container { display: flex; align-items: center; width: 40%; }
-        .search-bar { flex: 1; background: #121212; border: 1px solid #333; border-radius: 40px 0 0 40px; padding: 8px 16px; color: white; outline: none; }
-        .search-btn { background: #222; border: 1px solid #333; border-left: none; padding: 8px 20px; border-radius: 0 40px 40px 0; cursor: pointer; color: white; }
+        .search-bar { width: 40%; display: flex; }
+        .search-bar input { flex: 1; background: #121212; border: 1px solid #333; padding: 8px 16px; border-radius: 40px 0 0 40px; color: white; outline: none; }
+        .search-bar button { background: #222; border: 1px solid #333; padding: 0 20px; border-radius: 0 40px 40px 0; color: white; cursor: pointer; }
 
         /* SIDEBAR */
-        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: 100vh; padding: 12px; background: var(--yt-bg); border-right: 1px solid var(--yt-border); }
-        .side-link { display: flex; align-items: center; gap: 24px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: 100vh; padding: 12px; border-right: 1px solid var(--yt-border); }
+        .side-link { display: flex; align-items: center; gap: 24px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; }
         .side-link:hover, .side-link.active { background: var(--yt-hover); }
 
-        /* EXPLORE PILLS (KEŞFET HAPLARI) */
-        .explore-pills {
-            display: flex; gap: 12px; padding: 12px 0; margin-bottom: 20px;
-            position: sticky; top: 0; background: var(--yt-bg); z-index: 100;
-            overflow-x: auto; white-space: nowrap; scrollbar-width: none;
-        }
-        .pill { 
-            background: var(--yt-hover); padding: 6px 15px; border-radius: 8px; 
-            cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.3s;
-        }
-        .pill:hover, .pill.active { background: var(--yt-text); color: var(--yt-bg); }
+        /* MAIN CONTENT */
+        .content { margin-left: 240px; margin-top: 56px; height: calc(100vh - 56px); overflow-y: auto; padding: 20px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; row-gap: 32px; }
 
-        /* CONTENT */
-        .content { margin-left: 240px; margin-top: 56px; height: calc(100vh - 56px); overflow-y: auto; padding: 0 24px 24px 24px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; row-gap: 30px; }
-        
         /* VIDEO CARD */
-        .video-card { cursor: pointer; }
-        .thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #222; }
-        .v-info { display: flex; gap: 12px; margin-top: 10px; }
-        .v-title { font-size: 16px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-meta { color: var(--yt-gray); font-size: 14px; margin-top: 4px; }
+        .v-card { cursor: pointer; }
+        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #222; }
+        .v-title { font-size: 15px; font-weight: 500; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-meta { font-size: 13px; color: #aaa; margin-top: 4px; }
 
-        @media (max-width: 1000px) { .sidebar { display: none; } .content { margin-left: 0; } }
+        /* VIDEO PLAYER OVERLAY */
+        #player-overlay {
+            position: fixed; inset: 0; background: var(--yt-bg); z-index: 3000;
+            display: none; overflow-y: auto; padding: 20px;
+        }
+        .player-container { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+        .main-video { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+        .video-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .sub-btn { background: white; color: black; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; border: none; }
+
+        /* UPLOAD MODAL */
+        #upload-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-box { background: #282828; width: 450px; padding: 24px; border-radius: 15px; }
+        .modal-box input { width: 100%; padding: 12px; margin: 10px 0; background: #121212; border: 1px solid #444; color: white; border-radius: 8px; }
+        
+        @media (max-width: 1100px) { .player-container { grid-template-columns: 1fr; } .sidebar { display: none; } .content { margin-left: 0; } }
     </style>
 </head>
 <body>
@@ -55,101 +60,162 @@
 <header>
     <div style="display:flex; align-items:center; gap:18px;">
         <i class="fas fa-bars"></i>
-        <div style="font-size:20px; font-weight:bold;"><i class="fab fa-youtube" style="color:var(--yt-red)"></i> YouTube<sup>TR</sup></div>
+        <div style="font-size:18px; font-weight:bold; cursor:pointer;" onclick="location.reload()">
+            <i class="fab fa-youtube" style="color:var(--yt-red); font-size:24px;"></i> YouTube<sup>TR</sup>
+        </div>
     </div>
-    <div class="search-container">
-        <input type="text" class="search-bar" id="q-input" placeholder="Keşfet...">
-        <button class="search-btn" onclick="exploreSearch()"><i class="fas fa-search"></i></button>
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Ara...">
+        <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
     </div>
-    <div style="display:flex; gap:20px; font-size:18px;"><i class="fas fa-video"></i><i class="fas fa-bell"></i><div style="width:32px; height:32px; border-radius:50%; background:#444;"></div></div>
+    <div style="display:flex; gap:20px; align-items:center;">
+        <i class="fas fa-video" onclick="toggleUpload()" style="cursor:pointer; font-size:20px;"></i>
+        <i class="fas fa-bell"></i>
+        <div style="width:32px; height:32px; border-radius:50%; background: orange; text-align:center; line-height:32px; font-weight:bold;">Ü</div>
+    </div>
 </header>
 
 <div class="sidebar">
-    <div class="side-link active" onclick="loadExplore('genel', this)"><i class="fas fa-home"></i> Ana Sayfa</div>
-    <div class="side-link" onclick="loadExplore('trendler', this)"><i class="fas fa-fire"></i> Keşfet / Trendler</div>
-    <div class="side-link" onclick="loadExplore('müzik', this)"><i class="fas fa-music"></i> Müzik</div>
-    <div class="side-link" onclick="loadExplore('oyun', this)"><i class="fas fa-gamepad"></i> Oyun</div>
-    <hr style="border:0.1px solid var(--yt-border); margin:10px 0;">
-    <div class="side-link"><i class="fas fa-history"></i> Geçmiş</div>
+    <div class="side-link active" onclick="loadContent('türkçe popüler')"><i class="fas fa-home"></i> Ana Sayfa</div>
+    <div class="side-link" onclick="loadContent('türkçe trendler')"><i class="fas fa-compass"></i> Keşfet</div>
+    <div class="side-link"><i class="fas fa-bolt"></i> Shorts</div>
+    <hr style="border: 0.1px solid var(--yt-border); margin: 10px 0;">
+    <div class="side-link" onclick="loadContent('türkçe müzik')"><i class="fas fa-music"></i> Müzik</div>
+    <div class="side-link" onclick="loadContent('türkçe oyun')"><i class="fas fa-gamepad"></i> Oyun</div>
 </div>
 
 <main class="content">
-    <div class="explore-pills" id="pill-box">
-        <div class="pill active" onclick="filterBy('Hepsi')">Hepsi</div>
-        <div class="pill" onclick="filterBy('Müzik')">Müzik</div>
-        <div class="pill" onclick="filterBy('Oyun')">Oyun</div>
-        <div class="pill" onclick="filterBy('Teknoloji')">Teknoloji</div>
-        <div class="pill" onclick="filterBy('Haberler')">Haberler</div>
-        <div class="pill" onclick="filterBy('Canlı')">Canlı</div>
-    </div>
-
-    <div class="video-grid" id="explore-grid">
+    <div class="video-grid" id="main-grid">
         </div>
 </main>
 
+<div id="player-overlay">
+    <div style="margin-bottom:20px; cursor:pointer;" onclick="closePlayer()"><i class="fas fa-arrow-left"></i> Geri</div>
+    <div class="player-container">
+        <div id="video-side">
+            <div class="main-video" id="player-iframe-container"></div>
+            <h1 id="player-title" style="margin-top:15px; font-size:20px;"></h1>
+            <div class="video-actions">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#444;"></div>
+                    <div>
+                        <div id="player-channel" style="font-weight:bold;"></div>
+                        <div style="font-size:12px; color:#aaa;">1.2Mn Abone</div>
+                    </div>
+                    <button class="sub-btn" onclick="this.innerText='Abone Olundu'; this.style.background='#333'; this.style.color='white'">Abone Ol</button>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button style="background:var(--yt-hover); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer;"><i class="fas fa-thumbs-up"></i> 45B</button>
+                    <button style="background:var(--yt-hover); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer;"><i class="fas fa-share"></i> Paylaş</button>
+                </div>
+            </div>
+        </div>
+        <div id="recommendations-side">
+            <h3 style="margin-bottom:15px; font-size:16px;">Sıradaki Videolar</h3>
+            <div id="side-grid"></div>
+        </div>
+    </div>
+</div>
+
+<div id="upload-modal">
+    <div class="modal-box">
+        <h2 style="margin-bottom:15px;">Video Paylaş</h2>
+        <input type="text" id="up-title" placeholder="Video Başlığı">
+        <input type="text" id="up-url" placeholder="YouTube URL (örn: v=dQw4w9WgXcQ)">
+        <button onclick="addCustomVideo()" style="width:100%; background:var(--yt-blue); border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">Yayınla</button>
+        <button onclick="toggleUpload()" style="width:100%; background:transparent; color:white; border:none; margin-top:10px; cursor:pointer;">İptal</button>
+    </div>
+</div>
+
 <script>
-    const KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+    const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+    let customVideos = [];
 
-    // 1. KEŞFET / TREND MANTIĞI
-    async function loadExplore(type = 'genel', el = null) {
-        if(el) {
-            document.querySelectorAll('.side-link').forEach(l => l.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        const grid = document.getElementById('explore-grid');
+    async function loadContent(query) {
+        const grid = document.getElementById('main-grid');
         grid.innerHTML = '<p>Yükleniyor...</p>';
 
-        let url = '';
-        if(type === 'trendler') {
-            // YouTube Türkiye'deki gerçek trendleri çeker (chart=mostPopular)
-            url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=TR&maxResults=15&key=${KEY}`;
-        } else {
-            // Belirli kategoriye göre keşfet araması yapar
-            let query = type === 'genel' ? "türkçe popüler" : `türkçe ${type}`;
-            url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${query} -çocuk&type=video&relevanceLanguage=tr&key=${KEY}`;
-        }
+        // Kendi videolarımızı en başa ekle
+        let html = "";
+        customVideos.forEach(v => {
+            html += createCard(v.id, v.title, "Sizin Kanalınız", `https://img.youtube.com/vi/${v.id}/mqdefault.jpg`);
+        });
 
-        const res = await fetch(url);
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${query}&relevanceLanguage=tr&type=video&key=${API_KEY}`);
         const data = await res.json();
-        renderExplore(data.items);
+
+        data.items.forEach(item => {
+            html += createCard(item.id.videoId, item.snippet.title, item.snippet.channelTitle, item.snippet.thumbnails.medium.url);
+        });
+        grid.innerHTML = html;
     }
 
-    // 2. FİLTRE HAPLARI MANTIĞI
-    function filterBy(tag) {
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        event.target.classList.add('active');
-        loadExplore(tag.toLowerCase());
+    function createCard(id, title, channel, thumb) {
+        return `
+            <div class="v-card" onclick="openPlayer('${id}', '${title.replace(/'/g, "")}', '${channel}')">
+                <img src="${thumb}" class="v-thumb">
+                <div class="v-title">${title}</div>
+                <div class="v-meta">${channel}</div>
+                <div class="v-meta">152B görüntüleme • 3 saat önce</div>
+            </div>`;
     }
 
-    function renderExplore(items) {
-        const grid = document.getElementById('explore-grid');
-        grid.innerHTML = '';
-        items.forEach(item => {
-            const v = item.snippet;
-            const id = item.id.videoId || item.id; // Trendlerde ID direkt gelir, aramada object içinde
-            grid.innerHTML += `
-                <div class="video-card" onclick="window.open('https://youtube.com/watch?v=${id}')">
-                    <img src="${v.thumbnails.high.url}" class="thumb">
-                    <div class="v-info">
-                        <div style="width:36px; height:36px; border-radius:50%; background:#333; flex-shrink:0;"></div>
-                        <div>
-                            <div class="v-title">${v.title}</div>
-                            <div class="v-meta">${v.channelTitle}</div>
-                            <div class="v-meta">Yeni • TR Keşfet</div>
-                        </div>
+    function openPlayer(id, title, channel) {
+        document.getElementById('player-overlay').style.display = 'block';
+        document.getElementById('player-iframe-container').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+        document.getElementById('player-title').innerText = title;
+        document.getElementById('player-channel').innerText = channel;
+        // Yan tarafa rastgele videolar doldur
+        loadSideContent();
+    }
+
+    function closePlayer() {
+        document.getElementById('player-overlay').style.display = 'none';
+        document.getElementById('player-iframe-container').innerHTML = '';
+    }
+
+    async function loadSideContent() {
+        const sideGrid = document.getElementById('side-grid');
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=türkçe popüler&type=video&key=${API_KEY}`);
+        const data = await res.json();
+        let html = "";
+        data.items.forEach(item => {
+            html += `
+                <div style="display:flex; gap:10px; margin-bottom:12px; cursor:pointer;" onclick="openPlayer('${item.id.videoId}', '${item.snippet.title}', '${item.snippet.channelTitle}')">
+                    <img src="${item.snippet.thumbnails.default.url}" style="width:120px; border-radius:8px;">
+                    <div>
+                        <div style="font-size:13px; font-weight:500; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${item.snippet.title}</div>
+                        <div style="font-size:11px; color:#aaa; margin-top:4px;">${item.snippet.channelTitle}</div>
                     </div>
                 </div>`;
         });
+        sideGrid.innerHTML = html;
     }
 
-    function exploreSearch() {
-        const q = document.getElementById('q-input').value;
-        if(q) loadExplore(q);
+    function toggleUpload() {
+        const modal = document.getElementById('upload-modal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
     }
 
-    // İlk yükleme
-    loadExplore('genel');
+    function addCustomVideo() {
+        const title = document.getElementById('up-title').value;
+        const url = document.getElementById('up-url').value;
+        let videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url;
+
+        if(title && videoId) {
+            customVideos.unshift({ id: videoId, title: title });
+            alert("Video Keşfet'e ve Ana Sayfa'ya eklendi!");
+            toggleUpload();
+            loadContent('türkçe popüler');
+        }
+    }
+
+    function searchVideos() {
+        const q = document.getElementById('search-input').value;
+        if(q) loadContent(q);
+    }
+
+    loadContent('türkçe popüler');
 </script>
 </body>
 </html>
