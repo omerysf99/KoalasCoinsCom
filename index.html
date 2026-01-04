@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Reels Player Fixed</title>
+    <title>Reels Infinite Loop</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
@@ -25,14 +25,12 @@
             scroll-snap-align: start;
             position: relative;
             background: #000;
-            display: flex;
-            align-items: center;
         }
 
-        video { width: 100%; height: 100%; object-fit: cover; }
+        video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-        /* Ses İkonu Animasyonu */
-        .mute-icon {
+        /* Ses Animasyonu */
+        .status-icon {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0);
@@ -42,98 +40,103 @@
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 30px; z-index: 100; opacity: 0;
-            transition: all 0.3s ease;
-            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .mute-icon.active { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        .status-icon.active { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
 
         .info {
             position: absolute;
             bottom: 40px; left: 20px;
             color: white; z-index: 10;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
         }
     </style>
 </head>
 <body>
 
-<div class="reels-container" id="mainContainer">
+<div class="reels-container" id="mainDiv">
     <div class="reel">
         <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
-        <div class="mute-icon">🔊</div>
-        <div class="info"><h3>@video_1</h3><p>Ses için dokun</p></div>
+        <div class="status-icon">🔊</div>
+        <div class="info"><h3>@video_1</h3><p>Ses için dokun 🔊</p></div>
     </div>
     <div class="reel">
         <video src="videoplayback2.mp4" loop muted playsinline></video>
-        <div class="mute-icon">🔊</div>
-        <div class="info"><h3>@video_2</h3><p>Sonsuz akış</p></div>
+        <div class="status-icon">🔊</div>
+        <div class="info"><h3>@video_2</h3><p>Kaydırmaya devam...</p></div>
     </div>
 </div>
 
 <script>
-    const container = document.getElementById('mainContainer');
-    const vids = ["videoplayback.mp4", "videoplayback2.mp4"];
-    let audioUnlocked = false;
+    const container = document.getElementById('mainDiv');
+    const sources = ["videoplayback.mp4", "videoplayback2.mp4"];
+    let isUnlocked = false;
 
-    // Video Oynatma Kontrolü
+    // Videoları yöneten ana fonksiyon
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const v = entry.target;
+            const video = entry.target;
             if (entry.isIntersecting) {
-                v.currentTime = 0;
-                v.play().catch(e => console.log("Hata:", e));
+                // Ekrana girdiğinde oynatmayı zorla
+                video.currentTime = 0; 
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => { /* Tarayıcı engeli kontrolü */ });
+                }
             } else {
-                v.pause();
+                video.pause();
             }
         });
     }, { threshold: 0.6 });
 
-    // Videoları Başlat
-    function init() {
+    // Mevcut videoları başlat
+    function setupVideos() {
         document.querySelectorAll('video').forEach(v => {
-            v.load(); // Videoyu zorla yükle
+            v.load(); // Videoyu zorla belleğe al
             observer.observe(v);
         });
     }
-    window.onload = init;
+    window.onload = setupVideos;
 
-    // Tıklama ve Ses Açma
+    // TIKLAMA VE SES AÇMA
     document.addEventListener('click', (e) => {
         const reel = e.target.closest('.reel');
         if (!reel) return;
 
         const video = reel.querySelector('video');
-        const icon = reel.querySelector('.mute-icon');
+        const icon = reel.querySelector('.status-icon');
 
-        // İlk tıklamada tüm sistemin sesini aç
-        if (!audioUnlocked) {
+        // İlk dokunuşta tüm videoların "muted" engelini kaldır
+        if (!isUnlocked) {
             document.querySelectorAll('video').forEach(v => v.muted = false);
-            audioUnlocked = true;
+            isUnlocked = true;
         } else {
             video.muted = !video.muted;
         }
 
-        // Animasyon
+        // İkon efekti
         icon.innerText = video.muted ? "🔇" : "🔊";
         icon.classList.add('active');
         setTimeout(() => icon.classList.remove('active'), 500);
     });
 
-    // Sonsuz Ekleme (1-2-1-2 diye gider)
-    let counter = 0;
+    // SONSUZ DÖNGÜ EKLEME (1-2-1-2...)
+    let videoCounter = 0;
     container.addEventListener('scroll', () => {
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-            const nextSrc = vids[counter % 2];
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 200) {
+            const nextSrc = sources[videoCounter % 2];
             const newReel = document.createElement('div');
             newReel.className = 'reel';
             newReel.innerHTML = `
-                <video src="${nextSrc}" loop ${audioUnlocked ? '' : 'muted'} playsinline></video>
-                <div class="mute-icon">🔊</div>
-                <div class="info"><h3>@video_${(counter % 2) + 1}</h3><p>Kaydır...</p></div>
+                <video src="${nextSrc}" loop ${isUnlocked ? '' : 'muted'} playsinline></video>
+                <div class="status-icon">🔊</div>
+                <div class="info"><h3>@video_${(videoCounter % 2) + 1}</h3><p>Döngü sonsuzdur...</p></div>
             `;
             container.appendChild(newReel);
-            observer.observe(newReel.querySelector('video'));
-            counter++;
+            const newVideo = newReel.querySelector('video');
+            newVideo.load();
+            observer.observe(newVideo);
+            videoCounter++;
         }
     });
 </script>
