@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ADMIN COMMAND CENTER</title>
+    <title>KOALA ARCADE | WALLET & ADMIN</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -18,14 +18,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
 
-        /* --- ADMIN PANEL UI --- */
+        /* --- ADMIN PANEL --- */
         #admin-panel { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; padding: 30px 20px; overflow-y: auto; }
-        #admin-float-btn { position: fixed; top: 20px; right: 20px; background: #ff3b3b; color: #fff; padding: 10px 15px; border-radius: 15px; font-weight: 900; font-size: 11px; z-index: 10001; display: none; box-shadow: 0 0 20px rgba(255,59,59,0.5); border: 2px solid rgba(255,255,255,0.2); }
+        #admin-float-btn { position: fixed; top: 20px; right: 20px; background: #ff3b3b; color: #fff; padding: 10px 15px; border-radius: 15px; font-weight: 900; font-size: 11px; z-index: 10001; display: none; border: 2px solid rgba(255,255,255,0.2); }
         #exit-view-btn { position: fixed; top: 20px; left: 20px; background: #fbbf24; color: #000; padding: 10px 15px; border-radius: 15px; font-weight: 900; font-size: 11px; z-index: 10002; display: none; }
-        .admin-card { background: #0c0c0e; border: 1px solid #1d1d21; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
-        .admin-card:hover { border-color: #333; }
+        .admin-card { background: #0c0c0e; border: 1px solid #1d1d21; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* --- SCREENS --- */
+        /* --- PAGE SYSTEM --- */
         .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
         .page.active { display: flex; animation: pFade 0.4s ease; }
         @keyframes pFade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
@@ -36,14 +35,15 @@
         .spin { width: 14px; height: 14px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.6s linear infinite; }
         @keyframes rot { to { transform: rotate(360deg); } }
 
-        /* --- GAME UI --- */
-        .hero-bal { text-align: center; margin: 40px 0; }
-        .hero-bal h1 { font-size: 75px; font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 0.9; }
-        .koala-main { width: 230px; height: 230px; margin: 0 auto; background: #fff; border-radius: 60px; border: 8px solid #111; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.8); }
+        /* --- CORE UI --- */
+        .hero-bal { text-align: center; margin: 30px 0; }
+        .hero-bal h1 { font-size: 70px; font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 0.9; }
+        .koala-main { width: 220px; height: 220px; margin: 0 auto; background: #fff; border-radius: 60px; border: 8px solid #111; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.8); }
         .koala-main img { width: 100%; height: 100%; object-fit: cover; }
         .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
-        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; padding: 0 10px 20px; z-index: 999; backdrop-filter: blur(20px); }
+        /* --- NAVIGATION --- */
+        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; padding: 0 5px 20px; z-index: 999; backdrop-filter: blur(20px); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; gap: 6px; }
         .nav-btn.active { color: #fff; }
         .btn-action { background: #fff; color: #000; width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; }
@@ -54,195 +54,172 @@
 <body>
 
     <div id="admin-float-btn" onclick="toggleAdmin()">ADMIN PANEL</div>
-    <div id="exit-view-btn" onclick="exitImpersonation()">← KENDİ HESABINA DÖN</div>
+    <div id="exit-view-btn" onclick="exitImpersonation()">← GERİ DÖN</div>
 
     <div id="admin-panel">
         <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-black italic text-white">COMMAND CENTER</h1>
-                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Kullanıcı Yönetimi</p>
-            </div>
-            <button onclick="toggleAdmin()" class="bg-zinc-900 w-12 h-12 rounded-2xl border border-zinc-800"><i class="fa-solid fa-xmark"></i></button>
+            <h1 class="text-2xl font-black italic">ÜYE LİSTESİ</h1>
+            <button onclick="toggleAdmin()" class="bg-zinc-900 w-12 h-12 rounded-2xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="admin-user-list" class="space-y-1">
-            <p class="text-zinc-700 animate-pulse">Veritabanına bağlanılıyor...</p>
-        </div>
+        <div id="admin-user-list" class="space-y-2"></div>
     </div>
 
     <div id="checker-screen">
-        <h1 class="text-4xl font-black mb-12 italic">KOALA<br>ARCADE</h1>
+        <h1 class="text-4xl font-black mb-12 italic">KOALA ARCADE</h1>
         <div class="flex-1 space-y-2">
-            <div id="L1" class="c-row"><span>Sistem Kontrolü</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L2" class="c-row"><span>Veri Senkronizasyonu</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L3" class="c-row"><span>Güvenlik Katmanı</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="L1" class="c-row"><span>Cüzdan Kontrolü</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
+            <div id="L2" class="c-row"><span>Bakiye Yükleniyor</span><div class="spin"></div><i class="fa-solid fa-check hidden text-green-500"></i></div>
         </div>
-        <div id="go-btn" class="btn-action hidden" onclick="startApp()">Sisteme Giriş</div>
+        <div id="go-btn" class="btn-action hidden" onclick="startApp()">BAŞLAT</div>
     </div>
 
     <div id="p-home" class="page">
-        <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase tracking-[5px] mt-4">$KOALA SCORE</p></div>
+        <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase mt-4">KOALA SCORE</p></div>
         <div class="koala-main"><img src="coinkoala.jpg"></div>
         <div class="mt-12 space-y-3">
             <div class="task-card" onclick="mine()">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center text-white"><i class="fa-solid fa-bolt"></i></div>
-                    <div><h4 class="font-black text-sm italic uppercase">Madencilik</h4><p class="text-[10px] text-zinc-500 font-bold">+1 KOALA</p></div>
+                    <div><h4 class="font-black text-sm italic">MADENCİLİK</h4><p class="text-[10px] text-zinc-500">+1 KOALA</p></div>
                 </div>
                 <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">REKLAM</div>
             </div>
-            <div id="card-tg" class="task-card" onclick="completeJoinTask()">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-sky-900/20 rounded-2xl flex items-center justify-center text-sky-500"><i class="fa-brands fa-telegram"></i></div>
-                    <div><h4 class="font-black text-sm italic uppercase">Topluluk</h4><p class="text-[10px] text-zinc-500 font-bold">+500 KOALA</p></div>
-                </div>
-                <div id="tg-btn-label" class="bg-sky-600 text-white px-6 py-2 rounded-xl font-black text-[10px]">KATIL</div>
-            </div>
         </div>
     </div>
 
-    <div id="p-squad" class="page">
-        <h1 class="text-4xl font-black mb-8 italic">EKİBİN</h1>
-        <div class="task-card py-12 flex-col gap-3">
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Referans Kazancı</p>
-            <h2 class="text-6xl font-black italic">+10,000</h2>
+    <div id="p-wallet" class="page">
+        <h1 class="text-4xl font-black mb-8 italic uppercase">CÜZDAN</h1>
+        <div class="bg-zinc-900/50 border border-zinc-800 rounded-[35px] p-8 text-center mb-6">
+            <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-900/20">
+                <i class="fa-solid fa-wallet text-3xl"></i>
+            </div>
+            <h3 class="font-black text-xl mb-2">TON Cüzdanını Bağla</h3>
+            <p class="text-zinc-500 text-xs font-medium leading-relaxed">Airdrop ödemelerini alabilmek için cüzdanını bağlaman gerekir.</p>
         </div>
-        <div class="btn-action mt-auto" onclick="shareTelegram()">Arkadaşlarını Davet Et</div>
+
+        <div id="wallet-status" class="task-card flex-col gap-4 text-center py-8">
+            <p id="wallet-addr" class="text-[10px] font-mono text-zinc-500 break-all px-4">Cüzdan Henüz Bağlı Değil</p>
+            <button id="connect-btn" onclick="connectWallet()" class="bg-blue-600 text-white w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CÜZDANI BAĞLA</button>
+        </div>
     </div>
 
     <nav id="navbar" class="hidden">
-        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-bolt-lightning text-xl"></i><span class="font-bold text-[9px] uppercase">Kazan</span></div>
-        <div class="nav-btn" onclick="tab('squad', this)"><i class="fa-solid fa-users text-xl"></i><span class="font-bold text-[9px] uppercase">Ekip</span></div>
+        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-bolt-lightning text-xl"></i><span class="font-bold text-[9px]">KAZAN</span></div>
+        <div class="nav-btn" onclick="tab('wallet', this)"><i class="fa-solid fa-wallet text-xl"></i><span class="font-bold text-[9px]">CÜZDAN</span></div>
     </nav>
 
 <script>
-    // --- SETTINGS ---
+    // --- DATABASE & AUTH ---
     const ADMIN_ID = "8392479231";
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const realAdminUid = tgUser ? String(tgUser.id) : (localStorage.getItem('koala_real_uid') || 'K'+Math.floor(Math.random()*1e6));
-    localStorage.setItem('koala_real_uid', realAdminUid);
+    const realUid = tgUser ? String(tgUser.id) : (localStorage.getItem('koala_real_uid') || 'K'+Math.floor(Math.random()*1e6));
+    localStorage.setItem('koala_real_uid', realUid);
 
-    let activeUid = realAdminUid; // Başlangıçta biziz
-    let u = { bal: 0, ex: '', checked: false, task_tg: false };
+    let activeUid = realUid;
+    let u = { bal: 0, checked: false, wallet: '' };
 
     async function init() {
-        if(realAdminUid === ADMIN_ID) document.getElementById('admin-float-btn').style.display = 'block';
-        loadUserData(activeUid);
+        if(realUid === ADMIN_ID) document.getElementById('admin-float-btn').style.display = 'block';
+        loadData(activeUid);
     }
 
-    async function loadUserData(targetId) {
-        const doc = await db.collection("users").doc(targetId).get();
-        if(doc.exists) u = doc.data();
-        else u = { bal: 1000, ex: '', checked: false, task_tg: false };
+    async function loadData(tid) {
+        const doc = await db.collection("users").doc(tid).get();
+        if(doc.exists) u = {...u, ...doc.data()};
+        else u = { bal: 1000, checked: false, wallet: '' };
         
-        if(u.checked) {
-            document.getElementById('checker-screen').style.display = 'none';
-            showUI();
-        } else {
-            runAnalysis();
-        }
+        if(u.checked) { document.getElementById('checker-screen').style.display = 'none'; showApp(); } 
+        else { runAnalysis(); }
         render();
     }
 
-    // --- ADMIN ENGINE ---
+    // --- ADMIN PANEL (FIREBASE LIST) ---
     function toggleAdmin() {
         const p = document.getElementById('admin-panel');
         p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
-        if(p.style.display === 'flex') fetchUsers();
+        if(p.style.display === 'flex') fetchFirebaseUsers();
     }
 
-    async function fetchUsers() {
+    async function fetchFirebaseUsers() {
         const list = document.getElementById('admin-user-list');
-        const snap = await db.collection("users").orderBy('bal', 'desc').limit(40).get();
+        list.innerHTML = '<p class="text-zinc-700 animate-pulse font-bold">YÜKLENİYOR...</p>';
+        
+        // Firebase'den tüm üyeleri çekiyoruz
+        const snap = await db.collection("users").orderBy('bal', 'desc').limit(50).get();
         list.innerHTML = '';
+        
         snap.forEach(doc => {
             const data = doc.data();
             const div = document.createElement('div');
             div.className = 'admin-card';
             div.innerHTML = `
                 <div class="flex-1">
-                    <p class="text-[10px] text-zinc-500 font-bold">${doc.id === realAdminUid ? 'SENSİN' : doc.id}</p>
-                    <p class="text-white font-black italic text-lg">${data.bal.toLocaleString()} <span class="text-[10px] text-zinc-500 italic">PT</span></p>
+                    <p class="text-[9px] text-zinc-500 font-bold">${doc.id}</p>
+                    <p class="font-black text-white italic">${data.bal.toLocaleString()} PT</p>
+                    <p class="text-[8px] ${data.wallet ? 'text-blue-500' : 'text-zinc-700'} font-bold uppercase">${data.wallet ? 'Cüzdan Bağlı' : 'Cüzdan Yok'}</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="quickEdit('${doc.id}')" class="bg-zinc-800 w-10 h-10 rounded-xl flex items-center justify-center border border-zinc-700"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
-                    <button onclick="impersonate('${doc.id}')" class="bg-white text-black w-10 h-10 rounded-xl flex items-center justify-center"><i class="fa-solid fa-eye text-xs"></i></button>
+                    <button onclick="editP('${doc.id}')" class="bg-zinc-800 p-3 rounded-xl border border-zinc-700"><i class="fa-solid fa-pen text-xs"></i></button>
+                    <button onclick="impersonate('${doc.id}')" class="bg-white text-black p-3 rounded-xl"><i class="fa-solid fa-eye text-xs"></i></button>
                 </div>
             `;
             list.appendChild(div);
         });
     }
 
-    async function quickEdit(targetId) {
-        const n = prompt("Yeni puanı girin:");
-        if(n !== null) {
-            await db.collection("users").doc(targetId).update({ bal: Number(n) });
-            if(targetId === activeUid) { u.bal = Number(n); render(); }
-            fetchUsers();
+    async function editP(id) {
+        const n = prompt("Yeni Puan:");
+        if(n) { 
+            await db.collection("users").doc(id).update({ bal: Number(n) }); 
+            if(id === activeUid) { u.bal = Number(n); render(); }
+            fetchFirebaseUsers(); 
         }
     }
 
-    function impersonate(targetId) {
-        if(!confirm("Bu kullanıcının hesabına erişilsin mi?")) return;
-        activeUid = targetId;
+    function impersonate(id) {
+        activeUid = id;
         document.getElementById('exit-view-btn').style.display = 'block';
         toggleAdmin();
-        loadUserData(targetId);
+        loadData(id);
     }
 
     function exitImpersonation() {
-        activeUid = realAdminUid;
+        activeUid = realUid;
         document.getElementById('exit-view-btn').style.display = 'none';
-        loadUserData(realAdminUid);
+        loadData(realUid);
     }
 
-    // --- GAMEPLAY ---
+    // --- WALLET LOGIC ---
+    function connectWallet() {
+        if(u.wallet) return;
+        // Simüle edilmiş TON adresi
+        const mockAddr = "UQ" + Math.random().toString(36).substring(2, 15).toUpperCase() + "...";
+        u.wallet = mockAddr;
+        alert("Cüzdan Başarıyla Bağlandı!");
+        save();
+        render();
+    }
+
+    // --- CORE ENGINE ---
     function runAnalysis() {
-        ['L1', 'L2', 'L3'].forEach((id, i) => {
+        ['L1', 'L2'].forEach((id, i) => {
             setTimeout(() => {
                 const row = document.getElementById(id);
-                if(row) {
-                    row.classList.add('active');
-                    row.querySelector('.spin').classList.add('hidden');
-                    row.querySelector('i').classList.remove('hidden');
-                }
-                if(i === 2) {
-                    u.checked = true;
-                    document.getElementById('go-btn').classList.remove('hidden');
-                    save(); render();
-                }
-            }, (i + 1) * 700);
+                row.classList.add('active');
+                row.querySelector('.spin').classList.add('hidden');
+                row.querySelector('i').classList.remove('hidden');
+                if(i === 1) { u.checked = true; document.getElementById('go-btn').classList.remove('hidden'); save(); render(); }
+            }, (i + 1) * 800);
         });
     }
 
-    function startApp() {
-        document.getElementById('checker-screen').style.opacity = '0';
-        setTimeout(() => { document.getElementById('checker-screen').style.display = 'none'; showUI(); }, 500);
-    }
-
-    function showUI() {
-        document.getElementById('p-home').classList.add('active');
-        document.getElementById('navbar').classList.remove('hidden');
-    }
-
+    function startApp() { document.getElementById('checker-screen').style.display = 'none'; showApp(); }
+    function showApp() { document.getElementById('p-home').classList.add('active'); document.getElementById('navbar').classList.remove('hidden'); }
     function mine() { window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {}); }
-
-    function completeJoinTask() {
-        if(u.task_tg) return;
-        window.open("https://t.me/KoalasCommunity", "_blank");
-        u.bal += 500; u.task_tg = true;
-        save(); render();
-    }
-
-    function shareTelegram() {
-        const link = `https://t.me/KoalasUsdt_bot?startapp=${activeUid}`;
-        const text = encodeURIComponent("🐨 Koala Arcade'e katıl, madenciliğe başla!");
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
-    }
-
     function tab(name, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + name).classList.add('active');
@@ -252,9 +229,11 @@
 
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
-        if(u.task_tg) {
-            const b = document.getElementById('tg-btn-label');
-            b.innerText = "OK"; b.className = "bg-zinc-900 text-zinc-700 px-6 py-2 rounded-xl font-black text-[10px]";
+        if(u.wallet) {
+            document.getElementById('wallet-addr').innerText = u.wallet;
+            document.getElementById('wallet-addr').classList.replace('text-zinc-500', 'text-blue-400');
+            document.getElementById('connect-btn').innerText = "BAĞLANDI";
+            document.getElementById('connect-btn').className = "bg-zinc-900 text-zinc-500 w-full py-4 rounded-2xl font-black text-xs uppercase";
         }
     }
 
