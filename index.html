@@ -15,19 +15,24 @@
         .tab-content.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* TAP TO EARN BUTON TASARIMI */
         .hamster-btn {
             background: radial-gradient(circle, #32363c 0%, #0c0d0f 100%);
             border: 10px solid #282b30;
             box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
             transition: transform 0.05s;
+            cursor: pointer;
+            touch-action: none;
         }
         .hamster-btn:active { transform: scale(0.92) rotate(2deg); }
 
+        /* YÜZEN SAYI EFEKTİ */
         .floating-text {
-            position: absolute; color: #fff; font-size: 30px; font-weight: 900;
+            position: absolute; color: #fff; font-size: 32px; font-weight: 900;
             pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100;
+            text-shadow: 0 0 10px rgba(243, 186, 47, 0.8);
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-140px); } }
 
         .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; }
         .nav-item.active { opacity: 1; color: var(--primary); }
@@ -130,13 +135,6 @@
                 </div>
                 <span class="text-gray-500 font-bold">>></span>
             </div>
-            <div onclick="completeTask(this, 1000)" class="card-mine p-5 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <span class="text-3xl">✖️</span>
-                    <div><p class="font-bold text-sm">X'te Takip Et</p><p class="text-xs text-yellow-500">+1,000 💰</p></div>
-                </div>
-                <span class="text-gray-500 font-bold">>></span>
-            </div>
         </div>
 
     </main>
@@ -166,6 +164,7 @@
         };
 
         const maxEnergy = 1000;
+        const tapBtn = document.getElementById('tapBtn');
 
         function save() { localStorage.setItem('hamster_pro_data', JSON.stringify(state)); }
 
@@ -186,26 +185,41 @@
             event.currentTarget.classList.add('active');
         }
 
-        // TIKLAMA (TAP TO EARN)
-        document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+        // TAP TO EARN MEKANİZMASI (DOKUN KAZAN)
+        function handleTap(x, y) {
+            if (state.energy >= state.tpc) {
+                state.score += state.tpc;
+                state.energy -= state.tpc;
+                showEffect(x, y);
+                updateUI();
+                
+                // Mobil cihazlarda hafif titreşim (isteğe bağlı)
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+
+        // Çoklu Dokunuş (Mobil)
+        tapBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             for (let i = 0; i < e.touches.length; i++) {
-                if (state.energy >= state.tpc) {
-                    state.score += state.tpc;
-                    state.energy -= state.tpc;
-                    showEffect(e.touches[i].clientX, e.touches[i].clientY);
-                }
+                handleTap(e.touches[i].clientX, e.touches[i].clientY);
             }
-            updateUI();
         });
 
+        // Fare Tıklaması (Masaüstü)
+        tapBtn.addEventListener('mousedown', (e) => {
+            handleTap(e.clientX, e.clientY);
+        });
+
+        // GÖRSEL EFEKT (+1 Yazısı)
         function showEffect(x, y) {
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = `+${state.tpc}`;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
+            el.style.left = `${x - 20}px`;
+            el.style.top = `${y - 40}px`;
             document.body.appendChild(el);
+            
             setTimeout(() => el.remove(), 700);
         }
 
@@ -232,7 +246,9 @@
 
         // DÖNGÜ (PASİF GELİR VE ENERJİ)
         setInterval(() => {
+            // Saniyelik pasif gelir ekleme
             state.score += (state.tph / 3600);
+            // Saniyede +2 enerji dolumu
             if (state.energy < maxEnergy) state.energy = Math.min(maxEnergy, state.energy + 2);
             updateUI();
         }, 1000);
