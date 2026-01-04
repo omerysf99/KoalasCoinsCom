@@ -3,168 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorts Pro - Gelişmiş Mekanizma</title>
+    <title>Shorts Fix - Çakışma Önleyici</title>
     <style>
-        /* Modern ve Karanlık Tasarım */
-        body { margin: 0; padding: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        .reels-wrapper { width: 100%; max-width: 400px; height: 100vh; margin: auto; position: relative; }
         
-        .reels-wrapper { 
-            width: 100%; max-width: 420px; height: 95vh; 
-            border-radius: 20px; border: 2px solid #333;
-            position: relative; overflow: hidden;
-            background: #111;
-        }
-
-        /* KAYDIRMA MEKANİZMASI: SNAP-SCROLL */
         .reels-container {
             height: 100%;
             overflow-y: scroll;
-            scroll-snap-type: y mandatory; /* Videoların ekrana 'yapışmasını' sağlar */
-            scroll-behavior: smooth;
-            scrollbar-width: none; /* Firefox */
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
         }
-        .reels-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .reels-container::-webkit-scrollbar { display: none; }
 
         .video-card {
-            height: 100%;
+            height: 100vh;
             width: 100%;
-            scroll-snap-align: start; /* Video başlangıcını ekranın tepesine sabitler */
-            scroll-snap-stop: always;  /* Hızlı kaydırırken video atlamayı engeller */
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
             position: relative;
             background: #000;
         }
-
-        /* Video Arka Planı (YouTube Siyah Boşlukları Kapatma) */
-        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.5); } 
-
-        /* ETKİLEŞİM KATMANLARI */
+        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.3); }
         .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
-        
-        .side-bar { 
-            position: absolute; right: 15px; bottom: 120px; 
-            z-index: 100; display: flex; flex-direction: column; gap: 20px; 
-        }
-
-        .action-btn { 
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            border-radius: 50%; width: 50px; height: 50px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .action-btn:active { transform: scale(0.85); }
-        .count { font-size: 10px; margin-top: 2px; font-weight: bold; }
-
-        /* KALİTELİ KALP ANİMASYONU */
-        .heart-pop {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-size: 120px; color: #ff0050; pointer-events: none; z-index: 200;
-            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
-        }
-        .animate-heart { animation: heartIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes heartIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1); opacity: 0; } }
-
-        .video-meta { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 5px black; }
     </style>
 </head>
 <body>
 
 <div class="reels-wrapper">
-    <div id="heart" class="heart-pop">❤️</div>
     <div class="reels-container" id="reelsContainer"></div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Dinamik YouTube Listesi (Senin API Key'inle çalışır)
-    const videos = [
-        { id: 'znv__YAlrTQ', title: 'Aşk Vibe ✨' },
-        { id: 'dj7QJ0-VIHc', title: 'Trend Music 2025' },
-        { id: 'fkDpX8UXHN4', title: 'Dans Challenge 🔥' },
-        { id: 'lB6IgV1kapU', title: 'Yeni Hit Parça' }
-    ];
-
+    const videoData = ['znv__YAlrTQ', 'dj7QJ0-VIHc', 'fkDpX8UXHN4', 'lB6IgV1kapU'];
     const players = {};
-    let clickTimer = null;
 
     function onYouTubeIframeAPIReady() {
         const container = document.getElementById('reelsContainer');
         
-        videos.forEach((v, index) => {
+        videoData.forEach((id, index) => {
             const card = document.createElement('div');
             card.className = 'video-card';
-            card.setAttribute('data-v-id', v.id);
+            card.setAttribute('data-v-id', id);
             card.innerHTML = `
-                <div class="click-layer" onclick="handleTap('${v.id}')"></div>
-                <div id="player-${v.id}"></div>
-                <div class="side-bar">
-                    <div class="action-btn" onclick="toggleLike('${v.id}', this)">
-                        <span>🤍</span><span class="count">0</span>
-                    </div>
-                    <div class="action-btn" onclick="alert('Yorum Paneli')">
-                        <span>💬</span><span class="count">Yorum</span>
-                    </div>
-                </div>
-                <div class="video-meta">
-                    <strong>@benim_sitem</strong>
-                    <p>${v.title}</p>
-                </div>
+                <div class="click-layer" onclick="handleTap('${id}')"></div>
+                <div id="player-${id}"></div>
             `;
             container.appendChild(card);
 
-            players[v.id] = new YT.Player(`player-${v.id}`, {
-                videoId: v.id,
-                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 'mute': 1, 'modestbranding': 1 },
-                events: { 'onReady': (e) => { if(index === 0) e.target.playVideo(); } }
+            players[id] = new YT.Player(`player-${id}`, {
+                videoId: id,
+                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': id, 'mute': 1 },
+                events: {
+                    'onReady': (e) => { if(index === 0) e.target.playVideo(); }
+                }
             });
         });
 
-        setupObserver();
-    }
+        // ÇAKIŞMA ÖNLEYİCİ MEKANİZMA
+        const observerOptions = {
+            root: container,
+            threshold: 0.8 // Videonun %80'i görünmeden diğeri başlamaz
+        };
 
-    // MODERN KAYDIRMA TAKİBİ (Intersection Observer)
-    function setupObserver() {
-        const options = { threshold: 0.7 }; // Videonun %70'i göründüğünde
-        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                const id = entry.target.getAttribute('data-v-id');
+                const vId = entry.target.getAttribute('data-v-id');
+                
                 if (entry.isIntersecting) {
-                    players[id].playVideo();
-                    players[id].unMute(); // Ekrana gelenin sesini aç
+                    // 1. Önce oynayan tüm videoları durdur (En önemli kısım!)
+                    Object.values(players).forEach(p => {
+                        if (p && p.pauseVideo) p.pauseVideo();
+                    });
+
+                    // 2. Sadece ekrandakini oynat ve sesini aç
+                    if (players[vId] && players[vId].playVideo) {
+                        players[vId].playVideo();
+                        players[vId].unMute();
+                    }
                 } else {
-                    players[id].pauseVideo(); // Ekrandan çıkanın sesini kapat ve durdur
+                    // Ekrandan çıkanı durdur
+                    if (players[vId] && players[vId].pauseVideo) {
+                        players[vId].pauseVideo();
+                    }
                 }
             });
-        }, options);
+        }, observerOptions);
 
         document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
     }
 
     function handleTap(id) {
-        if (!clickTimer) {
-            clickTimer = setTimeout(() => {
-                const state = players[id].getPlayerState();
-                state === 1 ? players[id].pauseVideo() : players[id].playVideo();
-                clickTimer = null;
-            }, 250);
-        } else {
-            clearTimeout(clickTimer);
-            clickTimer = null;
-            showHeart();
-        }
-    }
-
-    function showHeart() {
-        const h = document.getElementById('heart');
-        h.classList.remove('animate-heart');
-        void h.offsetWidth;
-        h.classList.add('animate-heart');
-    }
-
-    function toggleLike(id, el) {
-        const span = el.querySelector('span');
-        span.innerText = span.innerText === '🤍' ? '❤️' : '🤍';
+        const state = players[id].getPlayerState();
+        state === 1 ? players[id].pauseVideo() : players[id].playVideo();
     }
 </script>
 </body>
