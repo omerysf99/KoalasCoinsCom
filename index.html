@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dikey Reels - PC ve Mobil</title>
+    <title>Reels Pro - PC & Mobil</title>
     <style>
+        /* Başlangıç Ayarları */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            background-color: #1a1a1a; /* Arka plan koyu gri */
+            background-color: #000;
             display: flex;
-            justify-content: center; /* Yatayda ortala */
+            justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Bilgisayarda telefon görünümü sağlayan ana çerçeve */
-        .phone-wrapper {
+        /* PC için dikey çerçeve */
+        .reels-wrapper {
             width: 100%;
             max-width: 420px; /* PC'de telefon genişliği */
-            height: 95vh; /* Ekranın çoğunu kapla ama biraz boşluk bırak */
+            height: 100vh;
             background: #000;
             position: relative;
-            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 4px solid #333; /* Telefon çerçevesi hissi */
         }
 
         /* Kaydırma Alanı */
@@ -49,66 +48,134 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Videoyu çerçeveye dikey sığdır */
-            cursor: pointer;
+            object-fit: cover;
         }
 
-        .info {
+        /* Sol Alt Bilgiler */
+        .video-info {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             left: 15px;
             color: white;
             z-index: 10;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+            width: 70%;
+        }
+        .video-info h3 { font-size: 16px; margin-bottom: 5px; }
+        .video-info p { font-size: 14px; opacity: 0.9; }
+
+        /* Sağ Etkileşim Butonları */
+        .side-bar {
+            position: absolute;
+            right: 10px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 20;
         }
 
-        /* Ses Aç butonu */
-        #start-btn {
-            position: absolute;
-            z-index: 100;
-            background: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            border: none;
-            font-weight: bold;
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
             cursor: pointer;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background: none;
+            border: none;
+            transition: transform 0.1s;
+        }
+        .action-btn:active { transform: scale(0.9); }
+        .action-btn i { font-size: 28px; margin-bottom: 5px; }
+        .action-btn span { font-size: 12px; }
+
+        /* Başlat Butonu */
+        #start-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-<div class="phone-wrapper">
-    <button id="start-btn" onclick="startReels()">Sesi Aç ve Başlat</button>
+<div class="reels-wrapper">
+    <div id="start-overlay" onclick="startReels()">
+        <i class="fas fa-play" style="font-size: 50px; margin-bottom: 10px;"></i>
+        <p>İzlemek için Dokun</p>
+    </div>
 
-    <div class="reels-container">
+    <div class="reels-container" id="container">
         <div class="reel">
             <video src="reels1.mp4" loop playsinline></video>
-            <div class="info"><h3>@reels_1</h3><p>PC'de dikey görünüm!</p></div>
+            <div class="side-bar">
+                <div class="action-btn" onclick="like(this)"><i class="fas fa-heart"></i><span>1.2K</span></div>
+                <div class="action-btn"><i class="fas fa-comment"></i><span>85</span></div>
+                <div class="action-btn" onclick="save(this)"><i class="fas fa-bookmark"></i><span>240</span></div>
+                <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
+            </div>
+            <div class="video-info">
+                <h3>@kullanici_1</h3>
+                <p>Harika bir video açıklaması burada yer alır... #keşfet</p>
+            </div>
         </div>
+
         <div class="reel">
             <video src="reels2.mp4" loop playsinline></video>
-            <div class="info"><h3>@reels_2</h3><p>Telefon formatında izle.</p></div>
-        </div>
-        <div class="reel">
-            <video src="reels3.mp4" loop playsinline></video>
-            <div class="info"><h3>@reels_3</h3><p>Kaydırmaya devam...</p></div>
+            <div class="side-bar">
+                <div class="action-btn" onclick="like(this)"><i class="fas fa-heart"></i><span>450</span></div>
+                <div class="action-btn"><i class="fas fa-comment"></i><span>12</span></div>
+                <div class="action-btn" onclick="save(this)"><i class="fas fa-bookmark"></i><span>50</span></div>
+                <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
+            </div>
+            <div class="video-info">
+                <h3>@kullanici_2</h3>
+                <p>Müzik ve dikey video uyumu! 🔊</p>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     const videos = document.querySelectorAll('video');
-    const startBtn = document.getElementById('start-btn');
+    const overlay = document.getElementById('start-overlay');
 
     function startReels() {
-        startBtn.style.display = 'none';
+        overlay.style.display = 'none';
         videos.forEach(v => v.muted = false);
         videos[0].play();
     }
 
+    // Beğeni fonksiyonu
+    function like(btn) {
+        const icon = btn.querySelector('i');
+        icon.classList.toggle('fas'); // Dolu kalp
+        if(icon.style.color === 'red') {
+            icon.style.color = 'white';
+        } else {
+            icon.style.color = 'red';
+        }
+    }
+
+    // Kaydetme fonksiyonu
+    function save(btn) {
+        const icon = btn.querySelector('i');
+        if(icon.style.color === 'yellow') {
+            icon.style.color = 'white';
+        } else {
+            icon.style.color = 'yellow';
+        }
+    }
+
+    // Scroll takipçisi
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -121,14 +188,6 @@
     }, { threshold: 0.8 });
 
     videos.forEach(v => observer.observe(v));
-
-    // Videoya tıklayınca durdur/başlat özelliği
-    videos.forEach(v => {
-        v.addEventListener('click', () => {
-            if (v.paused) v.play();
-            else v.pause();
-        });
-    });
 </script>
 
 </body>
