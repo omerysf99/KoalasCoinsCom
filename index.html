@@ -2,145 +2,111 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Premium - AI Optimized</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini YouTube Shorts Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0f0f0f;
-            --surface: #272727;
-            --text: #ffffff;
-            --subtext: #aaaaaa;
-            --accent: #ff0000;
+        body { background-color: #0f0f0f; color: white; font-family: 'Roboto', sans-serif; }
+        .shorts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 20px;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: "Roboto", Arial, sans-serif; }
-
-        /* HEADER & NAV */
-        header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; }
-        .logo { font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .logo span { color: var(--accent); font-size: 28px; }
-        .search-container { flex: 0 1 720px; display: flex; background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 15px; }
-        .search-container input { width: 100%; background: none; border: none; padding: 8px; color: white; outline: none; }
-
-        /* SIDEBAR */
-        nav { position: fixed; left: 0; top: 56px; width: 240px; height: 100%; padding: 12px; }
-        .nav-item { display: flex; align-items: center; gap: 20px; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
-        .nav-item:hover { background: var(--surface); }
-
-        /* MAIN CONTENT */
-        main { margin-left: 240px; margin-top: 56px; padding: 24px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-
-        /* SKELETON (BEYAZ EKRANI SİLEN SİSTEM) */
-        .skeleton { width: 100%; }
-        .sk-img { width: 100%; aspect-ratio: 16/9; background: #1a1a1a; border-radius: 12px; position: relative; overflow: hidden; }
-        .sk-img::after {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, #222, transparent);
-            animation: shine 1.5s infinite;
+        .aspect-shorts {
+            aspect-ratio: 9 / 16;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
         }
-        .sk-line { height: 15px; background: #1a1a1a; margin-top: 10px; border-radius: 4px; width: 80%; }
-        @keyframes shine { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-        /* VIDEO CARDS */
-        .v-card { cursor: pointer; display: none; }
-        .v-img { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #000; }
-        .v-title { font-size: 16px; font-weight: 500; margin: 12px 0 5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-meta { font-size: 14px; color: var(--subtext); }
-
-        /* WATCH PAGE (ERTN PANELİ) */
-        #watch { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; overflow-y: auto; }
-        .watch-grid { display: flex; max-width: 1700px; margin: 60px auto; gap: 24px; padding: 0 20px; }
-        .player-area { flex: 3; }
-        .side-area { flex: 1; min-width: 350px; }
-        .close-btn { position: fixed; top: 15px; left: 20px; font-size: 30px; cursor: pointer; color: white; z-index: 2100; }
+        .video-card:hover { transform: scale(1.03); transition: transform 0.2s ease; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo" onclick="location.reload()"><span>▶</span> YouTube</div>
-    <div class="search-container"><input type="text" id="sBox" placeholder="Ara..."></div>
-    <div style="font-size:20px;">👤</div>
-</header>
-
-<nav>
-    <div class="nav-item">🏠 Ana Sayfa</div>
-    <div class="nav-item">🩳 Shorts</div>
-    <div class="nav-item">📺 Abonelikler</div>
-</nav>
-
-<main>
-    <div class="grid" id="mainGrid">
-        <div class="skeleton"><div class="sk-img"></div><div class="sk-line"></div></div>
-        <div class="skeleton"><div class="sk-img"></div><div class="sk-line"></div></div>
-        <div class="skeleton"><div class="sk-img"></div><div class="sk-line"></div></div>
-    </div>
-</main>
-
-<div id="watch">
-    <div class="close-btn" onclick="document.getElementById('watch').style.display='none'">←</div>
-    <div class="watch-grid">
-        <div class="player-area">
-            <iframe id="p" width="100%" style="aspect-ratio:16/9; border-radius:12px; border:none;" allowfullscreen allow="autoplay"></iframe>
-            <h1 id="pT" style="margin-top:20px;">Video Başlığı</h1>
+    <header class="flex items-center justify-between px-4 py-3 sticky top-0 bg-[#0f0f0f] z-50">
+        <div class="flex items-center gap-2">
+            <div class="bg-red-600 p-1 rounded-lg">
+                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
+            </div>
+            <span class="text-xl font-bold tracking-tighter">ShortsX</span>
         </div>
-        <div class="side-area" id="sGrid"></div>
-    </div>
-</div>
 
-<script>
-    const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-    
-    // Her yenilemede "uzun ve kaliteli" videolar için rastgele kategoriler
-    const tags = ['türkiye belgeselleri', 'tek parça diziler', 'uzun gameplay türkçe', 'podcast programları', 'canlı yayın özetleri'];
-    const randomTag = tags[Math.floor(Math.random() * tags.length)];
+        <div class="flex-1 max-w-md mx-4">
+            <input id="searchBar" type="text" placeholder="Shorts videolarında ara..." 
+                   class="w-full bg-[#121212] border border-[#333] px-5 py-2 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500">
+        </div>
 
-    async function load() {
-        const grid = document.getElementById('mainGrid');
-        try {
-            // videoDuration=long (20 dk üzeri) videoları getirir
-            const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${randomTag}&videoDuration=long&type=video&key=${API_KEY}`);
-            const d = await r.json();
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></div>
+    </header>
+
+    <main>
+        <div id="loader" class="text-center mt-20 text-gray-400">Videolar getiriliyor...</div>
+        <div id="shortsGrid" class="shorts-grid"></div>
+    </main>
+
+    <script>
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+        const grid = document.getElementById('shortsGrid');
+        const loader = document.getElementById('loader');
+        const searchBar = document.getElementById('searchBar');
+
+        async function getShorts(keyword = 'trending shorts') {
+            loader.style.display = 'block';
+            grid.innerHTML = '';
             
-            if(d.items) {
-                grid.innerHTML = "";
-                d.items.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'v-card';
-                    card.style.display = 'block';
-                    card.onclick = () => {
-                        document.getElementById('watch').style.display = 'block';
-                        document.getElementById('p').src = `https://www.youtube.com/embed/${item.id.videoId}?autoplay=1`;
-                        document.getElementById('pT').innerText = item.snippet.title;
-                        loadSide();
-                    };
-                    card.innerHTML = `
-                        <img class="v-img" src="${item.snippet.thumbnails.high.url}" onerror="this.src='https://via.placeholder.com/640x360/1a1a1a/ffffff?text=Video+Yukleniyor'">
-                        <div class="v-title">${item.snippet.title}</div>
-                        <div class="v-meta">${item.snippet.channelTitle}</div>
-                    `;
-                    grid.appendChild(card);
-                });
+            try {
+                // YouTube API'den kısa videoları (Shorts) çekmek için parametreler
+                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${encodeURIComponent(keyword)}&type=video&videoDuration=short&key=${API_KEY}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.items) {
+                    renderVideos(data.items);
+                } else {
+                    loader.innerText = "Video bulunamadı.";
+                }
+            } catch (err) {
+                loader.innerText = "Hata: API Kotası dolmuş veya anahtar yanlış olabilir.";
+                console.error(err);
+            } finally {
+                loader.style.display = 'none';
             }
-        } catch(e) { console.error(e); }
-    }
+        }
 
-    async function loadSide() {
-        const side = document.getElementById('sGrid');
-        side.innerHTML = "<h4>Sıradaki</h4><br>";
-        const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=popüler&type=video&key=${API_KEY}`);
-        const d = await r.json();
-        d.items.forEach(i => {
-            side.innerHTML += `
-                <div style="display:flex; gap:10px; margin-bottom:12px; cursor:pointer;" onclick="document.getElementById('p').src='https://www.youtube.com/embed/${i.id.videoId}'">
-                    <img src="${i.snippet.thumbnails.medium.url}" style="width:160px; border-radius:8px;">
-                    <div><p style="font-size:14px; font-weight:500;">${i.snippet.title}</p></div>
-                </div>`;
+        function renderVideos(videos) {
+            videos.forEach(item => {
+                const videoId = item.id.videoId;
+                const title = item.snippet.title;
+                const thumb = item.snippet.thumbnails.high.url;
+
+                const card = `
+                    <div class="video-card cursor-pointer group" onclick="window.open('https://www.youtube.com/shorts/${videoId}', '_blank')">
+                        <div class="aspect-shorts">
+                            <img src="${thumb}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 p-2 rounded text-[10px]">
+                                İzlemek için tıkla
+                            </div>
+                        </div>
+                        <div class="mt-2 px-1">
+                            <h3 class="text-xs font-medium line-clamp-2 leading-tight">${title}</h3>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        searchBar.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                getShorts(searchBar.value);
+            }
         });
-    }
 
-    window.onload = load;
-</script>
+        // Sayfa açıldığında varsayılan yükleme
+        getShorts();
+    </script>
 </body>
 </html>
