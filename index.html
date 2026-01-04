@@ -3,236 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan Pro</title>
+    <title>PaylaşKazan v6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #000; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
-        
-        /* SAYFA YAPISI - TAM GENİŞLİK */
-        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; background: #000; }
+        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
         .active-page { display: block; }
-
-        /* REELS FEED - TAM EKRAN */
-        #reels-feed { 
-            height: 100vh; 
-            overflow-y: scroll; 
-            scroll-snap-type: y mandatory; 
-            scrollbar-width: none; 
-        }
+        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         #reels-feed::-webkit-scrollbar { display: none; }
+        .video-wrapper { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .progress-bar { position: absolute; bottom: 90px; left: 0; height: 3px; background: #00f2ea; width: 0%; z-index: 200; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 15px 0 30px 0; z-index: 1000; }
+        .nav-item { opacity: 0.4; transition: 0.3s; text-align: center; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #ff0050; }
         
-        .video-wrapper { 
-            height: 100vh; 
-            width: 100%;
-            scroll-snap-align: start; 
-            position: relative;
-            background: #000;
-        }
-        
-        video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* Videoyu boşluk kalmayacak şekilde yayar */
-        }
-
-        /* VİDEO ÜZERİNDEKİ KATMANLAR */
-        .overlay-gradient {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 75%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none;
-        }
-
-        /* SAĞ ETKİLEŞİM BUTONLARI */
-        .side-bar {
-            position: absolute;
-            right: 15px;
-            bottom: 120px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 100;
-        }
-
-        .side-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .icon-bg {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* SOL BİLGİ ALANI */
-        .video-info {
-            position: absolute;
-            bottom: 110px;
-            left: 20px;
-            right: 80px;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        /* ALT NAVİGASYON */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            width: 100%; 
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-            display: flex; 
-            justify-content: space-around; 
-            padding: 15px 0 30px 0; 
-            z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .nav-item { opacity: 0.4; transition: 0.3s; cursor: pointer; text-align: center; }
-        .nav-item.active { opacity: 1; color: #00f2ea; }
-
-        /* İLERLEME ÇUBUĞU */
-        .progress-container {
-            position: absolute;
-            bottom: 90px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: rgba(255,255,255,0.1);
-            z-index: 200;
-        }
-        .progress-bar {
-            height: 100%;
-            background: #ff0050;
-            width: 0%;
-        }
+        /* Reklam Kartı Stili */
+        .ad-card { background: linear-gradient(45deg, #1a1a1a, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; height: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="fixed top-0 w-full z-[500] p-6 flex justify-between items-center pointer-events-none">
-        <div class="bg-black/60 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10 pointer-events-auto">
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Bakiye</p>
-            <p class="text-xl font-black text-cyan-400"><span id="bal-top">12.45</span> ₺</p>
+    <div class="fixed top-0 w-full z-[500] p-4 flex justify-between items-center pointer-events-none">
+        <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 pointer-events-auto">
+            <p class="text-[9px] text-gray-400 font-bold uppercase">Cüzdanım</p>
+            <p class="text-xl font-black text-green-400"><span id="total-balance">12.45</span> ₺</p>
         </div>
-        <div onclick="toggleMute()" class="bg-black/60 backdrop-blur-xl w-12 h-12 rounded-2xl flex items-center justify-center pointer-events-auto cursor-pointer border border-white/10">
-            <i id="mute-icon" class="fas fa-volume-mute"></i>
+        <div id="status-tag" class="bg-black/60 px-3 py-1 rounded-full text-[9px] border border-white/5 pointer-events-auto">
+            API: aw01...l9 AKTİF
         </div>
     </div>
 
-    <div id="page-home" class="page active-page p-6 flex flex-col justify-center items-center text-center">
-        <div class="w-24 h-24 bg-gradient-to-tr from-[#ff0050] to-[#00f2ea] rounded-full mb-6 p-1 shadow-2xl">
-            <div class="w-full h-full bg-black rounded-full flex items-center justify-center font-black text-2xl tracking-tighter">PK</div>
+    <div id="page-home" class="page active-page flex flex-col items-center justify-center p-6">
+        <div class="w-20 h-20 bg-[#ff0050] rounded-3xl flex items-center justify-center shadow-2xl mb-6 rotate-12">
+            <i class="fas fa-wallet text-3xl"></i>
         </div>
-        <h1 class="text-4xl font-black italic mb-2 tracking-tighter">PAYLAŞ<span class="text-cyan-400">KAZAN</span></h1>
-        <p class="text-gray-500 text-xs mb-10 font-mono italic">Verified: aw01joj8wk4rnll9</p>
-        
-        <button onclick="navigate('reels')" class="w-full max-w-xs bg-white text-black py-5 rounded-full font-black text-lg hover:scale-105 transition-transform shadow-2xl shadow-white/10">
-            Hemen İzle & Kazan
-        </button>
+        <h1 class="text-3xl font-black mb-1">HOŞ GELDİN</h1>
+        <p class="text-gray-500 text-sm mb-10">Bugün 12.45 ₺ kazandın.</p>
+        <button onclick="navigate('reels')" class="w-full max-w-xs bg-white text-black py-4 rounded-2xl font-black uppercase tracking-wider">İzlemeye Başla</button>
     </div>
 
     <div id="page-reels" class="page">
         <div id="reels-feed"></div>
     </div>
 
-    <div id="page-tasks" class="page p-8">
-        <h2 class="text-3xl font-black mt-24 mb-8 italic text-cyan-400">GÖREVLER</h2>
-        <div class="bg-white/5 p-6 rounded-[2rem] border border-white/10 flex justify-between items-center mb-4">
-            <div>
-                <p class="font-bold">Giriş Bonusu</p>
-                <p class="text-xs text-green-500">Tamamlandı +10 ₺</p>
-            </div>
-            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
-        </div>
-    </div>
-
     <nav class="bottom-nav">
-        <div onclick="navigate('home')" class="nav-item active"><i class="fas fa-th-large text-2xl mb-1"></i><p class="text-[9px] font-bold">PANEL</p></div>
-        <div onclick="navigate('reels')" class="nav-item"><i class="fas fa-play-circle text-2xl mb-1"></i><p class="text-[9px] font-bold">REELS</p></div>
-        <div onclick="navigate('tasks')" class="nav-item"><i class="fas fa-coins text-2xl mb-1"></i><p class="text-[9px] font-bold">KAZANÇ</p></div>
+        <div onclick="navigate('home')" class="nav-item active"><i class="fas fa-home text-xl"></i><p class="text-[8px] mt-1">ANA SAYFA</p></div>
+        <div onclick="navigate('reels')" class="nav-item"><i class="fas fa-play text-xl"></i><p class="text-[8px] mt-1">REELS</p></div>
+        <div onclick="location.reload()" class="nav-item"><i class="fas fa-sync text-xl"></i><p class="text-[8px] mt-1">YENİLE</p></div>
     </nav>
 
     <script>
         const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
         let balance = 12.45;
-        let isMuted = true;
+        let videoCounter = 0; // 2 videoda 1 reklam için
 
         function navigate(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('page-' + id).classList.add('active-page');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            const idx = id === 'home' ? 0 : (id === 'reels' ? 1 : 2);
-            document.querySelectorAll('.nav-item')[idx].classList.add('active');
-
+            event.currentTarget.classList.add('active');
             if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
         }
 
-        function toggleMute() {
-            isMuted = !isMuted;
-            document.getElementById('mute-icon').className = isMuted ? "fas fa-volume-mute" : "fas fa-volume-up";
-            document.querySelectorAll('video').forEach(v => v.muted = isMuted);
+        function addBalance(amount, reason) {
+            balance += amount;
+            document.getElementById('total-balance').innerText = balance.toFixed(2);
+            console.log(`${reason}: +${amount}₺`);
         }
 
-        function createReels() {
+        function createContent() {
             const feed = document.getElementById('reels-feed');
-            [...videoFiles].sort(() => Math.random() - 0.5).forEach(file => {
-                const wrap = document.createElement('div');
-                wrap.className = 'video-wrapper';
-                wrap.innerHTML = `
-                    <video loop muted playsinline src="${file}"></video>
-                    <div class="overlay-gradient"></div>
-                    
-                    <div class="side-bar">
-                        <div class="side-icon"><div class="icon-bg text-red-500"><i class="fas fa-heart"></i></div><span class="text-[10px] font-bold">1.2K</span></div>
-                        <div class="side-icon"><div class="icon-bg"><i class="fas fa-comment-dots"></i></div><span class="text-[10px] font-bold">42</span></div>
-                        <div class="side-icon"><div class="icon-bg text-cyan-400"><i class="fas fa-share"></i></div><span class="text-[10px] font-bold">KAZAN</span></div>
+            
+            // Her döngüde 2 Video + 1 Reklam ekle
+            for (let i = 0; i < 2; i++) {
+                const videoFile = videoFiles[Math.floor(Math.random() * videoFiles.length)];
+                const vWrap = document.createElement('div');
+                vWrap.className = 'video-wrapper';
+                vWrap.innerHTML = `
+                    <video loop muted playsinline src="${videoFile}"></video>
+                    <div class="progress-bar"></div>
+                    <div class="absolute bottom-32 left-6 right-20 pointer-events-none">
+                        <p class="font-bold">@video_creator</p>
+                        <p class="text-xs opacity-70">İzle ve 0.01 ₺ Kazan!</p>
                     </div>
-
-                    <div class="video-info">
-                        <p class="font-bold text-lg flex items-center gap-2">@creators <i class="fas fa-check-circle text-blue-500 text-xs"></i></p>
-                        <p class="text-xs opacity-80 mt-1 line-clamp-2">İzledikçe cüzdanın dolsun! Paylaş ve daha çok kazan. #money #reels #trend</p>
-                    </div>
-
-                    <div class="progress-container"><div class="progress-bar"></div></div>
                 `;
-                feed.appendChild(wrap);
-                observer.observe(wrap.querySelector('video'));
-            });
+                feed.appendChild(vWrap);
+                observer.observe(vWrap.querySelector('video'));
+            }
+
+            // REKLAM EKLE
+            const adWrap = document.createElement('div');
+            adWrap.className = 'video-wrapper';
+            adWrap.innerHTML = `
+                <div class="ad-card">
+                    <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-yellow-500/20">
+                        <i class="fas fa-ad text-black text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-black mb-2 uppercase">Sponsorlu İçerik</h3>
+                    <p class="text-gray-400 text-sm px-10 mb-6">Reklamı geçmek için yukarı kaydır. Cüzdanın güvenle işleniyor.</p>
+                    <div class="text-[10px] text-gray-600 font-mono">ID: aw01joj8wk4rnll9</div>
+                    <button class="mt-8 bg-white/10 px-6 py-2 rounded-full text-xs font-bold">Detayları Gör</button>
+                </div>
+            `;
+            feed.appendChild(adWrap);
         }
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 const video = e.target;
                 const pBar = video.parentElement.querySelector('.progress-bar');
+
                 if(e.isIntersecting) {
                     video.play();
-                    video.muted = isMuted;
+                    
+                    // KURAL 2: Her kaydırmada 0.01₺ ver
+                    addBalance(0.01, "Kaydırma Bonusu");
+
+                    // Video İzleme Takibi
+                    let bonusGiven = false;
                     video.ontimeupdate = () => {
-                        const perc = (video.currentTime / video.duration) * 100;
-                        pBar.style.width = perc + "%";
-                        balance += 0.005; // İzleme bonusu
-                        document.getElementById('bal-top').innerText = balance.toFixed(2);
+                        const progress = (video.currentTime / video.duration) * 100;
+                        if(pBar) pBar.style.width = progress + "%";
+                        
+                        // KURAL 1: Baştan sona izleyince 0.01₺ ver
+                        if(progress > 98 && !bonusGiven) {
+                            addBalance(0.01, "Tam İzleme Bonusu");
+                            bonusGiven = true;
+                        }
                     };
-                    if(video === document.getElementById('reels-feed').lastElementChild.querySelector('video')) createReels();
-                } else { video.pause(); }
+
+                    // Sonsuz akışı tetikle
+                    if(video === document.getElementById('reels-feed').lastElementChild.previousElementSibling.querySelector('video')) {
+                        createContent();
+                    }
+                } else {
+                    video.pause();
+                }
             });
         }, { threshold: 0.8 });
 
-        createReels();
+        // Başlat
+        createContent();
     </script>
 </body>
 </html>
