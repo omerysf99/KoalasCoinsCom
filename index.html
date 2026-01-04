@@ -3,123 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Clone - API Dashboard</title>
+    <title>TikTok Yerel Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #121212; color: white; overflow-x: hidden; }
-        .sidebar-item:hover { background-color: rgba(255, 255, 255, 0.08); }
-        .active-item { color: #fe2c55; }
-        .video-card { scroll-snap-align: start; height: calc(100vh - 80px); }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        body { background-color: #121212; color: white; overflow: hidden; }
+        /* Video Akış Alanı */
+        #video-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+        .video-section {
+            height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+        }
+        video {
+            height: 85vh;
+            border-radius: 12px;
+            background-color: black;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .sidebar-icon {
+            display: flex;
+            flex-col;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .sidebar-icon i { font-size: 24px; padding: 12px; background: #2f2f2f; border-radius: 50%; }
+        .sidebar-icon span { font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-[#121212] border-b border-gray-800 h-16 flex items-center justify-between px-6 z-50">
+    <nav class="fixed top-0 w-full bg-transparent flex items-center justify-between px-6 h-16 z-50">
         <div class="flex items-center gap-2">
-            <i class="fab fa-tiktok text-3xl"></i>
-            <span class="text-2xl font-bold tracking-tighter">TikTok</span>
-        </div>
-        
-        <div class="hidden md:flex bg-[#2f2f2f] rounded-full px-4 py-2 w-1/3 items-center">
-            <input type="text" placeholder="Hesapları ara" class="bg-transparent w-full outline-none text-sm text-gray-300">
-            <span class="border-l border-gray-600 pl-3 ml-2 text-gray-500"><i class="fas fa-search"></i></span>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <button class="bg-[#fe2c55] text-white px-5 py-1.5 rounded-sm font-semibold">Giriş Yap</button>
-            <i class="fas fa-ellipsis-vertical text-xl cursor-pointer"></i>
+            <i class="fab fa-tiktok text-3xl text-white"></i>
+            <span class="text-xl font-bold tracking-tighter">TikTok Local</span>
         </div>
     </nav>
 
-    <div class="flex pt-16">
-        <aside class="w-20 md:w-64 fixed left-0 h-full border-r border-gray-800 p-4 hidden sm:block">
-            <div class="flex flex-col gap-2">
-                <div class="sidebar-item active-item p-3 rounded-md cursor-pointer flex items-center gap-4 text-xl font-bold">
-                    <i class="fas fa-home"></i> <span class="hidden md:inline">Sizin İçin</span>
-                </div>
-                <div class="sidebar-item p-3 rounded-md cursor-pointer flex items-center gap-4 text-xl font-semibold text-gray-400">
-                    <i class="fas fa-users"></i> <span class="hidden md:inline">Takip Edilenler</span>
-                </div>
-                <div class="sidebar-item p-3 rounded-md cursor-pointer flex items-center gap-4 text-xl font-semibold text-gray-400">
-                    <i class="fas fa-compass"></i> <span class="hidden md:inline">Keşfet</span>
-                </div>
-                <div class="sidebar-item p-3 rounded-md cursor-pointer flex items-center gap-4 text-xl font-semibold text-gray-400">
-                    <i class="fas fa-video"></i> <span class="hidden md:inline">Canlı</span>
-                </div>
-            </div>
-            <hr class="my-4 border-gray-800">
-            <div class="hidden md:block text-gray-500 text-sm">
-                <p>API Durumu: <span class="text-green-500">Bağlı (aw01...l9)</span></p>
-            </div>
-        </aside>
-
-        <main class="flex-1 ml-0 sm:ml-20 md:ml-64 flex justify-center p-4">
-            <div id="feed" class="w-full max-w-[600px] flex flex-col gap-10">
-                
-                <div class="flex gap-4 border-b border-gray-800 pb-10">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="w-12 h-12 rounded-full border border-gray-700">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-bold hover:underline cursor-pointer">yazilimci_bot</h3>
-                                <p class="text-sm text-gray-300">TikTok API Test Yayını #coding #api</p>
-                            </div>
-                            <button class="border border-[#fe2c55] text-[#fe2c55] px-4 py-0.5 rounded-sm text-sm font-semibold">Takip Et</button>
-                        </div>
-                        
-                        <div class="mt-4 flex gap-4">
-                            <div class="bg-gray-900 rounded-lg w-[300px] h-[500px] flex items-center justify-center relative border border-gray-800">
-                                <i class="fas fa-play text-4xl text-gray-600"></i>
-                                <div class="absolute bottom-4 left-4 text-xs text-gray-400">API Key: aw01...l9 aktif</div>
-                            </div>
-                            
-                            <div class="flex flex-col justify-end gap-4 text-center">
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-heart text-xl"></i></div><span class="text-xs font-bold">12.5K</span></div>
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-comment-dots text-xl"></i></div><span class="text-xs font-bold">850</span></div>
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-share text-xl"></i></div><span class="text-xs font-bold">240</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 border-b border-gray-800 pb-10">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2" class="w-12 h-12 rounded-full border border-gray-700">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-bold hover:underline cursor-pointer">tiktok_developer</h3>
-                                <p class="text-sm text-gray-300">New Client Secret Integration! 🚀</p>
-                            </div>
-                            <button class="border border-[#fe2c55] text-[#fe2c55] px-4 py-0.5 rounded-sm text-sm font-semibold">Takip Et</button>
-                        </div>
-                        
-                        <div class="mt-4 flex gap-4">
-                            <div class="bg-gray-900 rounded-lg w-[300px] h-[500px] flex items-center justify-center relative border border-gray-800">
-                                <i class="fas fa-video text-4xl text-gray-600"></i>
-                            </div>
-                            <div class="flex flex-col justify-end gap-4 text-center">
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1 text-red-500"><i class="fas fa-heart text-xl"></i></div><span class="text-xs font-bold">45.2K</span></div>
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-comment-dots text-xl"></i></div><span class="text-xs font-bold">1.2K</span></div>
-                                <div><div class="bg-gray-800 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-share text-xl"></i></div><span class="text-xs font-bold">1.1K</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-    </div>
+    <div id="video-container">
+        </div>
 
     <script>
-        // Görseldeki verileri konsola basalım (Simülasyon için)
-        const TikTokConfig = {
-            clientKey: "aw01joj8wk4rnll9",
-            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
+        // Senin klasöründeki video listesi
+        const videoFiles = [
+            'reels1.mp4',
+            'reels2.mp4',
+            'reels3.mp4',
+            'reels4.mp4',
+            'reels5.mp4'
+        ];
+
+        const container = document.getElementById('video-container');
+
+        // Videoları HTML'e dök
+        videoFiles.forEach((file, index) => {
+            const section = document.createElement('div');
+            section.className = 'video-section';
+            section.innerHTML = `
+                <div class="relative flex gap-4 items-end">
+                    <video loop class="main-video" src="${file}"></video>
+                    
+                    <div class="flex flex-col text-white pb-4">
+                        <div class="sidebar-icon">
+                            <i class="fas fa-heart"></i>
+                            <span>${Math.floor(Math.random() * 50)}K</span>
+                        </div>
+                        <div class="sidebar-icon">
+                            <i class="fas fa-comment-dots"></i>
+                            <span>${Math.floor(Math.random() * 500)}</span>
+                        </div>
+                        <div class="sidebar-icon">
+                            <i class="fas fa-share"></i>
+                            <span>Paylaş</span>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-6 left-4">
+                        <p class="font-bold text-lg">@user_reels_${index + 1}</p>
+                        <p class="text-sm">Yerel klasörden video oynatılıyor: ${file}</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(section);
+        });
+
+        // Otomatik Oynatma Mantığı (Scroll takip eder)
+        const videos = document.querySelectorAll('.main-video');
+        
+        const observerOptions = {
+            threshold: 0.7 // Videonun %70'i göründüğünde oynat
         };
-        console.log("TikTok API Yapılandırması Yüklendi:", TikTokConfig);
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.play();
+                } else {
+                    entry.target.pause();
+                    entry.target.currentTime = 0; // Başa sar
+                }
+            });
+        }, observerOptions);
+
+        videos.forEach(video => {
+            observer.observe(video);
+            // İlk tıklamada ses açma/oynatma için (Tarayıcı politikaları gereği)
+            video.addEventListener('click', () => {
+                if (video.paused) video.play();
+                else video.pause();
+            });
+        });
     </script>
+
 </body>
 </html>
