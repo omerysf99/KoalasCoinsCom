@@ -3,110 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonsuz Reels İzle</title>
+    <title>Mobil Reels Player</title>
     <style>
-        * {
+        /* Arka planı koyu yap ki video öne çıksın */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background-color: #000;
-            overflow: hidden; /* Ana sayfada kaydırmayı engelle */
-        }
-        .reels-container {
-            height: 100vh;
-            width: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory; /* Kaydırma mıknatısı */
-            scroll-behavior: smooth;
-        }
-        .reels-container::-webkit-scrollbar {
-            display: none; /* Kaydırma çubuğunu gizle */
-        }
-        .video-card {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
+            background-color: #121212;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
         }
-        video {
+
+        /* Video alanı: Sabit telefon boyutu */
+        .reels-wrapper {
+            width: 100%;
+            max-width: 400px; /* Maksimum genişlik */
+            height: 90vh; /* Ekranın %90'ı kadar yükseklik */
+            position: relative;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border: 4px solid #333;
+        }
+
+        .reels-container {
+            height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .reels-container::-webkit-scrollbar {
+            display: none; /* Kaydırma çubuğunu gizle */
+        }
+
+        .video-card {
             height: 100%;
             width: 100%;
-            object-fit: cover; /* Videoyu ekrana tam yay */
+            scroll-snap-align: start;
+            position: relative;
         }
-        .overlay {
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Videoyu kutuya sığdır */
+        }
+
+        .info-overlay {
             position: absolute;
-            bottom: 30px;
-            left: 20px;
+            bottom: 20px;
+            left: 15px;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            font-family: sans-serif;
+            z-index: 10;
             pointer-events: none;
         }
+
+        .info-overlay h4 { margin: 0; font-size: 16px; }
+        .info-overlay p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-<div class="reels-container" id="reelsContainer">
-    </div>
+<div class="reels-wrapper">
+    <div class="reels-container" id="reelsContainer">
+        </div>
+</div>
 
 <script>
     const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
     const container = document.getElementById('reelsContainer');
 
-    // Videoları ekrana basan fonksiyon
-    function createVideoCard(src, index) {
-        const card = document.createElement('div');
-        card.className = 'video-card';
-        card.innerHTML = `
+    function createVideo(src, id) {
+        const div = document.createElement('div');
+        div.className = 'video-card';
+        div.innerHTML = `
             <video src="${src}" loop muted playsinline></video>
-            <div class="overlay">
-                <h3>Reels #${index + 1}</h3>
-                <p>Sonsuz kaydırma aktif</p>
+            <div class="info-overlay">
+                <h4>Reels #${id}</h4>
+                <p>Kaydırmaya devam et...</p>
             </div>
         `;
-        return card;
+        return div;
     }
 
-    // İlk seti yükle
-    function loadVideos() {
-        videoFiles.forEach((file, index) => {
-            container.appendChild(createVideoCard(file, index));
+    function loadContent() {
+        videoFiles.forEach((file, i) => {
+            container.appendChild(createVideo(file, i + 1));
         });
     }
 
-    // "Sonsuz" döngü için izleyici (Listen scroll)
+    // Sonsuz döngü kontrolü
     container.addEventListener('scroll', () => {
-        // Eğer sona yaklaştıysak videoları tekrar ekle (Sonsuz döngü simülasyonu)
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 5) {
-            loadVideos(); 
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
+            loadContent();
         }
 
-        // Otomatik oynatma yönetimi
         const videos = document.querySelectorAll('video');
         videos.forEach(v => {
             const rect = v.getBoundingClientRect();
-            if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-                v.play().catch(() => {}); // Ekranda olanı oynat
+            // Video ekranın ortasındaysa oynat
+            if (rect.top >= 0 && rect.bottom <= window.innerHeight + 100) {
+                v.play().catch(() => {});
             } else {
-                v.pause(); // Ekrandan çıkanı durdur
+                v.pause();
             }
         });
     });
 
-    // Sayfa açıldığında ilk videoları yükle
-    loadVideos();
+    // İlk yükleme
+    loadContent();
 
-    // Kullanıcı etkileşimi olmadan video oynamayacağı için ilk tıklamada ses açma/oynatma
-    window.addEventListener('click', () => {
-        const firstVid = document.querySelector('video');
-        if(firstVid) firstVid.muted = false;
+    // Ses için tıklama zorunluluğu
+    document.body.addEventListener('click', () => {
+        const vids = document.querySelectorAll('video');
+        vids.forEach(v => v.muted = false);
     }, { once: true });
-
 </script>
 
 </body>
