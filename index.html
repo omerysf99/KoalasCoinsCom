@@ -3,83 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>YouTube Shorts Clone</title>
+    <title>YouTube Shorts Dikey</title>
     <style>
-        :root { --yt-white: #ffffff; --yt-gray: #aaa; --yt-dark: #0f0f0f; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "YouTube Sans", "Roboto", sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; color: white; }
 
-        /* ALT NAVİGASYON (YT STYLE) */
+        /* ALT NAVİGASYON */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 50px;
+            position: fixed; bottom: 0; width: 100%; height: 60px;
             background: #000; display: flex; justify-content: space-around;
-            align-items: center; z-index: 9999; border-top: 1px solid #222;
+            align-items: center; z-index: 1000; border-top: 1px solid #222;
         }
-        .nav-item { color: white; text-align: center; font-size: 10px; opacity: 1; cursor: pointer; flex: 1; text-decoration: none; }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 2px; font-style: normal; }
-        .nav-item span { font-size: 10px; }
-        .nav-item.active { font-weight: bold; }
+        .nav-item { color: white; text-align: center; font-size: 10px; flex: 1; cursor: pointer; opacity: 0.6; }
+        .nav-item.active { opacity: 1; font-weight: bold; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; font-style: normal; }
 
-        /* SAYFA YAPISI */
-        .page { display: none; height: calc(100vh - 50px); width: 100%; position: absolute; }
+        /* SAYFALAR */
+        .page { display: none; height: 100vh; width: 100%; position: absolute; }
         .active-page { display: block; }
 
-        /* SHORTS FLOW - FULLSCREEN SNAP */
+        /* ANA SAYFA PANELİ */
+        #homePage { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .wallet-box { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 90%; }
+
+        /* SHORTS DİKEY AKIŞ SİSTEMİ */
         #shortsPage { 
             overflow-y: scroll; 
             scroll-snap-type: y mandatory; 
             scrollbar-width: none; 
-            -webkit-overflow-scrolling: touch; 
+            height: 100vh;
         }
         #shortsPage::-webkit-scrollbar { display: none; }
         
         .short-wrapper { 
-            width: 100%; height: 100%; 
+            width: 100%; height: 100vh; 
             scroll-snap-align: start; 
             position: relative; 
             background: #000;
         }
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* SAĞ AKSİYON MENÜSÜ (YT STANDART) */
-        .side-bar {
-            position: absolute; right: 8px; bottom: 80px;
-            display: flex; flex-direction: column; gap: 18px; align-items: center;
-            z-index: 100;
+        
+        /* TAM DİKEY VİDEO */
+        video { 
+            width: 100%; height: 100%; 
+            object-fit: cover; /* Videoyu ekranı kaplayacak şekilde kırpar/sığdırır */
         }
-        .side-btn { text-align: center; cursor: pointer; }
-        .side-btn i { font-size: 28px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
-        .side-btn span { font-size: 12px; font-weight: 400; margin-top: 4px; display: block; color: white; }
 
-        /* ALT BİLGİ ALANI (YT STANDART) */
-        .video-footer {
-            position: absolute; bottom: 20px; left: 12px; right: 80px;
-            z-index: 100; pointer-events: none;
+        /* VİDEO ÜSTÜ UI KATMANI */
+        .video-ui {
+            position: absolute; bottom: 80px; left: 15px; right: 70px;
+            z-index: 10; pointer-events: none;
         }
-        .channel-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .avatar { width: 32px; height: 32px; background: #555; border-radius: 50%; }
-        .channel-name { font-weight: bold; font-size: 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-        .subscribe-btn { background: white; color: black; padding: 6px 12px; border-radius: 18px; font-size: 12px; font-weight: bold; margin-left: 5px; }
-        .video-desc { font-size: 14px; line-height: 1.4; text-shadow: 0 1px 2px rgba(0,0,0,0.8); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .channel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .avatar { width: 35px; height: 35px; background: #444; border-radius: 50%; border: 1px solid #fff; }
+        .sub-btn { background: #fff; color: #000; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
 
-        /* KAZANÇ REKLAM MODAL */
-        .ad-layer {
+        /* SAĞ BUTONLAR */
+        .side-buttons {
+            position: absolute; right: 10px; bottom: 100px;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
+        }
+        .side-btn { text-align: center; }
+        .side-btn span { font-size: 25px; display: block; filter: drop-shadow(2px 2px 4px #000); }
+        .side-btn label { font-size: 12px; }
+
+        /* REKLAM EKRANI */
+        .ad-modal {
             position: absolute; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 10000; display: flex; flex-direction: column;
+            z-index: 100; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
         }
-        .ad-badge { background: #fbc02d; color: black; padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="homePage" class="page active-page">
-    <div style="padding: 50px 20px; text-align: center;">
-        <h2 style="color: #ff0000; font-size: 28px; margin-bottom: 20px;">Shorts Cüzdanı</h2>
-        <div style="background: #1a1a1a; padding: 30px; border-radius: 15px;">
-            <p style="font-size: 12px; color: #888;">TOPLAM KAZANÇ</p>
-            <h1 id="totalBalance" style="font-size: 45px; margin: 10px 0;">0.0000$</h1>
-        </div>
+    <div class="wallet-box">
+        <p style="color:#888; font-size:12px;">CÜZDAN</p>
+        <h1 id="balance" style="font-size:40px; color:#00ff88; margin:10px 0;">0.0000$</h1>
+        <p style="font-size:12px;">Shorts izleyerek kazanmaya başla!</p>
     </div>
 </div>
 
@@ -87,52 +88,50 @@
     <div id="shortsFlow"></div>
 </div>
 
-<div id="historyPage" class="page" style="padding: 20px; overflow-y: auto;">
-    <h3>İzleme Geçmişi</h3>
-    <div id="histContent" style="margin-top:20px;"></div>
+<div id="historyPage" class="page" style="padding:20px; overflow-y:auto;">
+    <h2>Geçmiş</h2>
+    <div id="histList"></div>
 </div>
 
 <nav class="bottom-nav">
-    <div class="nav-item active" id="n-home" onclick="tab('homePage')"><i>🏠</i><span>Ana Sayfa</span></div>
-    <div class="nav-item" id="n-shorts" onclick="tab('shortsPage')"><i>🎞️</i><span>Shorts</span></div>
-    <div class="nav-item" id="n-history" onclick="tab('historyPage')"><i>🕒</i><span>Geçmiş</span></div>
+    <div class="nav-item active" id="n-home" onclick="tab('homePage')"><i>🏠</i>Ev</div>
+    <div class="nav-item" id="n-shorts" onclick="tab('shortsPage')"><i>🎞️</i>Shorts</div>
+    <div class="nav-item" id="n-history" onclick="tab('historyPage')"><i>🕒</i>Geçmiş</div>
 </nav>
 
 <script>
-    const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
-    let balance = parseFloat(localStorage.getItem('balance')) || 0;
-    let watched = 0;
-    let globalMute = true;
+    const videos = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
+    let wallet = parseFloat(localStorage.getItem('wallet')) || 0;
+    let counter = 0;
+    let isMuted = true;
 
-    function init() {
-        document.getElementById('totalBalance').innerText = balance.toFixed(4) + "$";
+    function buildShorts() {
+        document.getElementById('balance').innerText = wallet.toFixed(4) + "$";
         const flow = document.getElementById('shortsFlow');
         
-        // 20 videoluk akış (YouTube mantığı)
-        for(let i=0; i<5; i++) {
-            reels.forEach((file, idx) => {
+        // 10 setlik döngü (40 video)
+        for(let i=0; i<10; i++) {
+            videos.forEach((file, idx) => {
                 flow.innerHTML += `
                     <div class="short-wrapper">
-                        <video src="${file}" loop muted playsinline onclick="unmuteAll()"></video>
-                        <div class="side-bar">
-                            <div class="side-btn"><i>👍</i><span>156B</span></div>
-                            <div class="side-btn"><i>👎</i><span>Beğenme</span></div>
-                            <div class="side-btn"><i>💬</i><span>1.2B</span></div>
-                            <div class="side-btn"><i>↪️</i><span>Paylaş</span></div>
-                            <div class="side-btn"><i>🔄</i><span>Remix</span></div>
+                        <video src="${file}" loop muted playsinline onclick="toggleMute()"></video>
+                        <div class="side-buttons">
+                            <div class="side-btn"><span>❤️</span><label>14B</label></div>
+                            <div class="side-btn"><span>💬</span><label>256</label></div>
+                            <div class="side-btn"><span>✈️</span><label>Paylaş</label></div>
                         </div>
-                        <div class="video-footer">
-                            <div class="channel-info">
+                        <div class="video-ui">
+                            <div class="channel-row">
                                 <div class="avatar"></div>
-                                <span class="channel-name">@Kanal_${idx+1}</span>
-                                <div class="subscribe-btn">Abone Ol</div>
+                                <b>@Kanal_${idx+1}</b>
+                                <div class="sub-btn">Abone Ol</div>
                             </div>
-                            <p class="video-desc">${file} ile YouTube Shorts deneyimi ve kazanç sistemi entegrasyonu. #shorts #viral</p>
+                            <p>${file} ile tam dikey video deneyimi.</p>
                         </div>
                     </div>`;
             });
         }
-        setupObserver();
+        initObserver();
     }
 
     function tab(id) {
@@ -143,31 +142,26 @@
         if(id !== 'shortsPage') document.querySelectorAll('video').forEach(v => v.pause());
     }
 
-    function setupObserver() {
+    function initObserver() {
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 const v = e.target;
                 if (e.isIntersecting) {
-                    v.muted = globalMute;
+                    v.muted = isMuted;
                     v.play();
-                    watched++;
-                    if(watched % 4 === 0) triggerYTAd(v);
+                    counter++;
+                    if(counter % 4 === 0) triggerAd(v);
                 } else { v.pause(); }
             });
         }, { threshold: 0.8 });
         document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
-    function triggerYTAd(v) {
+    function triggerAd(v) {
         v.pause();
         const ad = document.createElement('div');
-        ad.className = 'ad-layer';
-        ad.innerHTML = `
-            <div class="ad-badge">REKLAM</div>
-            <h2 style="color:white; margin-bottom:10px;">Para Yükleniyor...</h2>
-            <div style="font-size:40px; font-weight:bold;" id="cd">5</div>
-            <p style="color:#888; margin-top:20px; font-size:13px;">Bakiye: +0.0003$</p>
-        `;
+        ad.className = 'ad-modal';
+        ad.innerHTML = `<h2>Reklam İzleniyor...</h2><h1 id="cd" style="font-size:50px; color:#00ff88;">5</h1>`;
         v.parentElement.appendChild(ad);
         let s = 5;
         const timer = setInterval(() => {
@@ -177,19 +171,19 @@
                 clearInterval(timer);
                 ad.remove();
                 v.play();
-                balance += 0.0003;
-                document.getElementById('totalBalance').innerText = balance.toFixed(4) + "$";
-                localStorage.setItem('balance', balance);
+                wallet += 0.0003;
+                document.getElementById('balance').innerText = wallet.toFixed(4) + "$";
+                localStorage.setItem('wallet', wallet);
             }
         }, 1000);
     }
 
-    function unmuteAll() {
-        globalMute = !globalMute;
-        document.querySelectorAll('video').forEach(v => v.muted = globalMute);
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
-    init();
+    buildShorts();
 </script>
 </body>
 </html>
