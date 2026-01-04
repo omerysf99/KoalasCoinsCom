@@ -3,70 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Kombat Clone Pro</title>
+    <title>Hamster Kombat Clone - Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #f3ba2f; --bg: #000; --card: #1c1f24; }
         body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .font-game { font-family: 'Orbitron', sans-serif; }
         
-        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease; }
+        /* Animasyonlar */
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.2s ease; }
         .tab-content.active { display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* Hamster Butonu */
         .hamster-btn {
             background: radial-gradient(circle, #32363c 0%, #0c0d0f 100%);
             border: 10px solid #282b30;
             box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
             transition: transform 0.05s;
+            touch-action: none; /* Kaydırmayı engeller */
         }
-        .hamster-btn:active { transform: scale(0.92) rotate(2deg); }
+        .hamster-btn:active { transform: scale(0.95); }
 
+        /* Yüzen Sayılar */
         .floating-text {
-            position: absolute; color: #fff; font-size: 30px; font-weight: 900;
+            position: absolute; color: #fff; font-size: 35px; font-weight: 900;
             pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100;
+            text-shadow: 0 0 10px rgba(243, 186, 47, 0.8);
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-150px); } }
 
-        .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; text-align: center; flex: 1; }
         .nav-item.active { opacity: 1; color: var(--primary); }
         
-        .card-mine { background: #15161a; border: 1px solid #2d333b; border-radius: 1.5rem; transition: 0.2s; }
-        .card-mine:active { transform: scale(0.98); }
+        .card-mine { background: #15161a; border: 1px solid #2d333b; border-radius: 1rem; }
     </style>
 </head>
 <body class="flex flex-col justify-between">
 
-    <header class="px-6 pt-4 shrink-0">
+    <header class="px-6 pt-6 shrink-0">
         <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-600 flex items-center justify-center font-bold text-black text-xl">H</div>
-                <div>
-                    <h2 class="text-xs font-black uppercase tracking-widest">Hamster CEO</h2>
-                    <div class="flex items-center gap-1">
-                        <div class="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                            <div class="bg-yellow-500 h-full w-1/3"></div>
-                        </div>
-                        <span class="text-[10px] text-gray-500">Lv 1/10</span>
-                    </div>
-                </div>
+                <div class="w-10 h-10 rounded-lg bg-yellow-500 flex items-center justify-center font-black text-black">H</div>
+                <span class="text-sm font-bold">CEO (Seviye 1)</span>
             </div>
-            <div class="bg-gray-900 border border-gray-800 px-3 py-1 rounded-full text-[10px] font-bold text-yellow-500">BRONZ LİG ></div>
+            <div class="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-3 py-1 rounded-full uppercase tracking-tighter">Bronze Ligi ></div>
         </div>
 
         <div class="grid grid-cols-3 gap-2">
             <div class="card-mine p-2 text-center border-b-2 border-yellow-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Tık Başı</p>
-                <p class="text-xs font-bold text-white">+<span id="tpcText">1</span></p>
+                <p class="text-[9px] text-gray-500 font-bold uppercase">Tık Başı</p>
+                <p class="text-xs font-black text-white">+<span id="tpcText">1</span></p>
             </div>
             <div class="card-mine p-2 text-center border-b-2 border-blue-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Limit</p>
-                <p class="text-xs font-bold text-white">1000</p>
+                <p class="text-[9px] text-gray-500 font-bold uppercase">Enerji</p>
+                <p class="text-xs font-black text-white">1000</p>
             </div>
             <div class="card-mine p-2 text-center border-b-2 border-green-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Srk. Kar</p>
-                <p class="text-xs font-bold text-green-500">+<span id="tphText">0</span></p>
+                <p class="text-[9px] text-gray-500 font-bold uppercase">Srk. Kar</p>
+                <p class="text-xs font-black text-green-500">+<span id="tphText">0</span></p>
             </div>
         </div>
     </header>
@@ -74,11 +69,9 @@
     <main class="flex-grow overflow-y-auto px-6 py-4">
         
         <div id="exchange" class="tab-content active items-center justify-around">
-            <div class="flex flex-col items-center">
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="text-4xl">💰</span>
-                    <h1 id="score" class="text-5xl font-black font-game">0</h1>
-                </div>
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">💰</span>
+                <h1 id="score" class="text-6xl font-black tracking-tighter">0</h1>
             </div>
 
             <div id="tapBtn" class="hamster-btn w-72 h-72 rounded-full flex items-center justify-center relative">
@@ -86,99 +79,82 @@
             </div>
 
             <div class="w-full max-w-sm">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-yellow-500 font-bold flex items-center gap-1">⚡ <span id="energy">1000</span> / 1000</span>
-                    <span class="text-gray-500 text-xs font-bold">Boost 🔥</span>
+                <div class="flex justify-between mb-1">
+                    <span class="text-yellow-500 font-black text-lg flex items-center gap-1">⚡ <span id="energy">1000</span> / 1000</span>
                 </div>
-                <div class="w-full bg-gray-900 h-3 rounded-full p-0.5 border border-white/5">
-                    <div id="energyFill" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full w-full rounded-full transition-all"></div>
+                <div class="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-white/5">
+                    <div id="energyFill" class="bg-gradient-to-r from-yellow-400 to-orange-600 h-full w-full transition-all duration-100"></div>
                 </div>
             </div>
         </div>
 
         <div id="mine" class="tab-content space-y-4">
-            <h2 class="text-xl font-black text-center mb-2">Pasif Gelir Kartları</h2>
+            <h2 class="text-xl font-black text-center mb-2">Yatırım Kartları</h2>
             <div class="grid grid-cols-2 gap-4">
-                <div onclick="buyItem('fan', 150, 20)" class="card-mine p-4 flex flex-col justify-between h-40">
-                    <span class="text-4xl">❄️</span>
-                    <h3 class="font-bold text-sm">Fan Sistemi</h3>
-                    <p class="text-[10px] text-green-500">+20/saat</p>
-                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 150</div>
+                <div onclick="buyItem('tpc', 500, 1)" class="card-mine p-4 flex flex-col justify-between h-36 cursor-pointer">
+                    <span class="text-3xl">👆</span>
+                    <h3 class="font-bold text-sm">Multi-Tap</h3>
+                    <p class="text-[10px] text-blue-400">Tık başı +1</p>
+                    <div class="mt-2 text-yellow-500 font-bold text-xs">💰 500</div>
                 </div>
-                <div onclick="buyItem('gpu', 1000, 150)" class="card-mine p-4 flex flex-col justify-between h-40">
-                    <span class="text-4xl">🖥️</span>
-                    <h3 class="font-bold text-sm">GPU Ünitesi</h3>
-                    <p class="text-[10px] text-green-500">+150/saat</p>
-                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 1,000</div>
+                <div onclick="buyItem('tph', 1000, 100)" class="card-mine p-4 flex flex-col justify-between h-36 cursor-pointer">
+                    <span class="text-3xl">⛏️</span>
+                    <h3 class="font-bold text-sm">Altın Madeni</h3>
+                    <p class="text-[10px] text-green-500">+100/saat</p>
+                    <div class="mt-2 text-yellow-500 font-bold text-xs">💰 1.000</div>
                 </div>
             </div>
         </div>
 
-        <div id="friends" class="tab-content items-center pt-10 text-center">
-            <span class="text-7xl mb-6">🤝</span>
-            <h2 class="text-2xl font-black">Arkadaşlarını Davet Et</h2>
-            <p class="text-gray-400 mt-2 text-sm px-10">Her davet için <span class="text-yellow-500 font-bold">5,000</span> coin kazanın!</p>
-            <button onclick="alert('Referans linki kopyalandı!')" class="mt-8 bg-blue-600 w-full py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-600/30">Arkadaşlarını Çağır</button>
-        </div>
-
-        <div id="earn" class="tab-content space-y-3">
-            <h2 class="text-xl font-black mb-4">Görevler</h2>
-            <div onclick="completeTask(this, 2000)" class="card-mine p-5 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <span class="text-3xl">📺</span>
-                    <div><p class="font-bold text-sm">YouTube İzle</p><p class="text-xs text-yellow-500">+2,000 💰</p></div>
-                </div>
-                <span class="text-gray-500 font-bold">>></span>
-            </div>
-            <div onclick="completeTask(this, 1000)" class="card-mine p-5 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <span class="text-3xl">✖️</span>
-                    <div><p class="font-bold text-sm">X'te Takip Et</p><p class="text-xs text-yellow-500">+1,000 💰</p></div>
-                </div>
-                <span class="text-gray-500 font-bold">>></span>
-            </div>
+        <div id="friends" class="tab-content items-center justify-center text-center">
+            <span class="text-6xl mb-4">👥</span>
+            <h2 class="text-2xl font-black">Arkadaş Sistemi</h2>
+            <p class="text-gray-400 mt-2 px-10">Arkadaşlarını davet et, ödülleri topla!</p>
+            <button onclick="alert('Link kopyalandı!')" class="mt-6 bg-yellow-500 text-black font-black px-10 py-3 rounded-xl">DAVET ET</button>
         </div>
 
     </main>
 
-    <nav class="shrink-0 bg-[#15161a] border-t border-white/5 px-2 py-4 flex justify-around items-center rounded-t-[35px]">
-        <div onclick="switchTab('exchange')" class="nav-item active flex flex-col items-center">
-            <span class="text-2xl">🏠</span><span class="text-[10px] font-bold mt-1">Borsa</span>
+    <nav class="shrink-0 bg-[#15161a] border-t border-white/5 px-2 py-4 flex justify-around items-center rounded-t-[30px] shadow-2xl">
+        <div onclick="switchTab('exchange')" class="nav-item active">
+            <span class="text-2xl">🏠</span><br><span class="text-[10px] font-bold">Borsa</span>
         </div>
-        <div onclick="switchTab('mine')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">⛏️</span><span class="text-[10px] font-bold mt-1">Maden</span>
+        <div onclick="switchTab('mine')" class="nav-item">
+            <span class="text-2xl">⛏️</span><br><span class="text-[10px] font-bold">Maden</span>
         </div>
-        <div onclick="switchTab('friends')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">👥</span><span class="text-[10px] font-bold mt-1">Dostlar</span>
-        </div>
-        <div onclick="switchTab('earn')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">🪙</span><span class="text-[10px] font-bold mt-1">Kazan</span>
+        <div onclick="switchTab('friends')" class="nav-item">
+            <span class="text-2xl">👥</span><br><span class="text-[10px] font-bold">Dostlar</span>
         </div>
     </nav>
 
     <script>
         // DURUM YÖNETİMİ
-        let state = JSON.parse(localStorage.getItem('hamster_pro_data')) || {
+        let state = JSON.parse(localStorage.getItem('hamster_final_v1')) || {
             score: 0,
             energy: 1000,
-            tpc: 1,
-            tph: 0
+            tpc: 1, // Tık başı kazanç
+            tph: 0  // Saatlik kazanç
         };
 
         const maxEnergy = 1000;
+        const scoreEl = document.getElementById('score');
+        const energyEl = document.getElementById('energy');
+        const energyFill = document.getElementById('energyFill');
+        const tpcText = document.getElementById('tpcText');
+        const tphText = document.getElementById('tphText');
 
-        function save() { localStorage.setItem('hamster_pro_data', JSON.stringify(state)); }
+        function save() { localStorage.setItem('hamster_final_v1', JSON.stringify(state)); }
 
         function updateUI() {
-            document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
-            document.getElementById('energy').innerText = Math.floor(state.energy);
-            document.getElementById('energyFill').style.width = (state.energy / maxEnergy * 100) + '%';
-            document.getElementById('tpcText').innerText = state.tpc;
-            document.getElementById('tphText').innerText = state.tph.toLocaleString();
+            scoreEl.innerText = Math.floor(state.score).toLocaleString();
+            energyEl.innerText = Math.floor(state.energy);
+            energyFill.style.width = (state.energy / maxEnergy * 100) + '%';
+            tpcText.innerText = state.tpc;
+            tphText.innerText = state.tph.toLocaleString();
             save();
         }
 
-        // SEKME YÖNETİMİ
+        // SEKME SİSTEMİ
         function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -186,57 +162,61 @@
             event.currentTarget.classList.add('active');
         }
 
-        // TIKLAMA (TAP TO EARN)
-        document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+        // TAP TO EARN MEKANİZMASI
+        const tapBtn = document.getElementById('tapBtn');
+
+        tapBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            // Çoklu dokunuş desteği
             for (let i = 0; i < e.touches.length; i++) {
                 if (state.energy >= state.tpc) {
                     state.score += state.tpc;
                     state.energy -= state.tpc;
-                    showEffect(e.touches[i].clientX, e.touches[i].clientY);
+                    showPlusOne(e.touches[i].clientX, e.touches[i].clientY);
                 }
             }
             updateUI();
+            if (navigator.vibrate) navigator.vibrate(10);
         });
 
-        function showEffect(x, y) {
+        // Tıklama Sayısı Animasyonu
+        function showPlusOne(x, y) {
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = `+${state.tpc}`;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
+            el.style.left = `${x - 20}px`;
+            el.style.top = `${y - 50}px`;
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 700);
         }
 
-        // SATIN ALMA
-        function buyItem(id, cost, profit) {
+        // MADEN / MARKET SİSTEMİ
+        function buyItem(type, cost, value) {
             if (state.score >= cost) {
                 state.score -= cost;
-                state.tph += profit;
-                alert('Başarıyla satın alındı!');
+                if (type === 'tpc') state.tpc += value;
+                if (type === 'tph') state.tph += value;
                 updateUI();
+                alert('Geliştirme Tamamlandı!');
             } else {
                 alert('Yetersiz bakiye!');
             }
         }
 
-        // GÖREVLER
-        function completeTask(el, reward) {
-            state.score += reward;
-            el.style.opacity = '0.4';
-            el.onclick = null;
-            el.innerHTML += " ✅";
-            updateUI();
-        }
-
-        // DÖNGÜ (PASİF GELİR VE ENERJİ)
+        // OYUN DÖNGÜSÜ (Saniyelik güncellemeler)
         setInterval(() => {
-            state.score += (state.tph / 3600);
-            if (state.energy < maxEnergy) state.energy = Math.min(maxEnergy, state.energy + 2);
+            // Pasif Gelir (tph / 3600 = saniyelik kazanç)
+            if (state.tph > 0) {
+                state.score += (state.tph / 3600);
+            }
+            // Enerji Yenileme (Saniyede +2)
+            if (state.energy < maxEnergy) {
+                state.energy = Math.min(maxEnergy, state.energy + 2);
+            }
             updateUI();
         }, 1000);
 
+        // İlk Yükleme
         updateUI();
     </script>
 </body>
