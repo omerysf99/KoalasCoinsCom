@@ -3,67 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube All-in-One</title>
+    <title>YouTube Shorts Integrated</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #0f0f0f; color: white; font-family: "Roboto", sans-serif; overflow: hidden; }
 
-        /* HEADER */
+        /* Üst Bar */
         header {
             height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
             position: fixed; top: 0; width: 100%; background: #0f0f0f; z-index: 1000; border-bottom: 1px solid #222;
         }
-        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 8px 20px; width: 35%; color: #888; text-align: center; }
 
-        /* ANA YAPI */
+        /* Ana Gövde */
         .wrapper { display: flex; padding-top: 56px; height: 100vh; }
         
-        /* SIDEBAR */
+        /* Yan Menü */
         .sidebar { width: 240px; padding: 12px; flex-shrink: 0; background: #0f0f0f; }
-        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 20px; transition: 0.2s; }
+        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 20px; }
         .nav-item:hover { background: #272727; }
         .nav-item.active { background: #272727; font-weight: bold; }
 
-        /* SAYFA YÖNETİMİ */
-        .page { display: none; width: 100%; overflow-y: auto; padding: 24px; scroll-behavior: smooth; }
+        /* Sayfa İçerikleri */
+        .page { display: none; width: 100%; overflow-y: auto; scroll-behavior: smooth; }
         .active-page { display: block; }
 
-        /* 1. DOSYA MANTIĞI: ANA SAYFA (GRID) */
-        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .v-card { cursor: pointer; transition: transform 0.2s; }
-        .v-card:hover { transform: translateY(-5px); }
-        .thumb { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; }
-        .v-info { display: flex; margin-top: 12px; gap: 12px; }
-        .avatar { width: 36px; height: 36px; background: #444; border-radius: 50%; }
+        /* ANA SAYFA (GRID) */
+        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 24px; }
+        .v-card { cursor: pointer; }
+        .thumb-static { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 12px; border: 1px solid #333; }
 
-        /* 2. DOSYA MANTIĞI: SHORTS (REELS) */
-        .shorts-wrapper { display: flex; flex-direction: column; align-items: center; gap: 30px; padding-bottom: 50px; }
-        .short-card { 
-            width: 380px; height: 650px; background: #1a1a1a; border-radius: 18px; 
-            position: relative; display: flex; align-items: center; justify-content: center;
-            border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* SHORTS (DIKEY AKIŞ) */
+        #shorts { 
+            height: calc(100vh - 56px); 
+            overflow-y: scroll; 
+            scroll-snap-type: y mandatory; 
+            scrollbar-width: none;
         }
-        .short-info { position: absolute; bottom: 20px; left: 20px; z-index: 5; }
+        #shorts::-webkit-scrollbar { display: none; }
 
-        /* GEÇMİŞ */
-        .history-list { max-width: 800px; margin: 0 auto; }
-        .hist-item { display: flex; gap: 20px; padding: 15px; border-bottom: 1px solid #222; align-items: center; }
-        .hist-thumb { width: 160px; aspect-ratio: 16/9; background: #333; border-radius: 8px; flex-shrink: 0; }
+        .short-container { 
+            width: 100%; 
+            height: calc(100vh - 56px); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            scroll-snap-align: start;
+            position: relative;
+            background: #000;
+        }
+
+        .short-video-box {
+            height: 95%;
+            aspect-ratio: 9/16;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Shorts Etkileşim Butonları */
+        .short-actions {
+            position: absolute; right: 20px; bottom: 50px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .action-icon { background: #222; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        /* Geçmiş Listesi */
+        .hist-item { display: flex; gap: 15px; padding: 10px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 20px; font-weight: bold; color: #fff; cursor: pointer;" onclick="showPage('home')">YouTube<sup>TR</sup></div>
-    <div class="search-bar">Videoları ve kanalları ara...</div>
-    <div style="width: 35px; height: 35px; background: #7141b1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">G</div>
+    <div style="font-size: 20px; font-weight: bold;">YouTube<sup>TR</sup></div>
+    <div style="width: 35px; height: 35px; background: #555; border-radius: 50%;"></div>
 </header>
 
 <div class="wrapper">
     <nav class="sidebar">
         <div class="nav-item active" id="btn-home" onclick="showPage('home')">🏠 Ana Sayfa</div>
         <div class="nav-item" id="btn-shorts" onclick="showPage('shorts')">🎞️ Shorts</div>
-        <hr style="border: 0.5px solid #333; margin: 15px 0;">
         <div class="nav-item" id="btn-history" onclick="showPage('history')">🕒 Geçmiş (<span id="count">0</span>)</div>
     </nav>
 
@@ -72,90 +93,99 @@
     </main>
 
     <main id="shorts" class="page">
-        <div class="shorts-wrapper" id="shortsContent"></div>
+        <div id="shortsContainer"></div>
     </main>
 
-    <main id="history" class="page">
-        <h2 style="margin-bottom: 30px;">İzleme Geçmişi</h2>
-        <div class="history-list" id="histList"></div>
+    <main id="history" class="page" style="padding: 24px;">
+        <h2>İzleme Geçmişi</h2><br>
+        <div id="histList"></div>
     </main>
 </div>
 
 <script>
-    // 12 Videoluk Veri Seti
-    const data = Array.from({ length: 12 }, (_, i) => ({
-        id: i + 1,
-        title: `Video Başlığı #${i + 1} - Harika İçerik`,
-        channel: `Kanal Adı ${i + 1}`,
-        views: `${(i + 1) * 15}B`,
-        time: `${i + 1} gün önce`
-    }));
-
-    let watchedVideos = new Set(); // Akıllı Geçmiş: Bir video sadece 1 kez kaydedilir
+    const reelsFiles = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
+    let historySet = new Set();
+    let globalMuted = true;
 
     function init() {
         const grid = document.getElementById('mainGrid');
-        const shorts = document.getElementById('shortsContent');
-        
-        data.forEach(v => {
-            // Ana Sayfa Kartlarını Oluştur (3'lü satırlar)
+        const shorts = document.getElementById('shortsContainer');
+
+        // Ana Sayfa İçin 12 Video (Görsel Arayüz)
+        for(let i=1; i<=12; i++) {
             grid.innerHTML += `
-                <div class="v-card" onclick="playVideo(${v.id})">
-                    <div class="thumb">16:9 ÖNİZLEME</div>
-                    <div class="v-info">
-                        <div class="avatar"></div>
-                        <div>
-                            <h4 style="font-size:14px; margin-bottom:5px;">${v.title}</h4>
-                            <p style="font-size:12px; color:#aaa;">${v.channel}</p>
-                            <p style="font-size:12px; color:#aaa;">${v.views} • ${v.time}</p>
+                <div class="v-card" onclick="addToHistory('Video #${i}')">
+                    <div class="thumb-static"></div>
+                    <div style="margin-top:10px;">
+                        <h4>Uzun Video İçeriği #${i}</h4>
+                        <p style="color:#aaa; font-size:12px;">Kanal #${i} • 100B izlenme</p>
+                    </div>
+                </div>`;
+        }
+
+        // Shorts Sekmesi İçin MP4 Dosyaları
+        reelsFiles.forEach((file, index) => {
+            shorts.innerHTML += `
+                <div class="short-container">
+                    <div class="short-video-box">
+                        <video src="${file}" loop muted playsinline onclick="toggleMute(this)"></video>
+                        <div style="position:absolute; bottom:20px; left:20px;">
+                            <h3 style="text-shadow: 2px 2px 4px #000;">Shorts #${index+1}</h3>
+                            <p style="text-shadow: 2px 2px 4px #000;">@reels_creator</p>
                         </div>
                     </div>
-                </div>`;
-            
-            // Shorts Kartlarını Oluştur (Dikey)
-            shorts.innerHTML += `
-                <div class="short-card" onclick="playVideo(${v.id})">
-                    <div class="short-info">
-                        <h3>Shorts #${v.id}</h3>
-                        <p>@${v.channel.replace(" ", "_").toLowerCase()}</p>
+                    <div class="short-actions">
+                        <div class="action-icon">👍</div>
+                        <div class="action-icon">👎</div>
+                        <div class="action-icon">💬</div>
+                        <div class="action-icon">✈️</div>
                     </div>
-                    <span style="color:#444;">9:16 REELS FORMATI</span>
                 </div>`;
         });
+
+        setupObserver();
     }
 
-    // Sayfa Değiştirme Fonksiyonu (SPA Mantığı)
-    function showPage(pageId) {
+    function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active-page');
+        document.getElementById('btn-' + id).classList.add('active');
         
-        document.getElementById(pageId).classList.add('active-page');
-        document.getElementById('btn-' + pageId).classList.add('active');
-        
-        // Sayfa değiştiğinde en üste kaydır
-        document.getElementById(pageId).scrollTop = 0;
+        // Diğer sayfalardaki videoları durdur
+        if(id !== 'shorts') {
+            document.querySelectorAll('video').forEach(v => v.pause());
+        }
     }
 
-    // Akıllı Geçmişe Ekleme Fonksiyonu
-    function playVideo(id) {
-        if (!watchedVideos.has(id)) {
-            watchedVideos.add(id);
-            const v = data.find(item => item.id === id);
-            const histList = document.getElementById('histList');
-            
-            // Yeni izleneni en üste ekle
-            histList.innerHTML = `
-                <div class="hist-item">
-                    <div class="hist-thumb"></div>
-                    <div>
-                        <h4 style="font-size:16px;">${v.title}</h4>
-                        <p style="font-size:13px; color:#aaa; margin-top:5px;">${v.channel} • İzlenme Tarihi: Bugün</p>
-                    </div>
-                </div>` + histList.innerHTML;
+    function toggleMute(video) {
+        globalMuted = !globalMuted;
+        document.querySelectorAll('video').forEach(v => v.muted = globalMuted);
+    }
 
-            document.getElementById('count').innerText = watchedVideos.size;
+    function addToHistory(title) {
+        if (!historySet.has(title)) {
+            historySet.add(title);
+            const histList = document.getElementById('histList');
+            histList.innerHTML = `<div class="hist-item"><b>${title}</b> - İzlenme Tarihi: ${new Date().toLocaleTimeString()}</div>` + histList.innerHTML;
+            document.getElementById('count').innerText = historySet.size;
         }
-        alert("Video başlatıldı! İzleme geçmişine kaydedildi.");
+    }
+
+    // Shorts otomatik oynatma (YouTube Mantığı)
+    function setupObserver() {
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.muted = globalMuted;
+                    e.target.play().catch(() => {});
+                    addToHistory(e.target.getAttribute('src')); // İzlenen Shorts videoyu geçmişe ekle
+                } else {
+                    e.target.pause();
+                }
+            });
+        }, { threshold: 0.8 });
+        document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
     init();
