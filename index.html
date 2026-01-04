@@ -3,100 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Reels Bot</title>
+    <title>Telegram Reels Downloader Bot</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background-color: #000; 
-            font-family: sans-serif; 
-            overflow: hidden; 
-        }
-        /* Reels Konteyner */
-        .reels-container {
-            height: 100vh;
-            scroll-snap-type: y mandatory;
-            overflow-y: scroll;
-        }
-        /* Her bir video alanı */
-        .reel {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Videoyu ekrana tam yayar */
-        }
-        /* Sağ alt butonlar (Instagram tarzı) */
-        .actions {
-            position: absolute;
-            right: 15px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #242f3e;
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .bot-card {
+            background-color: #17212b;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 350px;
             text-align: center;
         }
-        .action-btn { font-size: 24px; cursor: pointer; }
+        .bot-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #24a1de;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #1c82b6;
+        }
+        #status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #8ab4f8;
+        }
     </style>
 </head>
 <body>
 
-<div class="reels-container">
-    <div class="reel">
-        <video src="reels1.mp4" loop autoplay muted playsinline></video>
-        <div class="actions">
-            <div class="action-btn">❤️</div>
-            <div class="action-btn">💬</div>
-            <div class="action-btn">✈️</div>
-        </div>
-    </div>
-
-    <div class="reel">
-        <video src="reels2.mp4" loop playsinline></video>
-        <div class="actions">
-            <div class="action-btn">❤️</div>
-            <div class="action-btn">💬</div>
-            <div class="action-btn">✈️</div>
-        </div>
-    </div>
-
-    <div class="reel">
-        <video src="reels3.mp4" loop playsinline></video>
-        <div class="actions">
-            <div class="action-btn">❤️</div>
-            <div class="action-btn">💬</div>
-            <div class="action-btn">✈️</div>
-        </div>
-    </div>
+<div class="bot-card">
+    <div class="bot-logo">📸</div>
+    <h2>Reels Bot UI</h2>
+    <p>Telegram Botunuz için Web Arayüzü</p>
+    
+    <input type="text" id="reelsLink" placeholder="Instagram Reels Linki Yapıştırın...">
+    <button onclick="downloadReels()">Videoyu Getir</button>
+    
+    <div id="status"></div>
 </div>
 
 <script>
-    // Otomatik oynatma yönetimi (Kaydırdıkça video başlar)
-    const videos = document.querySelectorAll('video');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.play();
-            } else {
-                entry.target.pause();
-                entry.target.currentTime = 0;
-            }
-        });
-    }, { threshold: 0.5 });
+    function downloadReels() {
+        const link = document.getElementById('reelsLink').value;
+        const status = document.getElementById('status');
+        
+        if (!link.includes("instagram.com/reels/")) {
+            status.style.color = "#ff5f5f";
+            status.innerText = "Lütfen geçerli bir Reels linki girin!";
+            return;
+        }
 
-    videos.forEach(video => observer.observe(video));
+        status.style.color = "#8ab4f8";
+        status.innerText = "Video işleniyor... (API'ye bağlanılıyor)";
 
-    // İlk tıklamada sesi açma uyarısı (Opsiyonel)
-    document.body.addEventListener('click', () => {
-        videos.forEach(v => v.muted = false);
-    }, { once: true });
+        // Burada bir API simülasyonu yapıyoruz. 
+        // Gerçek bir botta fetch() ile backend'e istek atılır.
+        setTimeout(() => {
+            status.innerText = "Video başarıyla bulundu! Telegram'a gönderiliyor...";
+        }, 2000);
+    }
 </script>
 
 </body>
