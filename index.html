@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | PRO</title>
+    <title>KOALA ARCADE v3</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,96 +14,115 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #0c0c0e; --border: #1d1d21; }
+        :root { --bg: #000; --card: #0c0c0e; --border: #1d1d21; --koala: #fcd34d; }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
 
-        .page { display: none; height: 100vh; flex-direction: column; padding: 65px 20px 120px; overflow-y: auto; }
-        .page.active { display: flex; animation: fade 0.3s ease; }
-        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Sayfa Düzeni */
+        .page { display: none; height: 100vh; flex-direction: column; padding: 75px 24px 120px; overflow-y: auto; }
+        .page.active { display: flex; animation: pIn 0.3s ease-out; }
+        @keyframes pIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* Borsa Kartları */
-        .exchange-card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 24px; display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
-        .exchange-card.selected { border-color: #fcd34d; background: #16161a; }
-        .exchange-img { width: 48px; height: 48px; border-radius: 14px; object-fit: cover; }
+        /* Admin & Kartlar */
+        .glass { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 20px; }
+        .user-card { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
         /* Navigasyon */
-        nav { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; padding-bottom: 25px; z-index: 1000; backdrop-filter: blur(10px); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; }
+        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.9); border-top: 1px solid #111; display: flex; padding-bottom: 30px; z-index: 1000; backdrop-filter: blur(15px); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; transition: 0.2s; }
         .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
-        .nav-item span { font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .nav-item i { font-size: 20px; margin-bottom: 5px; }
+        .nav-item span { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Admin & Butonlar */
-        #admin-btn { position: fixed; top: 25px; right: 20px; background: #ff3b3b; color: #fff; padding: 10px 16px; border-radius: 14px; font-weight: 900; font-size: 10px; z-index: 9000; display: none; }
-        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; flex-direction: column; padding: 75px 20px 30px; overflow-y: auto; }
-        .user-card { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        /* Butonlar */
+        #admin-btn { position: fixed; top: 30px; right: 20px; background: #ff3b3b; color: #fff; padding: 10px 18px; border-radius: 15px; font-weight: 900; font-size: 10px; z-index: 9000; display: none; box-shadow: 0 0 20px rgba(255,59,59,0.2); }
+        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; flex-direction: column; padding: 80px 20px 40px; }
     </style>
 </head>
 <body>
 
-    <div id="admin-btn" onclick="toggleAdmin()">ADMIN PANEL</div>
+    <div id="admin-btn" onclick="toggleAdmin()">DASHBOARD</div>
+
+    <div id="admin-panel">
+        <div class="flex justify-between items-center mb-8 px-2">
+            <div>
+                <h1 class="text-2xl font-black italic">ÜYELER</h1>
+                <p id="total-count" class="text-zinc-600 text-[10px] font-bold uppercase mt-1">Yükleniyor...</p>
+            </div>
+            <button onclick="toggleAdmin()" class="bg-zinc-900 w-12 h-12 rounded-2xl border border-zinc-800"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="admin-user-list" class="overflow-y-auto space-y-2"></div>
+    </div>
 
     <div id="p-earn" class="page active">
-        <div class="text-center mb-8">
+        <div class="text-center mb-10">
             <h1 id="ui-bal" class="text-7xl font-black italic tracking-tighter">0</h1>
-            <p class="text-[11px] text-zinc-600 font-black tracking-[5px] mt-2 uppercase">$KOALA SCORE</p>
+            <p class="text-[11px] text-zinc-500 font-black tracking-[6px] mt-3 uppercase">$KOALA SCORE</p>
         </div>
         
-        <div class="mx-auto w-[220px] h-[220px] rounded-[60px] border-[10px] border-zinc-900 overflow-hidden mb-10 shadow-2xl" onclick="mine()">
+        <div class="mx-auto w-[240px] h-[240px] rounded-[70px] border-[12px] border-zinc-900 overflow-hidden mb-12 shadow-2xl relative group" onclick="mine()">
             <img src="coinkoala.jpg" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/20 group-active:bg-transparent transition-colors"></div>
         </div>
 
-        <div class="space-y-3">
-            <div class="bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl flex items-center justify-between">
-                <span class="text-[10px] font-black uppercase text-zinc-500 italic">Senin Reklam İzleme Sayın:</span>
-                <span id="ui-ads-count" class="text-white font-black italic text-lg">0</span>
+        <div class="space-y-4">
+            <div class="glass flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-black text-zinc-600 uppercase italic">İzlenen Reklam</p>
+                    <p id="ui-ads-count" class="text-2xl font-black italic">0</p>
+                </div>
+                <div class="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-clapperboard text-zinc-400"></i>
+                </div>
             </div>
 
-            <button class="w-full bg-white text-black p-5 rounded-[25px] flex items-center justify-center gap-3 active:scale-95 transition-transform" onclick="mine()">
-                <i class="fa-solid fa-play"></i>
-                <span class="font-black text-xs uppercase italic">Reklam İzle (+1 Puan)</span>
+            <button class="w-full bg-white text-black py-6 rounded-[30px] font-black text-sm uppercase italic flex items-center justify-center gap-3 active:scale-[0.97] transition-all" onclick="mine()">
+                <i class="fa-solid fa-play-circle text-xl"></i>
+                REKLAM İZLE VE KAZAN
             </button>
         </div>
     </div>
 
     <div id="p-squad" class="page">
-        <h1 class="text-4xl font-black italic mb-8 tracking-tighter">EKİBİN</h1>
-        <div class="bg-zinc-900 border border-zinc-800 p-10 rounded-[35px] text-center mb-6">
-            <p class="text-zinc-500 text-[11px] font-black uppercase mb-2">Referans Bonusu</p>
-            <h2 class="text-5xl font-black italic">+5,000</h2>
+        <h1 class="text-4xl font-black italic mb-2">EKİBİN</h1>
+        <p class="text-zinc-600 text-[11px] font-black uppercase mb-10 tracking-widest">Ağını kur, ödülleri topla</p>
+        
+        <div class="glass text-center py-12 mb-6">
+            <i class="fa-solid fa-user-plus text-4xl mb-4 text-zinc-800"></i>
+            <h2 class="text-5xl font-black italic mb-2">+5,000</h2>
+            <p class="text-zinc-500 text-[10px] font-black uppercase italic">Her arkadaşın için bonus</p>
         </div>
-        <button onclick="shareRef()" class="w-full bg-white text-black py-6 rounded-2xl font-black text-sm uppercase">ARKADAŞLARINI ÇAĞIR</button>
+        <button onclick="shareRef()" class="w-full bg-zinc-900 border border-zinc-800 py-6 rounded-2xl font-black text-xs uppercase tracking-widest text-white shadow-xl">DAVET LİNKİNİ GÖNDER</button>
     </div>
 
     <div id="p-wallet" class="page">
-        <h1 class="text-4xl font-black italic mb-8 tracking-tighter">BORSA</h1>
-        <div class="space-y-4">
-            <div class="exchange-card" id="ex-binance" onclick="selectEx('Binance')">
-                <img src="binance.jpg" class="exchange-img">
-                <div class="flex-1"><h4 class="font-black text-sm">Binance</h4><p class="text-[9px] text-zinc-500 font-bold italic">Dünya Lideri</p></div>
-                <div class="check-icon hidden text-yellow-400 text-xl"><i class="fa-solid fa-circle-check"></i></div>
+        <h1 class="text-4xl font-black italic mb-2 text-white">BORSA</h1>
+        <p class="text-zinc-600 text-[11px] font-black uppercase mb-10 tracking-widest">Airdrop Hedefini Seç</p>
+        
+        <div class="space-y-3">
+            <div class="user-card cursor-pointer" id="ex-binance" onclick="selectEx('Binance')">
+                <div class="flex items-center gap-4">
+                    <img src="binance.jpg" class="w-12 h-12 rounded-xl object-cover">
+                    <span class="font-black text-sm">BINANCE</span>
+                </div>
+                <i class="fa-solid fa-circle-check hidden text-yellow-400 text-xl"></i>
             </div>
-            <div class="exchange-card" id="ex-okx" onclick="selectEx('OKX')">
-                <img src="okx.jpg" class="exchange-img">
-                <div class="flex-1"><h4 class="font-black text-sm">OKX</h4><p class="text-[9px] text-zinc-500 font-bold italic">Güvenli İşlem</p></div>
-                <div class="check-icon hidden text-yellow-400 text-xl"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="user-card cursor-pointer" id="ex-okx" onclick="selectEx('OKX')">
+                <div class="flex items-center gap-4">
+                    <img src="okx.jpg" class="w-12 h-12 rounded-xl object-cover">
+                    <span class="font-black text-sm">OKX</span>
+                </div>
+                <i class="fa-solid fa-circle-check hidden text-yellow-400 text-xl"></i>
             </div>
-            <div class="exchange-card" id="ex-bitget" onclick="selectEx('Bitget')">
-                <img src="bitget.jpg" class="exchange-img">
-                <div class="flex-1"><h4 class="font-black text-sm">Bitget</h4><p class="text-[9px] text-zinc-500 font-bold italic">Kripto Merkezi</p></div>
-                <div class="check-icon hidden text-yellow-400 text-xl"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="user-card cursor-pointer" id="ex-bitget" onclick="selectEx('Bitget')">
+                <div class="flex items-center gap-4">
+                    <img src="bitget.jpg" class="w-12 h-12 rounded-xl object-cover">
+                    <span class="font-black text-sm">BITGET</span>
+                </div>
+                <i class="fa-solid fa-circle-check hidden text-yellow-400 text-xl"></i>
             </div>
         </div>
-    </div>
-
-    <div id="admin-panel">
-        <div class="flex justify-between items-center mb-8 px-2">
-            <h1 class="text-2xl font-black italic uppercase text-red-500">TÜM ÜYELER</h1>
-            <button onclick="toggleAdmin()" class="bg-zinc-900 w-10 h-10 rounded-xl"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="admin-user-list" class="space-y-3">
-            </div>
     </div>
 
     <nav>
@@ -113,45 +132,48 @@
     </nav>
 
 <script>
+    // --- KONFİGÜRASYON ---
     const ADMIN_ID = "8392479231";
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Burayı güncelle
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Burayı Kendi Bilgilerinle Doldur
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let tg = window.Telegram.WebApp;
     tg.expand();
     
-    let realUid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('k_uid') || 'K'+Math.floor(Math.random()*1e7));
+    let uid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('k_uid') || 'K'+Math.floor(Math.random()*1e7));
     let u_name = tg.initDataUnsafe?.user?.first_name || "Koala";
     let u_nick = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : "@no_nick";
 
     let u = { bal: 0, ads: 0, name: u_name, nick: u_nick, exchange: '' };
 
     async function init() {
-        if(realUid === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
+        if(uid === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
         
-        const doc = await db.collection("users").doc(realUid).get();
+        const doc = await db.collection("users").doc(uid).get();
         if(doc.exists) {
             u = doc.data();
+            // İsimleri her zaman güncel tut
+            u.name = u_name; u.nick = u_nick;
         } else {
-            u.bal = Math.floor(Math.random() * 5000) + 1000; // İlk giriş bonusu
-            await db.collection("users").doc(realUid).set(u);
+            // İLK GİRİŞ BONUSU (1000-10000)
+            u.bal = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+            await db.collection("users").doc(uid).set(u);
         }
         render();
     }
 
     function mine() {
         if(window.showAdexora) {
-            window.showAdexora().then(() => { add(); }).catch(() => { add(); });
-        } else { add(); }
-        tg.HapticFeedback.impactOccurred('light');
+            window.showAdexora().then(() => { updateScore(); }).catch(() => { updateScore(); });
+        } else { updateScore(); }
+        tg.HapticFeedback.impactOccurred('medium');
     }
 
-    function add() {
-        u.bal += 1; // 1 Reklam = 1 Puan
-        u.ads += 1; // İzleme sayısını artır
-        save();
-        render();
+    function updateScore() {
+        u.bal += 1;
+        u.ads += 1;
+        save(); render();
     }
 
     function selectEx(name) {
@@ -161,8 +183,8 @@
     }
 
     function shareRef() {
-        const link = `https://t.me/KoalasUsdt_bot?startapp=${realUid}`;
-        const text = "🐨 Koala Arcade'de madencilik yaparak bedava token kazan!";
+        const link = `https://t.me/KoalasUsdt_bot?startapp=${uid}`;
+        const text = "🐨 Koala Arcade'de madencilik yaparak bedava token kazan! İlk girişte 1.000+ puan hediye!";
         tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
     }
 
@@ -178,47 +200,43 @@
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
         document.getElementById('ui-ads-count').innerText = u.ads;
         
-        document.querySelectorAll('.exchange-card').forEach(c => {
-            c.classList.remove('selected');
-            c.querySelector('.check-icon').classList.add('hidden');
-        });
+        document.querySelectorAll('.cursor-pointer i').forEach(i => i.classList.add('hidden'));
         if(u.exchange) {
             const card = document.getElementById('ex-' + u.exchange.toLowerCase());
-            if(card) {
-                card.classList.add('selected');
-                card.querySelector('.check-icon').classList.remove('hidden');
-            }
+            if(card) card.querySelector('i').classList.remove('hidden');
         }
     }
 
-    async function save() { await db.collection("users").doc(realUid).set(u); }
+    async function save() { await db.collection("users").doc(uid).set(u); }
 
-    // --- ADMIN PANELİ FONKSİYONU ---
+    // --- ADMIN DASHBOARD ---
     function toggleAdmin() {
         const p = document.getElementById('admin-panel');
-        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
-        if(p.style.display === 'flex') fetchAllUsers();
+        const isVisible = p.style.display === 'flex';
+        p.style.display = isVisible ? 'none' : 'flex';
+        if(!isVisible) fetchUsers();
     }
 
-    async function fetchAllUsers() {
+    async function fetchUsers() {
         const list = document.getElementById('admin-user-list');
-        list.innerHTML = '<p class="text-zinc-700 text-center py-10">Yükleniyor...</p>';
+        list.innerHTML = '<div class="text-zinc-800 text-center py-20 font-black animate-pulse uppercase tracking-widest">Veri Tabanına Bağlanılıyor...</div>';
         
-        const snap = await db.collection("users").orderBy('bal', 'desc').limit(100).get();
+        const snap = await db.collection("users").orderBy('bal', 'desc').limit(50).get();
         list.innerHTML = '';
-        
+        document.getElementById('total-count').innerText = snap.size + " AKTİF ÜYE LİSTELENDİ";
+
         snap.forEach(doc => {
-            const data = doc.data();
+            const d = doc.data();
             const el = document.createElement('div');
             el.className = 'user-card';
             el.innerHTML = `
                 <div>
-                    <p class="text-white font-black text-sm italic">${data.name}</p>
-                    <p class="text-blue-500 text-[10px] font-bold">${data.nick}</p>
+                    <p class="text-white font-black text-sm italic">${d.name}</p>
+                    <p class="text-blue-500 text-[10px] font-bold">${d.nick}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-white font-black text-base italic">${data.bal.toLocaleString()} PT</p>
-                    <p class="text-zinc-600 text-[9px] font-black uppercase">İzleme: ${data.ads || 0}</p>
+                    <p class="text-white font-black text-base italic">${d.bal.toLocaleString()} PT</p>
+                    <p class="text-zinc-600 text-[9px] font-black uppercase mt-1">REKLAM: ${d.ads || 0}</p>
                 </div>
             `;
             list.appendChild(el);
