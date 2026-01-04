@@ -3,184 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 GEP | Ultra Vision</title>
+    <title>YouTube 2026 GEP | Fixed & Ultra</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --yt-red: #ff0000; --header: #0f0f0f; --card-hover: #212121; }
+        :root { --bg: #0f0f0f; --yt-red: #ff0000; --header: #0f0f0f; --card-hover: #1e1e1e; }
         * { box-sizing: border-box; margin: 0; padding: 0; scrollbar-width: none; }
         body { background: #000; padding-top: 1cm; color: #fff; font-family: "Roboto", sans-serif; overflow: hidden; }
 
-        /* HEADER & SEARCH (image_1cf40d uyumlu) */
+        /* HEADER */
         header { 
             height: 56px; background: var(--header); display: flex; align-items: center; 
-            padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 5000;
+            padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 5000; border-bottom: 1px solid #222;
         }
-        .search-container { flex: 1; display: flex; justify-content: center; gap: 10px; }
-        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; width: 40%; display: flex; align-items: center; padding: 0 15px; }
+        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; width: 40%; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; }
         .search-bar input { background: transparent; border: none; color: white; height: 38px; width: 100%; outline: none; }
-
-        /* DİNAMİK SOL MENÜ */
+        
+        /* SIDEBAR */
         .sidebar {
             position: fixed; left: 0; top: calc(56px + 1cm); width: 72px; height: 100%;
             background: var(--bg); display: flex; flex-direction: column; align-items: center;
-            padding-top: 10px; border-right: 1px solid #222; z-index: 4000;
+            padding-top: 20px; border-right: 1px solid #222; z-index: 4000;
         }
-        .nav-link { width: 100%; padding: 15px 0; text-align: center; cursor: pointer; color: #aaa; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { color: #fff; background: var(--card-hover); border-radius: 12px; }
-        .nav-link i { font-size: 22px; margin-bottom: 5px; display: block; }
+        .nav-link { width: 100%; padding: 15px 0; text-align: center; cursor: pointer; color: #aaa; transition: 0.2s; }
+        .nav-link.active { color: #fff; background: var(--card-hover); }
+        .nav-link i { font-size: 22px; display: block; margin-bottom: 5px; }
         .nav-link span { font-size: 10px; }
 
-        /* ANA SAYFA - GLOBAL KEŞFET (Uzun Video Odaklı) */
-        #home-feed { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 24px; display: block; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .video-item { cursor: pointer; transition: 0.3s; }
-        .video-item:hover { transform: translateY(-5px); }
-        .v-poster { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
+        /* ANA SAYFA */
+        .page { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 20px; display: none; }
+        #home-page { display: block; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .v-card { cursor: pointer; }
+        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
         .v-meta { display: flex; gap: 12px; margin-top: 12px; }
-        .v-pfp { width: 36px; height: 36px; border-radius: 50%; background: #333; }
-        .v-data h4 { font-size: 14px; font-weight: 500; line-height: 1.3; color: #fff; }
-        .v-data p { font-size: 12px; color: #aaa; margin-top: 4px; }
-
-        /* SHORTS - AKILLI SİSTEM (Aynı anda tek video) */
-        #shorts-feed { display: none; margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-view { height: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; position: relative; }
-        .short-card { width: 360px; height: 92%; background: #000; border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .v-pfp { width: 36px; height: 36px; border-radius: 50%; background: #333; flex-shrink: 0; }
         
-        /* Shorts Etkileşim (image_1d73ac uyumlu) */
-        .short-ui { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        /* SHORTS (Fixed Intersection) */
+        #shorts-page { padding: 0; scroll-snap-type: y mandatory; overflow-y: scroll; }
+        .short-unit { height: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; }
+        .short-player { width: 360px; height: 92%; background: #000; border-radius: 16px; position: relative; overflow: hidden; }
+        .short-ui { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; gap: 20px; }
         .ui-btn { text-align: center; cursor: pointer; }
-        .ui-btn i { background: rgba(255,255,255,0.1); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(10px); }
-        .ui-btn span { font-size: 12px; margin-top: 5px; font-weight: bold; }
+        .ui-btn i { background: rgba(50,50,50,0.7); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(10px); }
 
-        /* İZLEME PANELİ (image_1cf40d / image_1dd50a) */
-        #watch-overlay { display: none; position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); background: #000; z-index: 6000; overflow-y: auto; padding: 20px 5%; }
-        .watch-layout { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
-        .player-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 15px; }
+        /* İZLEME EKRANI (Düzeltildi) */
+        #watch-screen { 
+            position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); 
+            background: #000; z-index: 6000; display: none; padding: 20px; overflow-y: auto;
+        }
+        .watch-container { max-width: 1200px; margin: 0 auto; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .live-tag { background: red; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; position: absolute; top: 10px; left: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="setPage('home')">
-        <i class="fab fa-youtube" style="color:red; font-size:32px;"></i>
-        <span style="font-weight:bold; font-size:20px; letter-spacing:-1.2px;">YouTube<sup>TR</sup></span>
+    <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="switchPage('home')">
+        <i class="fab fa-youtube" style="color:red; font-size:28px;"></i>
+        <span style="font-weight:bold; font-size:20px;">YouTube<sup>GEP</sup></span>
     </div>
-    <div class="search-container">
-        <div class="search-bar">
-            <input type="text" placeholder="Gep Keşfet...">
-            <i class="fas fa-search" style="color:#aaa;"></i>
-        </div>
-    </div>
+    <div class="search-bar"><input type="text" placeholder="Gep ile ara..."></div>
 </header>
 
 <nav class="sidebar">
-    <div class="nav-link active" id="tab-home" onclick="setPage('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
-    <div class="nav-link" id="tab-shorts" onclick="setPage('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
-    <div class="nav-link"><i class="fas fa-play-circle"></i><span>Abonelik</span></div>
-    <div class="nav-link" style="margin-top:auto; padding-bottom:1.5cm;"><i class="fas fa-cog"></i><span>Ayarlar</span></div>
+    <div class="nav-link active" id="btn-home" onclick="switchPage('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
+    <div class="nav-link" id="btn-shorts" onclick="switchPage('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
+    <div class="nav-link"><i class="fas fa-layer-group"></i><span>Kitaplık</span></div>
 </nav>
 
-<main id="home-feed">
-    <div class="video-grid" id="global-grid"></div>
-</main>
+<div class="page" id="home-page">
+    <div class="video-grid" id="grid-content"></div>
+</div>
 
-<main id="shorts-feed"></main>
+<div class="page" id="shorts-page"></div>
 
-<div id="watch-overlay">
-    <div class="watch-layout">
-        <div class="player-container">
-            <button onclick="setPage('home')" style="background:none; border:none; color:#fff; margin-bottom:15px; cursor:pointer; font-size:16px;"><i class="fas fa-chevron-left"></i> Geri Dön</button>
-            <div id="video-mount" class="player-box"></div>
-            <h2 id="v-title" style="margin-top:20px; font-size:22px;"></h2>
-            <div style="margin-top:20px; padding:15px; background:#1a1a1a; border-radius:12px;">
-                <p>68.303.714 görüntüleme • 1 ay önce</p>
-            </div>
-        </div>
-        <div class="sidebar-vids" style="color:#aaa;">Sıradaki Videolar</div>
+<div id="watch-screen">
+    <div class="watch-container">
+        <button onclick="closeVideo()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; margin-bottom:20px;"><i class="fas fa-times"></i></button>
+        <div class="video-box" id="player-mount"></div>
+        <h2 id="video-title" style="margin-top:20px;">Video Başlığı</h2>
     </div>
 </div>
 
 <script>
-    const data = [
-        { id: 'S_E2E_u557I', title: 'BLOK3 - KUSURA BAKMA (Official Music Video)', chan: 'Blok3', thumb: 'https://i.ytimg.com/vi/S_E2E_u557I/maxresdefault.jpg' },
-        { id: 'vGZ_M5Y9EwA', title: 'Türkiye\'de Bir Kulüp Başkanı Olsaydın?', chan: 'ERTN', thumb: 'https://i.ytimg.com/vi/vGZ_M5Y9EwA/maxresdefault.jpg' },
-        { id: '3X_Y12Z_K88', title: 'Dünyanın En Derin Çukuruna İndik!', chan: 'Ruhi Çenet', thumb: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg' },
-        { id: '9A_K88L_M44', title: 'Mars\'ta Gizemli Sesler Kaydedildi', chan: 'Evrim Ağacı', thumb: 'https://i.ytimg.com/vi/t9-v_rF06Xk/maxresdefault.jpg' }
+    const videoData = [
+        {id: 'S_E2E_u557I', title: 'BLOK3 - KUSURA BAKMA', chan: 'Blok3', live: true},
+        {id: 'vGZ_M5Y9EwA', title: 'Türkiye\'de Kulüp Başkanı Olmak', chan: 'Ertan Saban', live: false},
+        {id: 'dQw4w9WgXcQ', title: 'Gidilemeyen Yasaklı Köy', chan: 'Ruhi Çenet', live: false},
+        {id: 't9-v_rF06Xk', title: 'Mars\'ta İlk Koloni Kuruldu', chan: 'Evrim Ağacı', live: true}
     ];
 
-    const shortIds = ['XvW_7G9Dk0I', 'vS7W_M44P5Q', 'rF06Xkt9-v_'];
+    const shortIds = ['_mKq9v_Xp6I', 'vS7W_M44P5Q', 'rF06Xkt9-v_'];
 
-    // ANA SAYFAYI GELİŞTİR
-    function renderHome() {
-        const grid = document.getElementById('global-grid');
-        grid.innerHTML = [...data, ...data].sort(() => 0.5 - Math.random()).map(v => `
-            <div class="video-item" onclick="openWatch('${v.id}', '${v.title}')">
-                <img src="${v.thumb}" class="v-poster">
-                <div class="v-meta">
-                    <div class="v-pfp" style="background:hsl(${Math.random()*360}, 60%, 50%)"></div>
-                    <div class="v-data">
-                        <h4>${v.title}</h4>
-                        <p>${v.chan} • ${Math.floor(Math.random()*900)+1}B izlenme</p>
+    // ANA SAYFAYI YÜKLE
+    function loadHome() {
+        const grid = document.getElementById('grid-content');
+        grid.innerHTML = Array(12).fill(0).map(() => {
+            const v = videoData[Math.floor(Math.random() * videoData.length)];
+            return `
+                <div class="v-card" onclick="openVideo('${v.id}', '${v.title}')">
+                    <div style="position:relative">
+                        <img src="https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg" class="v-thumb">
+                        ${v.live ? '<div class="live-tag">CANLI</div>' : ''}
                     </div>
-                </div>
-            </div>
-        `).join('');
+                    <div class="v-meta">
+                        <div class="v-pfp" style="background:hsl(${Math.random()*360}, 60%, 50%)"></div>
+                        <div>
+                            <h4 style="font-size:14px;">${v.title}</h4>
+                            <p style="font-size:12px; color:#aaa; margin-top:4px;">${v.chan} • 2026</p>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
     }
 
-    // SHORTS'U GELİŞTİR (AKILLI OYNATMA)
-    function renderShorts() {
-        const feed = document.getElementById('shorts-feed');
-        feed.innerHTML = shortIds.map(id => `
-            <div class="short-view" data-vid="${id}">
-                <div class="short-card" id="card-${id}">
-                    <div style="width:100%; height:100%; background:#111; display:flex; align-items:center; justify-content:center;">
-                        <i class="fab fa-youtube" style="font-size:50px; color:#222;"></i>
-                    </div>
+    // SHORTS'U YÜKLE (Fixed Smart Play)
+    function loadShorts() {
+        const page = document.getElementById('shorts-page');
+        page.innerHTML = shortIds.map(id => `
+            <div class="short-unit" data-id="${id}">
+                <div class="short-player" id="box-${id}">
                     <div class="short-ui">
-                        <div class="ui-btn"><i class="fas fa-thumbs-up"></i><span>43 B</span></div>
-                        <div class="ui-btn"><i class="fas fa-comment"></i><span>312</span></div>
+                        <div class="ui-btn"><i class="fas fa-thumbs-up"></i><span>43B</span></div>
+                        <div class="ui-btn"><i class="fas fa-comment"></i><span>510</span></div>
                         <div class="ui-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
                         <div class="ui-btn"><i class="fas fa-sync"></i><span>Remix</span></div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
 
-        const observer = new IntersectionObserver((entries) => {
+        const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-                const vid = entry.target.getAttribute('data-vid');
-                const box = document.getElementById(`card-${vid}`);
-                if (entry.isIntersecting) {
-                    box.innerHTML += `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&controls=0&loop=1&playlist=${vid}" 
-                        style="width:100%; height:100%; border:none; position:absolute; top:0; left:0;"></iframe>`;
+                const id = entry.target.dataset.id;
+                const box = document.getElementById(`box-${id}`);
+                if(entry.isIntersecting) {
+                    // Sadece ekrana gelince iframe ekle
+                    box.insertAdjacentHTML('afterbegin', `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}" style="position:absolute; top:0; left:0; width:100%; height:100%;"></iframe>`);
                 } else {
+                    // Ekrandan çıkınca iframe'i sil (Hata ve ses çakışması önleyici)
                     const frame = box.querySelector('iframe');
-                    if (frame) frame.remove(); // Sesin karışmasını önler
+                    if(frame) frame.remove();
                 }
             });
-        }, { threshold: 0.8 });
-
-        document.querySelectorAll('.short-view').forEach(s => observer.observe(s));
+        }, {threshold: 0.7});
+        document.querySelectorAll('.short-unit').forEach(u => observer.observe(u));
     }
 
-    function openWatch(id, title) {
-        document.getElementById('watch-overlay').style.display = 'block';
-        document.getElementById('video-mount').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-        document.getElementById('v-title').innerText = title;
+    // VİDEO AÇMA (DÜZELTİLDİ)
+    function openVideo(id, title) {
+        document.getElementById('watch-screen').style.display = 'block';
+        document.getElementById('player-mount').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
+        document.getElementById('video-title').innerText = title;
     }
 
-    function setPage(p) {
-        ['home-feed', 'shorts-feed', 'watch-overlay'].forEach(id => document.getElementById(id).style.display = 'none');
-        document.getElementById(p + (p==='watch'?'':'-feed')).style.display = 'block';
-        document.getElementById('tab-home').classList.toggle('active', p === 'home');
-        document.getElementById('tab-shorts').classList.toggle('active', p === 'shorts');
-        if(p === 'home') renderHome();
-        if(p === 'shorts') renderShorts();
+    function closeVideo() {
+        document.getElementById('watch-screen').style.display = 'none';
+        document.getElementById('player-mount').innerHTML = ''; // İframe'i yok et
     }
 
-    renderHome();
+    // SAYFA DEĞİŞTİRME
+    function switchPage(p) {
+        document.getElementById('home-page').style.display = p === 'home' ? 'block' : 'none';
+        document.getElementById('shorts-page').style.display = p === 'shorts' ? 'block' : 'none';
+        document.getElementById('btn-home').classList.toggle('active', p === 'home');
+        document.getElementById('btn-shorts').classList.toggle('active', p === 'shorts');
+        closeVideo();
+        if(p === 'home') loadHome(); else loadShorts();
+    }
+
+    loadHome();
 </script>
 </body>
 </html>
