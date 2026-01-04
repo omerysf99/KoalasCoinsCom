@@ -3,191 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA KOMBAT | ULTRA</title>
+    <title>KOALA KOMBAT | TAP TO EARN</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Poppins:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        :root { --main-yellow: #f5bb5f; --neon-blue: #00d2ff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { background: #050505; color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
-
-        /* Arkaplan Işıltıları */
-        .glow-bg { position: absolute; width: 200px; height: 200px; background: var(--main-yellow); filter: blur(100px); opacity: 0.1; top: 20%; left: 50%; transform: translateX(-50%); z-index: -1; }
-
-        /* Koala Tıklama Alanı & Animasyonlar */
-        .koala-container { position: relative; width: 290px; height: 290px; margin: 20px auto; z-index: 10; }
-        .main-koala {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 8px solid rgba(255,255,255,0.05);
-            background: radial-gradient(circle, #222 0%, #000 100%);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(245, 187, 95, 0.2);
-            padding: 10px; transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer; position: relative; overflow: hidden;
+        body { 
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%;
+            font-family: 'Inter', sans-serif;
         }
-        .main-koala img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; pointer-events: none; }
-        
-        /* Tıklama Efekti (Squash and Stretch) */
-        .click-active { transform: scale(0.92) rotate(1deg); }
 
-        /* Kombo UI */
-        #combo-meter { position: absolute; top: 0; right: 0; font-family: 'Orbitron', sans-serif; color: #ff0055; font-size: 24px; font-weight: 900; opacity: 0; transition: 0.2s; text-shadow: 0 0 10px #ff0055; }
+        /* 3D Coin Efekti */
+        .tap-target-wrapper {
+            perspective: 1000px;
+            margin: 20px auto;
+            width: 280px; height: 280px;
+        }
 
-        /* Sayı Fırlatma */
-        .tap-number { position: absolute; font-weight: 900; font-size: 38px; color: #fff; pointer-events: none; animation: floatAndFade 0.7s forwards; z-index: 100; font-family: 'Orbitron', sans-serif; }
-        @keyframes floatAndFade {
+        .koala-main-btn {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2d333b, #0d0d0d);
+            border: 10px solid #252a30;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(245, 187, 95, 0.1);
+            transition: transform 0.1s cubic-bezier(0.1, 0.7, 0.1, 1);
+            position: relative;
+        }
+
+        .koala-main-btn img {
+            width: 85%; height: 85%; border-radius: 50%; object-fit: cover;
+            pointer-events: none; user-select: none;
+        }
+
+        /* Tıklama anında "Squash" (ezilme) efekti */
+        .koala-main-btn:active {
+            transform: scale(0.92) rotateX(10deg);
+        }
+
+        /* Uçan Coin Sayıları */
+        .floating-value {
+            position: absolute; color: #fff; font-size: 36px; font-weight: 900;
+            pointer-events: none; z-index: 1000;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-180px) scale(1.5); }
+            100% { opacity: 0; transform: translateY(-160px) scale(1.4); }
         }
 
-        /* Navigasyon & Barlar */
-        .progress-bar-bg { width: 100%; height: 14px; background: #1a1a1a; border-radius: 20px; border: 1px solid #333; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #f5bb5f, #ff8c00); box-shadow: 0 0 15px rgba(245, 187, 95, 0.5); transition: width 0.2s; }
-        
-        nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; padding-bottom: 15px; }
-        .nav-link { color: #555; text-align: center; font-size: 10px; font-weight: bold; }
-        .nav-link.active { color: var(--main-yellow); }
+        /* Enerji Barı Pro */
+        .energy-progress-bg { width: 100%; height: 16px; background: #111; border-radius: 20px; border: 1px solid #2d333b; overflow: hidden; }
+        .energy-progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #f5bb5f 0%, #ff8c00 100%);
+            width: 100%; transition: width 0.1s linear;
+        }
+
+        /* Navigasyon */
+        nav { 
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; 
+            background: rgba(13, 13, 13, 0.95); backdrop-filter: blur(10px);
+            border-top: 1px solid #2d333b; display: flex; justify-content: space-around;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-tab { color: #555; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: bold; }
+        .nav-tab.active { color: #f5bb5f; }
     </style>
 </head>
 <body>
 
-    <div class="glow-bg"></div>
-
-    <div class="p-4 grid grid-cols-3 gap-2">
-        <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-2 text-center">
-            <p class="text-[8px] text-zinc-500 font-bold">MULTI-TAP</p>
-            <p class="text-xs font-black text-blue-400" id="ui-multi">Lvl 1</p>
+    <div class="px-4 py-3 grid grid-cols-3 gap-2 mt-4">
+        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
+            <p class="text-[8px] text-zinc-500 font-bold uppercase">Per Tap</p>
+            <p class="text-xs font-black text-yellow-500">+1</p>
         </div>
-        <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-2 text-center">
-            <p class="text-[8px] text-zinc-500 font-bold">HOURLY PROFIT</p>
-            <p class="text-xs font-black text-green-400" id="ui-pps">0</p>
+        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
+            <p class="text-[8px] text-zinc-500 font-bold uppercase">To Next LVL</p>
+            <p class="text-xs font-black text-blue-400">100M</p>
         </div>
-        <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-2 text-center">
-            <p class="text-[8px] text-zinc-500 font-bold">RANK</p>
-            <p class="text-xs font-black text-yellow-500">CEO</p>
+        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
+            <p class="text-[8px] text-zinc-500 font-bold uppercase">Hourly</p>
+            <p class="text-xs font-black text-green-500" id="ui-pps">+0</p>
         </div>
     </div>
 
-    <div class="text-center mt-4">
-        <div class="flex items-center justify-center gap-2">
-            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-10 h-10">
-            <h1 id="ui-bal" class="text-5xl font-black italic tracking-tighter">0</h1>
+    <div class="text-center mt-6">
+        <div class="flex items-center justify-center gap-3">
+            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-10 h-10 drop-shadow-[0_0_10px_#26a17b]">
+            <h1 id="ui-bal" class="text-5xl font-black italic tracking-tight">0</h1>
         </div>
-        <p class="text-[10px] text-zinc-500 font-bold mt-2 uppercase tracking-widest">Koala Kombat Network</p>
+        <p class="text-[10px] text-zinc-500 font-bold mt-2 tracking-[4px] uppercase">Main Exchange</p>
     </div>
 
-    <div class="koala-container">
-        <div id="combo-meter">x10 COMBO!</div>
-        <div class="main-koala" id="tap-target">
-            <img src="coinkoala.jpg" alt="Koala">
+    <div class="tap-target-wrapper">
+        <div class="koala-main-btn" id="main-tap-btn">
+            <img src="coinkoala.jpg" alt="Koala" id="koala-img">
         </div>
     </div>
 
-    <div class="px-6 mt-4">
-        <div class="flex justify-between items-end mb-2">
+    <div class="px-8 mt-10">
+        <div class="flex justify-between items-center mb-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-bolt text-yellow-400 text-2xl animate-pulse"></i>
-                <span id="ui-energy" class="text-2xl font-black">1000</span>
-                <span class="text-zinc-500 text-sm font-bold">/ 1000</span>
+                <span id="ui-energy-text" class="text-2xl font-black italic">1000</span>
+                <span class="text-zinc-600 font-bold">/ 1000</span>
             </div>
-            <div class="text-[10px] font-black text-zinc-400">NEXT LEVEL: 100M</div>
+            <button class="bg-zinc-800 text-[10px] px-3 py-1 rounded-full border border-zinc-700 font-bold">🚀 BOOST</button>
         </div>
-        <div class="progress-bar-bg">
-            <div id="energy-bar" class="progress-bar-fill" style="width: 100%;"></div>
+        <div class="energy-progress-bg">
+            <div id="energy-bar" class="energy-progress-fill"></div>
         </div>
     </div>
 
     <nav>
-        <div class="nav-link active"><i class="fa-solid fa-paw text-2xl block mb-1"></i>Earn</div>
-        <div class="nav-link" onclick="tg.showAlert('Market Yakında!')"><i class="fa-solid fa-shop text-2xl block mb-1"></i>Market</div>
-        <div class="nav-item">
-             <div class="w-14 h-14 bg-zinc-800 rounded-full border-4 border-black flex items-center justify-center -mt-10 shadow-xl">
-                <i class="fa-solid fa-rocket text-yellow-500 text-xl"></i>
-             </div>
-        </div>
-        <div class="nav-link" onclick="tg.showAlert('Görevler Yakında!')"><i class="fa-solid fa-tasks text-2xl block mb-1"></i>Tasks</div>
-        <div class="nav-link" onclick="tg.showAlert('Cüzdan Yakında!')"><i class="fa-solid fa-wallet text-2xl block mb-1"></i>Wallet</div>
+        <div class="nav-tab active"><i class="fa-solid fa-hand-pointer text-2xl"></i>TAP</div>
+        <div class="nav-tab" onclick="tg.showAlert('Mine Yakında!')"><i class="fa-solid fa-pickaxe text-2xl"></i>MINE</div>
+        <div class="nav-tab" onclick="tg.showAlert('Airdrop Yakında!')"><i class="fa-solid fa-parachute-box text-2xl"></i>AIRDROP</div>
     </nav>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let user = { bal: 0, pps: 0, energy: 1000, maxEnergy: 1000, multi: 1 };
-    let combo = 0;
-    let comboTimer;
+    // Oyun Mantığı
+    let balance = 0;
+    let energy = 1000;
+    let maxEnergy = 1000;
+    let pps = 0;
+    let perTap = 1;
 
-    const tapTarget = document.getElementById('tap-target');
-    const comboUI = document.getElementById('combo-meter');
+    const btn = document.getElementById('main-tap-btn');
+    const balUI = document.getElementById('ui-bal');
+    const energyText = document.getElementById('ui-energy-text');
+    const energyBar = document.getElementById('energy-bar');
 
-    // Tıklama Motoru
-    tapTarget.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if(user.energy < user.multi) {
+    // TAP EVENT
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Sayfa kaymasını engelle
+        
+        // Çoklu dokunma desteği
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            handleTap(e.changedTouches[i].pageX, e.changedTouches[i].pageY);
+        }
+    });
+
+    function handleTap(x, y) {
+        if (energy < perTap) {
             tg.HapticFeedback.notificationOccurred('error');
             return;
         }
 
-        // Görsel Tepki
-        tapTarget.classList.add('click-active');
-        setTimeout(() => tapTarget.classList.remove('click-active'), 100);
-
-        // Kombo Mantığı
-        combo++;
-        clearTimeout(comboTimer);
-        comboTimer = setTimeout(() => { combo = 0; comboUI.style.opacity = 0; }, 1000);
+        // Değerleri Güncelle
+        balance += perTap;
+        energy -= perTap;
         
-        if(combo > 5) {
-            comboUI.innerText = `x${combo} COMBO!`;
-            comboUI.style.opacity = 1;
-        }
-
-        // Kazanç
-        let bonus = combo > 15 ? 2 : 1; // 15 tık üstü x2 bonus
-        let totalGain = user.multi * bonus;
-        
-        user.bal += totalGain;
-        user.energy -= user.multi;
-        
+        // Arayüzü Güncelle
         updateUI();
 
-        // Sayı Fırlatma Efekti
-        const touch = e.touches[0];
-        createTapEffect(touch.pageX, touch.pageY, totalGain);
+        // Görsel Efekt Oluştur (Uçan Sayı)
+        createFloatingText(x, y);
 
-        tg.HapticFeedback.impactOccurred(combo > 15 ? 'heavy' : 'light');
-    });
+        // Telegram Titreşim
+        tg.HapticFeedback.impactOccurred('medium');
+    }
 
-    function createTapEffect(x, y, gain) {
-        const el = document.createElement('div');
-        el.className = 'tap-number';
-        el.innerText = `+${gain}`;
-        el.style.left = `${x - 20}px`;
-        el.style.top = `${y - 40}px`;
+    function createFloatingText(x, y) {
+        const span = document.createElement('span');
+        span.className = 'floating-value';
+        span.innerText = `+${perTap}`;
+        span.style.left = `${x - 25}px`;
+        span.style.top = `${y - 50}px`;
         
-        // Kombo rengi
-        if(combo > 15) el.style.color = '#ff8c00';
+        document.body.appendChild(span);
         
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 700);
+        // Animasyon bittiğinde sil
+        setTimeout(() => span.remove(), 800);
     }
 
     function updateUI() {
-        document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
-        document.getElementById('ui-energy').innerText = user.energy;
-        document.getElementById('energy-bar').style.width = (user.energy / user.maxEnergy * 100) + "%";
-        document.getElementById('ui-pps').innerText = "+" + user.pps;
+        balUI.innerText = Math.floor(balance).toLocaleString();
+        energyText.innerText = energy;
+        const energyWidth = (energy / maxEnergy) * 100;
+        energyBar.style.width = energyWidth + "%";
     }
 
-    // Enerji Dolumu
+    // Pasif Enerji Dolumu (Saniyede +3)
     setInterval(() => {
-        if(user.energy < user.maxEnergy) {
-            user.energy = Math.min(user.maxEnergy, user.energy + 2);
+        if (energy < maxEnergy) {
+            energy = Math.min(maxEnergy, energy + 3);
             updateUI();
         }
     }, 1000);
