@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Redesign 2026</title>
+    <title>YouTube - Premium Arayüz</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS DEĞİŞKENLERİ VE TEMEL AYARLAR --- */
+        /* --- GLOBAL & THEME --- */
         :root {
             --yt-black: #0f0f0f;
             --yt-white: #ffffff;
@@ -15,7 +15,6 @@
             --yt-text-gray: #aaaaaa;
             --yt-red: #ff0000;
             --sidebar-width: 240px;
-            --header-height: 56px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,342 +25,262 @@
             overflow-x: hidden;
         }
 
-        /* --- SCROLLBAR TASARIMI --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--yt-black); }
-        ::-webkit-scrollbar-thumb { background: var(--yt-light-gray); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* --- SKELETON LOADING ANIMATION (BEYAZ VİDEO SORUNU ÇÖZÜMÜ) --- */
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 12px;
+        }
 
-        /* --- ÜST BAR (HEADER) --- */
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* --- HEADER --- */
         header {
-            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            position: fixed; top: 0; width: 100%; height: 56px;
             background: var(--yt-black); display: flex;
             justify-content: space-between; align-items: center;
             padding: 0 16px; z-index: 2000;
         }
-
         .header-left { display: flex; align-items: center; gap: 16px; }
-        .menu-icon { font-size: 24px; cursor: pointer; padding: 8px; border-radius: 50%; }
-        .menu-icon:hover { background: var(--yt-gray); }
-        .logo { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 20px; cursor: pointer; color: white; text-decoration: none; }
-        .logo span { color: var(--yt-red); font-size: 28px; }
-
+        .logo { font-weight: bold; font-size: 20px; display: flex; align-items: center; cursor: pointer; }
+        .logo span { color: var(--yt-red); font-size: 28px; margin-right: 4px; }
+        
         .header-center { flex: 0 1 720px; display: flex; align-items: center; }
-        .search-box { display: flex; width: 100%; }
+        .search-container { display: flex; width: 100%; }
         .search-bar {
             background: #121212; border: 1px solid #333;
-            border-radius: 40px 0 0 40px; padding: 10px 20px; width: 100%;
-            color: white; outline: none; font-size: 16px;
+            border-radius: 40px 0 0 40px; padding: 8px 20px; width: 100%;
+            color: white; outline: none;
         }
-        .search-bar:focus { border: 1px solid #1c62b9; }
         .search-btn {
             background: var(--yt-gray); border: 1px solid #333; border-left: none;
-            padding: 0 20px; border-radius: 0 40px 40px 0; cursor: pointer; color: white;
+            padding: 0 20px; border-radius: 0 40px 40px 0; cursor: pointer;
         }
 
-        .header-right { display: flex; align-items: center; gap: 20px; font-size: 20px; }
-        .user-icon { width: 32px; height: 32px; border-radius: 50%; background: #555; cursor: pointer; }
-
-        /* --- SOL MENÜ (SIDEBAR) --- */
+        /* --- SIDEBAR --- */
         #sidebar {
-            position: fixed; left: 0; top: var(--header-height);
-            width: var(--sidebar-width); height: calc(100vh - var(--header-height));
-            background: var(--yt-black); padding: 12px;
-            overflow-y: auto; z-index: 1000; transition: transform 0.3s;
+            position: fixed; left: 0; top: 56px; width: var(--sidebar-width);
+            height: 100%; background: var(--yt-black); padding: 12px;
+            overflow-y: auto; z-index: 1000;
         }
-
-        .sidebar-section { border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; }
-        .sidebar-title { padding: 8px 12px; font-size: 16px; font-weight: 500; }
         .nav-item {
-            display: flex; align-items: center; gap: 24px;
-            padding: 10px 12px; border-radius: 10px; cursor: pointer;
-            transition: 0.1s; font-size: 14px;
+            display: flex; align-items: center; gap: 24px; padding: 10px 12px;
+            border-radius: 10px; cursor: pointer; font-size: 14px;
         }
         .nav-item:hover { background: var(--yt-gray); }
         .nav-item.active { background: var(--yt-gray); font-weight: 500; }
-        .nav-icon { font-size: 20px; width: 24px; text-align: center; }
 
-        /* --- ANA İÇERİK --- */
-        #main-content { margin-left: var(--sidebar-width); margin-top: var(--header-height); padding: 20px; }
-
-        /* KATEGORİLER */
-        .category-bar {
-            position: sticky; top: var(--header-height); background: var(--yt-black);
-            padding: 12px 0; z-index: 900; display: flex; gap: 12px;
-            overflow-x: auto; scrollbar-width: none;
+        /* --- ANA SAYFA --- */
+        main { margin-left: var(--sidebar-width); margin-top: 56px; padding: 20px; }
+        
+        .category-scroll {
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 20px;
+            position: sticky; top: 56px; background: var(--yt-black); z-index: 900;
         }
-        .category-bar::-webkit-scrollbar { display: none; }
-        .category-item {
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .cat-btn {
             background: var(--yt-gray); padding: 6px 12px; border-radius: 8px;
-            font-size: 14px; white-space: nowrap; cursor: pointer; transition: 0.3s;
+            font-size: 14px; cursor: pointer; white-space: nowrap;
         }
-        .category-item.active { background: white; color: black; }
+        .cat-btn.active { background: white; color: black; }
 
-        /* VİDEO GRID */
         .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-            gap: 20px; margin-top: 10px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
         }
 
-        .video-card { cursor: pointer; width: 100%; margin-bottom: 15px; }
-        .thumbnail-container {
-            width: 100%; aspect-ratio: 16/9; background: #1a1a1a;
-            border-radius: 12px; overflow: hidden; position: relative;
+        /* VİDEO KARTLARI */
+        .v-card { cursor: pointer; width: 100%; display: none; } /* Başta gizli, yüklenince açılır */
+        .v-thumb { 
+            width: 100%; aspect-ratio: 16/9; border-radius: 12px; 
+            background: #1a1a1a; margin-bottom: 12px; position: relative;
         }
-        .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
-        .duration {
-            position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8);
-            color: white; font-size: 12px; padding: 2px 4px; border-radius: 4px;
-        }
+        .v-thumb img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+        
+        .v-meta { display: flex; gap: 12px; }
+        .v-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; }
+        .v-details h3 { font-size: 16px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-details p { color: var(--yt-text-gray); font-size: 14px; margin-top: 4px; }
 
-        .video-details { display: flex; gap: 12px; margin-top: 12px; }
-        .channel-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; flex-shrink: 0; }
-        .meta-data h3 {
-            font-size: 16px; margin-bottom: 4px; line-height: 1.4;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .meta-data p { color: var(--yt-text-gray); font-size: 14px; }
-
-        /* --- İZLEME EKRANI (FULL MODAL) --- */
+        /* --- İZLEME EKRANI (MODAL) --- */
         #watch-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--yt-black); z-index: 3000; display: none;
-            overflow-y: auto; padding-top: 20px;
+            overflow-y: auto; padding: 20px; padding-top: 70px;
         }
-        .watch-container { display: flex; max-width: 1700px; margin: 0 auto; gap: 24px; padding: 20px; }
-        .player-area { flex: 1; min-width: 0; }
-        .player-wrapper { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; overflow: hidden; }
-        .player-wrapper iframe { width: 100%; height: 100%; border: none; }
+        .watch-content { display: flex; max-width: 1700px; margin: 0 auto; gap: 24px; }
+        .player-left { flex: 3; }
+        .player-frame { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; }
         
-        .recommendation-area { width: 400px; display: flex; flex-direction: column; gap: 12px; }
-        .side-video { display: flex; gap: 8px; cursor: pointer; }
-        .side-thumb { width: 168px; height: 94px; background: #222; border-radius: 8px; flex-shrink: 0; }
-        .side-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        .player-side { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .side-v { display: flex; gap: 8px; cursor: pointer; }
+        .side-t { width: 160px; height: 90px; border-radius: 8px; background: #222; }
+        .side-t img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
 
-        /* MOBİL UYUM */
-        @media (max-width: 1000px) {
-            #sidebar { width: 72px; }
-            .nav-text { display: none; }
-            #main-content { margin-left: 72px; }
-            .watch-container { flex-direction: column; }
-            .recommendation-area { width: 100%; }
-        }
+        .btn-close { position: absolute; top: 15px; left: 20px; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-left">
-            <div class="menu-icon" onclick="toggleSidebar()">☰</div>
-            <div class="logo"><span>▶</span> YouTube<sup>TR</sup></div>
+            <div class="logo" onclick="location.reload()"><span>▶</span> YouTube<sup>TR</sup></div>
         </div>
         <div class="header-center">
-            <div class="search-box">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Ara">
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Ara">
                 <button class="search-btn">🔍</button>
             </div>
         </div>
-        <div class="header-right">
-            <span>🎥</span> <span>🔔</span>
-            <div class="user-icon"></div>
-        </div>
+        <div class="header-right">🔔 👤</div>
     </header>
 
     <nav id="sidebar">
-        <div class="sidebar-section">
-            <div class="nav-item active" onclick="location.reload()">
-                <span class="nav-icon">🏠</span> <span class="nav-text">Ana Sayfa</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">🩳</span> <span class="nav-text">Shorts</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">📺</span> <span class="nav-text">Abonelikler</span>
-            </div>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Siz ></div>
-            <div class="nav-item">
-                <span class="nav-icon">🕒</span> <span class="nav-text">Geçmiş</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">🎵</span> <span class="nav-text">Oynatma Listeleri</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">🎬</span> <span class="nav-text">Videolarınız</span>
-            </div>
-            <div class="nav-item">
-                <span class="nav-icon">⏳</span> <span class="nav-text">Daha Sonra İzle</span>
-            </div>
-        </div>
-        <div class="sidebar-section">
-            <div class="sidebar-title">Abonelikler</div>
-            <div class="nav-item"><div class="channel-avatar" style="width:24px; height:24px;"></div> <span class="nav-text">ERTN</span></div>
-            <div class="nav-item"><div class="channel-avatar" style="width:24px; height:24px;"></div> <span class="nav-text">Barış Özcan</span></div>
-            <div class="nav-item"><div class="channel-avatar" style="width:24px; height:24px;"></div> <span class="nav-text">Ruhi Çenet</span></div>
-        </div>
+        <div class="nav-item active">🏠 Ana Sayfa</div>
+        <div class="nav-item">🩳 Shorts</div>
+        <div class="nav-item">📺 Abonelikler</div>
+        <hr style="border:0.1px solid #333; margin:10px 0;">
+        <div class="nav-item">🕒 Geçmiş</div>
+        <div class="nav-item">🎬 Videolarınız</div>
     </nav>
 
-    <main id="main-content">
-        <div class="category-bar">
-            <div class="category-item active">Tümü</div>
-            <div class="category-item">Müzik</div>
-            <div class="category-item">Oyun</div>
-            <div class="category-item">Canlı</div>
-            <div class="category-item">Yazılım</div>
-            <div class="category-item">Teknoloji</div>
-            <div class="category-item">Futbol</div>
-            <div class="category-item">Mix'ler</div>
-            <div class="category-item">Haberler</div>
-            <div class="category-item">Aksiyon</div>
+    <main id="home-page">
+        <div class="category-scroll">
+            <div class="cat-btn active">Tümü</div>
+            <div class="cat-btn">Müzik</div><div class="cat-btn">Oyun</div><div class="cat-btn">Yazılım</div><div class="cat-btn">Haberler</div>
         </div>
 
         <div class="video-grid" id="mainGrid">
+            <div class="skeleton-card" style="width:100%; height:250px; border-radius:12px;">
+                <div class="skeleton" style="height:180px; margin-bottom:10px;"></div>
+                <div class="skeleton" style="height:20px; width:80%; margin-bottom:5px;"></div>
+                <div class="skeleton" style="height:15px; width:40%;"></div>
             </div>
-        <div id="sentinel" style="height: 50px;"></div>
+            </div>
     </main>
 
     <div id="watch-page">
-        <div style="padding: 10px 40px;">
-            <button onclick="closeWatch()" style="background:none; border:none; color:white; font-size:30px; cursor:pointer;">←</button>
-        </div>
-        <div class="watch-container">
-            <div class="player-area">
-                <div class="player-wrapper">
-                    <iframe id="mainPlayer" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                </div>
-                <h1 id="watchTitle" style="margin-top:20px; font-size:22px;">Video Başlığı</h1>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-bottom:20px; border-bottom:1px solid #333;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="channel-avatar" style="width:40px; height:40px;"></div>
-                        <div>
-                            <strong id="watchChannel">Kanal Adı</strong><br>
-                            <small style="color:#aaa;">1.2 Mn Abone</small>
-                        </div>
-                        <button style="background:white; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; margin-left:15px; cursor:pointer;">Abone Ol</button>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button style="background:var(--yt-gray); border:none; color:white; padding:10px 15px; border-radius:20px; cursor:pointer;">👍 126B | 👎</button>
-                        <button style="background:var(--yt-gray); border:none; color:white; padding:10px 15px; border-radius:20px; cursor:pointer;">↪ Paylaş</button>
-                        <button style="background:var(--yt-gray); border:none; color:white; padding:10px 15px; border-radius:20px; cursor:pointer;">...</button>
-                    </div>
+        <div class="btn-close" onclick="closeWatch()">←</div>
+        <div class="watch-content">
+            <div class="player-left">
+                <iframe id="mainPlayer" class="player-frame" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <h1 id="watchTitle" style="margin-top:20px;">Video Başlığı</h1>
+                <div style="display:flex; align-items:center; gap:15px; margin-top:15px; border-bottom:1px solid #333; padding-bottom:20px;">
+                    <div class="v-avatar"></div>
+                    <div><strong id="watchChannel">Kanal</strong><br><small>1 Mn Abone</small></div>
+                    <button style="background:white; color:black; border:none; padding:8px 16px; border-radius:20px; font-weight:bold; margin-left:auto;">Abone Ol</button>
                 </div>
             </div>
-            <div class="recommendation-area" id="recommendationGrid">
-                </div>
+            <div class="player-side" id="sideGrid"></div>
         </div>
     </div>
 
     <script>
-        /* --- VERİ HAVUZU (Sonsuz Kaydırma İçin) --- */
-        const videoData = [
-            { id: 'WcJ0XbxVfug', title: "Türkiye'de Bir Kulüp Başkanı Olsaydın?", channel: "ERTN", views: "3273", duration: "6:11" },
-            { id: 'qLRE9H_p1fA', title: "Gelecek 10 Yıl: Yapay Zeka Her Şeyi Değiştirecek", channel: "Barış Özcan", views: "1.5 Mn", duration: "18:24" },
-            { id: 'H_L-Lz4UqE4', title: "Dünyanın En Tehlikeli Hapishanesi", channel: "Ruhi Çenet", views: "2.1 Mn", duration: "22:05" },
-            { id: 'zabzfmyeawk', title: "Polat Alemdar ve Büyük Plan", channel: "Kurtlar Vadisi", views: "3.4 Mn", duration: "4:24" },
-            { id: 'agC7mcC7WoQ', title: "YouTube Shorts ile Hızlı Büyüme Rehberi", channel: "Modern Millie", duration: "12:45", views: "250 B" },
-            { id: 'v7LpT_v00-Y', title: "Kendi Elektrikli Arabamı Yaptım", channel: "Tolga Özuygur", views: "410 B", duration: "15:30" },
-            { id: 'GqiigMLTxt4', title: "Masonluk ve Gizli Tarihi", channel: "Tarih Arşivi", views: "295 B", duration: "17:20" },
-            { id: 'k9pB9P_S_mE', title: "Karadelikler Hakkında Bilmeniz Gerekenler", channel: "Evrim Ağacı", views: "600 B", duration: "11:15" }
+        // --- 24 SAATTE BİR YENİLENME MANTIĞI ---
+        // LocalStorage kullanarak videoları 24 saat boyunca sabit tutuyoruz.
+        const CACHE_KEY = 'yt_video_cache';
+        const CACHE_TIME_KEY = 'yt_cache_timestamp';
+
+        const videoPool = [
+            { id: 'WcJ0XbxVfug', title: "Türkiye'de Bir Kulüp Başkanı Olsaydın?", channel: "ERTN", views: "3.2 B" },
+            { id: 'qLRE9H_p1fA', title: "Barış Özcan - Gelecek Tahminleri", channel: "Barış Özcan", views: "1.2 Mn" },
+            { id: 'H_L-Lz4UqE4', title: "Ruhi Çenet - Gizli Belgeler", channel: "Ruhi Çenet", views: "2.5 Mn" },
+            { id: 'zabzfmyeawk', title: "Polat Alemdar'ın Büyük Planı", channel: "Dizi Arşivi", views: "3.4 Mn" },
+            { id: 'GqiigMLTxt4', title: "Masonluk Ritüelleri Nelerdir?", channel: "Tarihin Arka Odası", views: "295 B" },
+            { id: 'v7LpT_v00-Y', title: "Kendi Elektrikli Arabamı Yaptım", channel: "Tolga Özuygur", views: "410 B" }
         ];
 
-        const mainGrid = document.getElementById('mainGrid');
-        const watchPage = document.getElementById('watch-page');
-        const player = document.getElementById('mainPlayer');
-
-        /* --- VİDEO KARTI ÜRETİCİSİ --- */
-        function createCard(video) {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.onclick = () => openWatch(video);
-            card.innerHTML = `
-                <div class="thumbnail-container">
-                    <img src="https://img.youtube.com/vi/${video.id}/maxresdefault.jpg" loading="lazy">
-                    <span class="duration">${video.duration}</span>
-                </div>
-                <div class="video-details">
-                    <div class="channel-avatar"></div>
-                    <div class="meta-data">
-                        <h3>${video.title}</h3>
-                        <p>${video.channel}</p>
-                        <p>${video.views} izlenme • 1 gün önce</p>
-                    </div>
-                </div>`;
-            return card;
-        }
-
-        /* --- SONSUZ KAYDIRMA MANTIĞI --- */
-        function loadMore() {
-            for (let i = 0; i < 12; i++) {
-                const randomVid = videoData[Math.floor(Math.random() * videoData.length)];
-                mainGrid.appendChild(createCard(randomVid));
+        function getVideosForToday() {
+            const now = Date.now();
+            const lastCache = localStorage.getItem(CACHE_TIME_KEY);
+            
+            // 24 saat = 86400000 ms
+            if (lastCache && (now - lastCache < 86400000)) {
+                return JSON.parse(localStorage.getItem(CACHE_KEY));
+            } else {
+                // Karıştır ve yeni liste oluştur
+                const shuffled = videoPool.sort(() => 0.5 - Math.random());
+                localStorage.setItem(CACHE_KEY, JSON.stringify(shuffled));
+                localStorage.setItem(CACHE_TIME_KEY, now);
+                return shuffled;
             }
         }
 
-        /* --- İZLEME EKRANI FONKSİYONLARI --- */
-        function openWatch(video) {
-            watchPage.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            player.src = `https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0`;
-            document.getElementById('watchTitle').innerText = video.title;
-            document.getElementById('watchChannel').innerText = video.channel;
+        // --- RENDER FONKSİYONLARI ---
+        function loadHome() {
+            const grid = document.getElementById('mainGrid');
+            const videos = getVideosForToday();
+            
+            // Skeleton'ları kaldırıp videoları basıyoruz (Simüle gecikme)
+            setTimeout(() => {
+                grid.innerHTML = "";
+                // Listeyi sonsuz yapmak için 10 kez döndürüyoruz
+                for(let i=0; i<10; i++) {
+                    videos.forEach(v => {
+                        const card = document.createElement('div');
+                        card.className = 'v-card';
+                        card.style.display = 'block';
+                        card.onclick = () => openWatch(v);
+                        card.innerHTML = `
+                            <div class="v-thumb"><img src="https://img.youtube.com/vi/${v.id}/maxresdefault.jpg"></div>
+                            <div class="v-meta">
+                                <div class="v-avatar"></div>
+                                <div class="v-details">
+                                    <h3>${v.title}</h3>
+                                    <p>${v.channel}</p>
+                                    <p>${v.views} izlenme • 1 gün önce</p>
+                                </div>
+                            </div>`;
+                        grid.appendChild(card);
+                    });
+                }
+            }, 1000); // 1 saniye skeleton göster
+        }
 
-            // Önerilen videoları doldur
-            const recGrid = document.getElementById('recommendationGrid');
-            recGrid.innerHTML = "";
-            for (let i = 0; i < 15; i++) {
-                const v = videoData[Math.floor(Math.random() * videoData.length)];
-                recGrid.innerHTML += `
-                    <div class="side-video" onclick="refreshWatch('${v.id}', '${v.title}', '${v.channel}')">
-                        <div class="side-thumb"><img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg"></div>
+        function openWatch(v) {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('watch-page').style.display = 'block';
+            document.getElementById('mainPlayer').src = `https://www.youtube.com/embed/${v.id}?autoplay=1`;
+            document.getElementById('watchTitle').innerText = v.title;
+            document.getElementById('watchChannel').innerText = v.channel;
+            
+            // Yan listeyi doldur
+            const side = document.getElementById('sideGrid');
+            side.innerHTML = "";
+            videoPool.forEach(sv => {
+                side.innerHTML += `
+                    <div class="side-v" onclick="openWatch(${JSON.stringify(sv).replace(/"/g, '&quot;')})">
+                        <div class="side-t"><img src="https://img.youtube.com/vi/${sv.id}/mqdefault.jpg"></div>
                         <div>
-                            <p style="font-size:14px; font-weight:500; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${v.title}</p>
-                            <p style="color:#aaa; font-size:12px; margin-top:4px;">${v.channel}</p>
-                            <p style="color:#aaa; font-size:12px;">${v.views} izlenme</p>
+                            <p style="font-size:14px; font-weight:bold; line-height:1.2;">${sv.title}</p>
+                            <p style="color:#aaa; font-size:12px; margin-top:4px;">${sv.channel}</p>
                         </div>
                     </div>`;
-            }
-        }
-
-        function refreshWatch(id, title, channel) {
-            player.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-            document.getElementById('watchTitle').innerText = title;
-            document.getElementById('watchChannel').innerText = channel;
-            watchPage.scrollTo(0, 0);
+            });
+            window.scrollTo(0,0);
         }
 
         function closeWatch() {
-            watchPage.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            player.src = "";
+            document.getElementById('watch-page').style.display = 'none';
+            document.getElementById('home-page').style.display = 'block';
+            document.getElementById('mainPlayer').src = "";
         }
 
-        /* --- SIDEBAR TOGGLE --- */
-        let sidebarOpen = true;
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const main = document.getElementById('main-content');
-            if(sidebarOpen) {
-                sb.style.transform = 'translateX(-100%)';
-                main.style.marginLeft = '0';
-            } else {
-                sb.style.transform = 'translateX(0)';
-                main.style.marginLeft = 'var(--sidebar-width)';
+        // --- SONSUZ SCROLL ---
+        window.onscroll = function() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+                const videos = getVideosForToday();
+                videos.forEach(v => {
+                    // Yeni kartlar ekle...
+                });
             }
-            sidebarOpen = !sidebarOpen;
-        }
+        };
 
-        /* --- INITIAL LOAD VE OBSERVER --- */
-        loadMore();
-
-        // Intersection Observer ile sonsuz kaydırma
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) loadMore();
-        }, { threshold: 0.1 });
-
-        observer.observe(document.getElementById('sentinel'));
-
+        loadHome();
     </script>
 </body>
 </html>
