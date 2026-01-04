@@ -3,209 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Kombat - Tap to Earn</title>
+    <title>Hamster Kombat Clone Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background: #000; 
-            color: #fff; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        :root { --primary: #f3ba2f; --bg: #000; --card: #1c1f24; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .font-game { font-family: 'Orbitron', sans-serif; }
+        
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Ana Tıklama Alanı Efekti */
-        .tap-area {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #3a3f47 0%, #111315 100%);
-            border: 10px solid #2d333b;
+        .hamster-btn {
+            background: radial-gradient(circle, #32363c 0%, #0c0d0f 100%);
+            border: 10px solid #282b30;
             box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.05s active;
+            transition: transform 0.05s;
         }
+        .hamster-btn:active { transform: scale(0.92) rotate(2deg); }
 
-        .tap-area:active {
-            transform: scale(0.96);
-        }
-
-        /* Yüzen Sayı Animasyonu */
         .floating-text {
-            position: absolute;
-            color: #fff;
-            font-size: 32px;
-            font-weight: 900;
-            pointer-events: none;
-            animation: floatAndFade 0.7s ease-out forwards;
-            z-index: 100;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: absolute; color: #fff; font-size: 30px; font-weight: 900;
+            pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100;
         }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
 
-        @keyframes floatAndFade {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(1.2); }
-        }
-
-        .gold-glow {
-            text-shadow: 0 0 20px rgba(243, 186, 47, 0.6);
-        }
-
-        .progress-bar-fill {
-            transition: width 0.2s ease-out;
-            background: linear-gradient(90deg, #f3ba2f, #ffea00);
-        }
+        .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: var(--primary); }
+        
+        .card-mine { background: #15161a; border: 1px solid #2d333b; border-radius: 1.5rem; transition: 0.2s; }
+        .card-mine:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="flex flex-col items-center justify-between py-8">
+<body class="flex flex-col justify-between">
 
-    <div class="text-center">
-        <p class="text-gray-400 text-sm font-bold uppercase tracking-widest mb-2">Bakiye</p>
-        <div class="flex items-center gap-3">
-            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-12 h-12" alt="coin">
-            <span id="score" class="text-5xl font-black gold-glow">0</span>
-        </div>
-        <div class="mt-4 flex gap-4 justify-center">
-            <div class="bg-gray-900 border border-gray-800 rounded-full px-4 py-1 text-xs font-bold text-yellow-500">
-                Tık Başı: +<span id="tpc">1</span>
+    <header class="px-6 pt-4 shrink-0">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-600 flex items-center justify-center font-bold text-black text-xl">H</div>
+                <div>
+                    <h2 class="text-xs font-black uppercase tracking-widest">Hamster CEO</h2>
+                    <div class="flex items-center gap-1">
+                        <div class="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="bg-yellow-500 h-full w-1/3"></div>
+                        </div>
+                        <span class="text-[10px] text-gray-500">Lv 1/10</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-gray-900 border border-gray-800 rounded-full px-4 py-1 text-xs font-bold text-blue-400">
-                Lvl: <span id="lvl">1</span>
-            </div>
+            <div class="bg-gray-900 border border-gray-800 px-3 py-1 rounded-full text-[10px] font-bold text-yellow-500">BRONZ LİG ></div>
         </div>
-    </div>
 
-    <div class="relative">
-        <div id="tapTarget" class="tap-area">
-            <span class="text-[140px]">🐹</span>
-        </div>
-    </div>
-
-    <div class="w-full px-6 max-w-md">
-        <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center gap-2 font-black text-xl text-yellow-500">
-                <span>⚡</span>
-                <span id="energyText">1000</span>
-                <span class="text-gray-600 text-sm">/ 1000</span>
+        <div class="grid grid-cols-3 gap-2">
+            <div class="card-mine p-2 text-center border-b-2 border-yellow-500">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Tık Başı</p>
+                <p class="text-xs font-bold text-white">+<span id="tpcText">1</span></p>
             </div>
-            <button onclick="upgradeTap()" class="bg-yellow-600 hover:bg-yellow-500 text-black text-[10px] font-bold px-3 py-1 rounded-lg transition">
-                GELİŞTİR (500 💰)
-            </button>
+            <div class="card-mine p-2 text-center border-b-2 border-blue-500">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Limit</p>
+                <p class="text-xs font-bold text-white">1000</p>
+            </div>
+            <div class="card-mine p-2 text-center border-b-2 border-green-500">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Srk. Kar</p>
+                <p class="text-xs font-bold text-green-500">+<span id="tphText">0</span></p>
+            </div>
         </div>
+    </header>
+
+    <main class="flex-grow overflow-y-auto px-6 py-4">
         
-        <div class="w-full bg-gray-800 h-4 rounded-full p-1">
-            <div id="energyBar" class="progress-bar-fill h-full rounded-full" style="width: 100%"></div>
+        <div id="exchange" class="tab-content active items-center justify-around">
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-4xl">💰</span>
+                    <h1 id="score" class="text-5xl font-black font-game">0</h1>
+                </div>
+            </div>
+
+            <div id="tapBtn" class="hamster-btn w-72 h-72 rounded-full flex items-center justify-center relative">
+                <span class="text-[140px] select-none">🐹</span>
+            </div>
+
+            <div class="w-full max-w-sm">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-yellow-500 font-bold flex items-center gap-1">⚡ <span id="energy">1000</span> / 1000</span>
+                    <span class="text-gray-500 text-xs font-bold">Boost 🔥</span>
+                </div>
+                <div class="w-full bg-gray-900 h-3 rounded-full p-0.5 border border-white/5">
+                    <div id="energyFill" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full w-full rounded-full transition-all"></div>
+                </div>
+            </div>
         </div>
 
-        <p class="text-center text-gray-500 text-[10px] mt-6 font-medium italic">
-            "Tap to Earn" - Daha fazla kazanmak için tıkla ve geliştir!
-        </p>
-    </div>
+        <div id="mine" class="tab-content space-y-4">
+            <h2 class="text-xl font-black text-center mb-2">Pasif Gelir Kartları</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div onclick="buyItem('fan', 150, 20)" class="card-mine p-4 flex flex-col justify-between h-40">
+                    <span class="text-4xl">❄️</span>
+                    <h3 class="font-bold text-sm">Fan Sistemi</h3>
+                    <p class="text-[10px] text-green-500">+20/saat</p>
+                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 150</div>
+                </div>
+                <div onclick="buyItem('gpu', 1000, 150)" class="card-mine p-4 flex flex-col justify-between h-40">
+                    <span class="text-4xl">🖥️</span>
+                    <h3 class="font-bold text-sm">GPU Ünitesi</h3>
+                    <p class="text-[10px] text-green-500">+150/saat</p>
+                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 1,000</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="friends" class="tab-content items-center pt-10 text-center">
+            <span class="text-7xl mb-6">🤝</span>
+            <h2 class="text-2xl font-black">Arkadaşlarını Davet Et</h2>
+            <p class="text-gray-400 mt-2 text-sm px-10">Her davet için <span class="text-yellow-500 font-bold">5,000</span> coin kazanın!</p>
+            <button onclick="alert('Referans linki kopyalandı!')" class="mt-8 bg-blue-600 w-full py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-600/30">Arkadaşlarını Çağır</button>
+        </div>
+
+        <div id="earn" class="tab-content space-y-3">
+            <h2 class="text-xl font-black mb-4">Görevler</h2>
+            <div onclick="completeTask(this, 2000)" class="card-mine p-5 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">📺</span>
+                    <div><p class="font-bold text-sm">YouTube İzle</p><p class="text-xs text-yellow-500">+2,000 💰</p></div>
+                </div>
+                <span class="text-gray-500 font-bold">>></span>
+            </div>
+            <div onclick="completeTask(this, 1000)" class="card-mine p-5 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">✖️</span>
+                    <div><p class="font-bold text-sm">X'te Takip Et</p><p class="text-xs text-yellow-500">+1,000 💰</p></div>
+                </div>
+                <span class="text-gray-500 font-bold">>></span>
+            </div>
+        </div>
+
+    </main>
+
+    <nav class="shrink-0 bg-[#15161a] border-t border-white/5 px-2 py-4 flex justify-around items-center rounded-t-[35px]">
+        <div onclick="switchTab('exchange')" class="nav-item active flex flex-col items-center">
+            <span class="text-2xl">🏠</span><span class="text-[10px] font-bold mt-1">Borsa</span>
+        </div>
+        <div onclick="switchTab('mine')" class="nav-item flex flex-col items-center">
+            <span class="text-2xl">⛏️</span><span class="text-[10px] font-bold mt-1">Maden</span>
+        </div>
+        <div onclick="switchTab('friends')" class="nav-item flex flex-col items-center">
+            <span class="text-2xl">👥</span><span class="text-[10px] font-bold mt-1">Dostlar</span>
+        </div>
+        <div onclick="switchTab('earn')" class="nav-item flex flex-col items-center">
+            <span class="text-2xl">🪙</span><span class="text-[10px] font-bold mt-1">Kazan</span>
+        </div>
+    </nav>
 
     <script>
-        let score = parseInt(localStorage.getItem('h_score')) || 0;
-        let energy = 1000;
-        let maxEnergy = 1000;
-        let tapValue = parseInt(localStorage.getItem('h_tapValue')) || 1;
-        
-        const scoreEl = document.getElementById('score');
-        const energyEl = document.getElementById('energyText');
-        const energyBar = document.getElementById('energyBar');
-        const tpcEl = document.getElementById('tpc');
-        const tapTarget = document.getElementById('tapTarget');
+        // DURUM YÖNETİMİ
+        let state = JSON.parse(localStorage.getItem('hamster_pro_data')) || {
+            score: 0,
+            energy: 1000,
+            tpc: 1,
+            tph: 0
+        };
 
-        // Başlangıç Değerlerini Yükle
-        function init() {
-            scoreEl.innerText = score.toLocaleString();
-            tpcEl.innerText = tapValue;
-            updateEnergyUI();
+        const maxEnergy = 1000;
+
+        function save() { localStorage.setItem('hamster_pro_data', JSON.stringify(state)); }
+
+        function updateUI() {
+            document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
+            document.getElementById('energy').innerText = Math.floor(state.energy);
+            document.getElementById('energyFill').style.width = (state.energy / maxEnergy * 100) + '%';
+            document.getElementById('tpcText').innerText = state.tpc;
+            document.getElementById('tphText').innerText = state.tph.toLocaleString();
+            save();
         }
 
-        // Tıklama Olayı (Multi-touch destekli)
-        tapTarget.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Sayfa kaymasını engelle
-            
-            // Her bir parmak dokunuşu için işlem yap
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                handleTap(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+        // SEKME YÖNETİMİ
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // TIKLAMA (TAP TO EARN)
+        document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.touches.length; i++) {
+                if (state.energy >= state.tpc) {
+                    state.score += state.tpc;
+                    state.energy -= state.tpc;
+                    showEffect(e.touches[i].clientX, e.touches[i].clientY);
+                }
             }
+            updateUI();
         });
 
-        // Mouse ile test için (Opsiyonel)
-        tapTarget.addEventListener('mousedown', (e) => {
-            handleTap(e.clientX, e.clientY);
-        });
-
-        function handleTap(x, y) {
-            if (energy >= tapValue) {
-                // Skoru Artır
-                score += tapValue;
-                energy -= tapValue;
-
-                // UI Güncelle
-                scoreEl.innerText = score.toLocaleString();
-                updateEnergyUI();
-                
-                // Efekt Oluştur
-                createFloatingText(x, y);
-
-                // Veriyi Kaydet
-                localStorage.setItem('h_score', score);
-                
-                // Hafif Titreşim
-                if (navigator.vibrate) navigator.vibrate(10);
-            }
+        function showEffect(x, y) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = `+${state.tpc}`;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 700);
         }
 
-        function createFloatingText(x, y) {
-            const floating = document.createElement('div');
-            floating.className = 'floating-text';
-            floating.innerText = `+${tapValue}`;
-            floating.style.left = `${x - 20}px`;
-            floating.style.top = `${y - 40}px`;
-            
-            document.body.appendChild(floating);
-            
-            setTimeout(() => {
-                floating.remove();
-            }, 700);
-        }
-
-        function updateEnergyUI() {
-            energyEl.innerText = Math.floor(energy);
-            const percent = (energy / maxEnergy) * 100;
-            energyBar.style.width = percent + '%';
-        }
-
-        // Tıklama Değerini Geliştirme
-        function upgradeTap() {
-            if (score >= 500) {
-                score -= 500;
-                tapValue += 1;
-                localStorage.setItem('h_tapValue', tapValue);
-                tpcEl.innerText = tapValue;
-                scoreEl.innerText = score.toLocaleString();
-                alert("Başarılı! Tık başı kazancın arttı.");
+        // SATIN ALMA
+        function buyItem(id, cost, profit) {
+            if (state.score >= cost) {
+                state.score -= cost;
+                state.tph += profit;
+                alert('Başarıyla satın alındı!');
+                updateUI();
             } else {
-                alert("Yetersiz bakiye! 500 coin gerekiyor.");
+                alert('Yetersiz bakiye!');
             }
         }
 
-        // Enerji Yenilenmesi (Her saniye +3)
+        // GÖREVLER
+        function completeTask(el, reward) {
+            state.score += reward;
+            el.style.opacity = '0.4';
+            el.onclick = null;
+            el.innerHTML += " ✅";
+            updateUI();
+        }
+
+        // DÖNGÜ (PASİF GELİR VE ENERJİ)
         setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 3);
-                updateEnergyUI();
-            }
+            state.score += (state.tph / 3600);
+            if (state.energy < maxEnergy) state.energy = Math.min(maxEnergy, state.energy + 2);
+            updateUI();
         }, 1000);
 
-        init();
+        updateUI();
     </script>
 </body>
 </html>
