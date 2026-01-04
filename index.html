@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Player v4</title>
+    <title>Reels Pro - Etkileşimli</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #0b0b0b;
@@ -12,12 +12,10 @@
             overflow: hidden;
         }
 
-        /* Telefon Çerçevesi */
         .reels-wrapper {
             width: 100%; max-width: 380px; height: 90vh;
             position: relative; background: #000;
             border-radius: 40px; overflow: hidden; border: 6px solid #222;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
         }
 
         .reels-container {
@@ -27,9 +25,25 @@
         .reels-container::-webkit-scrollbar { display: none; }
 
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
-        video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Sağ Üst Ses Ayar Butonu */
+        /* Sağ Taraf Etkileşim Menüsü */
+        .side-bar {
+            position: absolute; right: 10px; bottom: 100px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 20px; z-index: 10;
+        }
+
+        .action-item {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .action-item:active { transform: scale(1.2); }
+        
+        .icon { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+        .count { font-size: 12px; font-weight: bold; margin-top: 2px; }
+
+        /* Üst Ses Butonu */
         .volume-toggle-btn {
             position: absolute; top: 25px; right: 20px;
             width: 45px; height: 45px; border-radius: 50%;
@@ -39,33 +53,17 @@
             backdrop-filter: blur(8px);
         }
 
-        /* Açılır Ses Paneli */
         .volume-panel {
             position: absolute; top: 80px; right: 20px;
             background: rgba(0, 0, 0, 0.85);
             padding: 20px 10px; border-radius: 20px;
             display: flex; flex-direction: column; align-items: center;
             gap: 12px; z-index: 100;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0; transform: scale(0.5) translateY(-20px);
-            pointer-events: none;
+            transition: 0.3s; opacity: 0; transform: scale(0.5); pointer-events: none;
         }
+        .volume-panel.active { opacity: 1; transform: scale(1); pointer-events: all; }
 
-        .volume-panel.active {
-            opacity: 1; transform: scale(1) translateY(0);
-            pointer-events: all;
-        }
-
-        .volume-slider {
-            -webkit-appearance: slider-vertical;
-            width: 12px; height: 150px; cursor: pointer;
-        }
-
-        /* Alt Bilgi Alanı */
-        .info-overlay { 
-            position: absolute; bottom: 30px; left: 20px; 
-            pointer-events: none; text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-        }
+        .info-overlay { position: absolute; bottom: 30px; left: 20px; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -74,75 +72,101 @@
     <button class="volume-toggle-btn" onclick="toggleVolumePanel()">🔊</button>
 
     <div class="volume-panel" id="volumePanel">
-        <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="0.5" oninput="updateVolume(this.value)">
-        <span id="volText" style="font-size: 12px; font-weight: bold;">50%</span>
+        <input type="range" style="-webkit-appearance: slider-vertical; height: 120px;" min="0" max="1" step="0.05" value="0.5" oninput="updateVolume(this.value)">
     </div>
 
-    <div class="reels-container" id="reelsContainer">
+    <div class="side-bar">
+        <div class="action-item" onclick="like(this)">
+            <span class="icon">🤍</span>
+            <span class="count">0</span>
         </div>
+        <div class="action-item" onclick="comment()">
+            <span class="icon">💬</span>
+            <span class="count">0</span>
+        </div>
+        <div class="action-item" onclick="save(this)">
+            <span class="icon">🔖</span>
+            <span class="count">0</span>
+        </div>
+        <div class="action-item">
+            <span class="icon">🚀</span>
+        </div>
+    </div>
+
+    <div class="reels-container" id="reelsContainer"></div>
 </div>
 
 <script>
-    // Klasöründeki 4 video
     const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4'];
     const container = document.getElementById('reelsContainer');
-    let globalVolume = 0.5;
+    let globalVol = 0.5;
 
-    // Ses panelini aç/kapat
-    function toggleVolumePanel() {
-        document.getElementById('volumePanel').classList.toggle('active');
-    }
+    function toggleVolumePanel() { document.getElementById('volumePanel').classList.toggle('active'); }
 
-    // Ses seviyesini güncelle
     function updateVolume(val) {
-        globalVolume = val;
-        document.getElementById('volText').innerText = Math.round(val * 100) + "%";
-        document.querySelectorAll('video').forEach(v => {
-            v.volume = val;
-            v.muted = (val == 0);
-        });
+        globalVol = val;
+        document.querySelectorAll('video').forEach(v => { v.volume = val; v.muted = (val == 0); });
     }
 
-    // Video kartı oluştur
-    function renderVideos() {
-        videoList.forEach((file, index) => {
+    // Beğeni Fonksiyonu
+    function like(el) {
+        const icon = el.querySelector('.icon');
+        const count = el.querySelector('.count');
+        if (icon.innerText === '🤍') {
+            icon.innerText = '❤️';
+            count.innerText = parseInt(count.innerText) + 1;
+        } else {
+            icon.innerText = '🤍';
+            count.innerText = parseInt(count.innerText) - 1;
+        }
+    }
+
+    // Kaydetme Fonksiyonu
+    function save(el) {
+        const icon = el.querySelector('.icon');
+        const count = el.querySelector('.count');
+        if (icon.innerText === '🔖') {
+            icon.style.color = '#ffd700'; // Altın rengi
+            count.innerText = parseInt(count.innerText) + 1;
+            icon.innerText = '📑';
+        } else {
+            icon.style.color = 'white';
+            count.innerText = parseInt(count.innerText) - 1;
+            icon.innerText = '🔖';
+        }
+    }
+
+    function comment() {
+        alert("Yorum özelliği yakında eklenecek!");
+    }
+
+    function render() {
+        videoList.forEach((file, i) => {
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
                 <video src="${file}" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
                 <div class="info-overlay">
-                    <h4 style="margin:0;">Reels #${index + 1}</h4>
-                    <p style="margin:5px 0 0; font-size:13px; opacity:0.7;">Sonsuz Döngü Aktif</p>
-                </div>
-            `;
+                    <h4>Video #${i+1}</h4>
+                    <p>@kullanici</p>
+                </div>`;
             container.appendChild(card);
         });
     }
 
-    // Kaydırma ve Otomatik Oynatma
     container.addEventListener('scroll', () => {
-        // Sonsuz döngü: Sona gelince tekrar yükle
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
-            renderVideos();
-        }
-
-        const videos = document.querySelectorAll('video');
-        videos.forEach(v => {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) render();
+        
+        document.querySelectorAll('video').forEach(v => {
             const pos = v.getBoundingClientRect();
-            // Video tam ekrandaysa oynat, değilse durdur
             if (pos.top >= -100 && pos.bottom <= window.innerHeight + 100) {
                 v.play().catch(() => {});
-                v.volume = globalVolume;
-            } else {
-                v.pause();
-            }
+                v.volume = globalVol;
+            } else { v.pause(); }
         });
     });
 
-    // Başlat
-    renderVideos();
-
-    // Tarayıcı kısıtlamasını aşmak için ilk tıkla sesi aktif et
+    render();
     window.addEventListener('click', () => {
         document.querySelectorAll('video').forEach(v => v.muted = false);
     }, { once: true });
