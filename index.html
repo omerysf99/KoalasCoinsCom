@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Pro - 100 Video Döngüsü</title>
+    <title>Reels Pro - 100 Video & Akıllı Tık</title>
     <style>
         body { margin: 0; padding: 0; background-color: #0b0b0b; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: white; overflow: hidden; }
         .reels-wrapper { width: 100%; max-width: 380px; height: 90vh; position: relative; background: #000; border-radius: 40px; overflow: hidden; border: 6px solid #222; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .reels-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
         .reels-container::-webkit-scrollbar { display: none; }
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
-        video { width: 100%; height: 100%; object-fit: cover; }
+        video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
 
         /* Ses Kontrolleri */
         .master-volume-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: rgba(0,0,0,0.5); border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 18px; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .volume-slider-wrapper { position: absolute; top: 70px; right: 20px; background: rgba(0,0,0,0.7); padding: 15px 5px; border-radius: 20px; display: none; flex-direction: column; align-items: center; z-index: 99; }
-        .master-volume-btn:hover + .volume-slider-wrapper, .volume-slider-wrapper:hover { display: flex; }
-        .v-slider { -webkit-appearance: slider-vertical; width: 8px; height: 100px; cursor: pointer; }
 
         /* Yan Menü */
         .side-bar { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
@@ -36,9 +33,6 @@
 
 <div class="reels-wrapper">
     <button class="master-volume-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-    <div class="volume-slider-wrapper">
-        <input type="range" class="v-slider" min="0" max="1" step="0.1" value="0.5" oninput="setGlobalVolume(this.value)">
-    </div>
     <div id="heartPop" class="heart-animation">❤️</div>
     <div class="reels-container" id="reelsContainer"></div>
 </div>
@@ -47,8 +41,9 @@
     const container = document.getElementById('reelsContainer');
     let globalVolume = 0.5;
     let isMuted = false;
+    let clickTimer = null; // Tek ve çift tıkı ayırt etmek için
 
-    // 1'den 100'e kadar olan videoları içeren dizi oluşturma
+    // 1'den 100'e kadar olan videolar
     const videoList = [];
     for (let i = 1; i <= 100; i++) {
         videoList.push(`reels${i}.mp4`);
@@ -60,33 +55,54 @@
         document.querySelectorAll('video').forEach(v => { v.muted = isMuted; });
     }
 
-    function setGlobalVolume(val) {
-        globalVolume = val;
-        isMuted = (val == 0);
-        document.getElementById('muteBtn').innerText = isMuted ? '🔇' : '🔊';
-        document.querySelectorAll('video').forEach(v => {
-            v.volume = val;
-            v.muted = isMuted;
-        });
+    // Tıklama Yönetimi (Single vs Double)
+    function handleVideoClick(videoElement, index) {
+        if (clickTimer == null) {
+            // İlk tıklama: Beklemeye al
+            clickTimer = setTimeout(() => {
+                // Eğer 250ms içinde ikinci tık gelmezse: Oynat/Durdur
+                if (videoElement.paused) videoElement.play();
+                else videoElement.pause();
+                clickTimer = null;
+            }, 250);
+        } else {
+            // İkinci tıklama 250ms içinde geldi: Çift Tık (Like)
+            clearTimeout(clickTimer);
+            clickTimer = null;
+            toggleLike(index, true); // Sadece beğenme modunda çalıştır
+        }
     }
 
-    function toggleLike(index) {
+    function toggleLike(index, forceLike = false) {
         const key = `liked_video_${index}`;
         const isLiked = localStorage.getItem(key) === 'true';
         const heartIcon = document.querySelectorAll('.like-icon')[index];
         const countEl = document.querySelectorAll('.like-count')[index];
         
+        // Eğer çift tıklandıysa ve zaten beğenildiyse tekrar sayı artmasın (sadece animasyon çıksın)
+        if (forceLike && isLiked) {
+            playHeartAnim();
+            return;
+        }
+
         if (!isLiked) {
             localStorage.setItem(key, 'true');
             countEl.innerText = parseInt(countEl.innerText) + 1;
             heartIcon.innerText = '❤️';
-            const pop = document.getElementById('heartPop');
-            pop.classList.remove('animate-heart'); void pop.offsetWidth; pop.classList.add('animate-heart');
-        } else {
+            playHeartAnim();
+        } else if (!forceLike) {
+            // Sadece butona basınca beğeniyi geri çekme
             localStorage.removeItem(key);
             countEl.innerText = parseInt(countEl.innerText) - 1;
             heartIcon.innerText = '🤍';
         }
+    }
+
+    function playHeartAnim() {
+        const pop = document.getElementById('heartPop');
+        pop.classList.remove('animate-heart');
+        void pop.offsetWidth; 
+        pop.classList.add('animate-heart');
     }
 
     function render() {
@@ -95,7 +111,7 @@
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <video src="${file}" loop playsinline ondblclick="toggleLike(${i})"></video>
+                <video src="${file}" loop playsinline onclick="handleVideoClick(this, ${i})"></video>
                 <div class="side-bar">
                     <div class="action-item" onclick="toggleLike(${i})">
                         <span class="icon like-icon">${isLiked ? '❤️' : '🤍'}</span>
@@ -106,7 +122,7 @@
                 </div>
                 <div class="info-overlay">
                     <h4 style="margin:0;">Video #${i+1}</h4>
-                    <p style="margin:5px 0 0; font-size:12px;">Sonsuz Keşfet Modu</p>
+                    <p style="margin:5px 0 0; font-size:12px;">Durdurmak için 1, beğenmek için 2 tık!</p>
                 </div>
             `;
             container.appendChild(card);
