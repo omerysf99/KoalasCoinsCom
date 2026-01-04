@@ -3,191 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Pro - PC & Mobil</title>
+    <title>YouTube Shorts Reels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Başlangıç Ayarları */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; display: flex; justify-content: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
         
-        body {
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* PC için dikey çerçeve */
-        .reels-wrapper {
-            width: 100%;
-            max-width: 420px; /* PC'de telefon genişliği */
-            height: 100vh;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Kaydırma Alanı */
-        .reels-container {
-            width: 100%;
-            height: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
+        .reels-wrapper { width: 100%; max-width: 420px; height: 100vh; position: relative; background: #000; }
+        .reels-container { width: 100%; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         .reels-container::-webkit-scrollbar { display: none; }
 
-        .reel {
-            width: 100%;
-            height: 100%;
-            scroll-snap-align: start;
-            position: relative;
-        }
+        .reel { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; }
+        
+        /* YouTube iframe ayarı */
+        iframe { width: 100%; height: 100%; pointer-events: auto; border: none; }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Sol Alt Bilgiler */
-        .video-info {
-            position: absolute;
-            bottom: 20px;
-            left: 15px;
-            color: white;
-            z-index: 10;
-            width: 70%;
-        }
-        .video-info h3 { font-size: 16px; margin-bottom: 5px; }
-        .video-info p { font-size: 14px; opacity: 0.9; }
-
-        /* Sağ Etkileşim Butonları */
-        .side-bar {
-            position: absolute;
-            right: 10px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            z-index: 20;
-        }
-
-        .action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            cursor: pointer;
-            background: none;
-            border: none;
-            transition: transform 0.1s;
-        }
-        .action-btn:active { transform: scale(0.9); }
-        .action-btn i { font-size: 28px; margin-bottom: 5px; }
-        .action-btn span { font-size: 12px; }
-
-        /* Başlat Butonu */
-        #start-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            cursor: pointer;
-        }
+        .side-bar { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 20; }
+        .action-btn { display: flex; flex-direction: column; align-items: center; color: white; cursor: pointer; }
+        .action-btn i { font-size: 26px; }
+        .video-info { position: absolute; bottom: 30px; left: 15px; color: white; z-index: 10; width: 75%; }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
 <div class="reels-wrapper">
-    <div id="start-overlay" onclick="startReels()">
-        <i class="fas fa-play" style="font-size: 50px; margin-bottom: 10px;"></i>
-        <p>İzlemek için Dokun</p>
-    </div>
-
-    <div class="reels-container" id="container">
-        <div class="reel">
-            <video src="reels1.mp4" loop playsinline></video>
-            <div class="side-bar">
-                <div class="action-btn" onclick="like(this)"><i class="fas fa-heart"></i><span>1.2K</span></div>
-                <div class="action-btn"><i class="fas fa-comment"></i><span>85</span></div>
-                <div class="action-btn" onclick="save(this)"><i class="fas fa-bookmark"></i><span>240</span></div>
-                <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
-            </div>
-            <div class="video-info">
-                <h3>@kullanici_1</h3>
-                <p>Harika bir video açıklaması burada yer alır... #keşfet</p>
-            </div>
+    <div class="reels-container" id="reels-content">
         </div>
-
-        <div class="reel">
-            <video src="reels2.mp4" loop playsinline></video>
-            <div class="side-bar">
-                <div class="action-btn" onclick="like(this)"><i class="fas fa-heart"></i><span>450</span></div>
-                <div class="action-btn"><i class="fas fa-comment"></i><span>12</span></div>
-                <div class="action-btn" onclick="save(this)"><i class="fas fa-bookmark"></i><span>50</span></div>
-                <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
-            </div>
-            <div class="video-info">
-                <h3>@kullanici_2</h3>
-                <p>Müzik ve dikey video uyumu! 🔊</p>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
-    const videos = document.querySelectorAll('video');
-    const overlay = document.getElementById('start-overlay');
+    const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+    const container = document.getElementById('reels-content');
 
-    function startReels() {
-        overlay.style.display = 'none';
-        videos.forEach(v => v.muted = false);
-        videos[0].play();
-    }
+    async function fetchShorts() {
+        try {
+            // YouTube API: Shorts benzeri kısa videoları arar
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=shorts+trending&type=video&videoDuration=short&key=${API_KEY}`);
+            const data = await response.json();
 
-    // Beğeni fonksiyonu
-    function like(btn) {
-        const icon = btn.querySelector('i');
-        icon.classList.toggle('fas'); // Dolu kalp
-        if(icon.style.color === 'red') {
-            icon.style.color = 'white';
-        } else {
-            icon.style.color = 'red';
+            data.items.forEach(item => {
+                const videoId = item.id.videoId;
+                const title = item.snippet.title;
+                const channel = item.snippet.channelTitle;
+
+                const reelHtml = `
+                    <div class="reel">
+                        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&loop=1&playlist=${videoId}&modestbranding=1&rel=0" 
+                                allow="autoplay; encrypted-media"></iframe>
+                        <div class="side-bar">
+                            <div class="action-btn"><i class="fas fa-heart"></i><span>Like</span></div>
+                            <div class="action-btn"><i class="fas fa-comment"></i><span>Yorum</span></div>
+                            <div class="action-btn"><i class="fas fa-bookmark"></i><span>Kaydet</span></div>
+                        </div>
+                        <div class="video-info">
+                            <h3>@${channel}</h3>
+                            <p>${title}</p>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += reelHtml;
+            });
+        } catch (error) {
+            console.error("Hata:", error);
+            container.innerHTML = "<p style='color:white; text-align:center; margin-top:50px;'>Videolar yüklenemedi. API anahtarını kontrol et.</p>";
         }
     }
 
-    // Kaydetme fonksiyonu
-    function save(btn) {
-        const icon = btn.querySelector('i');
-        if(icon.style.color === 'yellow') {
-            icon.style.color = 'white';
-        } else {
-            icon.style.color = 'yellow';
-        }
-    }
-
-    // Scroll takipçisi
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.play();
-            } else {
-                entry.target.pause();
-                entry.target.currentTime = 0;
-            }
-        });
-    }, { threshold: 0.8 });
-
-    videos.forEach(v => observer.observe(v));
+    fetchShorts();
 </script>
 
 </body>
