@@ -3,132 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Mini | Infinite Loop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Telegram & TikTok Bot Kontrol Paneli</title>
     <style>
-        body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        
-        /* Küçültülmüş Uygulama Kasası */
-        .phone-shell {
-            width: 340px; height: 680px;
-            background: #000; border: 10px solid #1a1a1a;
-            border-radius: 40px; position: relative; overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-        }
-
-        #videoFeed {
-            height: 100%; overflow-y: scroll;
-            scroll-snap-type: y mandatory; scrollbar-width: none;
-            scroll-behavior: smooth;
-        }
-        #videoFeed::-webkit-scrollbar { display: none; }
-
-        .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
-        iframe { width: 100%; height: 100%; pointer-events: none; border: none; transform: scale(1.02); }
-
-        /* TikTok UI Katmanları */
-        .overlay { position: absolute; bottom: 80px; left: 12px; right: 70px; z-index: 10; pointer-events: none; }
-        .side-bar { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 20; }
-        
-        .badge { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: white; margin-bottom: 5px; display: inline-block; }
-        .spin-disc { width: 38px; height: 38px; border-radius: 50%; background: #222; border: 4px solid #111; animation: spin 4s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 10px; margin-bottom: 20px; border-radius: 4px; }
+        .online { background: #d4edda; color: #155724; }
+        .log-area { background: #333; color: #fff; padding: 10px; height: 200px; overflow-y: scroll; font-size: 12px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="phone-shell">
-        <div class="absolute top-6 w-full flex justify-center gap-6 z-50 font-bold text-xs text-white shadow-black">
-            <span class="opacity-50">Takip Edilen</span>
-            <span class="border-b-2 border-white pb-1">Sizin İçin</span>
-        </div>
+<div class="container">
+    <h2>Bot Durumu: <span id="statusText">Kapalı</span></h2>
+    <p>Görseldeki TikTok bilgilerini ve Telegram Token'ınızı aşağıya girin:</p>
+    
+    <input type="text" id="tgToken" placeholder="Telegram Bot Token (BotFather'dan)" style="width: 100%; margin-bottom: 10px;">
+    <input type="text" id="ttKey" value="aw01joj8wk4rnll9" style="width: 100%; margin-bottom: 10px;" placeholder="TikTok Client Key">
+    <input type="text" id="ttSecret" value="U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91" style="width: 100%; margin-bottom: 10px;" placeholder="TikTok Client Secret">
+    
+    <button onclick="startBot()" id="startBtn">Botu Başlat</button>
 
-        <div id="videoFeed"></div>
-
-        <nav class="absolute bottom-0 w-full bg-gradient-to-t from-black flex justify-around items-center py-4 z-50 border-t border-white/5">
-            <i class="fas fa-home text-white text-lg"></i>
-            <i class="fas fa-search text-zinc-500 text-lg"></i>
-            <div class="bg-white text-black px-3 py-0.5 rounded-md font-bold text-lg">+</div>
-            <i class="fas fa-comment text-zinc-500 text-lg"></i>
-            <i class="fas fa-user text-zinc-500 text-lg"></i>
-        </nav>
+    <div style="margin-top: 20px;">
+        <strong>İşlem Kayıtları:</strong>
+        <div id="log" class="log-area"></div>
     </div>
+</div>
 
-    <script>
-        // Görsellerden alınan API Bilgileri (Güvenlik için Client Secret sadece backend'de kullanılmalıdır)
-        const CREDENTIALS = {
-            clientKey: "aw01joj8wk4rnll9",
-            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
-        };
+<script>
+    let lastUpdateId = 0;
+    let isRunning = false;
 
-        // Hatasız Türkçe Shorts Havuzu
-        const trVideoPool = ['z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I', 'MHdXBqhhchQ', '-7Zrp6pwyMY', 'S5Z1_YI00Gg', 'O07T9_5VIRI', 'sxmTTS4qros'];
-        const sehirler = ["İstanbul", "Ankara", "İzmir", "Antalya", "Bursa"];
-        const users = ["akım_tr", "gezgincin", "komedi_hane", "spor_aktif", "chef_ali"];
+    function log(msg) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML += `> ${new Date().toLocaleTimeString()}: ${msg}<br>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
 
-        let masterIdx = 0;
-        const feed = document.getElementById('videoFeed');
+    async function startBot() {
+        const token = document.getElementById('tgToken').value;
+        if (!token) { alert("Lütfen Telegram Token girin!"); return; }
+        
+        isRunning = true;
+        document.getElementById('statusText').innerText = "Çalışıyor...";
+        document.getElementById('statusText').className = "online";
+        log("Bot başlatıldı, mesajlar bekleniyor...");
+        
+        pollTelegram();
+    }
 
-        // SONSUZ VİDEO EKLEME MOTORU
-        function appendVideos(count = 5) {
-            for(let i = 0; i < count; i++) {
-                const vidId = trVideoPool[masterIdx % trVideoPool.length];
-                const user = users[Math.floor(Math.random() * users.length)];
-                const city = sehirler[Math.floor(Math.random() * sehirler.length)];
-                
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                card.innerHTML = `
-                    <div class="w-full h-full relative">
-                        <iframe id="vid-${masterIdx}" src="https://www.youtube-nocookie.com/embed/${vidId}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${vidId}&modestbranding=1"></iframe>
-                        
-                        <div class="overlay">
-                            <span class="badge"><i class="fas fa-location-dot text-red-500"></i> ${city}</span>
-                            <h3 class="font-bold text-white text-sm">@${user}_${masterIdx}</h3>
-                            <p class="text-[10px] text-white/80 mt-1">API Key ${CREDENTIALS.clientKey.substring(0,6)}... Aktif 🚀 #trend #2026</p>
-                        </div>
+    async function pollTelegram() {
+        const token = document.getElementById('tgToken').value;
+        if (!isRunning) return;
 
-                        <div class="side-bar">
-                            <div class="relative"><img src="https://i.pravatar.cc/100?u=${masterIdx}" class="w-10 h-10 rounded-full border-2 border-white"></div>
-                            <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl text-white"></i><span class="text-[9px] text-white mt-0.5">24K</span></div>
-                            <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl text-white"></i><span class="text-[9px] text-white mt-0.5">800</span></div>
-                            <div class="spin-disc"></div>
-                        </div>
-                    </div>
-                `;
-                feed.appendChild(card);
-                masterIdx++;
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates?offset=${lastUpdateId + 1}`);
+            const data = await response.json();
+
+            if (data.result && data.result.length > 0) {
+                for (let update of data.result) {
+                    lastUpdateId = update.update_id;
+                    handleMessage(update.message);
+                }
             }
-            refreshObserver();
+        } catch (error) {
+            log("Hata: " + error.message);
         }
 
-        // AKILLI OYNATICI (Intersection Observer)
-        let observer;
-        function refreshObserver() {
-            if (observer) observer.disconnect();
-            observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const iframe = entry.target.querySelector('iframe');
-                    if (entry.isIntersecting) {
-                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                    } else {
-                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    }
-                });
-            }, { threshold: 0.8 });
-            document.querySelectorAll('.video-card').forEach(v => observer.observe(v));
+        setTimeout(pollTelegram, 3000); // 3 saniyede bir yeni mesaj kontrolü
+    }
+
+    async function handleMessage(msg) {
+        if (!msg || !msg.text) return;
+        
+        const chatId = msg.chat.id;
+        const text = msg.text;
+        log(`Mesaj geldi: ${text}`);
+
+        // Örnek: Eğer mesaj /tiktok ise TikTok API'sine bir istek simülasyonu yap
+        if (text.startsWith("/tiktok")) {
+            sendTelegramMessage(chatId, "TikTok verisi sorgulanıyor (API Key kullanılarak)...");
+            
+            // Burada TikTok API'sine istek atılabilir. 
+            // TikTok API'leri genellikle OAuth gerektirir, bu basit örnekte mantığı gösteriyoruz:
+            log("TikTok Client Key kullanılarak istek hazırlanıyor...");
+            
+            // Simülasyon cevabı
+            setTimeout(() => {
+                sendTelegramMessage(chatId, "TikTok Bağlantısı Başarılı! Key: " + document.getElementById('ttKey').value);
+            }, 1000);
+        } else {
+            sendTelegramMessage(chatId, "Merhaba! TikTok bilgilerini sorgulamak için /tiktok yazabilirsin.");
         }
+    }
 
-        // SONSUZ KAYDIRMA TETİKLEYİCİSİ
-        feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 600) {
-                appendVideos(3);
-            }
-        });
+    async function sendTelegramMessage(chatId, text) {
+        const token = document.getElementById('tgToken').value;
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
+    }
+</script>
 
-        // İLK YÜKLEME
-        appendVideos(5);
-    </script>
 </body>
 </html>
