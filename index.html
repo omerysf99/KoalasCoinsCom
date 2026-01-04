@@ -3,57 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Mobile 2026</title>
+    <title>YouTube Mobile 2026 | Spaced UI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --tg-bg: #0f0f0f; --tg-header: #1c1c1c; --yt-red: #ff0000; --accent: #3390ec; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--tg-bg); color: #fff; font-family: "Roboto", sans-serif; overflow-x: hidden; }
-
-        /* TELEGRAM STİL HEADER */
-        header { 
-            height: 60px; background: var(--tg-header); display: flex; align-items: center; 
-            padding: 0 16px; position: fixed; width: 100%; top: 0; z-index: 2000; gap: 20px;
+        
+        /* ÜSTTE 1CM BOŞLUK */
+        body { 
+            background: #000; /* En üstteki boşluk için siyah arka plan */
+            padding-top: 1cm; 
+            margin: 0; 
+            color: #fff; 
+            font-family: "Roboto", sans-serif; 
+            overflow-x: hidden; 
         }
-        .menu-toggle { font-size: 22px; cursor: pointer; color: #aaa; }
 
-        /* TELEGRAM SOL MENÜ (DRAWER) */
+        /* HEADER (1cm boşluğun altına sabitlendi) */
+        header { 
+            height: 60px; 
+            background: var(--tg-header); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 16px; 
+            position: fixed; 
+            width: 100%; 
+            top: 1cm; /* Header boşluktan sonra başlar */
+            z-index: 2000; 
+            gap: 20px;
+        }
+
+        /* TELEGRAM STİL DRAWER */
         .sidebar-drawer {
             position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
-            background: #17212b; z-index: 3000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #17212b; z-index: 3000; transition: 0.3s ease;
             box-shadow: 10px 0 20px rgba(0,0,0,0.5);
         }
         .sidebar-drawer.active { left: 0; }
-        .drawer-header { background: #242f3d; padding: 20px; }
+        .drawer-header { background: #242f3d; padding: 40px 20px 20px; }
         .user-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(45deg, #2a9df4, #1271e1); margin-bottom: 15px; }
-        .drawer-item { display: flex; align-items: center; gap: 25px; padding: 14px 20px; cursor: pointer; color: #eff3f7; font-weight: 500; }
-        .drawer-item:hover { background: rgba(255,255,255,0.05); }
-        .drawer-item i { color: #808d9a; width: 20px; font-size: 18px; }
 
-        /* REKLAM ALANI (Görseldekine Uygun) */
+        /* ANA AKIŞ VE REKLAMLAR */
+        .main-flow { 
+            margin-top: calc(60px + 0.5cm); /* Header + ekstra biraz boşluk */
+            padding: 10px; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            background: var(--tg-bg);
+            min-height: 100vh;
+        }
+
         .ad-container { 
             background: #1e1e1e; border-radius: 12px; margin: 15px 0; overflow: hidden;
             border: 1px solid #333; position: relative;
         }
-        .ad-badge { background: #fbc02d; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; position: absolute; top: 10px; left: 10px; }
-        .ad-content { display: flex; gap: 15px; padding: 15px; }
-        .ad-banner { width: 120px; height: 70px; border-radius: 8px; object-fit: cover; }
-        .ad-button { background: #3390ec; color: white; border: none; padding: 8px 15px; border-radius: 6px; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        .ad-badge { background: #fbc02d; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; position: absolute; top: 10px; left: 10px; }
+        .ad-button { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; width: 100%; }
 
-        /* ANA AKIŞ */
-        .main-flow { margin-top: 60px; padding: 10px; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .video-card { margin-bottom: 25px; }
+        .video-card { margin-bottom: 25px; cursor: pointer; }
         .video-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; }
         .video-info { display: flex; gap: 12px; margin-top: 10px; }
-        .v-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; }
-        
-        /* OVERLAY SİYAH EKRAN */
-        .overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.5); display: none; z-index: 2500; 
-        }
-        .overlay.active { display: block; }
+        .v-avatar { width: 38px; height: 38px; border-radius: 50%; background: #333; flex-shrink: 0; }
 
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 2500; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
@@ -61,8 +74,8 @@
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
 <header>
-    <i class="fas fa-bars menu-toggle" onclick="toggleMenu()"></i>
-    <div style="font-weight:bold; font-size:20px;">YouTube</div>
+    <i class="fas fa-bars" style="font-size: 20px; color: #aaa; cursor:pointer;" onclick="toggleMenu()"></i>
+    <div style="font-weight:bold; font-size:19px; letter-spacing: -0.5px;">YouTube</div>
     <div style="margin-left: auto; display: flex; gap: 20px; color: #aaa;">
         <i class="fas fa-search"></i>
         <i class="fas fa-ellipsis-v"></i>
@@ -72,32 +85,35 @@
 <div class="sidebar-drawer" id="drawer">
     <div class="drawer-header">
         <div class="user-avatar"></div>
-        <div style="font-weight:bold;">Gemini User</div>
-        <div style="font-size:13px; color: #808d9a; margin-top: 4px;">@yt_mobile_2026</div>
+        <div style="font-weight:bold; font-size: 16px;">Kullanıcı Adı</div>
+        <div style="font-size:13px; color: #808d9a; margin-top: 4px;">+90 5XX XXX XX XX</div>
     </div>
-    <div class="drawer-item" onclick="toggleMenu()"><i class="fas fa-home"></i> Ana Sayfa</div>
-    <div class="drawer-item"><i class="fas fa-bolt"></i> Shorts</div>
-    <div class="drawer-item"><i class="fas fa-layer-group"></i> Abonelikler</div>
-    <hr style="border:0; border-top:1px solid #232e3c; margin: 10px 0;">
-    <div class="drawer-item"><i class="fas fa-folder"></i> Kitaplık</div>
-    <div class="drawer-item"><i class="fas fa-history"></i> Geçmiş</div>
-    <div class="drawer-item"><i class="fas fa-cog"></i> Ayarlar</div>
+    <div class="drawer-item" style="padding: 15px 20px; display: flex; align-items: center; gap: 25px;">
+        <i class="fas fa-home" style="color: #808d9a;"></i> Ana Sayfa
+    </div>
+    <div class="drawer-item" style="padding: 15px 20px; display: flex; align-items: center; gap: 25px;">
+        <i class="fas fa-bolt" style="color: #808d9a;"></i> Shorts
+    </div>
+    <div class="drawer-item" style="padding: 15px 20px; display: flex; align-items: center; gap: 25px;">
+        <i class="fas fa-bookmark" style="color: #808d9a;"></i> Kaydedilenler
+    </div>
 </div>
 
 <main class="main-flow" id="content">
     <div class="ad-container">
         <div class="ad-badge">Sponsorlu</div>
-        <div class="ad-content">
-            <img src="https://picsum.photos/200/120?sig=99" class="ad-banner">
-            <div style="flex:1;">
-                <div style="font-weight:bold; font-size:14px;">Pro Modu Aç, Verimi Artır!</div>
-                <div style="font-size:12px; color:#aaa; margin-top:4px;">Yıllık abonelikle sınırsız özelliklere hemen sahip ol.</div>
-                <button class="ad-button">İndir</button>
+        <div style="display: flex; gap: 15px; padding: 15px;">
+            <img src="https://picsum.photos/300/200?sig=ad1" style="width: 100px; height: 60px; border-radius: 6px; object-fit: cover;">
+            <div style="flex: 1;">
+                <div style="font-weight: bold; font-size: 14px;">YouTube Premium'u Deneyin</div>
+                <div style="font-size: 12px; color: #aaa;">Reklamsız ve çevrimdışı izleme özelliği.</div>
+                <button class="ad-button">Hemen Katıl</button>
             </div>
         </div>
     </div>
 
-    <div id="video-list"></div>
+    <div id="video-list">
+        </div>
 </main>
 
 <script>
@@ -108,46 +124,38 @@
         document.getElementById('overlay').classList.toggle('active');
     }
 
-    async function loadVideos() {
+    async function fetchVideos() {
         const list = document.getElementById('video-list');
         try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=türkçe+trend&type=video&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=trending&type=video&key=${API_KEY}`);
             const data = await res.json();
             
-            list.innerHTML = '';
-            data.items.forEach((item, index) => {
-                // Her 3 videoda bir reklam ekle
-                if(index === 3) {
-                    list.innerHTML += `
-                        <div class="ad-container">
-                            <div class="ad-badge">Sponsorlu</div>
-                            <div class="ad-content">
-                                <div style="flex:1;">
-                                    <div style="font-weight:bold;">Trader Master 2026</div>
-                                    <div style="font-size:12px; color:#aaa;">Yatırımlarınızı profesyonelce yönetin.</div>
-                                    <button class="ad-button" style="background:#00c853;">Kayıt Ol</button>
-                                </div>
-                                <img src="https://picsum.photos/200/120?sig=101" class="ad-banner">
-                            </div>
-                        </div>`;
-                }
-
-                list.innerHTML += `
-                    <div class="video-card">
-                        <img src="${item.snippet.thumbnails.high.url}" class="video-thumb">
-                        <div class="video-info">
-                            <div class="v-avatar"></div>
-                            <div>
-                                <div style="font-weight:500; font-size:15px; line-height:1.3;">${item.snippet.title}</div>
-                                <div style="font-size:13px; color:#aaa; margin-top:4px;">${item.snippet.channelTitle} • 2 saat önce</div>
-                            </div>
+            list.innerHTML = data.items.map((v, index) => `
+                <div class="video-card">
+                    <img src="${v.snippet.thumbnails.high.url}" class="video-thumb">
+                    <div class="video-info">
+                        <div class="v-avatar"></div>
+                        <div>
+                            <div style="font-weight:500; font-size:15px; line-height:1.2;">${v.snippet.title}</div>
+                            <div style="font-size:13px; color:#aaa; margin-top:5px;">${v.snippet.channelTitle} • 1 Mn izlenme</div>
                         </div>
-                    </div>`;
-            });
-        } catch(e) { list.innerHTML = "Kota doldu."; }
+                    </div>
+                </div>
+                ${index === 2 ? `
+                    <div class="ad-container">
+                        <div class="ad-badge">Sponsorlu</div>
+                        <div style="padding: 15px;">
+                            <div style="font-weight: bold;">Modern Yatırım Dünyası</div>
+                            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Geleceğinizi bugünden inşa etmeye başlayın.</p>
+                            <img src="https://picsum.photos/600/300?sig=ad2" style="width: 100%; border-radius: 8px; margin-top: 10px;">
+                        </div>
+                    </div>
+                ` : ''}
+            `).join('');
+        } catch(e) { list.innerHTML = "İçerik yüklenirken bir hata oluştu."; }
     }
 
-    loadVideos();
+    fetchVideos();
 </script>
 </body>
 </html>
