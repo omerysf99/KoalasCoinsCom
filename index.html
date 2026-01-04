@@ -2,153 +2,102 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Shorts</title>
-    <script src="https://tg.dev/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Reels Bot</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #000; 
+            font-family: sans-serif; 
+            overflow: hidden; 
         }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* Kaydırma Kapsayıcısı */
-        .shorts-container {
-            width: 100%;
+        /* Reels Konteyner */
+        .reels-container {
             height: 100vh;
-            overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none;
+            overflow-y: scroll;
         }
-
-        .shorts-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Video Kartı */
-        .video-card {
-            width: 100%;
+        /* Her bir video alanı */
+        .reel {
             height: 100vh;
+            width: 100%;
             scroll-snap-align: start;
             position: relative;
-            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Videoyu ekrana tam yayar */
         }
-
-        /* Sağ Taraftaki Butonlar (Beğen, Paylaş vs.) */
-        .side-bar {
+        /* Sağ alt butonlar (Instagram tarzı) */
+        .actions {
             position: absolute;
             right: 15px;
             bottom: 100px;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            align-items: center;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
             color: white;
-            font-size: 24px;
-            cursor: pointer;
+            text-align: center;
         }
-
-        /* Alt Bilgi Alanı */
-        .bottom-info {
-            position: absolute;
-            bottom: 30px;
-            left: 15px;
-            right: 80px;
-        }
-
-        .username { font-weight: bold; margin-bottom: 5px; }
-        .description { font-size: 14px; opacity: 0.9; }
-
+        .action-btn { font-size: 24px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="shorts-container" id="container">
-        <div class="video-card">
-            <video src="videoplayback.mp4" loop playsinline></video>
-            <div class="side-bar">
-                <button class="icon-btn" onclick="tgAlert('Beğenildi!')">❤️</button>
-                <button class="icon-btn" onclick="tgAlert('Yorumlar Yakında')">💬</button>
-                <button class="icon-btn" onclick="tgAlert('Paylaşılıyor...')">✈️</button>
-            </div>
-            <div class="bottom-info">
-                <div class="username">@kanal_adi</div>
-                <div class="description">Telegram Mini App Shorts Denemesi! 🚀</div>
-            </div>
-        </div>
-
-        <div class="video-card">
-            <video src="videoplayback2.mp4" loop playsinline></video>
-            <div class="side-bar">
-                <button class="icon-btn">❤️</button>
-                <button class="icon-btn">💬</button>
-                <button class="icon-btn">✈️</button>
-            </div>
-            <div class="bottom-info">
-                <div class="username">@kanal_adi</div>
-                <div class="description">Kaydırmaya devam et... #telegram #shorts</div>
-            </div>
+<div class="reels-container">
+    <div class="reel">
+        <video src="reels1.mp4" loop autoplay muted playsinline></video>
+        <div class="actions">
+            <div class="action-btn">❤️</div>
+            <div class="action-btn">💬</div>
+            <div class="action-btn">✈️</div>
         </div>
     </div>
 
-    <script>
-        // Telegram Web App Başlatma
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Sayfayı tam ekran açar
-        tg.ready();
+    <div class="reel">
+        <video src="reels2.mp4" loop playsinline></video>
+        <div class="actions">
+            <div class="action-btn">❤️</div>
+            <div class="action-btn">💬</div>
+            <div class="action-btn">✈️</div>
+        </div>
+    </div>
 
-        function tgAlert(msg) {
-            tg.showAlert(msg);
-        }
+    <div class="reel">
+        <video src="reels3.mp4" loop playsinline></video>
+        <div class="actions">
+            <div class="action-btn">❤️</div>
+            <div class="action-btn">💬</div>
+            <div class="action-btn">✈️</div>
+        </div>
+    </div>
+</div>
 
-        // Kaydırmaya göre videoları yönet
-        const videos = document.querySelectorAll('video');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.play().catch(() => {
-                        entry.target.muted = true;
-                        entry.target.play();
-                    });
-                } else {
-                    entry.target.pause();
-                    entry.target.currentTime = 0; // Başa sar (opsiyonel)
-                }
-            });
-        }, { threshold: 0.7 });
-
-        videos.forEach(v => observer.observe(v));
-
-        // Ekrana dokunarak durdur/oynat
-        document.querySelectorAll('.video-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if(e.target.tagName !== 'BUTTON') {
-                    const v = card.querySelector('video');
-                    v.paused ? v.play() : v.pause();
-                }
-            });
+<script>
+    // Otomatik oynatma yönetimi (Kaydırdıkça video başlar)
+    const videos = document.querySelectorAll('video');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play();
+            } else {
+                entry.target.pause();
+                entry.target.currentTime = 0;
+            }
         });
-    </script>
+    }, { threshold: 0.5 });
+
+    videos.forEach(video => observer.observe(video));
+
+    // İlk tıklamada sesi açma uyarısı (Opsiyonel)
+    document.body.addEventListener('click', () => {
+        videos.forEach(v => v.muted = false);
+    }, { once: true });
+</script>
+
 </body>
 </html>
