@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | SQUAD V3</title>
+    <title>KOALA ARCADE | OFFICIAL</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -44,7 +44,6 @@
 
     <div id="loading-overlay">
         <h2 class="text-2xl font-black italic">KOALA ARCADE</h2>
-        <p class="text-[10px] text-zinc-600 font-bold uppercase mt-2">Connecting...</p>
     </div>
 
     <div id="listing-modal" onclick="closeModal()">
@@ -52,34 +51,34 @@
             <div class="text-6xl mb-4">💰</div>
             <h2 class="text-2xl font-black uppercase italic mb-1 text-white">LISTING 2026</h2>
             <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-8 mt-6">
-                <p class="text-[10px] text-zinc-500 uppercase font-black mb-2">Estimated Value</p>
+                <p class="text-[10px] text-zinc-500 uppercase font-black mb-2 tracking-widest">Estimated Value</p>
                 <h3 id="modal-calc" class="text-5xl font-black text-green-500 italic">$0.00</h3>
-                <p class="text-[9px] text-zinc-600 mt-4 font-bold uppercase">Target: 1 KOALA = $0.001</p>
+                <p class="text-[9px] text-zinc-600 mt-4 font-bold uppercase">1 KOALA = $0.001</p>
             </div>
-            <button class="k-btn w-full" onclick="closeModal()">BACK TO GAME</button>
+            <button class="k-btn w-full" onclick="closeModal()">LFG! KEEP EARNING</button>
         </div>
     </div>
 
     <div id="p-earn" class="page active">
         <div class="flex justify-between items-center mb-6">
             <div id="ui-ex-tag" class="bg-[#111] border border-[#222] px-3 py-1 rounded-full text-[9px] font-black uppercase text-zinc-500 italic">No Borsa</div>
-            <div class="bg-white text-black px-3 py-1 rounded-full text-[9px] font-black italic">LVL 1</div>
+            <div class="bg-white text-black px-3 py-1 rounded-full text-[9px] font-black italic uppercase">Rank #1</div>
         </div>
         <div class="text-center mb-8">
             <h1 id="ui-bal" class="text-7xl font-black tracking-tighter italic">0</h1>
-            <p class="text-[10px] text-zinc-600 font-black tracking-[4px] mt-2 uppercase italic">Koala Total</p>
+            <p class="text-[10px] text-zinc-600 font-black tracking-[4px] mt-2 uppercase">Your Koalas</p>
         </div>
         <div class="mx-auto w-[230px] h-[230px] bg-[#111] rounded-[50px] border-4 border-[#222] p-4 mb-10">
             <img src="coinkoala.jpg" class="w-full h-full object-cover rounded-[35px]" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
         </div>
-        <button id="mine-btn" class="k-btn" onclick="watchAd()">TAP TO EARN</button>
+        <button id="mine-btn" class="k-btn" onclick="watchAd()">WATCH ADS 1 KOALA</button>
     </div>
 
     <div id="p-tasks" class="page">
         <h1 class="text-4xl font-black mb-8 uppercase italic">Tasks</h1>
         <div class="k-card flex justify-between items-center py-6">
             <div>
-                <p class="font-black text-sm uppercase">Join Koalas Community</p>
+                <p class="font-black text-sm uppercase">Join Community</p>
                 <p class="text-xs text-green-500 font-bold">+10,000 KOALA</p>
             </div>
             <button class="bg-white text-black px-6 py-2 rounded-xl font-black text-xs" onclick="doTask('channel', 10000, 'https://t.me/KoalasCommunity')">GO</button>
@@ -88,29 +87,29 @@
 
     <div id="p-squad" class="page">
         <h1 class="text-4xl font-black mb-2 uppercase italic">Squad</h1>
-        <p class="text-zinc-500 text-xs font-bold mb-8 uppercase">Invite friends, earn 5,000 per head!</p>
+        <p class="text-zinc-500 text-xs font-bold mb-8 uppercase italic">Earn 5,000 Koala for every invite</p>
         
         <div class="k-card bg-zinc-900 text-center py-8">
-            <p class="text-[10px] text-zinc-500 font-black mb-2 uppercase tracking-widest">Total Squad Members</p>
+            <p class="text-[10px] text-zinc-500 font-black mb-2 uppercase">Total Members</p>
             <h2 id="ui-ref-count" class="text-5xl font-black italic text-white mb-4">0</h2>
-            <p class="text-[10px] text-zinc-400 font-bold" onclick="copyRef()">CODE: <span id="ui-mycode" class="text-white">...</span> <i class="fa-regular fa-copy ml-1"></i></p>
+            <p class="text-[10px] text-zinc-400 font-bold uppercase cursor-pointer" onclick="copyRef()">My Code: <span id="ui-mycode" class="text-white">...</span> <i class="fa-regular fa-copy ml-1"></i></p>
         </div>
         
         <div id="ref-input-area" class="mt-4">
-            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-5 rounded-2xl text-center font-black mb-3 text-white outline-none focus:border-white uppercase text-lg" placeholder="ENTER FRIEND'S CODE">
-            <button class="k-btn !bg-green-600 !text-white" onclick="submitRef()">CLAIM 1,000 BONUS</button>
+            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-5 rounded-2xl text-center font-black mb-3 text-white outline-none focus:border-white uppercase text-lg" placeholder="FRIEND CODE">
+            <button class="k-btn !bg-green-600 !text-white" onclick="submitRef()">CLAIM BONUS</button>
         </div>
 
         <button class="k-btn mt-6 bg-yellow-400 !text-black flex items-center justify-center gap-2" onclick="shareRef()">
             <i class="fa-solid fa-user-plus"></i> INVITE FRIENDS
         </button>
 
-        <h3 class="text-xs font-black uppercase text-zinc-500 mt-10 mb-4 italic tracking-widest">Recent Squad Members</h3>
+        <h3 class="text-xs font-black uppercase text-zinc-500 mt-10 mb-4 italic tracking-widest">Squad History</h3>
         <div id="ui-ref-list" class="space-y-3 pb-10"></div>
     </div>
 
     <div id="p-wallet" class="page">
-        <h1 class="text-4xl font-black mb-8 uppercase italic">Borsa</h1>
+        <h1 class="text-4xl font-black mb-8 uppercase italic">Exchange</h1>
         <div class="ex-option" id="ex-binance" onclick="setEx('Binance')">
             <img src="binance.jpg" class="ex-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/12106/12106478.png'">
             <div class="flex-1 font-black uppercase">Binance</div>
@@ -136,13 +135,14 @@
     </nav>
 
 <script>
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Lütfen kendi configini buraya koy
+    // Lütfen FIREBASE bilgilerini buraya gir!
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Kullanıcı adı bilgisini @username şeklinde alıyoruz
+    // Kullanıcı adını @username olarak çekiyoruz
     let userHandle = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : (tg.initDataUnsafe?.user?.first_name || "Anonim");
     let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('k_uid') || 'K'+Math.floor(Math.random()*1e7));
     
@@ -152,8 +152,8 @@
         const doc = await db.collection("users").doc(myId).get();
         if(doc.exists) {
             userData = { ...userData, ...doc.data() };
-            // Eğer veritabanında handle yoksa güncelle
-            if(!userData.handle) {
+            // Handle bilgisini güncelliyoruz (username değişmiş olabilir)
+            if(userData.handle !== userHandle) {
                 userData.handle = userHandle;
                 await db.collection("users").doc(myId).update({ handle: userHandle });
             }
@@ -170,7 +170,6 @@
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         if(el) el.classList.add('active');
         
-        // Modal Auto-Calc
         const usdVal = (userData.bal * 0.001).toLocaleString('en-US', { minimumFractionDigits: 2 });
         document.getElementById('modal-calc').innerText = "$" + usdVal;
         document.getElementById('listing-modal').style.display = 'flex';
@@ -186,9 +185,19 @@
         tg.HapticFeedback.notificationOccurred('success');
     }
 
+    async function doTask(taskId, reward, link) {
+        tg.openTelegramLink(link);
+        setTimeout(async () => {
+            userData.bal += reward;
+            await db.collection("users").doc(myId).update({ bal: userData.bal });
+            render();
+            alert("Reward Claimed!");
+        }, 3000);
+    }
+
     async function submitRef() {
         const input = document.getElementById('ref-input').value.trim().toUpperCase();
-        if(userData.usedRef || input === userData.refCode) return alert("Geçersiz Kod!");
+        if(userData.usedRef || input === userData.refCode) return alert("Error!");
 
         const snap = await db.collection("users").where("refCode", "==", input).get();
         if(!snap.empty) {
@@ -198,8 +207,7 @@
             await db.runTransaction(async (t) => {
                 const d = await t.get(invRef);
                 const r = d.data().referrals || [];
-                // Davet edilen kişinin @kullanıcıadını ekliyoruz
-                r.push(userData.handle);
+                r.push(userData.handle); // @kullanıcı adı listeye ekleniyor
                 t.update(invRef, { bal: (d.data().bal || 0) + 5000, referrals: r });
             });
 
@@ -207,24 +215,24 @@
             userData.bal += 1000;
             await db.collection("users").doc(myId).update({ usedRef: true, bal: userData.bal });
             render();
-            alert("1.000 Koala Bonus Alındı!");
-        } else { alert("Kod Bulunamadı!"); }
+            alert("1,000 Koala Bonus Added!");
+        } else { alert("Invalid Code!"); }
     }
 
     function copyRef() {
         navigator.clipboard.writeText(userData.refCode);
         tg.HapticFeedback.notificationOccurred('success');
-        alert("Kopyalandı!");
+        alert("Copied!");
     }
 
     function shareRef() {
-        const text = `🚀 Koala Arcade! 2026 Listelemesi için hemen kazmaya başla. Benim kodumla gir, +1000 Bonus al: ${userData.refCode}`;
+        const text = `Join Koala Arcade! Mine for 2026 Listing. Use my code for +1000 Bonus: ${userData.refCode}`;
         tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
     }
 
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(userData.bal).toLocaleString();
-        document.getElementById('ui-ex-tag').innerText = userData.exchange || "Borsa Seçilmedi";
+        document.getElementById('ui-ex-tag').innerText = userData.exchange || "No Borsa";
         document.getElementById('ui-mycode').innerText = userData.refCode;
         document.getElementById('ui-ref-count').innerText = userData.referrals?.length || 0;
         
@@ -236,9 +244,8 @@
 
         document.getElementById('ref-input-area').style.display = userData.usedRef ? 'none' : 'block';
         const list = document.getElementById('ui-ref-list');
-        list.innerHTML = userData.referrals?.length ? '' : '<p class="text-center text-xs text-zinc-700">Henüz kimse yok.</p>';
+        list.innerHTML = userData.referrals?.length ? '' : '<p class="text-center text-xs text-zinc-700">Empty squad.</p>';
         
-        // Listede @kullanıcıadı görünüyor
         userData.referrals?.forEach(r => {
             list.innerHTML += `<div class="k-card !py-4 flex justify-between items-center"><span class="text-green-400 font-bold">${r}</span><span class="text-white font-black">+5,000</span></div>`;
         });
@@ -246,8 +253,8 @@
 
     async function watchAd() {
         if(window.showAdexora) {
-            window.showAdexora().then(() => addReward(10)).catch(() => addReward(10));
-        } else { addReward(10); }
+            window.showAdexora().then(() => addReward(1)).catch(() => addReward(1));
+        } else { addReward(1); }
     }
 
     async function addReward(amt) {
