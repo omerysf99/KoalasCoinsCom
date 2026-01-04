@@ -3,184 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>YouTube Shorts Dikey</title>
+    <title>Shorts Pro - Ultra Smooth</title>
     <style>
+        :root { --yt-red: #ff0000; --overlay: rgba(0,0,0,0.4); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; color: white; }
 
-        /* ALT NAVİGASYON */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 60px;
-            background: #000; display: flex; justify-content: space-around;
-            align-items: center; z-index: 1000; border-top: 1px solid #222;
-        }
-        .nav-item { color: white; text-align: center; font-size: 10px; flex: 1; cursor: pointer; opacity: 0.6; }
-        .nav-item.active { opacity: 1; font-weight: bold; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; font-style: normal; }
-
-        /* SAYFALAR */
-        .page { display: none; height: 100vh; width: 100%; position: absolute; }
-        .active-page { display: block; }
-
-        /* ANA SAYFA PANELİ */
-        #homePage { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .wallet-box { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 90%; }
-
-        /* SHORTS DİKEY AKIŞ SİSTEMİ */
-        #shortsPage { 
-            overflow-y: scroll; 
-            scroll-snap-type: y mandatory; 
-            scrollbar-width: none; 
+        /* ANA KONTEYNER */
+        #shortsPage {
             height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Kaydırmayı videoya kilitler */
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
         #shortsPage::-webkit-scrollbar { display: none; }
-        
-        .short-wrapper { 
-            width: 100%; height: 100vh; 
-            scroll-snap-align: start; 
-            position: relative; 
+
+        /* VİDEO ÜNİTESİ */
+        .short-wrapper {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always; /* Tek kaydırmada tek video geçer */
+            position: relative;
             background: #000;
-        }
-        
-        /* TAM DİKEY VİDEO */
-        video { 
-            width: 100%; height: 100%; 
-            object-fit: cover; /* Videoyu ekranı kaplayacak şekilde kırpar/sığdırır */
+            overflow: hidden;
         }
 
-        /* VİDEO ÜSTÜ UI KATMANI */
-        .video-ui {
-            position: absolute; bottom: 80px; left: 15px; right: 70px;
-            z-index: 10; pointer-events: none;
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
         }
-        .channel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .avatar { width: 35px; height: 35px; background: #444; border-radius: 50%; border: 1px solid #fff; }
-        .sub-btn { background: #fff; color: #000; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
 
-        /* SAĞ BUTONLAR */
-        .side-buttons {
-            position: absolute; right: 10px; bottom: 100px;
-            display: flex; flex-direction: column; gap: 20px; align-items: center;
+        /* GÜZELLEŞTİRİLMİŞ UI ELEMENTLERİ */
+        .side-bar {
+            position: absolute; right: 12px; bottom: 100px;
+            display: flex; flex-direction: column; gap: 24px; align-items: center;
+            z-index: 10;
         }
-        .side-btn { text-align: center; }
-        .side-btn span { font-size: 25px; display: block; filter: drop-shadow(2px 2px 4px #000); }
-        .side-btn label { font-size: 12px; }
+        .side-item { text-align: center; cursor: pointer; transition: transform 0.1s; }
+        .side-item:active { transform: scale(0.9); }
+        .side-item i { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+        .side-item span { font-size: 11px; font-weight: 500; margin-top: 4px; display: block; }
 
-        /* REKLAM EKRANI */
-        .ad-modal {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 100; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+        .video-info {
+            position: absolute; bottom: 40px; left: 16px; right: 80px;
+            z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
+        .channel-name { font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .channel-name::before { content: ''; width: 32px; height: 32px; background: #333; border-radius: 50%; display: inline-block; }
+
+        /* ALT İLERLEME ÇUBUĞU */
+        .progress-bar {
+            position: absolute; bottom: 0; left: 0; height: 3px;
+            background: var(--yt-red); width: 0%; z-index: 20;
+            transition: width 0.1s linear;
+        }
+
+        /* REKLAM GEÇİŞİ GÜZELLEŞTİRME */
+        .ad-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* NAVİGASYON GÜZELLEŞTİRME */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 60px;
+            background: linear-gradient(transparent, black);
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+        }
+        .nav-link { color: #fff; text-decoration: none; font-size: 10px; opacity: 0.6; text-align: center; }
+        .nav-link.active { opacity: 1; font-weight: bold; }
+        .nav-link b { font-size: 22px; display: block; }
     </style>
 </head>
 <body>
 
-<div id="homePage" class="page active-page">
-    <div class="wallet-box">
-        <p style="color:#888; font-size:12px;">CÜZDAN</p>
-        <h1 id="balance" style="font-size:40px; color:#00ff88; margin:10px 0;">0.0000$</h1>
-        <p style="font-size:12px;">Shorts izleyerek kazanmaya başla!</p>
+<div id="shortsPage">
     </div>
-</div>
-
-<div id="shortsPage" class="page">
-    <div id="shortsFlow"></div>
-</div>
-
-<div id="historyPage" class="page" style="padding:20px; overflow-y:auto;">
-    <h2>Geçmiş</h2>
-    <div id="histList"></div>
-</div>
 
 <nav class="bottom-nav">
-    <div class="nav-item active" id="n-home" onclick="tab('homePage')"><i>🏠</i>Ev</div>
-    <div class="nav-item" id="n-shorts" onclick="tab('shortsPage')"><i>🎞️</i>Shorts</div>
-    <div class="nav-item" id="n-history" onclick="tab('historyPage')"><i>🕒</i>Geçmiş</div>
+    <div class="nav-link"><b>🏠</b>Ev</div>
+    <div class="nav-link active"><b>🎞️</b>Shorts</div>
+    <div class="nav-link"><b>🕒</b>Geçmiş</div>
 </nav>
 
 <script>
-    const videos = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
-    let wallet = parseFloat(localStorage.getItem('wallet')) || 0;
-    let counter = 0;
-    let isMuted = true;
+    const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
+    let viewCounter = 0;
 
     function buildShorts() {
-        document.getElementById('balance').innerText = wallet.toFixed(4) + "$";
-        const flow = document.getElementById('shortsFlow');
-        
-        // 10 setlik döngü (40 video)
+        const page = document.getElementById('shortsPage');
+        // Sonsuz akış için 10 set
         for(let i=0; i<10; i++) {
-            videos.forEach((file, idx) => {
-                flow.innerHTML += `
-                    <div class="short-wrapper">
-                        <video src="${file}" loop muted playsinline onclick="toggleMute()"></video>
-                        <div class="side-buttons">
-                            <div class="side-btn"><span>❤️</span><label>14B</label></div>
-                            <div class="side-btn"><span>💬</span><label>256</label></div>
-                            <div class="side-btn"><span>✈️</span><label>Paylaş</label></div>
-                        </div>
-                        <div class="video-ui">
-                            <div class="channel-row">
-                                <div class="avatar"></div>
-                                <b>@Kanal_${idx+1}</b>
-                                <div class="sub-btn">Abone Ol</div>
-                            </div>
-                            <p>${file} ile tam dikey video deneyimi.</p>
-                        </div>
-                    </div>`;
+            reels.forEach((src, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'short-wrapper';
+                wrapper.innerHTML = `
+                    <video src="${src}" loop muted playsinline></video>
+                    <div class="progress-bar"></div>
+                    <div class="side-bar">
+                        <div class="side-item"><i>❤️</i><span>1.5M</span></div>
+                        <div class="side-item"><i>💬</i><span>12K</span></div>
+                        <div class="side-item"><i>↪️</i><span>Paylaş</span></div>
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-name">@VideoKanalı_${idx+1}</div>
+                        <p style="font-size: 14px; margin-top: 8px; opacity: 0.9;">Bu video harika bir akışa sahip! #${src.split('.')[0]}</p>
+                    </div>
+                `;
+                page.appendChild(wrapper);
             });
         }
-        initObserver();
+        setupLogic();
     }
 
-    function tab(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active-page');
-        document.getElementById('n-' + id.replace('Page', '')).classList.add('active');
-        if(id !== 'shortsPage') document.querySelectorAll('video').forEach(v => v.pause());
-    }
+    function setupLogic() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                const progressBar = video.parentElement.querySelector('.progress-bar');
+                
+                if (entry.isIntersecting) {
+                    video.play();
+                    viewCounter++;
+                    
+                    // Reklam tetikleyici
+                    if(viewCounter % 4 === 0) showAd(video);
 
-    function initObserver() {
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                const v = e.target;
-                if (e.isIntersecting) {
-                    v.muted = isMuted;
-                    v.play();
-                    counter++;
-                    if(counter % 4 === 0) triggerAd(v);
-                } else { v.pause(); }
+                    // İlerleme çubuğu güncelleme
+                    video.ontimeupdate = () => {
+                        const progress = (video.currentTime / video.duration) * 100;
+                        progressBar.style.width = progress + "%";
+                    };
+                } else {
+                    video.pause();
+                    video.currentTime = 0;
+                }
             });
         }, { threshold: 0.8 });
-        document.querySelectorAll('video').forEach(v => obs.observe(v));
+
+        document.querySelectorAll('video').forEach(v => observer.observe(v));
     }
 
-    function triggerAd(v) {
+    function showAd(v) {
         v.pause();
         const ad = document.createElement('div');
-        ad.className = 'ad-modal';
-        ad.innerHTML = `<h2>Reklam İzleniyor...</h2><h1 id="cd" style="font-size:50px; color:#00ff88;">5</h1>`;
+        ad.className = 'ad-overlay';
+        ad.innerHTML = `
+            <div style="font-size: 50px;">💵</div>
+            <h2 style="margin-top:15px;">ÖDÜLLÜ REKLAM</h2>
+            <p style="opacity:0.7">Kazanç ekleniyor...</p>
+            <h1 id="timer" style="font-size:40px; color:var(--yt-red); margin-top:10px;">5</h1>
+        `;
         v.parentElement.appendChild(ad);
         let s = 5;
-        const timer = setInterval(() => {
+        const countdown = setInterval(() => {
             s--;
-            document.getElementById('cd').innerText = s;
+            document.getElementById('timer').innerText = s;
             if(s <= 0) {
-                clearInterval(timer);
+                clearInterval(countdown);
                 ad.remove();
                 v.play();
-                wallet += 0.0003;
-                document.getElementById('balance').innerText = wallet.toFixed(4) + "$";
-                localStorage.setItem('wallet', wallet);
             }
         }, 1000);
-    }
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
     buildShorts();
