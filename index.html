@@ -3,100 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan - Local Edition</title>
+    <title>PaylaşKazan Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #050505; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
+        body { background-color: #000; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
         .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
-        .active-page { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .active-page { display: block; }
 
-        /* Reels Scroll Yapısı */
-        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        /* REELS TAM EKRAN YAPISI */
+        #reels-feed { 
+            height: 100vh; 
+            overflow-y: scroll; 
+            scroll-snap-type: y mandatory; 
+            scrollbar-width: none; 
+            background: #000;
+        }
         #reels-feed::-webkit-scrollbar { display: none; }
-        .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; position: relative; background: #000; }
-        .v-container { height: 100vh; width: 100%; max-width: 450px; position: relative; }
-        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        .video-wrapper { 
+            height: 100vh; 
+            scroll-snap-align: start; 
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* Videoyu tam ekrana yayar */
+        }
 
-        /* Tasarım Elementleri */
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .nav-item { opacity: 0.4; transition: 0.3s; cursor: pointer; }
+        /* KATMANLAR (OVERLAY) */
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.6) 100%);
+            pointer-events: none; /* Videoya tıklamayı engellemez */
+        }
+
+        .side-actions {
+            position: absolute;
+            right: 15px;
+            bottom: 120px; /* Navigasyonun üstünde kalması için */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            pointer-events: auto;
+            z-index: 50;
+        }
+
+        .bottom-info {
+            position: absolute;
+            bottom: 100px;
+            left: 15px;
+            right: 80px;
+            pointer-events: auto;
+            z-index: 50;
+        }
+
+        /* ALT NAVİGASYON (VİDEO ÜZERİNDE ŞEFFAF) */
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            backdrop-filter: blur(5px);
+            display: flex; 
+            justify-content: space-around; 
+            padding: 15px 0 25px 0; 
+            z-index: 1000;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
         .nav-item.active { opacity: 1; color: #00f2ea; }
-        .earn-badge { background: linear-gradient(90deg, #ff0050, #00f2ea); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body>
 
-    <div class="fixed top-0 w-full z-[100] p-5 flex justify-between items-center pointer-events-none">
-        <div class="glass px-4 py-2 rounded-full pointer-events-auto">
-            <span class="text-xs font-bold text-cyan-400"><i class="fas fa-wallet mr-2"></i><span id="balance-top">12.45</span> ₺</span>
+    <div id="top-bar" class="fixed top-0 w-full z-[100] p-6 flex justify-between items-center pointer-events-none">
+        <div class="bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-auto">
+            <span class="text-xs font-bold text-cyan-400"><i class="fas fa-coins mr-2"></i><span id="balance-val">12.45</span> ₺</span>
         </div>
-        <div onclick="toggleMute()" class="glass w-10 h-10 rounded-full flex items-center justify-center pointer-events-auto cursor-pointer">
+        <div onclick="toggleMute()" class="bg-black/40 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center pointer-events-auto cursor-pointer border border-white/10">
             <i id="mute-icon" class="fas fa-volume-mute"></i>
         </div>
     </div>
 
-    <div id="page-home" class="page active-page p-6 overflow-y-auto pb-24">
-        <div class="mt-12 mb-8">
-            <h1 class="text-2xl font-black italic">HOS GELDİN <br><span class="text-cyan-400">YAZILIMCI</span></h1>
-            <p class="text-[10px] text-gray-500 mt-1">API Key: aw01joj8wk4rnll9</p>
-        </div>
+    <div id="page-home" class="page active-page p-8 overflow-y-auto">
+        <div class="mt-20">
+            <h1 class="text-4xl font-black mb-2 tracking-tighter italic">DASHBOARD</h1>
+            <p class="text-gray-500 text-xs font-mono mb-8">API: aw01joj8wk4rnll9</p>
+            
+            <div class="bg-gradient-to-br from-gray-900 to-black p-8 rounded-[2.5rem] border border-white/5 mb-8">
+                <p class="text-gray-400 text-[10px] uppercase mb-1">Cüzdan</p>
+                <h2 class="text-5xl font-black tracking-tighter" id="balance-display">12.45 ₺</h2>
+            </div>
 
-        <div class="glass p-8 rounded-[2.5rem] mb-6 border-cyan-500/20 shadow-2xl shadow-cyan-500/5">
-            <p class="text-gray-400 text-[10px] uppercase tracking-widest mb-2">Günlük Kazanç</p>
-            <h2 class="text-5xl font-black mb-6 tracking-tighter" id="balance-main">12.45 ₺</h2>
-            <div class="flex gap-3">
-                <button class="flex-1 bg-white text-black py-3 rounded-2xl font-bold text-xs uppercase tracking-wider">Para Çek</button>
-                <button class="w-12 bg-white/5 rounded-2xl flex items-center justify-center"><i class="fas fa-history text-xs"></i></button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="navigate('reels')" class="bg-[#ff0050] p-5 rounded-[2rem] cursor-pointer shadow-lg shadow-[#ff0050]/20">
-                <i class="fas fa-play mb-3"></i>
-                <p class="font-bold text-sm">İzle Kazan</p>
-            </div>
-            <div onclick="navigate('tasks')" class="glass p-5 rounded-[2rem] cursor-pointer">
-                <i class="fas fa-tasks mb-3 text-cyan-400"></i>
-                <p class="font-bold text-sm">Görevler</p>
-            </div>
+            <button onclick="navigate('reels')" class="w-full bg-[#ff0050] py-5 rounded-3xl font-black text-lg shadow-xl shadow-[#ff0050]/20">
+                KAZANMAYA BAŞLA
+            </button>
         </div>
     </div>
 
     <div id="page-reels" class="page">
-        <div id="reels-feed">
-            </div>
+        <div id="reels-feed"></div>
     </div>
 
-    <div id="page-tasks" class="page p-6 overflow-y-auto pb-24">
-        <h2 class="text-3xl font-black mt-10 mb-8 italic">GÖREVLER</h2>
+    <div id="page-tasks" class="page p-8">
+        <h2 class="text-3xl font-black mt-20 mb-6">GÖREVLER</h2>
         <div class="space-y-4">
-            <div class="glass p-5 rounded-3xl flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-green-500"><i class="fas fa-check"></i></div>
-                    <div><p class="text-sm font-bold">İlk Giriş</p><p class="text-[10px] text-gray-500">+10.00 ₺ Kazanıldı</p></div>
-                </div>
-            </div>
-            <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-cyan-500">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400"><i class="fas fa-video"></i></div>
-                    <div><p class="text-sm font-bold">10 Video İzle</p><p class="text-[10px] text-gray-400">+2.50 ₺ Ödül</p></div>
-                </div>
-                <span class="text-xs font-bold text-cyan-400">4 / 10</span>
+            <div class="bg-white/5 p-6 rounded-3xl border border-white/5 flex justify-between items-center">
+                <div><p class="font-bold">Günlük İzleme</p><p class="text-xs text-gray-500">+2.00 ₺</p></div>
+                <div class="text-cyan-400 text-xs font-bold">4 / 10</div>
             </div>
         </div>
     </div>
 
-    <nav class="fixed bottom-0 w-full glass border-t border-white/5 flex justify-around py-5 z-[1000]">
-        <div onclick="navigate('home')" class="nav-item active flex flex-col items-center gap-1"><i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-bold">Panel</span></div>
-        <div onclick="navigate('reels')" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-play-circle text-xl"></i><span class="text-[9px] font-bold">Reels</span></div>
-        <div onclick="navigate('tasks')" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-coins text-xl"></i><span class="text-[9px] font-bold">Görevler</span></div>
+    <nav class="bottom-nav">
+        <div onclick="navigate('home')" class="nav-item active"><i class="fas fa-home text-xl mb-1"></i><span class="text-[9px] font-bold">Ana Sayfa</span></div>
+        <div onclick="navigate('reels')" class="nav-item"><i class="fas fa-play-circle text-xl mb-1"></i><span class="text-[9px] font-bold">Reels</span></div>
+        <div onclick="navigate('tasks')" class="nav-item"><i class="fas fa-tasks text-xl mb-1"></i><span class="text-[9px] font-bold">Görevler</span></div>
     </nav>
 
     <script>
-        // Sadece sende olan dosyalar
-        const availableVideos = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
+        const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
         let balance = 12.45;
         let isMuted = true;
 
@@ -104,10 +148,15 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('page-' + id).classList.add('active-page');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const index = id === 'home' ? 0 : (id === 'reels' ? 1 : 2);
-            document.querySelectorAll('.nav-item')[index].classList.add('active');
             
+            if(id === 'home') document.querySelectorAll('.nav-item')[0].classList.add('active');
+            if(id === 'reels') document.querySelectorAll('.nav-item')[1].classList.add('active');
+            if(id === 'tasks') document.querySelectorAll('.nav-item')[2].classList.add('active');
+
             if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
+            
+            // Üst barı reels'ta daha belirgin yap
+            document.getElementById('top-bar').style.background = id === 'reels' ? 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)' : 'transparent';
         }
 
         function toggleMute() {
@@ -118,26 +167,30 @@
 
         function createReels() {
             const feed = document.getElementById('reels-feed');
-            // Dosyaları karıştırıp ekle (reels1, 2, 3 dönecek)
-            [...availableVideos].sort(() => Math.random() - 0.5).forEach(file => {
+            [...videoList].sort(() => Math.random() - 0.5).forEach(file => {
                 const wrap = document.createElement('div');
                 wrap.className = 'video-wrapper';
                 wrap.innerHTML = `
-                    <div class="v-container">
-                        <video loop muted playsinline src="${file}"></video>
-                        <div class="absolute right-5 bottom-32 flex flex-col gap-6 items-center">
-                            <div class="flex flex-col items-center"><div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl"><i class="fas fa-heart"></i></div><span class="text-[10px] mt-1">1.2K</span></div>
-                            <div class="flex flex-col items-center"><div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl"><i class="fas fa-comment"></i></div><span class="text-[10px] mt-1">45</span></div>
-                            <div class="flex flex-col items-center"><div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl"><i class="fas fa-share"></i></div><span class="text-[10px] mt-1">Paylaş</span></div>
+                    <video loop muted playsinline src="${file}"></video>
+                    <div class="video-overlay"></div>
+                    
+                    <div class="side-actions">
+                        <div class="flex flex-col items-center"><div class="glass-btn"><i class="fas fa-heart text-white"></i></div><span class="text-[10px] mt-1 font-bold">1.2K</span></div>
+                        <div class="flex flex-col items-center"><div class="glass-btn"><i class="fas fa-comment-dots text-white"></i></div><span class="text-[10px] mt-1 font-bold">85</span></div>
+                        <div class="flex flex-col items-center"><div class="glass-btn"><i class="fas fa-share text-white"></i></div><span class="text-[10px] mt-1 font-bold">Paylaş</span></div>
+                    </div>
+
+                    <div class="bottom-info">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-pink-500 p-0.5">
+                                <div class="w-full h-full bg-black rounded-full flex items-center justify-center text-[10px]">PK</div>
+                            </div>
+                            <span class="font-bold text-sm">@PaylasKazan_User</span>
+                            <span class="bg-cyan-500 text-black text-[8px] px-2 py-0.5 rounded-full font-bold">ABONE OL</span>
                         </div>
-                        <div class="absolute bottom-10 left-6 right-20">
-                            <h4 class="font-bold flex items-center gap-2">@creators <span class="earn-badge">KAZANDIRIYOR</span></h4>
-                            <p class="text-xs opacity-70 mt-2">Bu videoyu izleyerek puan topla! 🔥</p>
-                        </div>
-                        <div class="absolute top-24 left-6 glass px-3 py-1 rounded-full text-[9px] flex items-center gap-2">
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> API ACTIVE: aw01...l9
-                        </div>
-                    </div>`;
+                        <p class="text-xs text-gray-200">Bu videoyu sonuna kadar izle ve 0.10 ₺ kazan! #kazanc #reels</p>
+                    </div>
+                `;
                 feed.appendChild(wrap);
                 observer.observe(wrap.querySelector('video'));
             });
@@ -148,26 +201,17 @@
                 if(e.isIntersecting) {
                     e.target.play();
                     e.target.muted = isMuted;
-                    // İzleme puanı simülasyonu
-                    balance += 0.05;
-                    updateUI();
+                    balance += 0.02; // İzleme bonusu
+                    document.getElementById('balance-val').innerText = balance.toFixed(2);
+                    document.getElementById('balance-display').innerText = balance.toFixed(2) + " ₺";
                     
-                    // Sonsuz Döngü Tetikleyici
-                    if(e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) {
-                        createReels();
-                    }
+                    if(e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) createReels();
                 } else {
                     e.target.pause();
                 }
             });
         }, { threshold: 0.8 });
 
-        function updateUI() {
-            document.getElementById('balance-top').innerText = balance.toFixed(2);
-            document.getElementById('balance-main').innerText = balance.toFixed(2) + " ₺";
-        }
-
-        // Başlat
         createReels();
     </script>
 </body>
