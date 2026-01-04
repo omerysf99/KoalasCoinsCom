@@ -3,100 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan - TikTok API Powered</title>
+    <title>PaylaşKazan Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #0b0b0b; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
         .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
         .active-page { display: block; }
-        
-        /* Reels Stili */
         #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; background: #000; position: relative; }
         .v-container { height: 100vh; width: calc(100vh * 9 / 16); position: relative; }
         video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Navigasyon */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #121212; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; cursor: pointer; transition: 0.3s; }
         .nav-item.active { opacity: 1; color: #00f2ea; }
-        
-        /* Kazanç Kartları */
         .stat-card { background: linear-gradient(145deg, #1a1a1a, #111); border: 1px solid #222; }
-        .gradient-text { background: linear-gradient(to right, #00f2ea, #ff0050); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
 <body>
-
-    <div id="tutorial" class="fixed inset-0 bg-black/95 z-[2000] flex items-center justify-center p-6 text-center hidden">
-        <div class="max-w-xs">
-            <div class="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/50">
-                <i class="fas fa-coins text-3xl text-cyan-400"></i>
-            </div>
-            <h2 class="text-2xl font-bold mb-2">İzle ve Kazan!</h2>
-            <p class="text-gray-400 mb-6 text-sm">Video izledikçe puan topla, kendi videolarını paylaşarak kazancını katla.</p>
-            <button onclick="closeTutorial()" class="bg-white text-black w-full py-3 rounded-full font-bold shadow-lg shadow-white/10">Başla</button>
-        </div>
-    </div>
 
     <div id="page-home" class="page active-page overflow-y-auto pb-24">
         <div class="p-6">
             <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h1 class="text-xl font-bold">Merhaba, <span class="text-cyan-400">Yazılımcı</span></h1>
-                    <p class="text-xs text-gray-500">API Durumu: aw01...l9 Aktif</p>
+                    <h1 class="text-xl font-bold italic">PAYLAŞ<span class="text-[#ff0050]">KAZAN</span></h1>
+                    <p class="text-[10px] text-gray-500">API: aw01joj8wk4rnll9</p>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-pink-500 p-0.5">
-                    <div class="w-full h-full bg-black rounded-full flex items-center justify-center text-xs">TR</div>
+                <div class="bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full text-[10px] text-cyan-400">
+                    <i class="fas fa-signal mr-1"></i> Bağlı
                 </div>
             </div>
 
-            <div class="stat-card p-6 rounded-3xl mb-6 relative overflow-hidden">
-                <div class="relative z-10">
-                    <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Toplam Kazanç</p>
-                    <h2 class="text-4xl font-black gradient-text">1,450.50 ₺</h2>
-                    <div class="flex gap-4 mt-4">
-                        <div class="bg-white/5 px-3 py-1 rounded-full text-[10px] border border-white/10">12,400 Puan</div>
-                        <div class="bg-cyan-500/10 px-3 py-1 rounded-full text-[10px] border border-cyan-500/20 text-cyan-400">Rank: Gold</div>
-                    </div>
+            <div class="stat-card p-6 rounded-3xl mb-6 shadow-xl border-cyan-500/10">
+                <p class="text-gray-400 text-xs mb-1">Cüzdan Bakiyesi</p>
+                <h2 class="text-4xl font-black text-white">1,450.50 ₺</h2>
+                <div class="mt-4 flex gap-2">
+                    <button class="bg-white text-black text-[10px] px-4 py-2 rounded-lg font-bold">Para Çek</button>
+                    <button class="bg-white/10 text-white text-[10px] px-4 py-2 rounded-lg font-bold">Geçmiş</button>
                 </div>
-                <i class="fas fa-wallet absolute -right-4 -bottom-4 text-8xl opacity-5 rotate-12"></i>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="alert('Video Yükleme API Hazırlanıyor...')" class="bg-[#ff0050] p-4 rounded-2xl flex flex-col items-center justify-center gap-2 font-bold transition active:scale-95">
-                    <i class="fas fa-plus-circle text-2xl"></i>
-                    <span class="text-sm">Video Paylaş</span>
+                <button onclick="navigate('reels')" class="bg-[#ff0050] p-4 rounded-2xl flex flex-col items-center gap-2 shadow-lg shadow-[#ff0050]/20">
+                    <i class="fas fa-play-circle text-2xl"></i>
+                    <span class="text-xs font-bold">Hemen İzle</span>
                 </button>
-                <button onclick="navigate('airdrop')" class="bg-white/5 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 font-bold border border-white/10 transition active:scale-95">
-                    <i class="fas fa-gift text-2xl text-cyan-400"></i>
-                    <span class="text-sm">Hediye Al</span>
+                <button onclick="alert('Video Seçin...')" class="bg-cyan-600 p-4 rounded-2xl flex flex-col items-center gap-2 shadow-lg shadow-cyan-600/20">
+                    <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                    <span class="text-xs font-bold">Video Yükle</span>
                 </button>
-            </div>
-
-            <h3 class="font-bold mb-4 px-2">Günlük Görevler</h3>
-            <div class="space-y-3">
-                <div class="bg-white/5 p-4 rounded-2xl flex items-center justify-between border border-white/5">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-check-circle text-green-500"></i>
-                        <div>
-                            <p class="text-sm font-medium">5 Video İzle</p>
-                            <p class="text-[10px] text-gray-500">+50 Puan</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded">Tamamlandı</span>
-                </div>
-                <div class="bg-white/5 p-4 rounded-2xl flex items-center justify-between border border-white/5 opacity-60">
-                    <div class="flex items-center gap-3">
-                        <i class="far fa-circle"></i>
-                        <div>
-                            <p class="text-sm font-medium">İlk Videonu Paylaş</p>
-                            <p class="text-[10px] text-gray-500">+250 Puan</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] bg-white/10 px-2 py-1 rounded">Bekliyor</span>
-                </div>
             </div>
         </div>
     </div>
@@ -105,53 +60,79 @@
         <div id="reels-feed"></div>
     </div>
 
-    <div id="page-airdrop" class="page flex flex-col items-center justify-center p-8 text-center">
-        <div class="animate-bounce mb-6 text-cyan-400">
-            <i class="fas fa-parachute-box text-8xl"></i>
+    <div id="page-airdrop" class="page overflow-y-auto p-6 pb-24">
+        <h2 class="text-2xl font-bold mb-6 mt-4">Görev Merkezi</h2>
+        
+        <div class="bg-gradient-to-br from-gray-900 to-black p-6 rounded-3xl border border-yellow-500/30 mb-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-yellow-500 font-bold mb-1">Günlük Bonus</h3>
+                    <p class="text-xs text-gray-400 text-balance">Her gün giriş yaparak 100 puan topla.</p>
+                </div>
+                <button class="bg-yellow-500 text-black text-xs px-4 py-2 rounded-xl font-bold">Topla</button>
+            </div>
         </div>
-        <h2 class="text-3xl font-bold mb-2">Airdrop Yakında</h2>
-        <p class="text-gray-400 text-sm">Görseldeki Client Secret ile güvenli bağlantı kuruluyor:</p>
-        <div class="mt-6 font-mono text-[10px] bg-white/5 p-2 rounded text-gray-600">
-            SEC: U2i9Fvupy...LG91
+
+        <div class="space-y-4">
+            <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold">Cüzdan Bağla</p>
+                        <p class="text-[10px] text-gray-500">+500 Puan Kazan</p>
+                    </div>
+                </div>
+                <button class="text-[10px] border border-white/20 px-3 py-1 rounded-lg">Bağla</button>
+            </div>
+
+            <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold">Arkadaş Davet Et</p>
+                        <p class="text-[10px] text-gray-500">Kişi başı 250 Puan</p>
+                    </div>
+                </div>
+                <button class="text-[10px] border border-white/20 px-3 py-1 rounded-lg">Davet Et</button>
+            </div>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="navigate('home')"><i class="fas fa-th-large mb-1"></i><span class="text-[10px]">Panel</span></div>
-        <div class="nav-item" onclick="navigate('reels')"><i class="fas fa-play mb-1"></i><span class="text-[10px]">İzle</span></div>
-        <div class="nav-item" onclick="navigate('airdrop')"><i class="fas fa-coins mb-1"></i><span class="text-[10px]">Kazan</span></div>
+        <div class="nav-item active" onclick="navigate('home')"><i class="fas fa-home mb-1"></i><span class="text-[10px]">Ana Sayfa</span></div>
+        <div class="nav-item" onclick="navigate('reels')"><i class="fas fa-bolt mb-1"></i><span class="text-[10px]">Hızlı İzle</span></div>
+        <div class="nav-item" onclick="navigate('airdrop')"><i class="fas fa-coins mb-1"></i><span class="text-[10px]">Görevler</span></div>
     </nav>
 
     <script>
         const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4', 'reels5.mp4'];
-        let isGlobalMuted = false;
-
+        
         function navigate(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('page-' + id).classList.add('active-page');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            
             if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
-        }
-
-        function closeTutorial() {
-            document.getElementById('tutorial').classList.add('hidden');
-            localStorage.setItem('tutorialDone', 'true');
         }
 
         function setupReels() {
             const feed = document.getElementById('reels-feed');
-            const mixed = [...videoFiles].sort(() => Math.random() - 0.5);
-            mixed.forEach(file => {
+            [...videoFiles].sort(() => Math.random() - 0.5).forEach(file => {
                 const wrap = document.createElement('div');
                 wrap.className = 'video-wrapper';
                 wrap.innerHTML = `
                     <div class="v-container">
                         <video loop muted playsinline src="${file}"></video>
+                        <div class="absolute top-10 right-5 bg-black/40 px-3 py-1 rounded-full border border-white/20 text-[10px]">
+                            <i class="fas fa-coins text-yellow-500"></i> +12 Puan Kazanılıyor
+                        </div>
                         <div class="absolute bottom-24 left-5">
-                            <h4 class="font-bold flex items-center gap-2">@creators <i class="fas fa-check-circle text-cyan-400 text-[10px]"></i></h4>
-                            <p class="text-xs opacity-70">Bu videoyu paylaşarak kazan!</p>
+                            <h4 class="font-bold italic">@kazanc_merkezi</h4>
+                            <p class="text-xs opacity-70">İzle ve Paylaş!</p>
                         </div>
                     </div>`;
                 feed.appendChild(wrap);
@@ -164,15 +145,11 @@
                 if(e.isIntersecting) {
                     e.target.play();
                     if(e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) setupReels();
-                } else {
-                    e.target.pause();
-                }
+                } else { e.target.pause(); }
             });
         }, { threshold: 0.8 });
 
-        // Başlat
         setupReels();
-        if(!localStorage.getItem('tutorialDone')) document.getElementById('tutorial').classList.remove('hidden');
     </script>
 </body>
 </html>
