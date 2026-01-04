@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Pro | 100 Video Loop Edition</title>
+    <title>Sonsuz TikTok Deneyimi | 100 Video Loop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; font-family: 'Inter', sans-serif; }
         
-        /* Smooth Video Container */
+        /* Akıcı Kaydırma Alanı */
         #videoFeed {
             height: 100vh;
             overflow-y: scroll;
@@ -25,16 +25,19 @@
             scroll-snap-align: start;
             position: relative;
             background: #000;
+            display: flex;
+            justify-content: center;
         }
 
-        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.02); }
+        iframe { width: 100%; height: 100%; max-width: 450px; pointer-events: none; }
 
-        /* UI Overlays */
+        /* TikTok Arayüz Katmanları */
         .overlay { position: absolute; bottom: 100px; left: 16px; right: 80px; z-index: 50; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .side-bar { position: absolute; right: 12px; bottom: 120px; display: flex; flex-direction: column; align-items: center; gap: 24px; z-index: 60; }
         
-        .location-tag {
-            background: rgba(255, 255, 255, 0.25);
+        /* Lokasyon ve Müzik Etiketi */
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             padding: 5px 12px;
             border-radius: 6px;
@@ -42,140 +45,126 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 8px;
         }
 
-        /* Music Rotation */
-        .disc-anim {
+        /* Dönen Müzik Plak */
+        .disc {
             width: 48px; height: 48px;
             background: radial-gradient(circle, #444 0%, #000 100%);
             border: 8px solid #1a1a1a; border-radius: 50%;
             animation: rotate 4s linear infinite;
-            display: flex; justify-content: center; align-items: center;
         }
-        .disc-anim::after { content: ''; width: 10px; height: 10px; background: #333; border-radius: 50%; }
-        
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Heart Pop */
+        /* Kalp Animasyonu */
         .heart-pop {
             position: absolute; color: #ff3b5c; font-size: 100px;
-            animation: heartPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: pop 0.8s ease-out forwards;
             pointer-events: none; z-index: 100;
         }
-        @keyframes heartPop {
-            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-            50% { transform: scale(1.4) rotate(0deg); opacity: 1; }
-            100% { transform: scale(1.1) translateY(-150px); opacity: 0; }
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(1) translateY(-150px); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <div class="fixed top-12 w-full flex justify-center gap-10 z-[100] font-bold text-lg">
-        <span class="opacity-50 cursor-pointer hover:opacity-100 transition">Takip Edilen</span>
-        <span class="border-b-4 border-white pb-1 cursor-pointer">Sizin İçin</span>
+        <span class="opacity-50">Takip Edilen</span>
+        <span class="border-b-4 border-white pb-1">Sizin İçin</span>
     </div>
 
     <div id="videoFeed"></div>
 
     <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-6 z-[100]">
         <i class="fas fa-home text-2xl"></i>
-        <i class="fas fa-compass text-2xl text-zinc-600"></i>
+        <i class="fas fa-search text-2xl text-zinc-600"></i>
         <div class="bg-white text-black px-5 py-1 rounded-md font-black text-xl">+</div>
         <i class="fas fa-comment-dots text-2xl text-zinc-600"></i>
         <i class="fas fa-user text-2xl text-zinc-600"></i>
     </nav>
 
     <script>
-        // 100 VİDEOLUK MASTER DATA HAVUZU (Örnek ID'ler ve Jenerik Veriler)
-        const rawVideoIds = [
-            '7591531252507789368', 'kpaFYhxDFl8', 'AY4dgEwCVyU', 'te6wAKXTito', 'kz234YDHU-0', 
-            'WzxXh3UMBF0', '3vK7G9mRUXo', 'v2pG0B9uW18', 'l40S0r4tP_s', 'XsFDTNvMrxM',
-            'te6wAKXTito', 'kz234YDHU-0', 'WzxXh3UMBF0', '3vK7G9mRUXo', 'v2pG0B9uW18'
-            // ... (Sistem bu listeyi 100'e tamamlamak için aşağıda otomatik çoğaltır)
+        // YOUTUBE'DAN ALINAN GÜNCEL VİDEO ID'LERİ VE TREND HAVUZU
+        const youtubeIds = [
+            'KldVQBAkjuo', '-2daJou9qwk', 'EmHytNT3rMw', 'O07T9_5VIRI', 'ZrHPxz6d51E',
+            '-7Zrp6pwyMY', 'MHdXBqhhchQ', 'z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I',
+            'sxmTTS4qros', 'Mu9eUT7WS8s', '6H1DXz4uFdY', 'eeUWy-7gk-c'
         ];
 
-        const cities = ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Bursa', 'Londra', 'Paris', 'New York', 'Tokyo', 'Berlin'];
-        const users = ['trend_master', 'gezgincin', 'chef_ali', 'dance_queen', 'gol_tv', 'komedi_hane', 'tech_guru'];
+        const cities = ['İstanbul', 'Ankara', 'İzmir', 'Antalya', 'Berlin', 'Paris', 'New York', 'Tokyo'];
+        const users = ['trend_master', 'gezgincin', 'dance_queen', 'komedi_hane', 'tech_guru', 'spor_merkezi'];
 
-        let masterData = [];
-        // Havuzu 100 videoya tamamla ve Loop'a uygun hale getir
+        // Havuzu 100 videoya tamamla
+        let masterPool = [];
         for(let i=0; i<100; i++) {
-            masterData.push({
-                id: rawVideoIds[i % rawVideoIds.length], // ID'leri döndürerek 100'e tamamlar
+            masterPool.push({
+                id: youtubeIds[i % youtubeIds.length],
                 user: users[Math.floor(Math.random() * users.length)] + "_" + (i+1),
-                city: cities[Math.floor(Math.random() * cities.length)] + ", 2026",
-                desc: `Harika bir içerik! #${i+1} #trend #keşfet`
+                city: cities[Math.floor(Math.random() * cities.length)],
+                desc: `Harika bir TikTok akımı! #${i+1} 🔥 #keşfet #trending2026`
             });
         }
 
-        let watchedIndex = 0; // Mevcut video sırası
+        let currentIndex = 0;
         const feed = document.getElementById('videoFeed');
 
-        // LOOP ALGORİTMASI: Sıradaki Videoyu Getir
-        function getNextLoopVideo() {
-            const video = masterData[watchedIndex];
-            watchedIndex = (watchedIndex + 1) % masterData.length; // Sona gelince 0'a döner (LOOP)
+        // Loop Mantığı: Havuzdan sıradaki videoyu çek
+        function getNextVideo() {
+            const video = masterPool[currentIndex];
+            currentIndex = (currentIndex + 1) % masterPool.length; // 100'e gelince 0'a döner
             return video;
         }
 
-        // VİDEO KARTI ÜRETİCİ
         function createCard() {
-            const v = getNextLoopVideo();
+            const v = getNextVideo();
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <div class="w-full h-full relative" ondblclick="handleLike(event)">
-                    <iframe id="player-${watchedIndex}" 
+                <div class="w-full h-full relative" ondblclick="spawnHeart(event)">
+                    <iframe id="player-${currentIndex}" 
                         src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${v.id}&modestbranding=1&rel=0" 
                         frameborder="0" allow="autoplay; encrypted-media"></iframe>
                     
                     <div class="overlay">
-                        <div class="location-tag">
-                            <i class="fas fa-map-marker-alt text-red-500"></i> ${v.city}
-                        </div>
+                        <div class="badge"><i class="fas fa-map-marker-alt text-red-500"></i> ${v.city}</div>
                         <h3 class="font-bold text-xl">@${v.user}</h3>
                         <p class="text-sm mt-2 opacity-90">${v.desc}</p>
                         <div class="flex items-center gap-2 mt-4">
                             <i class="fas fa-music text-xs"></i>
-                            <marquee class="w-36 text-xs font-medium">Orijinal Ses - ${v.user}</marquee>
+                            <marquee class="w-40 text-xs">Orijinal Ses - ${v.user} - 2026</marquee>
                         </div>
                     </div>
 
                     <div class="side-bar">
-                        <div class="relative mb-2">
-                            <img src="https://i.pravatar.cc/100?u=${v.user}" class="w-14 h-14 rounded-full border-2 border-white shadow-xl">
-                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-[#ff3b5c] rounded-full w-6 h-6 flex justify-center items-center text-xs">+</div>
-                        </div>
-                        <div class="flex flex-col items-center"><i class="fas fa-heart text-4xl drop-shadow-lg"></i><span class="text-xs mt-1 font-bold">44K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-4xl drop-shadow-lg"></i><span class="text-xs mt-1 font-bold">1.2K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-bookmark text-4xl drop-shadow-lg"></i><span class="text-xs mt-1 font-bold">Kaydet</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-share text-4xl drop-shadow-lg"></i><span class="text-xs mt-1 font-bold">Paylaş</span></div>
-                        <div class="disc-anim mt-4 shadow-2xl"></div>
+                        <img src="https://i.pravatar.cc/100?u=${v.user}" class="w-14 h-14 rounded-full border-2 border-white mb-2">
+                        <div class="flex flex-col items-center"><i class="fas fa-heart text-4xl"></i><span class="text-xs font-bold mt-1">88K</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-4xl"></i><span class="text-xs font-bold mt-1">2.1K</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-share text-4xl"></i><span class="text-xs font-bold mt-1">Paylaş</span></div>
+                        <div class="disc mt-4"></div>
                     </div>
                 </div>
             `;
             feed.appendChild(card);
-            initObserver();
+            observeVideos();
         }
 
-        // ÇİFT TIKLAMA KALP
-        function handleLike(e) {
-            const heart = document.createElement('i');
-            heart.className = 'fas fa-heart heart-pop';
-            heart.style.left = (e.clientX - 50) + 'px';
-            heart.style.top = (e.clientY - 50) + 'px';
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 800);
+        function spawnHeart(e) {
+            const h = document.createElement('i');
+            h.className = 'fas fa-heart heart-pop';
+            h.style.left = (e.clientX - 50) + 'px';
+            h.style.top = (e.clientY - 50) + 'px';
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 800);
         }
 
-        // AKILLI OYNATICI (SADECE ODAKTAKİ VİDEO)
-        let observer;
-        function initObserver() {
-            if (observer) observer.disconnect();
-            observer = new IntersectionObserver((entries) => {
+        let obs;
+        function observeVideos() {
+            if (obs) obs.disconnect();
+            obs = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const iframe = entry.target.querySelector('iframe');
                     if (entry.isIntersecting) {
@@ -185,19 +174,17 @@
                     }
                 });
             }, { threshold: 0.8 });
-            document.querySelectorAll('.video-card').forEach(c => observer.observe(c));
+            document.querySelectorAll('.video-card').forEach(c => obs.observe(c));
         }
 
-        // SONSUZ KAYDIRMA VE LOOP TETİKLEYİCİ
         feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 500) {
-                createCard(); // Sona yaklaştıkça havuzdan (0-100 arası) sıradakini ekler
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 600) {
+                createCard();
             }
         });
 
-        // BAŞLANGIÇ YÜKLEMESİ (İlk 5 video)
+        // Başlangıç: İlk 5 videoyu yükle
         for(let i=0; i<5; i++) createCard();
-
     </script>
 </body>
 </html>
