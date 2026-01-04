@@ -3,121 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube UI Clone</title>
+    <title>YouTube Pro UI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: #0f0f0f; color: white; font-family: "Roboto", sans-serif; overflow-x: hidden; }
+        body { background-color: #0f0f0f; color: white; font-family: "Roboto", sans-serif; overflow: hidden; }
 
-        /* Üst Menü */
+        /* HEADER */
         header {
-            height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;
+            height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
             position: fixed; top: 0; width: 100%; background: #0f0f0f; z-index: 1000;
         }
-        .search-container { display: flex; align-items: center; width: 40%; gap: 10px; }
-        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 8px 20px; width: 100%; color: #888; }
+        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 8px 20px; width: 40%; color: #888; }
 
-        /* Ana İçerik Alanı */
-        .main-wrapper { display: flex; padding-top: 56px; }
+        /* MAIN STRUCTURE */
+        .wrapper { display: flex; padding-top: 56px; height: 100vh; }
         
-        /* Sol Menü */
-        .sidebar { width: 240px; height: calc(100vh - 56px); position: fixed; padding: 12px; }
-        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 20px; font-size: 14px; }
+        /* SIDEBAR */
+        .sidebar { width: 240px; padding: 12px; flex-shrink: 0; border-right: 1px solid #222; }
+        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 20px; }
         .nav-item:hover { background: #272727; }
         .nav-item.active { background: #272727; font-weight: bold; }
 
-        /* Video Izgarası (Grid) */
-        .content-grid {
-            margin-left: 240px; padding: 24px;
-            display: grid;
-            /* Her satırda 3 video olacak şekilde ayarlandı */
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; width: 100%;
-        }
+        /* CONTENT PAGES */
+        .page { display: none; width: 100%; overflow-y: auto; padding: 24px; }
+        .active-page { display: block; }
 
-        /* Video Kartı Tasarımı */
-        .v-card { cursor: pointer; width: 100%; }
-        .thumb { 
-            width: 100%; aspect-ratio: 16 / 9; background: #222; 
-            border-radius: 12px; position: relative; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; color: #555; border: 1px solid #333;
-        }
-        .thumb::after { content: "12:45"; position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 4px; border-radius: 4px; color: white; font-size: 11px; }
-
+        /* HOME GRID (3 Sütun) */
+        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .v-card { cursor: pointer; }
+        .thumb { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #444; font-size: 12px; }
         .v-info { display: flex; margin-top: 12px; gap: 12px; }
-        .v-avatar { width: 36px; height: 36px; background: #333; border-radius: 50%; flex-shrink: 0; }
-        .v-details h3 { font-size: 15px; font-weight: 500; line-height: 20px; margin-bottom: 4px; color: #f1f1f1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-details p { font-size: 13px; color: #aaa; }
+        .avatar { width: 36px; height: 36px; background: #333; border-radius: 50%; }
 
-        @media (max-width: 1000px) {
-            .content-grid { grid-template-columns: repeat(2, 1fr); margin-left: 0; }
-            .sidebar { display: none; }
-        }
+        /* SHORTS (REELS) STYLE */
+        .shorts-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .short-video { width: 350px; height: 600px; background: #1a1a1a; border-radius: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; }
+
+        /* HISTORY LIST */
+        .history-item { display: flex; gap: 15px; margin-bottom: 15px; padding: 10px; border-radius: 8px; background: #1a1a1a; }
+        .history-thumb { width: 120px; height: 68px; background: #333; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-        <span style="color: red; font-size: 24px;">▶</span> YouTube
-    </div>
-    <div class="search-container">
-        <div class="search-bar">Ara</div>
-    </div>
-    <div style="display: flex; gap: 20px; align-items: center;">
-        <span>🔔</span>
-        <div style="width: 32px; height: 32px; background: #7141b1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">G</div>
-    </div>
+    <div style="font-size: 20px; font-weight: bold;">YouTube<sup>TR</sup></div>
+    <div class="search-bar">Ara</div>
+    <div style="width: 32px; height: 32px; background: #cc0000; border-radius: 50%;"></div>
 </header>
 
-<div class="main-wrapper">
+<div class="wrapper">
     <nav class="sidebar">
-        <div class="nav-item active">🏠 Ana Sayfa</div>
-        <div class="nav-item">🎞️ Shorts</div>
-        <div class="nav-item">📺 Abonelikler</div>
-        <hr style="border: 0.5px solid #333; margin: 12px 0;">
-        <div class="nav-item">👤 Siz</div>
-        <div class="nav-item">🕒 Geçmiş</div>
+        <div class="nav-item active" onclick="showPage('home')">🏠 Ana Sayfa</div>
+        <div class="nav-item" onclick="showPage('shorts')">🎞️ Shorts (Reels)</div>
+        <hr style="border: 0.5px solid #333; margin: 10px 0;">
+        <div class="nav-item" onclick="showPage('history')">🕒 Geçmiş (<span id="histCount">0</span>)</div>
     </nav>
 
-    <main class="content-grid" id="grid">
-        </main>
+    <main id="home" class="page active-page">
+        <div class="video-grid" id="mainGrid"></div>
+    </main>
+
+    <main id="shorts" class="page">
+        <div class="shorts-container" id="shortsGrid"></div>
+    </main>
+
+    <main id="history" class="page">
+        <h2>İzleme Geçmişi</h2><br>
+        <div id="historyList"></div>
+    </main>
 </div>
 
 <script>
     const videoData = [
-        { t: "Dünyanın En Büyük Gizemi Çözüldü!", c: "Bilim Kanalı", v: "1.2 Mn", d: "2 gün önce" },
-        { t: "Yeni iPhone 17 İncelemesi: Beklemeye Değer mi?", c: "TeknoHaber", v: "450 B", d: "5 saat önce" },
-        { t: "10 Dakikada Harika Akşam Yemeği", c: "Lezzet Ustası", v: "80 B", d: "1 gün önce" },
-        { t: "Oyun Dünyasını Değiştiren 5 Hata", c: "GamerTR", v: "300 B", d: "3 gün önce" },
-        { t: "Uzay Hakkında Hiç Duymadığınız 10 Gerçek", c: "Evren Gezgini", v: "2.5 Mn", d: "1 hafta önce" },
-        { t: "JavaScript İle Modern Web Uygulamaları", c: "Kod Dünyası", v: "15 B", d: "12 saat önce" },
-        { t: "İstanbul'un Gizli Kalmış Sokakları", c: "Gezi Rehberi", v: "65 B", d: "4 gün önce" },
-        { t: "Kripto Paralarda Yeni Dönem Başlıyor", c: "Ekonomi Vizyon", v: "120 B", d: "6 saat önce" },
-        { t: "Minecraft Ama Her Yer Lav!", c: "PixelCan", v: "800 B", d: "2 saat önce" },
-        { t: "Evde Spor Yapmanın En Verimli Yolu", c: "FitYaşam", v: "210 B", d: "3 gün önce" },
-        { t: "Kedi Dostlarımızın Anlamlı Davranışları", c: "PatiTV", v: "45 B", d: "5 gün önce" },
-        { t: "2026'da Bizi Hangi Teknolojiler Bekliyor?", c: "Gelecek Analiz", v: "90 B", d: "18 saat önce" }
+        { id: 1, t: "Gizemli Ada Serüveni", c: "Macera TV", v: "100 B", d: "2 gün önce" },
+        { id: 2, t: "Modern JS Rehberi 2026", c: "Kod Kampı", v: "50 B", d: "1 saat önce" },
+        { id: 3, t: "En Hızlı 10 Araba", c: "OtoHız", v: "1.2 Mn", d: "5 gün önce" },
+        { id: 4, t: "Uzayda Yaşam Var mı?", c: "Bilim Günlüğü", v: "900 B", d: "3 saat önce" },
+        { id: 5, t: "Pratik Yemek Tarifleri", c: "Şefin Mutfağı", v: "200 B", d: "1 gün önce" },
+        { id: 6, t: "Dünya Kupası Özeti", c: "Spor Haber", v: "3 Mn", d: "12 saat önce" },
+        { id: 7, t: "Kedi Videoları #1", c: "Pati Dünyası", v: "45 B", d: "4 gün önce" },
+        { id: 8, t: "Yeni Telefon Tanıtımı", c: "Teknoİnceleme", v: "600 B", d: "18 saat önce" },
+        { id: 9, t: "Sakinleştirici Müzik", c: "Lofi Medya", v: "10 Mn", d: "1 hafta önce" },
+        { id: 10, t: "Minecraft Survival Bölüm 5", c: "OyunCan", v: "300 B", d: "2 saat önce" },
+        { id: 11, t: "Zeka Geliştiren Oyunlar", c: "Eğitim+ ", v: "15 B", d: "3 gün önce" },
+        { id: 12, t: "Haftalık Haber Özeti", c: "Haber Gündem", v: "80 B", d: "6 saat önce" }
     ];
 
-    const grid = document.getElementById('grid');
+    let history = new Set(); // Aynı videonun tekrar eklenmemesi için Set kullanıyoruz
 
-    videoData.forEach(video => {
-        grid.innerHTML += `
-            <div class="v-card">
-                <div class="thumb">GÖRSEL ÖNİZLEME</div>
-                <div class="v-info">
-                    <div class="v-avatar"></div>
-                    <div class="v-details">
-                        <h3>${video.t}</h3>
-                        <p>${video.c}</p>
-                        <p>${video.v} görüntüleme • ${video.d}</p>
+    function init() {
+        const grid = document.getElementById('mainGrid');
+        const shorts = document.getElementById('shortsGrid');
+        
+        videoData.forEach(v => {
+            // Ana Sayfa Kartları
+            grid.innerHTML += `
+                <div class="v-card" onclick="addToHistory(${v.id})">
+                    <div class="thumb">VİDEO ÖNİZLEME #${v.id}</div>
+                    <div class="v-info">
+                        <div class="avatar"></div>
+                        <div class="details">
+                            <h3 style="font-size:14px;">${v.t}</h3>
+                            <p style="font-size:12px; color:#aaa; margin-top:4px;">${v.c}</p>
+                            <p style="font-size:12px; color:#aaa;">${v.v} • ${v.d}</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `;
-    });
-</script>
+                </div>`;
+            
+            // Shorts (Reels) Kartları
+            shorts.innerHTML += `
+                <div class="short-video" onclick="addToHistory(${v.id})">
+                    <p>Dikey Video (Shorts) #${v.id}</p>
+                </div>`;
+        });
+    }
 
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    }
+
+    function addToHistory(videoId) {
+        // Eğer video zaten geçmişte varsa tekrar eklemez (İstediğin kural)
+        if (!history.has(videoId)) {
+            history.add(videoId);
+            const video = videoData.find(v => v.id === videoId);
+            const list = document.getElementById('historyList');
+            
+            list.innerHTML = `
+                <div class="history-item">
+                    <div class="history-thumb"></div>
+                    <div>
+                        <h4 style="font-size:14px;">${video.t}</h4>
+                        <p style="font-size:12px; color:#aaa;">${video.c}</p>
+                    </div>
+                </div>` + list.innerHTML;
+            
+            document.getElementById('histCount').innerText = history.size;
+        }
+        alert("Video izlendi ve geçmişe kaydedildi!");
+    }
+
+    init();
+</script>
 </body>
 </html>
