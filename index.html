@@ -3,222 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Shorts Pro - Dikey Mod</title>
+    <title>Shorts Full Screen</title>
     <style>
         :root { --yt-red: #ff0000; }
+        /* Kaydırmayı engelleyen temel ayarlar */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
-        body, html { width: 100%; height: 100%; background: #000; overflow: hidden; color: white; }
+        body, html { width: 100%; height: 100%; background: #000; overflow: hidden; position: fixed; }
 
-        /* ALT NAVİGASYON (SABİT) */
+        /* NAVİGASYON - YT TARZI ŞEFFAF */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 65px;
-            background: #000; display: flex; justify-content: space-around;
-            align-items: center; z-index: 5000; border-top: 1px solid #222;
+            position: fixed; bottom: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.8); display: flex; justify-content: space-around;
+            align-items: center; z-index: 5000; backdrop-filter: blur(10px);
         }
         .nav-item { color: white; text-align: center; font-size: 10px; opacity: 0.5; cursor: pointer; flex: 1; }
-        .nav-item.active { opacity: 1; }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 3px; font-style: normal; }
+        .nav-item.active { opacity: 1; border-top: 2px solid white; padding-top: 5px; }
+        .nav-item i { font-size: 22px; display: block; font-style: normal; margin-bottom: 2px; }
 
         /* SAYFA YAPISI */
-        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
+        .page { display: none; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; }
         .active-page { display: block; }
 
-        /* ANA SAYFA (BAŞLANGIÇ SEKMESİ) */
+        /* ANA SAYFA - KAZANÇ */
         #homePage { 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            background: linear-gradient(180deg, #121212 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #0f0f0f;
         }
         .balance-card { 
-            background: #1a1a1a; padding: 35px; border-radius: 25px; 
-            border: 1px solid #333; width: 100%; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #1e1e1e; padding: 40px; border-radius: 30px; 
+            text-align: center; width: 85%; border: 1px solid #333;
         }
-        .balance-card h2 { color: #00ff88; font-size: 42px; margin: 15px 0; }
+        #balanceText { font-size: 45px; color: #00ff88; margin: 15px 0; font-weight: bold; }
 
-        /* SHORTS DİKEY AKIŞ */
+        /* FULL SCREEN SHORTS SİSTEMİ */
         #shortsPage { 
             overflow-y: scroll; 
             scroll-snap-type: y mandatory; 
             scrollbar-width: none;
             height: 100vh;
+            width: 100vw;
         }
         #shortsPage::-webkit-scrollbar { display: none; }
         
         .short-wrapper { 
-            width: 100%; 
-            height: 100vh; /* Tam Ekran */
+            width: 100vw; 
+            height: 100vh; /* Tam ekran yüksekliği */
             scroll-snap-align: start; 
+            scroll-snap-stop: always;
             position: relative; 
             background: #000;
         }
+
+        /* VİDEOYU TÜM EKRANA YAYMA */
         video { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* Dikey Kaplama */
+            object-fit: cover; /* Siyah boşlukları yok eder, videoyu dikey sığdırır */
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
-        /* VİDEO ÜSTÜ UI (YT STYLE) */
+        /* VİDEO ÜSTÜ UI ELEMENTLERİ */
         .side-bar {
-            position: absolute; right: 10px; bottom: 100px;
+            position: absolute; right: 15px; bottom: 120px;
             display: flex; flex-direction: column; gap: 20px; align-items: center; z-index: 10;
         }
-        .side-btn { text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .side-btn i { font-size: 28px; display: block; }
-        .side-btn span { font-size: 11px; margin-top: 4px; display: block; }
+        .side-btn { text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
+        .side-btn i { font-size: 30px; display: block; }
 
         .video-meta {
-            position: absolute; bottom: 80px; left: 15px; right: 70px;
-            z-index: 10; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            position: absolute; bottom: 85px; left: 15px; right: 80px;
+            z-index: 10; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,1);
         }
-        .channel-info { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .avatar { width: 32px; height: 32px; background: #444; border-radius: 50%; border: 1px solid #fff; }
 
-        /* REKLAM MODALI */
+        /* REKLAM MODAL */
         .ad-modal {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.97);
-            z-index: 10000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.98);
+            z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        .timer-box { font-size: 40px; color: #00ff88; font-weight: bold; margin-top: 15px; }
-
-        /* İLERLEME ÇUBUĞU */
-        .progress-line { position: absolute; bottom: 65px; left: 0; height: 2px; background: red; width: 0%; z-index: 100; }
+        
+        /* KIRMIZI İLERLEME ÇUBUĞU */
+        .progress-bar {
+            position: absolute; bottom: 60px; left: 0; height: 3px; 
+            background: red; width: 0%; z-index: 100;
+        }
     </style>
 </head>
 <body>
 
 <div id="homePage" class="page active-page">
     <div class="balance-card">
-        <p style="color: #888; letter-spacing: 1px; font-size: 12px;">CÜZDAN BAKİYESİ</p>
+        <p style="color: #aaa; font-size: 13px;">TOPLAM KAZANCINIZ</p>
         <h2 id="balanceText">0.0000$</h2>
-        <div style="font-size: 12px; color: #00ff88;">Sistem Aktif • Video İzle Kazan</div>
+        <small style="color: #555;">Kazanmak için Shorts izle!</small>
     </div>
-    <p style="margin-top: 30px; color: #555; font-size: 13px;">Shorts sekmesine geçerek dikey videoları kaydırın.</p>
 </div>
 
 <div id="shortsPage" class="page">
     <div id="videoContainer"></div>
 </div>
 
-<div id="historyPage" class="page" style="overflow-y: auto; padding: 20px;">
-    <h2 style="margin-bottom: 20px;">Geçmiş</h2>
-    <div id="histContent"></div>
-</div>
-
 <nav class="bottom-nav">
-    <div class="nav-item active" id="n-home" onclick="nav('homePage')"><i>🏠</i>Ana Sayfa</div>
+    <div class="nav-item active" id="n-home" onclick="nav('homePage')"><i>🏠</i>Ev</div>
     <div class="nav-item" id="n-shorts" onclick="nav('shortsPage')"><i>🎞️</i>Shorts</div>
-    <div class="nav-item" id="n-history" onclick="nav('historyPage')"><i>🕒</i>Geçmiş</div>
 </nav>
 
 <script>
     const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
     let balance = 0;
-    let watchedCount = 0;
-    let isMuted = true;
+    let watched = 0;
 
-    // Uygulama Kurulumu
     function init() {
         const container = document.getElementById('videoContainer');
-        // 20 videoluk dikey akış oluştur
-        for(let i=0; i<5; i++) {
+        // Videoları 10 kez tekrarla (Sonsuz kaydırma hissi)
+        for(let i=0; i<10; i++) {
             reels.forEach((file, idx) => {
                 container.innerHTML += `
                     <div class="short-wrapper">
-                        <video src="${file}" loop muted playsinline onclick="toggleAudio()"></video>
-                        <div class="progress-line"></div>
+                        <video src="${file}" loop muted playsinline onclick="this.muted = !this.muted"></video>
+                        <div class="progress-bar"></div>
                         <div class="side-bar">
-                            <div class="side-btn"><i>❤️</i><span>15B</span></div>
-                            <div class="side-btn"><i>💬</i><span>124</span></div>
-                            <div class="side-btn"><i>✈️</i><span>Paylaş</span></div>
+                            <div class="side-btn"><i>❤️</i><span>124B</span></div>
+                            <div class="side-btn"><i>💬</i><span>85</span></div>
+                            <div class="side-btn"><i>↪️</i></div>
                         </div>
                         <div class="video-meta">
-                            <div class="channel-info">
-                                <div class="avatar"></div>
-                                <b>@Kanal_${idx+1}</b>
-                            </div>
-                            <p>${file} izleniyor. #shorts #vertical</p>
+                            <h3 style="margin-bottom:5px;">@Kullanıcı_${idx+1}</h3>
+                            <p>Full ekran dikey Shorts deneyimi! #${file.split('.')[0]}</p>
                         </div>
                     </div>`;
             });
         }
-        startObserver();
+        startApp();
     }
 
-    // Sekme Geçişi
     function nav(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        
         document.getElementById(id).classList.add('active-page');
         document.getElementById('n-' + id.replace('Page', '')).classList.add('active');
-
-        if(id !== 'shortsPage') {
-            document.querySelectorAll('video').forEach(v => v.pause());
-        }
+        if(id !== 'shortsPage') document.querySelectorAll('video').forEach(v => v.pause());
     }
 
-    // Video ve Reklam Mantığı
-    function startObserver() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const vid = entry.target;
-                const pLine = vid.parentElement.querySelector('.progress-line');
-
-                if (entry.isIntersecting) {
-                    vid.muted = isMuted;
+    function startApp() {
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                const vid = e.target;
+                const pBar = vid.parentElement.querySelector('.progress-bar');
+                if (e.isIntersecting) {
                     vid.play();
-                    
-                    watchedCount++;
-                    if(watchedCount % 4 === 0 && watchedCount !== 0) triggerAd(vid);
-
-                    // İlerleme çubuğu
+                    watched++;
+                    if(watched % 4 === 0) triggerAd(vid);
                     vid.ontimeupdate = () => {
                         let p = (vid.currentTime / vid.duration) * 100;
-                        pLine.style.width = p + "%";
+                        pBar.style.width = p + "%";
                     };
-                } else {
-                    vid.pause();
-                }
+                } else { vid.pause(); }
             });
-        }, { threshold: 0.7 });
-
-        document.querySelectorAll('video').forEach(v => observer.observe(v));
+        }, { threshold: 0.6 });
+        document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
     function triggerAd(v) {
         v.pause();
-        const modal = document.createElement('div');
-        modal.className = 'ad-modal';
-        modal.innerHTML = `
-            <div style="font-size:50px;">📺</div>
-            <h3>SPONSORLU REKLAM</h3>
-            <div class="timer-box" id="timer">5</div>
-            <p style="margin-top:10px; color:#666;">Bakiye yükleniyor...</p>
-        `;
-        v.parentElement.appendChild(modal);
-
+        const ad = document.createElement('div');
+        ad.className = 'ad-modal';
+        ad.innerHTML = `<h3>SPONSORLU REKLAM</h3><h1 id="timer" style="font-size:50px; color:#00ff88; margin:20px 0;">5</h1><p>Bakiye Yükleniyor...</p>`;
+        v.parentElement.appendChild(ad);
         let s = 5;
-        const countdown = setInterval(() => {
+        const count = setInterval(() => {
             s--;
             if(document.getElementById('timer')) document.getElementById('timer').innerText = s;
             if(s <= 0) {
-                clearInterval(countdown);
-                modal.remove();
+                clearInterval(count);
+                ad.remove();
                 v.play();
                 balance += 0.0003;
                 document.getElementById('balanceText').innerText = balance.toFixed(4) + "$";
             }
         }, 1000);
-    }
-
-    function toggleAudio() {
-        isMuted = !isMuted;
-        document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
     init();
