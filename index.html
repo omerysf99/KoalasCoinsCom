@@ -3,102 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobil Reels Player - Ses Kontrollü</title>
+    <title>Reels - Gizlenebilir Ses Paneli</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: sans-serif;
-            color: white;
+            margin: 0; padding: 0; background-color: #121212;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; font-family: sans-serif; color: white;
         }
 
         .reels-wrapper {
-            width: 100%;
-            max-width: 380px; 
-            height: 85vh;
-            position: relative;
-            background: #000;
-            border-radius: 30px;
-            overflow: hidden;
-            border: 6px solid #333;
+            width: 100%; max-width: 380px; height: 85vh;
+            position: relative; background: #000;
+            border-radius: 30px; overflow: hidden; border: 6px solid #333;
         }
 
         .reels-container {
-            height: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
+            height: 100%; overflow-y: scroll;
+            scroll-snap-type: y mandatory; scroll-behavior: smooth;
         }
-
         .reels-container::-webkit-scrollbar { display: none; }
 
-        .video-card {
-            height: 100%;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
+        .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Sağ Üst Ses Butonu */
+        .volume-toggle-btn {
+            position: absolute; top: 20px; right: 20px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-size: 20px; cursor: pointer; z-index: 101;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            cursor: pointer;
+        /* Gizlenebilir Ses Paneli */
+        .volume-panel {
+            position: absolute; top: 75px; right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 10px; border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 10px; z-index: 100;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0; transform: translateY(-10px);
+            pointer-events: none; /* Gizliyken tıklanmaz */
         }
 
-        /* Ses Kontrol Paneli */
-        .volume-controls {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 8px;
-            border-radius: 20px;
-            z-index: 100;
-            gap: 10px;
+        .volume-panel.active {
+            opacity: 1; transform: translateY(0);
+            pointer-events: all;
         }
 
-        /* Dikey Ses Barı */
         .volume-slider {
             -webkit-appearance: slider-vertical;
-            width: 8px;
-            height: 120px;
-            cursor: pointer;
+            width: 10px; height: 150px; cursor: pointer;
         }
 
-        .mute-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .info-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 15px;
-            pointer-events: none;
-        }
+        .info-overlay { position: absolute; bottom: 20px; left: 15px; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div class="reels-wrapper">
-    <div class="volume-controls">
-        <button class="mute-btn" onclick="toggleAllMute()">🔊</button>
-        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" oninput="changeVolume(this.value)">
-        <span>Vol</span>
+    <button class="volume-toggle-btn" onclick="toggleVolumePanel()">🔊</button>
+
+    <div class="volume-panel" id="volumePanel">
+        <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="0.5" oninput="changeVolume(this.value)">
+        <span id="volPercent">50%</span>
     </div>
 
     <div class="reels-container" id="reelsContainer">
@@ -109,30 +78,14 @@
     const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
     const container = document.getElementById('reelsContainer');
     let currentVolume = 0.5;
-    let isMuted = false;
 
-    function createVideo(src, id) {
-        const div = document.createElement('div');
-        div.className = 'video-card';
-        div.innerHTML = `
-            <video src="${src}" loop playsinline onclick="togglePlay(this)"></video>
-            <div class="info-overlay">
-                <h4>Reels #${id}</h4>
-            </div>
-        `;
-        return div;
+    function toggleVolumePanel() {
+        document.getElementById('volumePanel').classList.toggle('active');
     }
 
-    function loadContent() {
-        videoFiles.forEach((file, i) => {
-            const videoCard = createVideo(file, i + 1);
-            container.appendChild(videoCard);
-        });
-    }
-
-    // Ses seviyesini değiştir
     function changeVolume(val) {
         currentVolume = val;
+        document.getElementById('volPercent').innerText = Math.round(val * 100) + "%";
         const vids = document.querySelectorAll('video');
         vids.forEach(v => {
             v.volume = val;
@@ -140,36 +93,29 @@
         });
     }
 
-    // Sesi tamamen kapat/aç
-    function toggleAllMute() {
-        isMuted = !isMuted;
-        const vids = document.querySelectorAll('video');
-        const muteBtn = document.querySelector('.mute-btn');
-        
-        vids.forEach(v => {
-            v.muted = isMuted;
-        });
-        
-        muteBtn.innerText = isMuted ? "🔇" : "🔊";
+    function createVideo(src, id) {
+        const div = document.createElement('div');
+        div.className = 'video-card';
+        div.innerHTML = `<video src="${src}" loop playsinline></video>
+                         <div class="info-overlay"><h4>Reels #${id}</h4></div>`;
+        return div;
     }
 
-    // Videoya tıklayınca duraklat/oynat
-    function togglePlay(video) {
-        if (video.paused) video.play();
-        else video.pause();
+    function loadContent() {
+        videoFiles.forEach((file, i) => {
+            container.appendChild(createVideo(file, i + 1));
+        });
     }
 
     container.addEventListener('scroll', () => {
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
-            loadContent();
-        }
-
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) loadContent();
+        
         const videos = document.querySelectorAll('video');
         videos.forEach(v => {
             const rect = v.getBoundingClientRect();
             if (rect.top >= 0 && rect.bottom <= window.innerHeight + 50) {
                 v.play().catch(() => {});
-                v.volume = currentVolume; // Kaydırınca mevcut ses seviyesini koru
+                v.volume = currentVolume;
             } else {
                 v.pause();
             }
@@ -177,6 +123,12 @@
     });
 
     loadContent();
+
+    // İlk etkileşimde sesi aç (Tarayıcı kısıtlaması için)
+    window.addEventListener('click', () => {
+        const vids = document.querySelectorAll('video');
+        vids.forEach(v => v.muted = false);
+    }, { once: true });
 </script>
 
 </body>
