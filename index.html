@@ -2,28 +2,20 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Fix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Reels Player Fix</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; height: 100vh; display: flex; justify-content: center; overflow: hidden; font-family: sans-serif; }
         
-        body {
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            font-family: sans-serif;
-        }
-
-        /* Reels Akış Alanı */
         .reels-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             height: 100vh;
             overflow-y: scroll;
-            scroll-snap-type: y mandatory; /* Videoları tek tek kilitler */
+            scroll-snap-type: y mandatory;
             scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
@@ -38,85 +30,69 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Tam ekran kaplama */
+            object-fit: cover; /* Görüntüyü ekrana tam oturtur */
         }
 
-        /* Alt Yazılar */
-        .ui {
+        .overlay {
             position: absolute;
-            bottom: 40px;
+            bottom: 50px;
             left: 20px;
             color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
             pointer-events: none;
-            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-<div class="reels-container" id="mainContainer">
-    
+<div class="reels-container">
     <div class="reel">
-        <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
-        <div class="ui">
-            <h3>@video_1</h3>
-            <p>Ses için videoya tıkla 🔊</p>
-        </div>
+        <video src="videoplayback.mp4" loop muted playsinline autoplay preload="auto"></video>
+        <div class="overlay"><h3>@video_1</h3><p>Ses için dokun</p></div>
     </div>
-
     <div class="reel">
-        <video src="videoplayback2.mp4" loop muted playsinline></video>
-        <div class="ui">
-            <h3>@video_2</h3>
-            <p>İkinci video başarıyla yüklendi ✅</p>
-        </div>
+        <video src="videoplayback2.mp4" loop muted playsinline preload="auto"></video>
+        <div class="overlay"><h3>@video_2</h3><p>Otomatik döngü aktif</p></div>
     </div>
-
 </div>
 
 <script>
     const videos = document.querySelectorAll('video');
 
-    // Kaydırma Takipçisi
+    // Videoları yöneten ana fonksiyon
+    const playVideo = (video) => {
+        const attemptPlay = video.play();
+        if (attemptPlay !== undefined) {
+            attemptPlay.catch(error => {
+                console.log("Oynatma otomatik engellendi, etkileşim bekleniyor.");
+            });
+        }
+    };
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const video = entry.target;
-            
             if (entry.isIntersecting) {
-                // Video ekrana gelince en baştan oynat
-                video.currentTime = 0; 
-                let playPromise = video.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log("Otomatik oynatma bekliyor...");
-                    });
-                }
+                video.currentTime = 0; // Başa sar
+                playVideo(video);
             } else {
-                // Ekrandan çıkınca durdur
                 video.pause();
             }
         });
-    }, { threshold: 0.6 }); // Videonun %60'ı göründüğünde tetiklenir
+    }, { threshold: 0.7 });
 
     videos.forEach(v => {
         observer.observe(v);
-        
-        // SES KONTROLÜ (Tıklayınca ses açılır/kapanır)
+        // Sesi açmak için tıklama desteği
         v.parentElement.addEventListener('click', () => {
-            if (v.muted) {
-                v.muted = false;
-            } else {
-                v.muted = true;
-            }
+            v.muted = !v.muted;
         });
     });
 
-    // İkinci videonun yüklenmeme ihtimaline karşı "Preload" (Ön yükleme) zorla
-    window.addEventListener('load', () => {
-        videos.forEach(v => v.load());
-    });
+    // Kullanıcı sayfaya dokunduğu an tüm videoların engelini kaldır
+    document.addEventListener('touchstart', () => {
+        videos.forEach(v => { v.play().then(() => { if(!v.closest('.reel').getBoundingClientRect().top === 0) v.pause(); }) });
+    }, { once: true });
 </script>
 
 </body>
