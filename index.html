@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Shorts & Earn</title>
+    <title>Shorts Pro - Earn</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; color: white; }
@@ -15,46 +15,47 @@
             align-items: center; z-index: 2000; border-top: 1px solid #333;
         }
         .nav-item { color: white; text-align: center; font-size: 10px; opacity: 0.5; cursor: pointer; flex: 1; }
-        .nav-item.active { opacity: 1; border-top: 2px solid red; }
-        .nav-item b { font-size: 20px; display: block; }
+        .nav-item.active { opacity: 1; border-top: 2px solid #ff0000; }
+        .nav-item b { font-size: 20px; display: block; margin-bottom: 2px; }
 
-        /* SAYFALAR */
+        /* SAYFA YAPISI */
         .page { display: none; height: calc(100vh - 65px); width: 100%; overflow-y: auto; }
         .active-page { display: block; }
 
-        /* ANA SAYFA (BİLGİLENDİRME) */
-        #homePage { padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #0f0f0f; }
-        .balance-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #ffcc00; width: 100%; max-width: 300px; margin-bottom: 20px; }
-        .info-box { background: #222; padding: 15px; border-radius: 12px; font-size: 13px; color: #ccc; line-height: 1.6; }
+        /* ANA SAYFA (BAKİYE) */
+        #homePage { padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .balance-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #00ff00; width: 100%; margin-bottom: 20px; }
+        .info-box { background: #222; padding: 15px; border-radius: 12px; font-size: 13px; color: #aaa; }
 
         /* SHORTS AKIŞI */
-        #shortsPage { overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; background: #000; }
+        #shortsPage { overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         #shortsPage::-webkit-scrollbar { display: none; }
-        .short-unit { width: 100%; height: 100%; scroll-snap-align: start; position: relative; }
+        .short-unit { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; }
         video { width: 100%; height: 100%; object-fit: cover; }
         
         /* REKLAM KATMANI */
         .ad-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 100;
+            background: rgba(0,0,0,0.95); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; text-align: center;
         }
-        .ad-timer { font-size: 18px; color: #ffcc00; margin-top: 10px; font-weight: bold; }
+        .ad-timer { font-size: 24px; color: #ffcc00; margin-top: 15px; font-weight: bold; }
 
         /* GEÇMİŞ */
-        .history-card { background: #1a1a1a; padding: 15px; border-radius: 12px; margin: 15px; border-left: 4px solid red; }
+        .history-card { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 10px; border-left: 4px solid #ff0000; }
     </style>
 </head>
 <body>
 
 <div id="homePage" class="page active-page">
     <div class="balance-card">
-        <p style="color: #aaa; font-size: 14px;">Toplam Kazancınız</p>
-        <h1 id="balanceDisplay" style="font-size: 36px; margin: 10px 0;">0.0000$</h1>
+        <p style="color: #aaa;">Mevcut Kazanç</p>
+        <h1 id="balanceDisplay">0.0000$</h1>
     </div>
     <div class="info-box">
-        <b>💡 Nasıl Kazanılır?</b><br>
-        Her 4 Shorts videosundan sonra karşınıza bir reklam çıkar. Reklamı sonuna kadar izlediğinizde hesabınıza <b>0.0003$</b> eklenir.
+        <b>Sistem Bilgisi:</b><br>
+        Her 4 videodan sonra geçilemez reklam çıkar. <br>
+        Reklam başına <b>0.0003$</b> kazanırsınız.
     </div>
 </div>
 
@@ -76,20 +77,21 @@
 <script>
     const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
     let balance = 0;
-    let videoCounter = 0;
+    let watchCounter = 0;
     let historySet = new Set();
     let isMuted = true;
 
-    function buildApp() {
+    function buildShorts() {
         const container = document.getElementById('shortsContent');
-        // Sonsuz döngü için birkaç kez ekleyelim
-        for(let i=0; i<5; i++) {
+        // Sonsuz akış hissi için listeyi 10 kez tekrarla
+        for(let i=0; i<10; i++) {
             reels.forEach((file, idx) => {
                 container.innerHTML += `
                     <div class="short-unit">
                         <video src="${file}" loop muted playsinline onclick="toggleMute()"></video>
-                        <div style="position:absolute; bottom:30px; left:20px;">
-                            <h3>Video #${idx+1}</h3>
+                        <div style="position:absolute; bottom:30px; left:20px; text-shadow: 2px 2px 4px #000;">
+                            <h3>Shorts #${idx+1}</h3>
+                            <p style="font-size:12px; opacity:0.8;">${file}</p>
                         </div>
                     </div>`;
             });
@@ -102,18 +104,20 @@
             entries.forEach(e => {
                 if (e.isIntersecting) {
                     const video = e.target;
-                    video.play();
-                    videoCounter++;
+                    video.play().catch(err => console.log("Otomatik oynatma bekliyor..."));
+                    
+                    watchCounter++;
 
-                    // Her 4 videoda bir reklam tetikle
-                    if(videoCounter % 4 === 0) {
-                        showAd(video);
+                    // Reklam Mantığı: Her 4 videoda bir
+                    if(watchCounter % 4 === 0 && watchCounter !== 0) {
+                        triggerAd(video);
                     }
 
-                    // Geçmişe Ekle
-                    if(!historySet.has(video.src)) {
-                        historySet.add(video.src);
-                        addToHistoryUI(video.src);
+                    // Akıllı Geçmiş: 1 defa ekle
+                    const src = video.getAttribute('src');
+                    if(!historySet.has(src)) {
+                        historySet.add(src);
+                        addToHistoryUI(src);
                     }
                 } else {
                     e.target.pause();
@@ -123,33 +127,32 @@
         document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
-    function showAd(currentVideo) {
-        currentVideo.pause();
-        const parent = currentVideo.parentElement;
-        
-        const adHTML = document.createElement('div');
-        adHTML.className = 'ad-overlay';
-        adHTML.innerHTML = `
-            <h2>📢 REKLAM</h2>
-            <p>Kazanç sağlanıyor...</p>
-            <div class="ad-timer">5 saniye bekleyin</div>
+    function triggerAd(video) {
+        video.pause();
+        const overlay = document.createElement('div');
+        overlay.className = 'ad-overlay';
+        overlay.innerHTML = `
+            <div style="font-size:40px;">💰</div>
+            <h2>REKLAM İZLENİYOR</h2>
+            <p>Kazanç hesabınıza aktarılıyor...</p>
+            <div class="ad-timer">5</div>
         `;
-        parent.appendChild(adHTML);
+        video.parentElement.appendChild(overlay);
 
         let timeLeft = 5;
-        const timer = setInterval(() => {
+        const interval = setInterval(() => {
             timeLeft--;
-            adHTML.querySelector('.ad-timer').innerText = `${timeLeft} saniye bekleyin`;
+            overlay.querySelector('.ad-timer').innerText = timeLeft;
             if(timeLeft <= 0) {
-                clearInterval(timer);
-                adHTML.remove();
-                currentVideo.play();
-                updateBalance();
+                clearInterval(interval);
+                overlay.remove();
+                video.play();
+                processPayment();
             }
         }, 1000);
     }
 
-    function updateBalance() {
+    function processPayment() {
         balance += 0.0003;
         document.getElementById('balanceDisplay').innerText = balance.toFixed(4) + "$";
     }
@@ -167,13 +170,16 @@
         document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
-    function addToHistoryUI(src) {
-        const name = src.split('/').pop();
+    function addToHistoryUI(fileName) {
         const list = document.getElementById('histList');
-        list.innerHTML = `<div class="history-card"><b>${name}</b> izlendi.</div>` + list.innerHTML;
+        list.innerHTML = `
+            <div class="history-card">
+                <p><b>${fileName}</b></p>
+                <small style="color:#666;">İzlenme başarıyla kaydedildi.</small>
+            </div>` + list.innerHTML;
     }
 
-    buildApp();
+    buildShorts();
 </script>
 </body>
 </html>
