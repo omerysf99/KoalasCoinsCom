@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Pro - 100 Video & Akıllı Tık</title>
+    <title>Reels Pro - Otomatik Sistem</title>
     <style>
         body { margin: 0; padding: 0; background-color: #0b0b0b; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: white; overflow: hidden; }
         .reels-wrapper { width: 100%; max-width: 380px; height: 90vh; position: relative; background: #000; border-radius: 40px; overflow: hidden; border: 6px solid #222; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
@@ -11,21 +11,18 @@
         .reels-container::-webkit-scrollbar { display: none; }
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
         video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
-
-        /* Ses Kontrolleri */
+        
+        /* Kontroller */
         .master-volume-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: rgba(0,0,0,0.5); border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 18px; cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-
-        /* Yan Menü */
         .side-bar { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
         .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .icon { font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transition: 0.2s; }
         .count { font-size: 11px; font-weight: bold; margin-top: 2px; }
-
-        /* Kalp Animasyonu */
+        
+        /* Kalp Efekti */
         .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 80px; color: red; pointer-events: none; z-index: 150; }
         .animate-heart { animation: heartPop 0.6s ease-out forwards; }
         @keyframes heartPop { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; } }
-
         .info-overlay { position: absolute; bottom: 30px; left: 15px; width: 60%; pointer-events: none; text-shadow: 0 1px 4px black; }
     </style>
 </head>
@@ -38,16 +35,13 @@
 </div>
 
 <script>
+    // PYTHON BU SATIRI OTOMATIK GÜNCELLEYECEK:
+    const videoList = []; 
+
     const container = document.getElementById('reelsContainer');
     let globalVolume = 0.5;
     let isMuted = false;
-    let clickTimer = null; // Tek ve çift tıkı ayırt etmek için
-
-    // 1'den 100'e kadar olan videolar
-    const videoList = [];
-    for (let i = 1; i <= 100; i++) {
-        videoList.push(`reels${i}.mp4`);
-    }
+    let clickTimer = null;
 
     function toggleMute() {
         isMuted = !isMuted;
@@ -55,46 +49,36 @@
         document.querySelectorAll('video').forEach(v => { v.muted = isMuted; });
     }
 
-    // Tıklama Yönetimi (Single vs Double)
     function handleVideoClick(videoElement, index) {
         if (clickTimer == null) {
-            // İlk tıklama: Beklemeye al
             clickTimer = setTimeout(() => {
-                // Eğer 250ms içinde ikinci tık gelmezse: Oynat/Durdur
-                if (videoElement.paused) videoElement.play();
-                else videoElement.pause();
+                videoElement.paused ? videoElement.play() : videoElement.pause();
                 clickTimer = null;
             }, 250);
         } else {
-            // İkinci tıklama 250ms içinde geldi: Çift Tık (Like)
             clearTimeout(clickTimer);
             clickTimer = null;
-            toggleLike(index, true); // Sadece beğenme modunda çalıştır
+            toggleLike(index, true);
         }
     }
 
     function toggleLike(index, forceLike = false) {
-        const key = `liked_video_${index}`;
+        const key = `liked_v_${index}`;
         const isLiked = localStorage.getItem(key) === 'true';
         const heartIcon = document.querySelectorAll('.like-icon')[index];
         const countEl = document.querySelectorAll('.like-count')[index];
         
-        // Eğer çift tıklandıysa ve zaten beğenildiyse tekrar sayı artmasın (sadece animasyon çıksın)
-        if (forceLike && isLiked) {
-            playHeartAnim();
-            return;
-        }
-
         if (!isLiked) {
             localStorage.setItem(key, 'true');
             countEl.innerText = parseInt(countEl.innerText) + 1;
             heartIcon.innerText = '❤️';
             playHeartAnim();
         } else if (!forceLike) {
-            // Sadece butona basınca beğeniyi geri çekme
             localStorage.removeItem(key);
             countEl.innerText = parseInt(countEl.innerText) - 1;
             heartIcon.innerText = '🤍';
+        } else {
+            playHeartAnim();
         }
     }
 
@@ -106,8 +90,12 @@
     }
 
     function render() {
+        if (videoList.length === 0) {
+            container.innerHTML = "<p style='padding:20px'>Henüz video yok. Klasöre video ekleyin.</p>";
+            return;
+        }
         videoList.forEach((file, i) => {
-            const isLiked = localStorage.getItem(`liked_video_${i}`) === 'true';
+            const isLiked = localStorage.getItem(`liked_v_${i}`) === 'true';
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
@@ -120,10 +108,7 @@
                     <div class="action-item"><span class="icon">💬</span><span class="count">0</span></div>
                     <div class="action-item"><span class="icon">🔖</span><span class="count">0</span></div>
                 </div>
-                <div class="info-overlay">
-                    <h4 style="margin:0;">Video #${i+1}</h4>
-                    <p style="margin:5px 0 0; font-size:12px;">Durdurmak için 1, beğenmek için 2 tık!</p>
-                </div>
+                <div class="info-overlay"><h4>${file}</h4><p>Otomatik Yüklendi</p></div>
             `;
             container.appendChild(card);
         });
@@ -134,17 +119,12 @@
             const pos = v.getBoundingClientRect();
             if (pos.top >= -50 && pos.top <= 50) {
                 v.play().catch(() => {});
-                v.volume = globalVolume;
                 v.muted = isMuted;
             } else { v.pause(); }
         });
     });
 
     render();
-    window.addEventListener('click', () => { 
-        document.querySelectorAll('video').forEach(v => { v.muted = isMuted; v.volume = globalVolume; });
-    }, { once: true });
 </script>
-
 </body>
 </html>
