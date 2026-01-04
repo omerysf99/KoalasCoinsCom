@@ -2,20 +2,28 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Reels Player Fix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonsuz Video Döngüsü</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; height: 100vh; display: flex; justify-content: center; overflow: hidden; font-family: sans-serif; }
         
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* Kaydırma Alanı */
         .reels-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px; /* Telefon görünümü */
             height: 100vh;
+            margin: 0 auto;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
-            -ms-overflow-style: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
@@ -30,69 +38,76 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Görüntüyü ekrana tam oturtur */
+            object-fit: cover;
         }
 
-        .overlay {
+        .ui-overlay {
             position: absolute;
             bottom: 50px;
             left: 20px;
             color: white;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
             pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div class="reels-container">
+<div class="reels-container" id="reelsContainer">
     <div class="reel">
-        <video src="videoplayback.mp4" loop muted playsinline autoplay preload="auto"></video>
-        <div class="overlay"><h3>@video_1</h3><p>Ses için dokun</p></div>
+        <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
+        <div class="ui-overlay"><h3>@video_1</h3><p>Sonsuz Döngü Aktif 🔄</p></div>
     </div>
     <div class="reel">
-        <video src="videoplayback2.mp4" loop muted playsinline preload="auto"></video>
-        <div class="overlay"><h3>@video_2</h3><p>Otomatik döngü aktif</p></div>
+        <video src="videoplayback.mp4" loop muted playsinline></video>
+        <div class="ui-overlay"><h3>@video_1</h3><p>Yine aynı video...</p></div>
     </div>
 </div>
 
 <script>
-    const videos = document.querySelectorAll('video');
+    const container = document.getElementById('reelsContainer');
+    const videoSrc = "videoplayback.mp4";
 
-    // Videoları yöneten ana fonksiyon
-    const playVideo = (video) => {
-        const attemptPlay = video.play();
-        if (attemptPlay !== undefined) {
-            attemptPlay.catch(error => {
-                console.log("Oynatma otomatik engellendi, etkileşim bekleniyor.");
-            });
+    // Sonsuz Kaydırma Mantığı
+    container.addEventListener('scroll', () => {
+        // Kullanıcı sona yaklaştığında yeni bir "Video 1" bloğu ekle
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
+            createNewReel();
         }
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const video = entry.target;
-            if (entry.isIntersecting) {
-                video.currentTime = 0; // Başa sar
-                playVideo(video);
-            } else {
-                video.pause();
-            }
-        });
-    }, { threshold: 0.7 });
-
-    videos.forEach(v => {
-        observer.observe(v);
-        // Sesi açmak için tıklama desteği
-        v.parentElement.addEventListener('click', () => {
-            v.muted = !v.muted;
-        });
     });
 
-    // Kullanıcı sayfaya dokunduğu an tüm videoların engelini kaldır
-    document.addEventListener('touchstart', () => {
-        videos.forEach(v => { v.play().then(() => { if(!v.closest('.reel').getBoundingClientRect().top === 0) v.pause(); }) });
-    }, { once: true });
+    function createNewReel() {
+        const newReel = document.createElement('div');
+        newReel.className = 'reel';
+        newReel.innerHTML = `
+            <video src="${videoSrc}" loop muted playsinline></video>
+            <div class="ui-overlay"><h3>@video_1</h3><p>1001. kez de kaydırsan buradayım!</p></div>
+        `;
+        container.appendChild(newReel);
+        
+        // Yeni eklenen videoyu gözlemciye (observer) ekle
+        const video = newReel.querySelector('video');
+        observer.observe(video);
+    }
+
+    // Videoları yöneten Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play();
+            } else {
+                entry.target.pause();
+            }
+        });
+    }, { threshold: 0.8 });
+
+    document.querySelectorAll('video').forEach(v => observer.observe(v));
+
+    // Ses için tıklama özelliği
+    document.addEventListener('click', (e) => {
+        const v = e.target.closest('.reel')?.querySelector('video');
+        if (v) v.muted = !v.muted;
+    });
 </script>
 
 </body>
