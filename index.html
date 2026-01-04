@@ -3,100 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Reels Downloader Bot</title>
+    <title>Sonsuz Reels İzle</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #242f3e;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        * {
             margin: 0;
-        }
-        .bot-card {
-            background-color: #17212b;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 350px;
-            text-align: center;
-        }
-        .bot-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: none;
-            outline: none;
+            padding: 0;
             box-sizing: border-box;
         }
-        button {
+        body {
+            background-color: #000;
+            overflow: hidden; /* Ana sayfada kaydırmayı engelle */
+        }
+        .reels-container {
+            height: 100vh;
             width: 100%;
-            padding: 12px;
-            background-color: #24a1de;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Kaydırma mıknatısı */
+            scroll-behavior: smooth;
+        }
+        .reels-container::-webkit-scrollbar {
+            display: none; /* Kaydırma çubuğunu gizle */
+        }
+        .video-card {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover; /* Videoyu ekrana tam yay */
+        }
+        .overlay {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
             color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #1c82b6;
-        }
-        #status {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #8ab4f8;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-family: sans-serif;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div class="bot-card">
-    <div class="bot-logo">📸</div>
-    <h2>Reels Bot UI</h2>
-    <p>Telegram Botunuz için Web Arayüzü</p>
-    
-    <input type="text" id="reelsLink" placeholder="Instagram Reels Linki Yapıştırın...">
-    <button onclick="downloadReels()">Videoyu Getir</button>
-    
-    <div id="status"></div>
-</div>
+<div class="reels-container" id="reelsContainer">
+    </div>
 
 <script>
-    function downloadReels() {
-        const link = document.getElementById('reelsLink').value;
-        const status = document.getElementById('status');
-        
-        if (!link.includes("instagram.com/reels/")) {
-            status.style.color = "#ff5f5f";
-            status.innerText = "Lütfen geçerli bir Reels linki girin!";
-            return;
+    const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
+    const container = document.getElementById('reelsContainer');
+
+    // Videoları ekrana basan fonksiyon
+    function createVideoCard(src, index) {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.innerHTML = `
+            <video src="${src}" loop muted playsinline></video>
+            <div class="overlay">
+                <h3>Reels #${index + 1}</h3>
+                <p>Sonsuz kaydırma aktif</p>
+            </div>
+        `;
+        return card;
+    }
+
+    // İlk seti yükle
+    function loadVideos() {
+        videoFiles.forEach((file, index) => {
+            container.appendChild(createVideoCard(file, index));
+        });
+    }
+
+    // "Sonsuz" döngü için izleyici (Listen scroll)
+    container.addEventListener('scroll', () => {
+        // Eğer sona yaklaştıysak videoları tekrar ekle (Sonsuz döngü simülasyonu)
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 5) {
+            loadVideos(); 
         }
 
-        status.style.color = "#8ab4f8";
-        status.innerText = "Video işleniyor... (API'ye bağlanılıyor)";
+        // Otomatik oynatma yönetimi
+        const videos = document.querySelectorAll('video');
+        videos.forEach(v => {
+            const rect = v.getBoundingClientRect();
+            if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+                v.play().catch(() => {}); // Ekranda olanı oynat
+            } else {
+                v.pause(); // Ekrandan çıkanı durdur
+            }
+        });
+    });
 
-        // Burada bir API simülasyonu yapıyoruz. 
-        // Gerçek bir botta fetch() ile backend'e istek atılır.
-        setTimeout(() => {
-            status.innerText = "Video başarıyla bulundu! Telegram'a gönderiliyor...";
-        }, 2000);
-    }
+    // Sayfa açıldığında ilk videoları yükle
+    loadVideos();
+
+    // Kullanıcı etkileşimi olmadan video oynamayacağı için ilk tıklamada ses açma/oynatma
+    window.addEventListener('click', () => {
+        const firstVid = document.querySelector('video');
+        if(firstVid) firstVid.muted = false;
+    }, { once: true });
+
 </script>
 
 </body>
