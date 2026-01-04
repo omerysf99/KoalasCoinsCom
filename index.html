@@ -3,142 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Shorts - API'siz Mod</title>
+    <title>YouTube - Ana Sayfa</title>
     <style>
+        :root {
+            --yt-black: #0f0f0f;
+            --yt-white: #ffffff;
+            --yt-gray: #272727;
+            --yt-text-gray: #aaaaaa;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { 
-            height: 100%; 
-            background-color: #000; 
-            overflow: hidden; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        body { background-color: var(--yt-black); color: var(--yt-white); font-family: "Roboto", Arial, sans-serif; }
+
+        /* --- Header --- */
+        header {
+            position: fixed; top: 0; width: 100%; height: 56px;
+            background: var(--yt-black); display: flex;
+            justify-content: space-between; align-items: center;
+            padding: 0 16px; z-index: 100;
+        }
+        .search-bar {
+            background: #121212; border: 1px solid #333;
+            border-radius: 40px; padding: 8px 20px; width: 40%;
+            color: white; outline: none;
         }
 
-        /* Ana Konteynır */
-        #shorts-container {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
+        /* --- Sidebar --- */
+        nav {
+            position: fixed; left: 0; top: 56px; width: 240px; height: 100%;
+            padding: 12px; display: flex; flex-direction: column; gap: 5px;
         }
-        #shorts-container::-webkit-scrollbar { display: none; }
-
-        /* Video Kartı */
-        .video-card {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .nav-item {
+            padding: 10px 12px; border-radius: 10px; cursor: pointer;
+            transition: 0.2s; font-size: 14px;
         }
+        .nav-item:hover { background: var(--yt-gray); }
+        .nav-item.active { background: var(--yt-gray); font-weight: bold; }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px; /* Mobil görünümü korumak için */
-            height: 100%;
-            background: #000;
+        /* --- Main Content --- */
+        main { margin-left: 240px; margin-top: 56px; padding: 24px; }
+        
+        /* Kategoriler */
+        .categories {
+            display: flex; gap: 12px; margin-bottom: 24px;
+            overflow-x: auto; white-space: nowrap; padding-bottom: 10px;
         }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .cat-item {
+            background: var(--yt-gray); padding: 6px 12px;
+            border-radius: 8px; font-size: 14px; cursor: pointer;
         }
+        .cat-item.active { background: white; color: black; }
 
-        /* Yan Butonlar (Beğen, Paylaş vb.) */
-        .side-bar {
-            position: absolute;
-            right: 15px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            z-index: 10;
         }
 
-        .action-btn {
-            background: rgba(40, 40, 40, 0.6);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
+        .video-card { cursor: pointer; }
+        .thumbnail {
+            width: 100%; aspect-ratio: 16/9; background: #222;
+            border-radius: 12px; overflow: hidden; margin-bottom: 12px;
+            position: relative;
         }
-
-        /* Video Bilgileri */
-        .video-meta {
-            position: absolute;
-            bottom: 30px;
-            left: 15px;
-            color: white;
-            z-index: 10;
-            pointer-events: none;
+        .thumbnail iframe { width: 100%; height: 100%; border: none; }
+        
+        .video-info { display: flex; gap: 12px; }
+        .channel-img {
+            width: 36px; height: 36px; background: #444;
+            border-radius: 50%; flex-shrink: 0;
         }
+        .details h3 { font-size: 16px; margin-bottom: 4px; line-height: 1.4; }
+        .details p { color: var(--yt-text-gray); font-size: 14px; }
 
-        .channel-info { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .subscribe-btn {
-            background: #fff;
-            color: #000;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            pointer-events: auto;
+        @media (max-width: 768px) {
+            nav { display: none; }
+            main { margin-left: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div id="shorts-container">
+    <header>
+        <div style="font-weight: bold; font-size: 20px;">YouTube<sup>TR</sup></div>
+        <input type="text" class="search-bar" placeholder="Ara">
+        <div class="user-icons">👤</div>
+    </header>
+
+    <nav>
+        <div class="nav-item active">🏠 Ana Sayfa</div>
+        <div class="nav-item">🩳 Shorts</div>
+        <div class="nav-item">📺 Abonelikler</div>
+        <hr style="border: 0.1px solid #333; margin: 10px 0;">
+        <div class="nav-item">🕒 Geçmiş</div>
+        <div class="nav-item">🎵 Müzik</div>
+        <div class="nav-item">🎮 Oyun</div>
+    </nav>
+
+    <main>
+        <div class="categories">
+            <div class="cat-item active">Tümü</div>
+            <div class="cat-item">Müzik</div>
+            <div class="cat-item">Oyun</div>
+            <div class="cat-item">Canlı</div>
+            <div class="cat-item">Yazılım</div>
+            <div class="cat-item">Mix'ler</div>
         </div>
 
+        <div class="video-grid" id="videoGrid">
+            </div>
+    </main>
+
     <script>
-        // API Key gerektirmeyen, doğrudan Video ID listesi
-        // Buraya istediğin Shorts videolarının ID'lerini ekleyebilirsin
-        const videoList = [
-            { id: 'tFKdZPvyOc8', channel: 'Brazilian Couple', title: 'Ready for the day! #shorts' },
-            { id: 'luM--KkUwCc', channel: 'Danno Cal', title: 'Most Hated Videos Ever' },
-            { id: 'agC7mcC7WoQ', channel: 'Modern Millie', title: '10 Shorts Hacks' },
-            { id: 'd6AhB4teFk8', channel: 'vidIQ', title: 'Simple Trick for Views' },
-            { id: '9-z_SAsYl_E', channel: 'Chef Rush', title: 'Cooking with Rush' }
+        // API KEYSIZ VIDEO LISTESI (Popüler Video ID'leri)
+        const videos = [
+            { id: 'tFKdZPvyOc8', title: 'Muhteşem Bir Gün #vlog', channel: 'Yaşam Tarzı', views: '1.2 Mn izlenme' },
+            { id: 'luM--KkUwCc', title: 'Dünyanın En İlginç Bilgileri', channel: 'Bilgi Kanalı', views: '850 B izlenme' },
+            { id: 'agC7mcC7WoQ', title: 'YouTube Başarı Sırları 2026', channel: 'Creator Studio', views: '200 B izlenme' },
+            { id: 'd6AhB4teFk8', title: 'Hızlı İzlenme Artırma Taktiği', channel: 'Growth Hub', views: '500 B izlenme' },
+            { id: '9-z_SAsYl_E', title: 'Masterchef Özel Tarifler', channel: 'Yemek Dünyası', views: '3 Mn izlenme' },
+            { id: 'M7lc1UVf-VE', title: 'YouTube API Kullanımı Rehberi', channel: 'Kodlama Dersleri', views: '45 B izlenme' }
         ];
 
-        const container = document.getElementById('shorts-container');
+        const grid = document.getElementById('videoGrid');
 
-        function loadVideos() {
-            videoList.forEach(video => {
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                card.innerHTML = `
-                    <div class="video-container">
-                        <div class="side-bar">
-                            <div class="action-btn">❤️</div>
-                            <div class="action-btn">💬</div>
-                            <div class="action-btn">🔁</div>
-                        </div>
-                        <div class="video-meta">
-                            <div class="channel-info">
-                                <span>@${video.channel}</span>
-                                <div class="subscribe-btn">Abone Ol</div>
-                            </div>
-                            <div class="video-title">${video.title}</div>
-                        </div>
-                        <iframe 
-                            src="https://www.youtube.com/embed/${video.id}?autoplay=0&controls=0&loop=1&playlist=${video.id}&modestbranding=1&rel=0&iv_load_policy=3" 
-                            allow="autoplay; encrypted-media">
-                        </iframe>
+        videos.forEach(v => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <div class="thumbnail">
+                    <iframe src="https://www.youtube.com/embed/${v.id}?modestbranding=1&rel=0" allowfullscreen></iframe>
+                </div>
+                <div class="video-info">
+                    <div class="channel-img"></div>
+                    <div class="details">
+                        <h3>${v.title}</h3>
+                        <p>${v.channel}</p>
+                        <p>${v.views} • 2 saat önce</p>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        loadVideos();
+                </div>
+            `;
+            grid.appendChild(card);
+        });
     </script>
 </body>
 </html>
