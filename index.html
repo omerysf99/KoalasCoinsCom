@@ -3,162 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Instagram Zero</title>
+    <title>Sadece Reels</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; background: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
+        body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
 
-        /* GİRİŞ EKRANI */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        #loginOverlay h1 { font-family: 'serif'; font-size: 35px; margin-bottom: 30px; }
-        #loginOverlay input { width: 100%; max-width: 270px; padding: 12px; margin: 5px; border: 1px solid #dbdbdb; background: #fafafa; border-radius: 5px; }
-        #loginOverlay button { width: 100%; max-width: 270px; padding: 10px; margin-top: 15px; background: #0095f6; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        /* REELS AKIŞI */
+        .reels-container {
+            width: 100%; height: 100vh; 
+            overflow-y: scroll; scroll-snap-type: y mandatory;
+            scrollbar-width: none; -ms-overflow-style: none;
+            scroll-behavior: smooth;
+        }
+        .reels-container::-webkit-scrollbar { display: none; }
 
-        /* ANA YAPI */
-        .app-container { display: none; width: 100%; max-width: 500px; margin: 0 auto; height: 100vh; position: relative; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .page { display: none; height: calc(100vh - 60px); overflow-y: auto; width: 100%; }
-        .active-page { display: block; }
+        .reel { 
+            width: 100%; height: 100vh; 
+            scroll-snap-align: start; 
+            position: relative; 
+            background: #000; 
+        }
+        
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ANA SAYFA (FEED) GELİŞTİRİLMİŞ */
-        .header { height: 50px; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #efefef; position: sticky; top: 0; background: #fff; z-index: 100; font-weight: bold; font-size: 20px; }
-        .post { border-bottom: 1px solid #efefef; padding-bottom: 15px; }
-        .post-header { display: flex; align-items: center; justify-content: space-between; padding: 12px; }
-        .user-info { display: flex; align-items: center; font-weight: 600; font-size: 14px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #eee; margin-right: 10px; border: 1px solid #dbdbdb; }
-        video { width: 100%; background: #000; display: block; }
-        .post-actions { padding: 12px 15px; display: flex; gap: 18px; font-size: 24px; }
-        .like-btn { cursor: pointer; transition: transform 0.2s; }
-        .like-btn.active { color: #ed4956; transform: scale(1.2); }
-        .post-likes { padding: 0 15px; font-size: 14px; font-weight: 600; margin-bottom: 5px; }
-        .post-caption { padding: 0 15px; font-size: 14px; line-height: 1.4; }
+        /* ETKİLEŞİM BUTONLARI (SAĞ TARAF) */
+        .actions {
+            position: absolute; right: 15px; bottom: 80px;
+            display: flex; flex-direction: column; gap: 20px;
+            z-index: 10;
+        }
+        .btn { color: white; text-align: center; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .btn i { font-size: 30px; display: block; font-style: normal; }
+        .btn span { font-size: 12px; font-weight: bold; }
 
-        /* PROFİL SAYFASI */
-        .profile-header { padding: 20px; border-bottom: 1px solid #dbdbdb; }
-        .profile-top { display: flex; align-items: center; margin-bottom: 15px; }
-        .profile-pic { width: 80px; height: 80px; border-radius: 50%; background: #eee; margin-right: 30px; border: 1px solid #dbdbdb; }
-        .stats-container { display: flex; gap: 25px; text-align: center; }
-        .stats-container div { display: flex; flex-direction: column; font-size: 14px; }
-        .stats-container b { font-size: 18px; }
+        /* ALT BİLGİ */
+        .overlay-info {
+            position: absolute; bottom: 30px; left: 15px;
+            color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            pointer-events: none; z-index: 10;
+        }
+        .overlay-info h3 { font-size: 16px; margin-bottom: 5px; }
 
-        /* NAVBAR */
-        .navbar { position: absolute; bottom: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #dbdbdb; display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { font-size: 24px; cursor: pointer; color: #262626; opacity: 0.5; }
-        .nav-item.active { opacity: 1; }
+        /* SES İKONU (ORTADA ÇIKAN) */
+        .mute-status {
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0,0,0,0.5); color: white;
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; z-index: 100; opacity: 0; transition: all 0.3s;
+        }
+        .mute-status.active { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-    <h1>Instagram</h1>
-    <input type="text" id="usernameInput" placeholder="Kullanıcı Adı">
-    <input type="password" placeholder="Şifre">
-    <button onclick="login()">Kayıt Ol ve Giriş Yap</button>
-</div>
-
-<div class="app-container" id="app">
-    <div id="homePage" class="page active-page">
-        <div class="header">Instagram</div>
-        <div id="feedContent"></div>
+<div class="reels-container" id="main">
     </div>
-
-    <div id="reelsPage" class="page" style="background:#000;"></div>
-
-    <div id="profilePage" class="page">
-        <div class="profile-header">
-            <div class="profile-top">
-                <div class="profile-pic"></div>
-                <div class="stats-container">
-                    <div><b>4</b><span>Gönderi</span></div>
-                    <div><b id="followerCount">0</b><span>Takipçi</span></div>
-                    <div><b id="followingCount">0</b><span>Takip</span></div>
-                </div>
-            </div>
-            <b id="myUsername" style="font-size: 16px;">kullanıcı</b>
-            <p style="font-size: 14px; color: #666; margin-top: 5px;">Yeni hesap, yeni başlangıç! 🚀</p>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px;" id="profileGrid"></div>
-    </div>
-
-    <nav class="navbar">
-        <div class="nav-item active" onclick="showPage('homePage', this)">🏠</div>
-        <div class="nav-item" onclick="showPage('reelsPage', this)">🎬</div>
-        <div class="nav-item" onclick="showPage('profilePage', this)">👤</div>
-    </nav>
-</div>
 
 <script>
-    const sources = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
-    const authors = ["ali_veli", "can_su", "deniz_m", "gezgincizgi"];
+    const container = document.getElementById('main');
+    const videos = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
     let globalMuted = true;
+    let isLocked = false;
+    let loopCounter = 0;
 
-    function login() {
-        const user = document.getElementById('usernameInput').value;
-        if (user) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('myUsername').innerText = user;
-            initApp();
-        }
+    // Tek bir Reel yapısı oluşturma
+    function addReel(src) {
+        const reel = document.createElement('div');
+        reel.className = 'reel';
+        reel.innerHTML = `
+            <video src="${src}" loop muted playsinline></video>
+            <div class="mute-status">🔇</div>
+            <div class="actions">
+                <div class="btn" onclick="this.style.color='red'"><i>❤</i><span>Beğen</span></div>
+                <div class="btn"><i>💬</i><span>Yorum</span></div>
+                <div class="btn"><i>✈</i><span>Gönder</span></div>
+            </div>
+            <div class="overlay-info">
+                <h3>@saf_reels_keyfi</h3>
+                <p>Oynatılan: ${src}</p>
+            </div>
+        `;
+        container.appendChild(reel);
+        const v = reel.querySelector('video');
+        v.load();
+        observer.observe(v);
     }
 
-    function initApp() {
-        const feed = document.getElementById('feedContent');
-        const grid = document.getElementById('profileGrid');
-        const reels = document.getElementById('reelsPage');
-
-        sources.forEach((src, i) => {
-            // Feed Post Tasarımı
-            const likeCount = Math.floor(Math.random() * 100);
-            feed.innerHTML += `
-                <div class="post">
-                    <div class="post-header"><div class="user-info"><div class="avatar"></div>${authors[i]}</div><div>•••</div></div>
-                    <video src="${src}" loop muted playsinline onclick="toggleGlobalSound()"></video>
-                    <div class="post-actions">
-                        <span class="like-btn" onclick="toggleLike(this, ${i})">❤</span> <span>💬</span> <span>✈</span>
-                    </div>
-                    <div class="post-likes"><span id="likes-${i}">${likeCount}</span> beğenme</div>
-                    <div class="post-caption"><b>${authors[i]}</b> Bu harika videoyu mutlaka izleyin! #viral #daily</div>
-                </div>`;
-            
-            // Profil ve Reels alanları (Önceki mantıkla aynı)
-            grid.innerHTML += `<div style="aspect-ratio:1/1; background:#eee;"><video src="${src}" muted style="width:100%; height:100%; object-fit:cover;"></video></div>`;
-            reels.innerHTML += `<div style="height:100%; scroll-snap-align:start;"><video src="${src}" loop muted playsinline style="height:100%; width:100%; object-fit:cover;"></video></div>`;
+    // Video Oynatma & Durdurma Mantığı
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const v = entry.target;
+            if (entry.isIntersecting) {
+                v.muted = globalMuted;
+                v.currentTime = 0;
+                v.play().catch(() => { /* Kullanıcı dokunana kadar sessiz kalabilir */ });
+            } else {
+                v.pause();
+            }
         });
+    }, { threshold: 0.8 });
 
-        setupObserver();
-    }
+    // Başlangıç videolarını yükle
+    videos.forEach(src => addReel(src));
 
-    function toggleLike(btn, id) {
-        btn.classList.toggle('active');
-        const countSpan = document.getElementById(`likes-${id}`);
-        let current = parseInt(countSpan.innerText);
-        countSpan.innerText = btn.classList.contains('active') ? current + 1 : current - 1;
-    }
+    // SES KONTROLÜ (Tıklayınca her yerde açılır/kapanır)
+    document.addEventListener('click', (e) => {
+        const reel = e.target.closest('.reel');
+        if (!reel || e.target.closest('.actions')) return;
 
-    function toggleGlobalSound() {
+        const v = reel.querySelector('video');
+        const icon = reel.querySelector('.mute-status');
+
         globalMuted = !globalMuted;
-        document.querySelectorAll('video').forEach(v => v.muted = globalMuted);
-    }
+        document.querySelectorAll('video').forEach(vid => vid.muted = globalMuted);
 
-    function showPage(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(id).classList.add('active-page');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-        if(id !== 'homePage' && id !== 'reelsPage') document.querySelectorAll('video').forEach(v => v.pause());
-    }
+        icon.innerText = globalMuted ? "🔇" : "🔊";
+        icon.classList.add('active');
+        setTimeout(() => icon.classList.remove('active'), 600);
+    });
 
-    function setupObserver() {
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                if (e.isIntersecting) {
-                    e.target.muted = globalMuted;
-                    e.target.play().catch(()=>{});
-                } else { e.target.pause(); }
-            });
-        }, { threshold: 0.5 });
-        document.querySelectorAll('video').forEach(v => obs.observe(v));
-    }
+    // 2 SANİYE KAYDIRMA KİLİDİ
+    container.addEventListener('wheel', (e) => {
+        if (isLocked) {
+            e.preventDefault();
+            return;
+        }
+        isLocked = true;
+        setTimeout(() => { isLocked = false; }, 2000); 
+    }, { passive: false });
+
+    // SONSUZ DÖNGÜ EKLEME
+    container.onscroll = () => {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+            addReel(videos[loopCounter % 4]);
+            loopCounter++;
+        }
+    };
 </script>
 </body>
 </html>
