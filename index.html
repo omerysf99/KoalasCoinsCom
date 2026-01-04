@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Pro - Yorum Panelli</title>
+    <title>Reels Pro - +1 Beğeni Efektli</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #0b0b0b;
@@ -34,10 +34,27 @@
             gap: 15px; z-index: 10;
         }
         .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .icon { font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+        .icon { font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transition: 0.2s; }
         .count { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
-        /* Yorum Paneli (Bottom Sheet) */
+        /* Ekranda Uçan Kalp Animasyonu */
+        .heart-animation {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 80px; color: red;
+            pointer-events: none;
+            z-index: 150;
+        }
+        .animate-heart {
+            animation: heartPop 0.6s ease-out forwards;
+        }
+        @keyframes heartPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; }
+        }
+
+        /* Yorum Paneli */
         .comment-panel {
             position: absolute; bottom: -100%; left: 0;
             width: 100%; height: 60%; background: #1a1a1a;
@@ -46,25 +63,10 @@
             display: flex; flex-direction: column;
         }
         .comment-panel.active { bottom: 0; }
-
-        .comment-header {
-            padding: 15px; text-align: center; border-bottom: 1px solid #333;
-            font-weight: bold; position: relative;
-        }
-        .close-comments { position: absolute; right: 15px; cursor: pointer; }
-
-        .comment-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 14px; }
-        .single-comment { margin-bottom: 12px; border-bottom: 0.5px solid #222; padding-bottom: 5px; }
-        .comment-user { color: #8ab4f8; font-weight: bold; margin-right: 5px; }
-
-        .comment-input-area {
-            padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px;
-        }
-        input[type="text"] {
-            flex: 1; background: #333; border: none; border-radius: 20px;
-            padding: 8px 15px; color: white; outline: none;
-        }
-        .send-btn { color: #24a1de; font-weight: bold; cursor: pointer; border:none; background:none;}
+        .comment-header { padding: 15px; text-align: center; border-bottom: 1px solid #333; font-weight: bold; }
+        .comment-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .comment-input-area { padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; background: #333; border: none; border-radius: 20px; padding: 8px 15px; color: white; outline: none; }
 
         .info-overlay { position: absolute; bottom: 30px; left: 15px; width: 60%; pointer-events: none; }
     </style>
@@ -72,15 +74,14 @@
 <body>
 
 <div class="reels-wrapper">
+    <div id="heartPop" class="heart-animation">❤️</div>
+
     <div class="comment-panel" id="commentPanel">
-        <div class="comment-header">
-            Yorumlar <span class="close-comments" onclick="toggleComments()">✕</span>
-        </div>
-        <div class="comment-list" id="commentList">
-            </div>
+        <div class="comment-header">Yorumlar <span style="float:right; cursor:pointer;" onclick="toggleComments()">✕</span></div>
+        <div class="comment-list" id="commentList"></div>
         <div class="comment-input-area">
             <input type="text" id="commentInput" placeholder="Yorum yap...">
-            <button class="send-btn" onclick="addComment()">Paylaş</button>
+            <button style="color:#24a1de; background:none; border:none; font-weight:bold; cursor:pointer;" onclick="addComment()">Paylaş</button>
         </div>
     </div>
 
@@ -91,37 +92,42 @@
     const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4'];
     const container = document.getElementById('reelsContainer');
     let currentVideoIndex = 0;
+    const videoData = {};
 
-    // Her video için yorumları saklayan nesne
-    const videoData = {}; 
+    // Beğeni Artırma ve Animasyon
+    function triggerLike(index) {
+        const heartIcon = document.querySelectorAll('.like-icon')[index];
+        const likeCount = document.querySelectorAll('.like-count')[index];
+        const pop = document.getElementById('heartPop');
 
-    function toggleComments() {
-        document.getElementById('commentPanel').classList.toggle('active');
+        // Sayıyı Artır (+1)
+        let current = parseInt(likeCount.innerText);
+        likeCount.innerText = current + 1;
+
+        // İkonu Kırmızı Yap
+        heartIcon.innerText = '❤️';
+        
+        // Ekranda Kalp Patlat
+        pop.classList.remove('animate-heart');
+        void pop.offsetWidth; // Animasyonu sıfırla
+        pop.classList.add('animate-heart');
     }
+
+    function toggleComments() { document.getElementById('commentPanel').classList.toggle('active'); }
 
     function addComment() {
         const input = document.getElementById('commentInput');
         if(!input.value) return;
-
-        // Mevcut videonun yorum listesine ekle
         if(!videoData[currentVideoIndex]) videoData[currentVideoIndex] = [];
         videoData[currentVideoIndex].push(input.value);
-
         updateCommentUI();
         input.value = "";
-        
-        // Yorum sayısını güncelle
-        const counts = document.querySelectorAll('.comment-count');
-        counts[currentVideoIndex].innerText = videoData[currentVideoIndex].length;
+        document.querySelectorAll('.comment-count')[currentVideoIndex].innerText = videoData[currentVideoIndex].length;
     }
 
     function updateCommentUI() {
         const list = document.getElementById('commentList');
-        list.innerHTML = "";
-        const comments = videoData[currentVideoIndex] || [];
-        comments.forEach(text => {
-            list.innerHTML += `<div class="single-comment"><span class="comment-user">Üye:</span>${text}</div>`;
-        });
+        list.innerHTML = (videoData[currentVideoIndex] || []).map(t => `<div style="margin-bottom:10px;"><b style="color:#8ab4f8;">Üye:</b> ${t}</div>`).join('');
     }
 
     function render() {
@@ -129,11 +135,11 @@
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <video src="${file}" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+                <video src="${file}" loop playsinline ondblclick="triggerLike(${i})"></video>
                 <div class="side-bar">
-                    <div class="action-item" onclick="this.querySelector('.icon').innerText='❤️'">
-                        <span class="icon">🤍</span>
-                        <span class="count">0</span>
+                    <div class="action-item" onclick="triggerLike(${i})">
+                        <span class="icon like-icon">🤍</span>
+                        <span class="count like-count">0</span>
                     </div>
                     <div class="action-item" onclick="currentVideoIndex=${i}; updateCommentUI(); toggleComments();">
                         <span class="icon">💬</span>
@@ -141,24 +147,26 @@
                     </div>
                     <div class="action-item"><span class="icon">🔖</span><span class="count">0</span></div>
                 </div>
-                <div class="info-overlay"><h4>@video_sahibi_${i+1}</h4></div>
+                <div class="info-overlay"><h4>@reels_bot_user</h4><p>Videoyu beğenmek için çift tıkla!</p></div>
             `;
             container.appendChild(card);
         });
     }
 
     container.addEventListener('scroll', () => {
-        const videos = document.querySelectorAll('video');
-        videos.forEach((v, index) => {
+        document.querySelectorAll('video').forEach((v, idx) => {
             const pos = v.getBoundingClientRect();
             if (pos.top >= -50 && pos.top <= 50) {
-                currentVideoIndex = index; // Hangi videodayız takip et
+                currentVideoIndex = idx;
                 v.play().catch(() => {});
             } else { v.pause(); }
         });
     });
 
     render();
+    window.addEventListener('click', () => {
+        document.querySelectorAll('video').forEach(v => v.muted = false);
+    }, { once: true });
 </script>
 
 </body>
