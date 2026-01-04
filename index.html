@@ -3,140 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTube Plus - Reels & Ana Sayfa</title>
+    <title>YouTube Pro - Uzun Videolar & Reels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body, html { width: 100%; height: 100%; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        body, html { width: 100%; height: 100%; background-color: #0f0f0f; overflow: hidden; font-family: 'Roboto', sans-serif; color: white; }
 
-        /* Ana Çerçeve */
-        .app-wrapper { width: 100%; max-width: 450px; height: 100vh; margin: 0 auto; position: relative; background: #0f0f0f; display: flex; flex-direction: column; }
+        .app-wrapper { width: 100%; max-width: 450px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; border-right: 1px solid #222; border-left: 1px solid #222; }
 
-        /* İçerik Alanları */
+        /* Üst Header */
+        header { height: 50px; display: flex; align-items: center; padding: 0 15px; background: #0f0f0f; border-bottom: 1px solid #222; }
+        header i { color: red; font-size: 24px; margin-right: 8px; }
+
         .content-area { flex: 1; overflow-y: auto; display: none; }
         .content-area.active { display: block; }
 
-        /* --- ANA SAYFA (UZUN VİDEOLAR) STİLLERİ --- */
-        #home-page { padding: 10px; }
-        .video-card { width: 100%; margin-bottom: 20px; color: white; }
-        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 12px; overflow: hidden; position: relative; }
-        .thumbnail-container iframe { width: 100%; height: 100%; border: none; }
-        .video-details { padding: 10px 5px; display: flex; gap: 10px; }
-        .video-details h4 { font-size: 14px; line-height: 1.2; }
-        .video-details p { font-size: 12px; color: #aaa; margin-top: 4px; }
+        /* ANA SAYFA (1 DAKİKA ÜSTÜ VİDEOLAR) */
+        .video-card { width: 100%; margin-bottom: 15px; cursor: pointer; }
+        .video-card:active { opacity: 0.8; }
+        .thumb { width: 100%; aspect-ratio: 16/9; position: relative; }
+        .thumb iframe { width: 100%; height: 100%; border: none; }
+        .v-info { padding: 12px; display: flex; gap: 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; flex-shrink: 0; }
+        .v-text h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-text p { font-size: 12px; color: #aaa; }
 
-        /* --- REELS (DİKEY VİDEOLAR) STİLLERİ --- */
-        #reels-page { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        #reels-page::-webkit-scrollbar { display: none; }
-        .reel-item { width: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; background: #000; }
+        /* REELS (DİKEY SHORTLAR) */
+        #reels-page { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; background: #000; }
+        .reel-item { width: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
         .reel-item iframe { width: 100%; height: 100%; transform: scale(1.4); pointer-events: none; border: none; }
-        .reel-overlay { position: absolute; inset: 0; z-index: 5; }
-        .side-bar { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; color: white; text-align: center; }
-        .reel-info { position: absolute; bottom: 30px; left: 15px; color: white; z-index: 10; }
+        .reel-ui { position: absolute; inset: 0; z-index: 10; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 20%); }
 
-        /* --- ALT MENÜ (TAB BAR) --- */
-        .nav-bar { height: 60px; background: #0f0f0f; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-item { color: #aaa; text-align: center; cursor: pointer; flex: 1; font-size: 10px; }
-        .nav-item.active { color: white; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+        /* ALT NAV */
+        nav { height: 65px; background: #0f0f0f; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; }
+        .nav-btn { color: #aaa; text-align: center; font-size: 10px; cursor: pointer; flex: 1; transition: 0.2s; }
+        .nav-btn.active { color: white; }
+        .nav-btn i { font-size: 22px; display: block; margin-bottom: 4px; }
 
-        #start-btn { position: absolute; inset: 0; z-index: 200; background: #000; color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        #overlay { position: absolute; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader { width: 40px; height: 40px; border: 4px solid #333; border-top-color: red; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="app-wrapper">
-    <div id="start-btn" onclick="initApp()"><h2>Sistemi Başlat</h2></div>
+    <div id="overlay" onclick="startApp()">
+        <div class="loader" id="loader"></div>
+        <p id="status-text">Uygulamayı Başlat</p>
+    </div>
+
+    <header><i class="fab fa-youtube"></i> <strong>YouTube Premium</strong></header>
 
     <div id="home-page" class="content-area active">
-        <h2 style="color:white; margin: 10px 0 20px 5px;">Ana Sayfa</h2>
-        <div id="home-content"></div>
+        <div id="home-list"></div>
     </div>
 
     <div id="reels-page" class="content-area">
-        <div id="reels-content" style="height: 100%;"></div>
+        <div id="reels-list" style="height: 100%;"></div>
     </div>
 
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)">
-            <i class="fas fa-home"></i>Ana Sayfa
-        </div>
-        <div class="nav-item" onclick="switchTab('reels', this)">
-            <i class="fas fa-play-circle"></i>Reels
-        </div>
-    </div>
+    <nav>
+        <div class="nav-btn active" onclick="switchTab('home', this)"><i class="fas fa-home"></i>Ana Sayfa</div>
+        <div class="nav-btn" onclick="switchTab('reels', this)"><i class="fas fa-play-circle"></i>Reels</div>
+        <div class="nav-btn"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></div>
+        <div class="nav-btn"><i class="fas fa-layer-group"></i>Kitaplık</div>
+    </nav>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-    
-    // Tab Değiştirme Fonksiyonu
-    function switchTab(tab, element) {
-        document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        
-        document.getElementById(tab + '-page').classList.add('active');
-        element.classList.add('active');
 
-        // Reels'e geçince videoların oynaması için tetikleyici gerekebilir
-        if(tab === 'reels') {
-            document.querySelectorAll('#reels-content iframe').forEach(f => f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'));
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.content-area, .nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab + '-page').classList.add('active');
+        btn.classList.add('active');
+        
+        // Reels'den çıkınca tüm videoları durdur
+        if(tab !== 'reels') {
+            document.querySelectorAll('#reels-list iframe').forEach(f => 
+                f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'));
         }
     }
 
-    // Uzun Videoları Çek (Home)
-    async function loadHomeVideos() {
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=türkçe+popüler+videolar&type=video&key=${API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const container = document.getElementById('home-content');
-
-        data.items.forEach(item => {
-            container.innerHTML += `
-                <div class="video-card">
-                    <div class="thumbnail-container">
-                        <iframe src="https://www.youtube.com/embed/${item.id.videoId}?rel=0" allowfullscreen></iframe>
-                    </div>
-                    <div class="video-details">
-                        <div style="width:36px; height:36px; border-radius:50%; background:#444;"></div>
-                        <div>
-                            <h4>${item.snippet.title}</h4>
-                            <p>${item.snippet.channelTitle} • Yeni</p>
+    // ANA SAYFA: 1 DAKİKA ÜSTÜ (MEDIUM) VİDEOLARI ÇEKER
+    async function getLongVideos() {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=türkçe+belgesel+teknoloji+vlog&type=video&videoDuration=medium&key=${API_KEY}`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const list = document.getElementById('home-list');
+            data.items.forEach(item => {
+                list.innerHTML += `
+                    <div class="video-card">
+                        <div class="thumb">
+                            <iframe src="https://www.youtube.com/embed/${item.id.videoId}?rel=0&modestbranding=1" allowfullscreen></iframe>
                         </div>
+                        <div class="v-info">
+                            <div class="avatar"></div>
+                            <div class="v-text">
+                                <h4>${item.snippet.title}</h4>
+                                <p>${item.snippet.channelTitle} • 1.2M İzlenme</p>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        } catch (e) { console.log(e); }
+    }
+
+    // REELS: KISA VİDEOLARI ÇEKER
+    async function getShorts() {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=shorts+türkçe+trending&type=video&videoDuration=short&key=${API_KEY}`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const list = document.getElementById('reels-list');
+            data.items.forEach(item => {
+                const vId = item.id.videoId;
+                const div = document.createElement('div');
+                div.className = 'reel-item';
+                div.innerHTML = `
+                    <div class="reel-ui"></div>
+                    <iframe id="${vId}" src="https://www.youtube.com/embed/${vId}?enablejsapi=1&controls=0&loop=1&playlist=${vId}" allow="autoplay"></iframe>
+                    <div style="position:absolute; right:15px; bottom:120px; display:flex; flex-direction:column; gap:20px; z-index:20;">
+                        <i class="fas fa-heart fa-2x"></i>
+                        <i class="fas fa-comment fa-2x"></i>
+                        <i class="fas fa-share fa-2x"></i>
                     </div>
-                </div>`;
-        });
+                    <div style="position:absolute; bottom:40px; left:15px; z-index:20;">
+                        <h4 style="margin-bottom:5px;">@${item.snippet.channelTitle}</h4>
+                        <p style="font-size:13px; width:250px;">${item.snippet.title}</p>
+                    </div>`;
+                list.appendChild(div);
+                reelsObserver.observe(div);
+            });
+        } catch (e) { console.log(e); }
     }
 
-    // Reels Videoları Çek (Shorts)
-    async function loadReelsVideos() {
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=shorts+türkçe&type=video&videoDuration=short&key=${API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const container = document.getElementById('reels-content');
-
-        data.items.forEach(item => {
-            const vId = item.id.videoId;
-            const div = document.createElement('div');
-            div.className = 'reel-item';
-            div.innerHTML = `
-                <div class="reel-overlay"></div>
-                <iframe id="${vId}" src="https://www.youtube.com/embed/${vId}?enablejsapi=1&controls=0&loop=1&playlist=${vId}&modestbranding=1" allow="autoplay"></iframe>
-                <div class="side-bar">
-                    <i class="fas fa-heart"></i><span>Beğen</span>
-                    <i class="fas fa-comment"></i><span>85</span>
-                    <i class="fas fa-bookmark"></i><span>Kaydet</span>
-                </div>
-                <div class="reel-info">
-                    <h3>@${item.snippet.channelTitle}</h3>
-                    <p>${item.snippet.title}</p>
-                </div>`;
-            container.appendChild(div);
-            reelsObserver.observe(div);
-        });
-    }
-
-    // Reels Kaydırma Takibi (Öncekini durdurur)
     const reelsObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const iframe = entry.target.querySelector('iframe');
@@ -148,12 +151,11 @@
         });
     }, { threshold: 0.8 });
 
-    function initApp() {
-        document.getElementById('start-btn').style.display = 'none';
-        loadHomeVideos();
-        loadReelsVideos();
+    function startApp() {
+        document.getElementById('overlay').style.display = 'none';
+        getLongVideos();
+        getShorts();
     }
 </script>
-
 </body>
 </html>
