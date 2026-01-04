@@ -3,156 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Özel Video Platformu</title>
+    <title>Özel YouTube Reels Pro</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .app-container { width: 100vw; height: 100vh; display: flex; justify-content: center; }
-        .reels-frame { width: 100%; max-width: 420px; height: 100%; position: relative; background: #000; }
-        .video-feed { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .video-feed::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .reels-wrapper { width: 100%; max-width: 380px; height: 92vh; position: relative; background: #000; border-radius: 40px; overflow: hidden; border: 6px solid #222; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .reels-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .reels-container::-webkit-scrollbar { display: none; }
+        .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
         
-        .video-card { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; }
-        iframe { width: 100%; height: 100%; pointer-events: none; border: none; }
+        /* YouTube Iframe Tasarımı */
+        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.4); } /* Siyah boşlukları önlemek için ölçekleme */
 
-        /* Siteye Özel Etkileşim Paneli */
-        .actions { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 100; }
-        .action-btn { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50%; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); }
-        .action-btn:hover { background: rgba(255,255,255,0.3); }
-        .action-btn.active .heart { color: #ff0050; }
-        
-        /* Yorum Bölümü */
-        .comment-box { position: absolute; bottom: -100%; left: 0; width: 100%; height: 60%; background: #121212; z-index: 1000; border-radius: 20px 20px 0 0; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px; box-sizing: border-box; }
-        .comment-box.open { bottom: 0; }
-        .comment-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
-        .comments-list { height: 75%; overflow-y: auto; margin-bottom: 15px; font-size: 14px; }
-        .comment-input-wrap { display: flex; gap: 10px; }
-        input { flex: 1; background: #222; border: none; padding: 12px; border-radius: 25px; color: white; outline: none; }
-        .post-btn { color: #0095f6; font-weight: bold; cursor: pointer; border: none; background: none; }
+        /* Yan Menü */
+        .side-bar { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 100; }
+        .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .icon { font-size: 30px; }
+        .count { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
-        .video-desc { position: absolute; bottom: 30px; left: 15px; z-index: 90; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        /* Tıklama Katmanı (Video etkileşimini yönetmek için) */
+        .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
+
+        /* Kalp Animasyonu */
+        .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 100px; color: red; pointer-events: none; z-index: 150; }
+        .animate-heart { animation: heartPop 0.7s ease-out forwards; }
+        @keyframes heartPop { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; } 100% { transform: translate(-50%, -150%) scale(1.2); opacity: 0; } }
+
+        .info-overlay { position: absolute; bottom: 30px; left: 15px; width: 65%; pointer-events: none; text-shadow: 0 2px 6px black; z-index: 60; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="reels-frame">
-        <div class="video-feed" id="feed"></div>
-        
-        <div class="comment-box" id="commentBox">
-            <div class="comment-header">Yorumlar <span onclick="closeComments()" style="cursor:pointer">✕</span></div>
-            <div class="comments-list" id="commentsList"></div>
-            <div class="comment-input-wrap">
-                <input type="text" id="userInput" placeholder="Bu video hakkında ne düşünüyorsun?">
-                <button class="post-btn" onclick="postComment()">Paylaş</button>
-            </div>
-        </div>
-    </div>
+<div class="reels-wrapper">
+    <div id="heartPop" class="heart-animation">❤️</div>
+    <div class="reels-container" id="reelsContainer"></div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script>
-    // Siteye Özel Video Havuzu (API'den de çekilebilir)
-    const myVideos = [
-        {id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık - 2025 Trend'},
-        {id: 'dj7QJ0-VIHc', title: 'Mirkelam & Pop Remix'},
-        {id: 'lB6IgV1kapU', title: 'Begüm Polat - Kahpe'},
-        {id: 'fkDpX8UXHN4', title: 'Manifest Dance Challenge'}
-    ];
 
-    let players = {};
-    let currentVideoId = "";
+<script>
+    const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
+    const videoIds = ['znv__YAlrTQ', 'dj7QJ0-VIHc', 'lB6IgV1kapU', 'XHYVGwXC4Tc', 'fkDpX8UXHN4']; // Popüler Türkçe Shorts IDleri
+    const players = {};
+    let clickTimer = null;
 
     function onYouTubeIframeAPIReady() {
-        const feed = document.getElementById('feed');
-        myVideos.forEach((v, index) => {
-            const isLiked = localStorage.getItem('site_like_' + v.id) === 'true';
+        renderVideos();
+    }
+
+    function renderVideos() {
+        const container = document.getElementById('reelsContainer');
+        videoIds.forEach((id, i) => {
+            const isLiked = localStorage.getItem(`yt_like_${id}`) === 'true';
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <div id="player-${v.id}"></div>
-                <div class="actions">
-                    <div class="action-btn ${isLiked ? 'active' : ''}" onclick="toggleLike('${v.id}', this)">
-                        <span class="heart" style="font-size:24px">${isLiked ? '❤️' : '🤍'}</span>
+                <div class="click-layer" onclick="handleInteraction('${id}', ${i})"></div>
+                <div id="player-${id}"></div>
+                <div class="side-bar">
+                    <div class="action-item" onclick="event.stopPropagation(); toggleLike('${id}', ${i})">
+                        <span class="icon like-icon">${isLiked ? '❤️' : '🤍'}</span>
+                        <span class="count like-count">${isLiked ? 1 : 0}</span>
                     </div>
-                    <div class="action-btn" onclick="openComments('${v.id}')">
-                        <span style="font-size:22px">💬</span>
+                    <div class="action-item" onclick="event.stopPropagation(); addComment('${id}')">
+                        <span class="icon">💬</span>
+                        <span class="count">Yorum</span>
                     </div>
+                    <div class="action-item"><span class="icon">🔖</span><span class="count">Kaydet</span></div>
                 </div>
-                <div class="video-desc">
-                    <strong>@benim_sitem</strong>
-                    <p>${v.title}</p>
+                <div class="info-overlay">
+                    <h4 style="margin:0;">Trend Video #${i+1}</h4>
+                    <p style="margin:5px 0 0; font-size:12px; opacity:0.8;">YouTube Kaynaklı</p>
                 </div>
             `;
-            feed.appendChild(card);
+            container.appendChild(card);
 
-            players[v.id] = new YT.Player(`player-${v.id}`, {
-                videoId: v.id,
-                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 'mute': 1 },
-                events: { 'onReady': (e) => { if(index === 0) e.target.playVideo(); } }
+            players[id] = new YT.Player(`player-${id}`, {
+                videoId: id,
+                playerVars: { 
+                    'autoplay': 0, 
+                    'controls': 0, 
+                    'loop': 1, 
+                    'playlist': id, 
+                    'modestbranding': 1, 
+                    'showinfo': 0, 
+                    'rel': 0,
+                    'mute': 1 
+                },
+                events: {
+                    'onReady': (event) => { if(i === 0) event.target.playVideo(); }
+                }
             });
         });
     }
 
-    // Siteye Özel Beğeni
-    function toggleLike(id, el) {
-        const key = 'site_like_' + id;
-        if (localStorage.getItem(key) === 'true') {
-            localStorage.removeItem(key);
-            el.classList.remove('active');
-            el.querySelector('.heart').innerText = '🤍';
+    function handleInteraction(id, index) {
+        if (clickTimer == null) {
+            clickTimer = setTimeout(() => {
+                const state = players[id].getPlayerState();
+                state === 1 ? players[id].pauseVideo() : players[id].playVideo();
+                clickTimer = null;
+            }, 250);
         } else {
-            localStorage.setItem(key, 'true');
-            el.classList.add('active');
-            el.querySelector('.heart').innerText = '❤️';
+            clearTimeout(clickTimer);
+            clickTimer = null;
+            toggleLike(id, index, true); // Çift tıkla beğeni
         }
     }
 
-    // Siteye Özel Yorumlar
-    function openComments(id) {
-        currentVideoId = id;
-        const box = document.getElementById('commentBox');
-        const list = document.getElementById('commentsList');
-        box.classList.add('open');
-        
-        const saved = JSON.parse(localStorage.getItem('site_comments_' + id) || "[]");
-        list.innerHTML = saved.length ? "" : "<p style='color:#666'>İlk yorumu sen yap...</p>";
-        saved.forEach(c => {
-            const item = document.createElement('div');
-            item.style.padding = "10px 0";
-            item.style.borderBottom = "1px solid #222";
-            item.innerHTML = `<strong>Misafir Kullanıcı:</strong><br>${c}`;
-            list.appendChild(item);
-        });
+    function toggleLike(id, index, forceLike = false) {
+        const key = `yt_like_${id}`;
+        const isLiked = localStorage.getItem(key) === 'true';
+        const heartIcons = document.querySelectorAll('.like-icon');
+        const countEls = document.querySelectorAll('.like-count');
+
+        if (!isLiked) {
+            localStorage.setItem(key, 'true');
+            countEls[index].innerText = parseInt(countEls[index].innerText) + 1;
+            heartIcons[index].innerText = '❤️';
+            playHeartAnim();
+        } else if (!forceLike) {
+            localStorage.removeItem(key);
+            countEls[index].innerText = parseInt(countEls[index].innerText) - 1;
+            heartIcons[index].innerText = '🤍';
+        } else {
+            playHeartAnim();
+        }
     }
 
-    function postComment() {
-        const input = document.getElementById('userInput');
-        if(!input.value) return;
-        const saved = JSON.parse(localStorage.getItem('site_comments_' + currentVideoId) || "[]");
-        saved.push(input.value);
-        localStorage.setItem('site_comments_' + currentVideoId, JSON.stringify(saved));
-        input.value = "";
-        openComments(currentVideoId);
+    function addComment(id) {
+        const comment = prompt("Bu video için yorumun nedir?");
+        if(comment) {
+            localStorage.setItem(`comment_${id}`, comment);
+            alert("Yorumun bu siteye özel olarak kaydedildi!");
+        }
     }
 
-    function closeComments() {
-        document.getElementById('commentBox').classList.remove('open');
+    function playHeartAnim() {
+        const pop = document.getElementById('heartPop');
+        pop.classList.remove('animate-heart');
+        void pop.offsetWidth; 
+        pop.classList.add('animate-heart');
     }
 
-    // Otomatik Oynatma Yönetimi
-    document.getElementById('feed').addEventListener('scroll', () => {
-        myVideos.forEach(v => {
-            const el = document.getElementById(`player-${v.id}`).parentElement;
-            const rect = el.getBoundingClientRect();
-            if(rect.top >= -50 && rect.top <= 50) {
-                players[v.id].playVideo();
-                players[v.id].unMute();
+    // Kaydırma sırasında videoları kontrol et
+    document.getElementById('reelsContainer').addEventListener('scroll', () => {
+        videoIds.forEach(id => {
+            const playerElement = document.getElementById(`player-${id}`).parentElement;
+            const rect = playerElement.getBoundingClientRect();
+            if (rect.top >= -100 && rect.top <= 100) {
+                players[id].playVideo();
+                players[id].unMute();
             } else {
-                players[v.id].pauseVideo();
+                players[id].pauseVideo();
             }
         });
     });
 </script>
-
 </body>
 </html>
