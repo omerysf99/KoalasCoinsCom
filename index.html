@@ -3,72 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE</title>
+    <title>KOALA ARCADE | REFERRAL V6</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;900&display=swap');
-        
         :root { --accent: #00ff88; --bg: #000; --card: #0a0a0a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
+
+        /* Admin Reset Overlay */
+        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 10000; display: none; padding: 40px 20px; }
         
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
-
-        /* Checking Overlay */
-        #boot-loader {
-            position: fixed; inset: 0; background: #000; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
         .page { display: none; height: 100vh; padding: 60px 20px 120px; overflow-y: auto; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page.active { display: block; }
 
-        /* Küçültülmüş Ana Görsel */
-        .coin-box { position: relative; width: 180px; height: 180px; margin: 0 auto; transition: 0.1s; }
-        .coin-img { 
-            width: 100%; height: 100%; object-fit: cover; border-radius: 40px; 
-            border: 3px solid #1a1a1a; box-shadow: 0 10px 30px rgba(0,255,136,0.1);
-        }
+        .coin-box { width: 160px; height: 160px; margin: 0 auto; transition: 0.1s; }
+        .coin-img { width: 100%; height: 100%; object-fit: cover; border-radius: 40px; border: 3px solid #1a1a1a; }
         .coin-box:active { transform: scale(0.92); }
 
         .k-card { background: var(--card); border-radius: 24px; border: 1px solid #111; padding: 20px; margin-bottom: 12px; }
         
         nav { 
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            width: 85%; height: 70px; background: rgba(10, 10, 10, 0.9); 
+            width: 85%; height: 70px; background: rgba(10, 10, 10, 0.95); 
             backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid #1a1a1a;
             display: flex; align-items: center; z-index: 1000;
         }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #333; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-link.active { color: var(--accent); }
 
-        .float-val { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
-        @keyframes floatUp { to { transform: translateY(-100px); opacity: 0; } }
-
-        .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-reset { background: #ff3b3b; color: white; padding: 15px; border-radius: 15px; font-weight: 900; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="boot-loader">
-        <div class="spinner mb-4"></div>
-        <p id="boot-text" class="text-[9px] tracking-[4px] text-zinc-600 uppercase">Checking Balance...</p>
+    <div id="admin-panel">
+        <h1 class="text-2xl font-black mb-8">SİSTEM YÖNETİMİ</h1>
+        <div class="k-card">
+            <h3 class="font-bold mb-4 text-red-500">TEHLİKELİ BÖLGE</h3>
+            <p class="text-[10px] text-zinc-500 mb-6">Aşağıdaki buton tüm kullanıcıların referans listelerini ve sayılarını kalıcı olarak sıfırlar.</p>
+            <button onclick="resetAllReferrals()" class="btn-reset">TÜM REFERANSLARI SIFIRLA</button>
+        </div>
+        <button onclick="closeAdmin()" class="mt-10 text-zinc-500 w-full text-center font-bold">KAPAT</button>
     </div>
 
-    <main id="main-app" style="visibility: hidden;">
-        
+    <main>
         <div id="p-home" class="page active">
             <div class="flex justify-between items-center mb-6">
                 <div class="bg-zinc-900/50 px-3 py-1.5 rounded-full border border-zinc-800 text-[10px] text-zinc-500 font-bold" id="ui-handle">@USER</div>
-                <div class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Live</div>
+                <button id="adm-btn" onclick="openAdmin()" class="hidden text-red-500 text-[10px] font-black border border-red-500/30 px-3 py-1 rounded-full">ADMIN</button>
             </div>
 
             <div class="text-center mb-8">
@@ -81,14 +70,10 @@
             </div>
 
             <div class="k-card">
-                <h3 class="text-[10px] font-black uppercase text-zinc-600 mb-4 tracking-widest">Tasks</h3>
-                <div class="flex justify-between items-center py-2 border-b border-zinc-900 pb-4 mb-4">
-                    <p class="text-xs font-bold uppercase">Join Channel <br><span class="text-emerald-500 text-[9px]">+10K</span></p>
-                    <button id="task-channel" onclick="handleTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase">Go</button>
-                </div>
-                <div class="flex justify-between items-center py-2">
-                    <p class="text-xs font-bold uppercase">Watch Video <br><span class="text-emerald-500 text-[9px]">+1K</span></p>
-                    <button onclick="watchAd()" class="bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase">Play</button>
+                <h3 class="text-[10px] font-black uppercase text-zinc-600 mb-2 tracking-widest">Referans Kodu Gir</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="ref-input" placeholder="KODU BURAYA YAZ" class="bg-black border border-zinc-800 rounded-xl px-4 py-2 flex-1 text-xs outline-none focus:border-emerald-500">
+                    <button onclick="submitRef()" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">GÖNDER</button>
                 </div>
             </div>
         </div>
@@ -96,49 +81,115 @@
         <div id="p-squad" class="page">
             <h1 class="text-3xl font-black uppercase mb-6">Squad</h1>
             <div class="k-card text-center py-8">
-                <p id="ui-ref-count" class="text-5xl font-black mb-4">0</p>
-                <button onclick="copyRef()" class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest bg-zinc-900 px-4 py-2 rounded-xl border border-zinc-800">
-                    Copy My Code: <span id="ui-mycode" class="text-emerald-500">---</span>
-                </button>
+                <p class="text-[10px] text-zinc-600 uppercase mb-2">Toplam Davet</p>
+                <p id="ui-ref-count" class="text-6xl font-black mb-6">0</p>
+                <div class="flex flex-col gap-3">
+                    <button onclick="copyRef()" class="bg-zinc-900 py-3 rounded-xl border border-zinc-800 text-[10px] font-black">
+                        KODUM: <span id="ui-mycode" class="text-emerald-500">---</span> <i class="fa-regular fa-copy ml-2"></i>
+                    </button>
+                    <button onclick="shareRef()" class="bg-emerald-500 text-black py-4 rounded-xl font-black uppercase text-xs">ARKADAŞINI ÇAĞIR (+5K)</button>
+                </div>
             </div>
-            <div id="ui-ref-list" class="space-y-2"></div>
+            
+            <h3 class="text-[10px] font-black uppercase text-zinc-600 mb-4 tracking-widest ml-2">Davet Edilenler</h3>
+            <div id="ui-ref-list" class="space-y-2 pb-20">
+                </div>
         </div>
 
         <div id="p-wallet" class="page">
             <h1 class="text-3xl font-black uppercase mb-6 text-center">Wallet</h1>
             <div id="ex-list" class="space-y-2"></div>
         </div>
-
     </main>
 
     <nav>
         <div class="nav-link active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
         <div class="nav-link" onclick="nav('squad', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
-        <div class="nav-link" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Exchange</span></div>
+        <div class="nav-link" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
     </nav>
 
 <script>
+    const ADMIN_ID = "8392479231"; // SENİN TELEGRAM ID'N
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
-    tg.expand();
 
     let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
-    let user = { bal: 0, handle: tg.initDataUnsafe?.user?.username || "Koala", tasks: [], referrals: [], exchange: "None", refCode: "KOA-"+Math.floor(10000+Math.random()*90000) };
+    let user = { bal: 0, handle: tg.initDataUnsafe?.user?.username || "Anon", referrals: [], usedRef: false, refCode: "KOA-"+Math.floor(1000+Math.random()*9000) };
 
-    async function start() {
+    async function init() {
         const doc = await db.collection("users").doc(myId).get();
         if(doc.exists) user = { ...user, ...doc.data() };
         else await db.collection("users").doc(myId).set(user);
         
+        if(myId === ADMIN_ID) document.getElementById('adm-btn').classList.remove('hidden');
         render();
-        gsap.to("#boot-loader", { opacity: 0, duration: 0.5, onComplete: () => {
-            document.getElementById('boot-loader').remove();
-            document.getElementById('main-app').style.visibility = 'visible';
-        }});
     }
 
+    // --- REFERANS SIFIRLAMA (ADMIN ONLY) ---
+    async function resetAllReferrals() {
+        if(!confirm("DİKKAT: Tüm kullanıcıların referans verileri silinecek. Emin misin?")) return;
+        
+        const snap = await db.collection("users").get();
+        const batch = db.batch();
+        
+        snap.forEach(doc => {
+            const ref = db.collection("users").doc(doc.id);
+            batch.update(ref, { 
+                referrals: [], // Listeyi boşalt
+                usedRef: false // Yeniden kod girme hakkı tanı
+            });
+        });
+
+        await batch.commit();
+        alert("Başarılı: Tüm referans verileri sıfırlandı!");
+        location.reload();
+    }
+
+    // --- REFERANS GİRME SİSTEMİ ---
+    async function submitRef() {
+        const input = document.getElementById('ref-input').value.trim();
+        if(user.usedRef) return alert("Zaten bir kod kullandın!");
+        if(input === user.refCode) return alert("Kendi kodunu kullanamazsın!");
+
+        const snap = await db.collection("users").where("refCode", "==", input).get();
+        if(!snap.empty) {
+            const ownerDoc = snap.docs[0];
+            const ownerId = ownerDoc.id;
+            
+            // Kod sahibine ödül ve listeye ekleme
+            await db.collection("users").doc(ownerId).update({
+                referrals: firebase.firestore.FieldValue.arrayUnion(user.handle),
+                bal: firebase.firestore.FieldValue.increment(5000)
+            });
+
+            // Kullanıcıya ödül ve "kod kullandı" işareti
+            user.bal += 5000;
+            user.usedRef = true;
+            await db.collection("users").doc(myId).update({ bal: user.bal, usedRef: true });
+            
+            alert("Tebrikler! 5.000 Koala kazandın.");
+            render();
+        } else {
+            alert("Geçersiz kod!");
+        }
+    }
+
+    function render() {
+        document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
+        document.getElementById('ui-handle').innerText = "@" + user.handle;
+        document.getElementById('ui-mycode').innerText = user.refCode;
+        document.getElementById('ui-ref-count').innerText = user.referrals.length;
+        
+        const rList = document.getElementById('ui-ref-list');
+        rList.innerHTML = user.referrals.length ? "" : "<p class='text-center text-zinc-800 text-[10px] uppercase font-bold mt-10'>Henüz kimse yok</p>";
+        user.referrals.forEach(r => {
+            rList.innerHTML += `<div class="k-card !py-4 flex justify-between"><span>${r}</span><span class="text-emerald-500 font-bold">+5K</span></div>`;
+        });
+    }
+
+    // Navigasyon ve Diğer Fonksiyonlar
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
@@ -148,60 +199,19 @@
     }
 
     document.getElementById('tap-area').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        user.bal += 0.2;
-        updateUI();
-        const touch = e.touches[0];
-        const f = document.createElement('div');
-        f.className = 'float-val';
-        f.innerText = '+0.2';
-        f.style.left = touch.pageX + 'px';
-        f.style.top = touch.pageY + 'px';
-        document.body.appendChild(f);
-        setTimeout(() => f.remove(), 700);
+        e.preventDefault(); user.bal += 0.2; render();
         tg.HapticFeedback.impactOccurred('medium');
     });
 
-    async function handleTask(id, reward, link) {
-        if(user.tasks.includes(id)) return;
-        const btn = document.getElementById('task-' + id);
-        btn.innerHTML = `<div class="spinner"></div>`;
-        tg.openTelegramLink(link);
-        setTimeout(async () => {
-            user.bal += reward;
-            user.tasks.push(id);
-            await db.collection("users").doc(myId).update({ bal: user.bal, tasks: user.tasks });
-            render();
-            tg.HapticFeedback.notificationOccurred('success');
-        }, 5000);
+    function openAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
+    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+    function copyRef() { navigator.clipboard.writeText(user.refCode); tg.showAlert("Kod Kopyalandı!"); }
+    function shareRef() {
+        const text = `Koala Arcade'e katıl! Kodum: ${user.refCode}`;
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/BOTUNUZ&text=${encodeURIComponent(text)}`);
     }
 
-    function render() {
-        updateUI();
-        document.getElementById('ui-handle').innerText = "@" + user.handle;
-        document.getElementById('ui-mycode').innerText = user.refCode;
-        document.getElementById('ui-ref-count').innerText = user.referrals.length;
-        
-        user.tasks.forEach(tid => {
-            const b = document.getElementById('task-' + tid);
-            if(b) { b.innerText = "Done"; b.disabled = true; b.style.opacity = 0.5; }
-        });
-
-        const exList = document.getElementById('ex-list');
-        exList.innerHTML = "";
-        ['Binance', 'OKX', 'Bybit'].forEach(ex => {
-            const active = user.exchange === ex;
-            exList.innerHTML += `<div class="k-card flex justify-between items-center ${active?'border-emerald-500':''}" onclick="setEx('${ex}')"><span class="text-xs font-bold">${ex}</span><i class="fa-solid fa-circle ${active?'text-emerald-500':'text-zinc-900'}"></i></div>`;
-        });
-    }
-
-    function updateUI() { document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString(); }
-    async function setEx(n) { user.exchange = n; await db.collection("users").doc(myId).update({exchange: n}); render(); }
-    function copyRef() { navigator.clipboard.writeText(user.refCode); tg.showAlert("Copied!"); }
-    async function watchAd() { user.bal += 1; await db.collection("users").doc(myId).update({bal: user.bal}); updateUI(); }
-
-    setInterval(() => { if(myId !== "TEST_USER") db.collection("users").doc(myId).update({ bal: user.bal }); }, 15000);
-    window.onload = start;
+    window.onload = init;
 </script>
 </body>
 </html>
