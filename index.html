@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | OFFICIAL BOT</title>
+    <title>KOALA ARCADE | TASK EDITION</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -39,14 +39,13 @@
         .koala-main { width: 220px; height: 220px; margin: 0 auto; background: #fff; border-radius: 50px; border: 8px solid #111; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.9); }
         .koala-main img { width: 100%; height: 100%; object-fit: cover; }
 
-        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 22px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+        .task-card:active { transform: scale(0.98); }
 
         /* AIRDROP BORSA LİSTESİ */
         .ex-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
         .ex-item { background: var(--card); border: 2px solid var(--border); border-radius: 25px; padding: 18px; display: flex; align-items: center; gap: 18px; transition: 0.3s; position: relative; cursor: pointer; }
         .ex-item img { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; border: 1px solid #1d1d21; }
-        .ex-item h3 { font-weight: 800; font-size: 16px; }
-        .ex-item p { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; }
         .ex-item.selected { border-color: #fff; background: #111; }
         .ex-item.selected::after { content: '\f058'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 20px; color: #fff; font-size: 18px; }
 
@@ -81,6 +80,7 @@
     <div id="p-home" class="page">
         <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase tracking-[4px] mt-3">$KOALA SCORE</p></div>
         <div class="koala-main"><img src="coinkoala.jpg"></div>
+        
         <div class="mt-12 space-y-3">
             <div class="task-card" onclick="mine()">
                 <div class="flex items-center gap-4">
@@ -88,6 +88,14 @@
                     <div><h4 class="font-black text-sm uppercase italic">Madenciliğe Başla</h4><p class="text-[10px] text-zinc-500 font-bold">+1 KOALA</p></div>
                 </div>
                 <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">İZLE</div>
+            </div>
+
+            <div id="card-tg" class="task-card" onclick="completeJoinTask()">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-sky-950/30 rounded-2xl flex items-center justify-center text-xl text-sky-500 border border-sky-900/20"><i class="fa-brands fa-telegram"></i></div>
+                    <div><h4 class="font-black text-sm uppercase italic">Kanala Katıl</h4><p class="text-[10px] text-zinc-500 font-bold">+500 KOALA</p></div>
+                </div>
+                <div id="tg-btn-label" class="bg-sky-600 text-white px-6 py-2 rounded-xl font-black text-[10px]">KATIL</div>
             </div>
         </div>
     </div>
@@ -99,9 +107,6 @@
             <h2 class="text-6xl font-black italic">+10,000</h2>
         </div>
         <div class="flex-1 mt-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-900 rounded-3xl p-6 text-center">
-            <div class="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
-                <i class="fa-solid fa-user-plus text-2xl text-white"></i>
-            </div>
             <p class="text-zinc-500 font-bold uppercase text-[10px] leading-relaxed">Ekibini kurarak airdrop<br>payını katlayabilirsin.</p>
         </div>
         <div class="btn-action mt-6" onclick="shareTelegram()">Arkadaşlarını Davet Et</div>
@@ -133,11 +138,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Kullanıcı ID Oluşturma
-    let uid = localStorage.getItem('koala_final_v3') || 'K' + Math.floor(Math.random()*1000000);
-    localStorage.setItem('koala_final_v3', uid);
+    let uid = localStorage.getItem('koala_final_v4') || 'K' + Math.floor(Math.random()*1000000);
+    localStorage.setItem('koala_final_v4', uid);
 
-    let u = { bal: 0, ex: '', checked: false };
+    let u = { bal: 0, ex: '', checked: false, task_tg: false };
 
     async function init() {
         try {
@@ -170,11 +174,23 @@
         });
     }
 
-    // --- @KoalasUsdt_bot PAYLAŞMA FONKSİYONU ---
+    // --- KANALA KATIL FONKSİYONU ---
+    function completeJoinTask() {
+        if(u.task_tg) return; // Zaten yapıldıysa çık
+        
+        // Kanal linkini buraya koy (Örn: https://t.me/SeninKanalin)
+        window.open("https://t.me/KoalasUsdt_bot", "_blank"); 
+
+        u.bal += 500;
+        u.task_tg = true;
+        save();
+        render();
+    }
+
     function shareTelegram() {
         const botUsername = "KoalasUsdt_bot"; 
         const referralLink = `https://t.me/${botUsername}?startapp=${uid}`;
-        const shareText = encodeURIComponent("🐨 Koala Arcade'de USDT ödülleri ve tokenlar seni bekliyor! \n\n🎁 Linke tıkla, 1.000+ puan bonusla hemen madenciliğe başla:");
+        const shareText = encodeURIComponent("🐨 Koala Arcade'de madencilik yapmaya başla! \n\n🎁 1.000+ puan bonusun burada:");
         const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${shareText}`;
         window.open(telegramShareUrl, '_blank');
     }
@@ -188,6 +204,15 @@
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
         document.getElementById('ui-air').innerText = Math.floor(u.bal / 10).toLocaleString('tr-TR');
+        
+        // Görev Buton Durumu
+        if(u.task_tg) {
+            const label = document.getElementById('tg-btn-label');
+            label.innerText = "BİTTİ";
+            label.className = "bg-zinc-900 text-zinc-500 px-6 py-2 rounded-xl font-black text-[10px]";
+            document.getElementById('card-tg').style.opacity = "0.6";
+        }
+
         document.querySelectorAll('.ex-item').forEach(i => i.classList.remove('selected'));
         if(u.ex) document.getElementById('ex-' + u.ex)?.classList.add('selected');
     }
