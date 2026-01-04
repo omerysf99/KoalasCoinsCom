@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA KOMBAT | PRO</title>
+    <title>KOALA KOMBAT | 100M EDITION</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -19,118 +19,111 @@
         
         body { background: #000; color: #fff; overflow: hidden; height: 100vh; }
 
-        /* Sayfalar */
         .page { display: none; height: 100vh; padding: 20px 20px 100px; overflow-y: auto; }
         .page.active { display: block; }
 
         /* Hamster Header */
         .stat-card { background: var(--dark-card); border-radius: 12px; padding: 8px; border: 1px solid var(--border); text-align: center; }
         
+        /* Level Progress */
+        .lvl-bar-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .lvl-bar-fill { height: 100%; background: #3b82f6; width: 0%; transition: width 0.5s; }
+
         /* Tıklama Alanı */
         .koala-circle {
-            position: relative; width: 280px; height: 280px; margin: 30px auto;
+            position: relative; width: 270px; height: 270px; margin: 20px auto;
             border-radius: 50%; background: radial-gradient(circle, #2d333b 0%, #000 100%);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 50px rgba(245, 187, 95, 0.1); border: 8px solid var(--border);
+            box-shadow: 0 0 60px rgba(245, 187, 95, 0.15); border: 6px solid var(--border);
         }
-        .koala-circle img { width: 90%; height: 90%; border-radius: 50%; object-fit: cover; }
-        .koala-circle:active { transform: scale(0.96); }
+        .koala-circle img { width: 92%; height: 92%; border-radius: 50%; object-fit: cover; }
+        .koala-circle:active { transform: scale(0.94); }
 
-        /* Enerji Barı */
-        .progress-container { background: var(--dark-card); border-radius: 100px; height: 14px; width: 100%; overflow: hidden; border: 1px solid var(--border); }
-        .progress-fill { background: linear-gradient(90deg, #f5bb5f, #ff8c00); height: 100%; transition: width 0.3s ease; }
+        /* Boost Butonu */
+        .boost-btn {
+            background: linear-gradient(135deg, #f5bb5f 0%, #ff8c00 100%);
+            color: #000; font-weight: 900; padding: 12px 25px; border-radius: 15px;
+            display: flex; align-items: center; gap: 10px; font-size: 14px;
+            box-shadow: 0 4px 15px rgba(245, 187, 95, 0.3); transition: 0.2s;
+        }
+        .boost-btn:active { transform: scale(0.9); }
 
-        /* Alt Navigasyon */
+        /* Enerji & Navigasyon */
+        .progress-container { background: var(--dark-card); border-radius: 100px; height: 12px; width: 100%; overflow: hidden; border: 1px solid var(--border); }
+        .progress-fill { background: linear-gradient(90deg, #f5bb5f, #ff8c00); height: 100%; transition: width 0.2s; }
+
         nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; 
-            background: #111; border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; z-index: 1000;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; 
+            background: #0a0a0a; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center; padding-bottom: 15px; z-index: 1000;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #848b97; font-size: 10px; font-weight: bold; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 9px; font-weight: bold; }
         .nav-item.active { color: #fff; }
-        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .nav-item i { font-size: 20px; margin-bottom: 2px; }
 
-        /* Animasyon */
-        .tap-pop { position: absolute; color: white; font-size: 30px; font-weight: 900; pointer-events: none; animation: popUp 0.8s forwards; z-index: 50; }
-        @keyframes popUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        .tap-pop { position: absolute; color: white; font-size: 32px; font-weight: 900; pointer-events: none; animation: popUp 0.8s forwards; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        @keyframes popUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-130px); } }
     </style>
 </head>
 <body>
 
     <div id="p-home" class="page active">
-        <div class="grid grid-cols-3 gap-2 mb-6">
+        <div class="grid grid-cols-3 gap-2 mb-4">
             <div class="stat-card">
-                <p class="text-[9px] text-zinc-500 uppercase">Tık Başı</p>
-                <p class="text-xs font-bold text-yellow-400">+12</p>
+                <p class="text-[8px] text-zinc-500 uppercase">Tık Başı</p>
+                <p class="text-xs font-black text-yellow-400" id="ui-tık">+15</p>
             </div>
             <div class="stat-card">
-                <p class="text-[9px] text-zinc-500 uppercase">Lvl Geçiş</p>
-                <p class="text-xs font-bold text-blue-400">50K</p>
+                <p class="text-[8px] text-zinc-500 uppercase">Seviye</p>
+                <p class="text-xs font-black text-blue-400">Bronze</p>
             </div>
             <div class="stat-card">
-                <p class="text-[9px] text-zinc-500 uppercase">Saatlik Kâr</p>
-                <p class="text-xs font-bold text-green-400" id="ui-pps">0</p>
+                <p class="text-[8px] text-zinc-500 uppercase">Saatlik Kâr</p>
+                <p class="text-xs font-black text-green-400" id="ui-pps">0</p>
             </div>
         </div>
 
-        <div class="text-center my-4">
-            <div class="flex items-center justify-center gap-2">
+        <div class="text-center px-4">
+            <div class="flex items-center justify-center gap-2 mb-1">
                 <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-8 h-8">
-                <h1 id="ui-bal" class="text-5xl font-black">0</h1>
+                <h1 id="ui-bal" class="text-5xl font-black italic">0</h1>
             </div>
-            <p class="text-xs text-zinc-500 font-bold mt-2 uppercase tracking-widest">CEO > <span id="ui-handle" class="text-white">...</span></p>
+            <div class="flex justify-between items-center text-[10px] font-bold text-zinc-500 mb-1">
+                <span>LVL 1</span>
+                <span id="ui-lvl-text">0 / 100M</span>
+            </div>
+            <div class="lvl-bar-bg"><div id="lvl-bar" class="lvl-bar-fill"></div></div>
         </div>
 
         <div class="koala-circle" id="tap-btn">
-            <img src="coinkoala.jpg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
+            <img src="coinkoala.jpg" alt="Koala">
         </div>
 
-        <div class="mt-6">
+        <div class="flex justify-center mb-6">
+            <button class="boost-btn" onclick="activateBoost()">
+                <i class="fa-solid fa-rocket"></i> BOOST X2
+            </button>
+        </div>
+
+        <div class="mt-4 px-2">
             <div class="flex justify-between items-center mb-2">
                 <div class="flex items-center gap-1 font-black text-lg">
                     <i class="fa-solid fa-bolt text-yellow-400"></i>
                     <span id="ui-energy">1000 / 1000</span>
                 </div>
-                <span class="text-xs font-bold text-zinc-500">Bronze Stage</span>
+                <span class="text-xs font-bold text-zinc-500" id="ui-handle">@CEO</span>
             </div>
             <div class="progress-container">
-                <div id="energy-bar" class="progress-fill" style="width: 100%;"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="p-mine" class="page">
-        <h1 class="text-2xl font-black mb-6">Geliştirmeler</h1>
-        <div class="grid grid-cols-2 gap-3">
-            <div class="stat-card !text-left p-4" onclick="buyUpgrade(500, 150)">
-                <p class="font-bold text-sm">Koala Rig v1</p>
-                <p class="text-[10px] text-green-400 font-bold">+150/saat</p>
-                <div class="mt-3 flex justify-between items-center border-t border-zinc-800 pt-2">
-                    <span class="text-xs font-black">500 🪙</span>
-                    <i class="fa-solid fa-chevron-right text-zinc-600 text-[10px]"></i>
-                </div>
-            </div>
-            </div>
-    </div>
-
-    <div id="p-earn" class="page">
-        <h1 class="text-2xl font-black mb-6">Görevler</h1>
-        <div class="space-y-3">
-            <div class="stat-card flex justify-between items-center p-4">
-                <div class="flex items-center gap-3">
-                    <i class="fa-brands fa-telegram text-2xl text-blue-400"></i>
-                    <span class="text-sm font-bold">Kanala Katıl</span>
-                </div>
-                <span class="text-xs font-black text-yellow-500">+50,000</span>
+                <div id="energy-bar" class="progress-fill"></div>
             </div>
         </div>
     </div>
 
     <nav>
-        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Giriş</div>
-        <div class="nav-item" onclick="nav('mine', this)"><i class="fa-solid fa-pickaxe"></i>Geliştir</div>
-        <div class="nav-item" onclick="nav('earn', this)"><i class="fa-solid fa-coins"></i>Görevler</div>
-        <div class="nav-item" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-wallet"></i>Airdrop</div>
+        <div class="nav-item active"><i class="fa-solid fa-house"></i>Giriş</div>
+        <div class="nav-item" onclick="tg.showAlert('Mine Yakında!')"><i class="fa-solid fa-pickaxe"></i>Geliştir</div>
+        <div class="nav-item" onclick="tg.showAlert('Friends Yakında!')"><i class="fa-solid fa-users"></i>Arkadaşlar</div>
+        <div class="nav-item" onclick="tg.showAlert('Airdrop Yakında!')"><i class="fa-solid fa-parachute-box"></i>Airdrop</div>
     </nav>
 
 <script>
@@ -140,8 +133,13 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // --- AYARLAR ---
+    const LVL_TARGET = 100000000; // 100 Milyon Seviye Geçişi
+    let tıkDegeri = 15;
+    let boostAktif = false;
+
     let user = { bal: 0, pps: 0, energy: 1000, maxEnergy: 1000, handle: tg.initDataUnsafe?.user?.first_name || "CEO" };
-    const myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
+    const myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_USER";
 
     async function init() {
         const doc = await db.collection("users").doc(myId).get();
@@ -152,26 +150,21 @@
         startLoops();
     }
 
-    function nav(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p-' + id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-        tg.HapticFeedback.impactOccurred('light');
-    }
-
+    // Tıklama Motoru
     document.getElementById('tap-btn').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if(user.energy < 12) return;
+        if(user.energy < tıkDegeri) return;
 
-        user.bal += 12;
-        user.energy -= 12;
+        let kazanc = boostAktif ? tıkDegeri * 2 : tıkDegeri;
+        user.bal += kazanc;
+        user.energy -= tıkDegeri;
         render();
 
+        // Animasyon
         const touch = e.touches[0];
         const p = document.createElement('div');
         p.className = 'tap-pop';
-        p.innerText = '+12';
+        p.innerText = `+${kazanc}`;
         p.style.left = touch.pageX + 'px';
         p.style.top = touch.pageY + 'px';
         document.body.appendChild(p);
@@ -180,36 +173,41 @@
         tg.HapticFeedback.impactOccurred('medium');
     });
 
-    function buyUpgrade(cost, profit) {
-        if(user.bal >= cost) {
-            user.bal -= cost;
-            user.pps += profit;
-            render();
-            tg.HapticFeedback.notificationOccurred('success');
-            save();
-        } else {
-            tg.showAlert("Yetersiz bakiye!");
-        }
+    // Boost Fonksiyonu
+    function activateBoost() {
+        if(boostAktif) return;
+        boostAktif = true;
+        tg.showAlert("Boost Aktif! 30 saniye boyunca X2 Kazanç!");
+        setTimeout(() => {
+            boostAktif = false;
+            tg.showAlert("Boost Sona Erdi.");
+        }, 30000);
     }
 
     function startLoops() {
         setInterval(() => {
-            if(user.energy < user.maxEnergy) user.energy = Math.min(user.maxEnergy, user.energy + 3);
+            if(user.energy < user.maxEnergy) user.energy = Math.min(user.maxEnergy, user.energy + 5);
             if(user.pps > 0) user.bal += (user.pps / 3600);
             render();
         }, 1000);
-        setInterval(save, 15000);
+        setInterval(() => { if(myId !== "DEV_USER") db.collection("users").doc(myId).update(user); }, 15000);
     }
 
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
         document.getElementById('ui-pps').innerText = "+" + user.pps.toLocaleString();
         document.getElementById('ui-energy').innerText = `${user.energy} / ${user.maxEnergy}`;
-        document.getElementById('ui-handle').innerText = user.handle;
+        document.getElementById('ui-handle').innerText = "@" + user.handle;
+        document.getElementById('ui-tık').innerText = "+" + (boostAktif ? tıkDegeri * 2 : tıkDegeri);
+        
+        // Enerji Barı
         document.getElementById('energy-bar').style.width = (user.energy / user.maxEnergy * 100) + "%";
-    }
 
-    async function save() { if(myId !== "TEST_USER") db.collection("users").doc(myId).update(user); }
+        // Level Barı (100M Hedefi)
+        const lvlYuzde = (user.bal / LVL_TARGET) * 100;
+        document.getElementById('lvl-bar').style.width = Math.min(100, lvlYuzde) + "%";
+        document.getElementById('ui-lvl-text').innerText = `${Math.floor(user.bal).toLocaleString()} / 100M`;
+    }
 
     window.onload = init;
 </script>
