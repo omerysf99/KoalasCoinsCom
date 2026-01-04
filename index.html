@@ -3,147 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorts Pro - Çakışma Fix</title>
+    <title>Video İzleme Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Tasarımı ve Kaydırma Mekanizmasını Düzenle */
-        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        
-        .reels-wrapper { 
-            width: 100%; max-width: 420px; height: 100vh; 
-            margin: auto; position: relative; background: #000; 
-        }
-
-        .reels-container {
-            height: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory; /* Videoların takılmadan hizalanmasını sağlar */
-            scrollbar-width: none;
-        }
-        .reels-container::-webkit-scrollbar { display: none; }
-
-        .video-card {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* YouTube Videosunu Tam Ekran Yap ve Siyah Boşlukları Kapat */
-        iframe { 
-            width: 100%; height: 100%; 
-            pointer-events: none; 
-            transform: scale(1.5); /* Videoyu büyütüp kenarları kırpar (Shorts hissi) */
-        }
-
-        /* Etkileşim Katmanları */
-        .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; }
-        
-        .side-bar { 
-            position: absolute; right: 15px; bottom: 100px; 
-            z-index: 100; display: flex; flex-direction: column; gap: 20px; 
-        }
-
-        .action-btn { 
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
-            border-radius: 50%; width: 50px; height: 50px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 24px; border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .info-panel { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 4px black; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     </style>
 </head>
-<body>
+<body class="bg-gray-900 text-white">
 
-<div class="reels-wrapper">
-    <div class="reels-container" id="reelsContainer"></div>
-</div>
+    <nav class="bg-black p-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-red-600 text-2xl font-bold tracking-tighter">MY TUBE</h1>
+        <div class="flex w-1/2">
+            <input id="searchInput" type="text" placeholder="Video Ara..." class="w-full p-2 rounded-l bg-gray-800 border-none focus:ring-2 focus:ring-red-600 outline-none text-white">
+            <button onclick="searchVideos()" class="bg-gray-700 px-4 rounded-r hover:bg-gray-600">Ara</button>
+        </div>
+        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center font-bold">U</div>
+    </nav>
 
-<script src="https://www.youtube.com/iframe_api"></script>
+    <main class="p-6">
+        <div id="playerSection" class="hidden mb-10 max-w-5xl mx-auto">
+            <div class="video-container rounded-lg shadow-2xl">
+                <div id="player"></div>
+            </div>
+            <h2 id="currentVideoTitle" class="mt-4 text-2xl font-bold"></h2>
+        </div>
 
-<script>
-    const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
-    const videoData = [
-        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık ✨' },
-        { id: 'dj7QJ0-VIHc', title: 'Türkiye 2024 Hitleri' },
-        { id: 'fkDpX8UXHN4', title: 'Manifest Dans Vibe 🔥' },
-        { id: 'lB6IgV1kapU', title: 'Yeni Hit Şarkı' }
-    ];
+        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+    </main>
 
-    const players = {};
+    <script>
+        const API_KEY = 'SENİN_API_ANAHTARIN'; // Buraya kendi API anahtarını koy
+        const videoGrid = document.getElementById('videoGrid');
+        const searchInput = document.getElementById('searchInput');
 
-    function onYouTubeIframeAPIReady() {
-        const container = document.getElementById('reelsContainer');
-        
-        videoData.forEach((v, index) => {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.setAttribute('data-id', v.id);
-            card.innerHTML = `
-                <div class="click-layer" onclick="handleTap('${v.id}')"></div>
-                <div id="player-${v.id}"></div>
-                <div class="side-bar">
-                    <div class="action-btn" onclick="event.stopPropagation(); alert('Sana özel beğenildi!')">❤️</div>
-                    <div class="action-btn" onclick="event.stopPropagation(); prompt('Yorumun:')">💬</div>
-                </div>
-                <div class="info-panel">
-                    <strong>@benim_sitem</strong>
-                    <p>${v.title}</p>
-                </div>
-            `;
-            container.appendChild(card);
+        // Sayfa yüklendiğinde popüler videoları getir
+        window.onload = () => {
+            fetchVideos('trend videolar');
+        };
 
-            players[v.id] = new YT.Player(`player-${v.id}`, {
-                videoId: v.id,
-                playerVars: { 
-                    'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 
-                    'mute': 1, 'modestbranding': 1, 'rel': 0 
-                },
-                events: { 'onReady': (e) => { if(index === 0) e.target.playVideo(); } }
+        async function fetchVideos(query) {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${query}&type=video&key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayVideos(data.items);
+            } catch (error) {
+                console.error("Hata:", error);
+                videoGrid.innerHTML = "<p class='text-center w-full'>API Anahtarınızı kontrol edin veya günlük limit dolmuş olabilir.</p>";
+            }
+        }
+
+        function displayVideos(videos) {
+            videoGrid.innerHTML = '';
+            videos.forEach(video => {
+                const videoCard = `
+                    <div class="cursor-pointer hover:scale-105 transition-transform" onclick="playVideo('${video.id.videoId}', '${video.snippet.title.replace(/'/g, "\\'")}')">
+                        <img src="${video.snippet.thumbnails.high.url}" class="rounded-xl w-full">
+                        <div class="mt-3">
+                            <h3 class="font-semibold line-clamp-2">${video.snippet.title}</h3>
+                            <p class="text-gray-400 text-sm mt-1">${video.snippet.channelTitle}</p>
+                        </div>
+                    </div>
+                `;
+                videoGrid.innerHTML += videoCard;
             });
+        }
+
+        function searchVideos() {
+            const query = searchInput.value;
+            if(query) fetchVideos(query);
+        }
+
+        function playVideo(id, title) {
+            const playerSection = document.getElementById('playerSection');
+            const playerDiv = document.getElementById('player');
+            const titleDiv = document.getElementById('currentVideoTitle');
+
+            playerSection.classList.remove('hidden');
+            playerDiv.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+            titleDiv.innerText = title;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Enter tuşu ile arama yapma
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") searchVideos();
         });
-
-        setupSafeObserver();
-    }
-
-    // ÇAKIŞMAYI ÖNLEYEN GÜVENLİ GÖZLEMCİ
-    function setupSafeObserver() {
-        // threshold: 0.8 -> Videonun %80'i ekrana girmeden işlem yapmaz
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const id = entry.target.getAttribute('data-id');
-                
-                if (entry.isIntersecting) {
-                    // 1. ADIM: DİĞER TÜM VİDEOLARI KESİN OLARAK DURDUR
-                    Object.keys(players).forEach(key => {
-                        if (key !== id && players[key].pauseVideo) {
-                            players[key].pauseVideo();
-                        }
-                    });
-
-                    // 2. ADIM: SADECE AKTİF VİDEOYU OYNAT VE SESİNİ AÇ
-                    if (players[id] && players[id].playVideo) {
-                        players[id].playVideo();
-                        players[id].unMute();
-                    }
-                } else {
-                    // Ekrandan çıkanı durdur
-                    if (players[id] && players[id].pauseVideo) {
-                        players[id].pauseVideo();
-                    }
-                }
-            });
-        }, { threshold: 0.8 });
-
-        document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
-    }
-
-    function handleTap(id) {
-        const state = players[id].getPlayerState();
-        state === 1 ? players[id].pauseVideo() : players[id].playVideo();
-    }
-</script>
+    </script>
 </body>
 </html>
