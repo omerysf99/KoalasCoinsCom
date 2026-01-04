@@ -3,207 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA KOMBAT | TAP TO EARN</title>
+    <title>KOALA KOMBAT | ULTRA DARK</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         
-        body { 
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-            color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%;
-            font-family: 'Inter', sans-serif;
-        }
+        :root { --neon-gold: #f5bb5f; --deep-black: #050505; --card-bg: #111111; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { background-color: var(--deep-black); color: #fff; overflow: hidden; height: 100vh; width: 100vw; position: fixed; }
 
-        /* 3D Coin Efekti */
-        .tap-target-wrapper {
-            perspective: 1000px;
-            margin: 20px auto;
-            width: 280px; height: 280px;
-        }
+        /* Arka Plan Neon Efekti */
+        .glow-sphere { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,187,95,0.15) 0%, transparent 70%); top: 45%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; }
 
-        .koala-main-btn {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #2d333b, #0d0d0d);
-            border: 10px solid #252a30;
+        /* Üst Bar */
+        .stats-header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; z-index: 10; position: relative; }
+        .stat-box { background: var(--card-bg); border: 1px solid #222; border-radius: 15px; padding: 8px; text-align: center; }
+
+        /* Bakiye */
+        .balance-section { text-align: center; margin-top: 20px; z-index: 10; position: relative; }
+        .balance-value { font-family: 'Montserrat', sans-serif; font-size: 3.5rem; letter-spacing: -2px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+        /* ANA TIKLAMA ALANI (TAP TO EARN) */
+        .tap-area { position: relative; width: 300px; height: 300px; margin: 30px auto; z-index: 10; perspective: 1000px; }
+        
+        .coin-wrapper {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: linear-gradient(145deg, #1a1a1a, #000);
+            border: 8px solid #1c1c1c;
+            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(255,255,255,0.02);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(245, 187, 95, 0.1);
-            transition: transform 0.1s cubic-bezier(0.1, 0.7, 0.1, 1);
-            position: relative;
+            transition: transform 0.05s cubic-bezier(0, 0, 0.2, 1);
+            position: relative; overflow: hidden;
         }
 
-        .koala-main-btn img {
-            width: 85%; height: 85%; border-radius: 50%; object-fit: cover;
-            pointer-events: none; user-select: none;
+        .coin-wrapper img { width: 90%; height: 90%; border-radius: 50%; object-fit: cover; filter: brightness(0.9); transition: 0.2s; }
+
+        /* Tıklama Anı Animasyonları */
+        .coin-wrapper:active { transform: scale(0.92); }
+        .coin-wrapper:active img { filter: brightness(1.1); }
+
+        /* Uçan Sayılar (Pro Efekt) */
+        .float-text {
+            position: absolute; color: #fff; font-size: 38px; font-weight: 900;
+            pointer-events: none; z-index: 100; font-family: 'Montserrat', sans-serif;
+            animation: float-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* Tıklama anında "Squash" (ezilme) efekti */
-        .koala-main-btn:active {
-            transform: scale(0.92) rotateX(10deg);
-        }
-
-        /* Uçan Coin Sayıları */
-        .floating-value {
-            position: absolute; color: #fff; font-size: 36px; font-weight: 900;
-            pointer-events: none; z-index: 1000;
-            animation: floatUp 0.8s ease-out forwards;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        @keyframes floatUp {
+        @keyframes float-up {
             0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-160px) scale(1.4); }
+            100% { opacity: 0; transform: translateY(-200px) scale(1.5); }
         }
 
-        /* Enerji Barı Pro */
-        .energy-progress-bg { width: 100%; height: 16px; background: #111; border-radius: 20px; border: 1px solid #2d333b; overflow: hidden; }
-        .energy-progress-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, #f5bb5f 0%, #ff8c00 100%);
-            width: 100%; transition: width 0.1s linear;
-        }
+        /* Enerji Paneli */
+        .energy-footer { position: fixed; bottom: 100px; width: 100%; px-8; z-index: 10; padding: 0 30px; }
+        .energy-bar-bg { width: 100%; height: 16px; background: #0a0a0a; border-radius: 30px; border: 1px solid #222; overflow: hidden; }
+        .energy-bar-fill { height: 100%; background: linear-gradient(90deg, #f5bb5f, #ff8c00); width: 100%; transition: width 0.1s; }
 
         /* Navigasyon */
-        nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; 
-            background: rgba(13, 13, 13, 0.95); backdrop-filter: blur(10px);
-            border-top: 1px solid #2d333b; display: flex; justify-content: space-around;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-tab { color: #555; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: bold; }
-        .nav-tab.active { color: #f5bb5f; }
+        nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: #000; border-top: 1px solid #1a1a1a; display: flex; justify-content: space-around; align-items: center; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { color: #444; text-align: center; transition: 0.3s; }
+        .nav-item.active { color: var(--neon-gold); }
     </style>
 </head>
 <body>
 
-    <div class="px-4 py-3 grid grid-cols-3 gap-2 mt-4">
-        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">Per Tap</p>
+    <div class="glow-sphere"></div>
+
+    <div class="stats-header">
+        <div class="stat-box">
+            <p class="text-[8px] text-zinc-600 font-bold uppercase">Multi-Tap</p>
             <p class="text-xs font-black text-yellow-500">+1</p>
         </div>
-        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">To Next LVL</p>
-            <p class="text-xs font-black text-blue-400">100M</p>
+        <div class="stat-box">
+            <p class="text-[8px] text-zinc-600 font-bold uppercase">Profit/H</p>
+            <p class="text-xs font-black text-green-500">+0</p>
         </div>
-        <div class="bg-[#1c1f24] p-2 rounded-xl border border-[#2d333b] text-center">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">Hourly</p>
-            <p class="text-xs font-black text-green-500" id="ui-pps">+0</p>
-        </div>
-    </div>
-
-    <div class="text-center mt-6">
-        <div class="flex items-center justify-center gap-3">
-            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-10 h-10 drop-shadow-[0_0_10px_#26a17b]">
-            <h1 id="ui-bal" class="text-5xl font-black italic tracking-tight">0</h1>
-        </div>
-        <p class="text-[10px] text-zinc-500 font-bold mt-2 tracking-[4px] uppercase">Main Exchange</p>
-    </div>
-
-    <div class="tap-target-wrapper">
-        <div class="koala-main-btn" id="main-tap-btn">
-            <img src="coinkoala.jpg" alt="Koala" id="koala-img">
+        <div class="stat-box">
+            <p class="text-[8px] text-zinc-600 font-bold uppercase">Level</p>
+            <p class="text-xs font-black text-blue-500">CEO</p>
         </div>
     </div>
 
-    <div class="px-8 mt-10">
+    <div class="balance-section">
+        <div class="balance-value">
+            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-10 h-10">
+            <span id="ui-bal">0</span>
+        </div>
+        <p class="text-[10px] text-zinc-500 font-bold tracking-[5px] uppercase mt-1">Koala Kombat</p>
+    </div>
+
+    <div class="tap-area" id="tap-zone">
+        <div class="coin-wrapper" id="koala-coin">
+            <img src="coinkoala.jpg" alt="Koala">
+        </div>
+    </div>
+
+    <div class="energy-footer">
         <div class="flex justify-between items-center mb-2">
             <div class="flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-yellow-400 text-2xl animate-pulse"></i>
-                <span id="ui-energy-text" class="text-2xl font-black italic">1000</span>
-                <span class="text-zinc-600 font-bold">/ 1000</span>
+                <i class="fa-solid fa-bolt text-yellow-400 text-2xl"></i>
+                <span id="ui-energy" class="text-2xl font-black">1000</span>
+                <span class="text-zinc-600 text-sm">/ 1000</span>
             </div>
-            <button class="bg-zinc-800 text-[10px] px-3 py-1 rounded-full border border-zinc-700 font-bold">🚀 BOOST</button>
+            <div class="bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full text-[10px] font-bold">
+                BOOST
+            </div>
         </div>
-        <div class="energy-progress-bg">
-            <div id="energy-bar" class="energy-progress-fill"></div>
+        <div class="energy-bar-bg">
+            <div id="energy-bar" class="energy-bar-fill"></div>
         </div>
     </div>
 
     <nav>
-        <div class="nav-tab active"><i class="fa-solid fa-hand-pointer text-2xl"></i>TAP</div>
-        <div class="nav-tab" onclick="tg.showAlert('Mine Yakında!')"><i class="fa-solid fa-pickaxe text-2xl"></i>MINE</div>
-        <div class="nav-tab" onclick="tg.showAlert('Airdrop Yakında!')"><i class="fa-solid fa-parachute-box text-2xl"></i>AIRDROP</div>
+        <div class="nav-item active"><i class="fa-solid fa-hand-pointer text-2xl block mb-1"></i><span class="text-[9px] font-bold uppercase">Earn</span></div>
+        <div class="nav-item" onclick="tg.showAlert('Yakında')"><i class="fa-solid fa-pickaxe text-2xl block mb-1"></i><span class="text-[9px] font-bold uppercase">Mine</span></div>
+        <div class="nav-item" onclick="tg.showAlert('Yakında')"><i class="fa-solid fa-users text-2xl block mb-1"></i><span class="text-[9px] font-bold uppercase">Friends</span></div>
+        <div class="nav-item" onclick="tg.showAlert('Yakında')"><i class="fa-solid fa-parachute-box text-2xl block mb-1"></i><span class="text-[9px] font-bold uppercase">Airdrop</span></div>
     </nav>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Oyun Mantığı
     let balance = 0;
     let energy = 1000;
-    let maxEnergy = 1000;
-    let pps = 0;
-    let perTap = 1;
+    const maxEnergy = 1000;
+    const perTap = 1;
 
-    const btn = document.getElementById('main-tap-btn');
+    const tapZone = document.getElementById('tap-zone');
     const balUI = document.getElementById('ui-bal');
-    const energyText = document.getElementById('ui-energy-text');
-    const energyBar = document.getElementById('energy-bar');
+    const energyUI = document.getElementById('ui-energy');
+    const barUI = document.getElementById('energy-bar');
 
-    // TAP EVENT
-    btn.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Sayfa kaymasını engelle
+    // TAP TO EARN MOTORU
+    tapZone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         
-        // Çoklu dokunma desteği
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            handleTap(e.changedTouches[i].pageX, e.changedTouches[i].pageY);
+        // Multi-touch desteği (Aynı anda birden fazla parmakla tıkla)
+        const touches = e.changedTouches;
+        
+        for (let i = 0; i < touches.length; i++) {
+            if (energy >= perTap) {
+                // Veriyi İşle
+                balance += perTap;
+                energy -= perTap;
+                
+                // UI Güncelle
+                balUI.innerText = Math.floor(balance).toLocaleString();
+                energyUI.innerText = energy;
+                barUI.style.width = (energy / maxEnergy * 100) + "%";
+
+                // Efektleri Tetikle
+                spawnText(touches[i].pageX, touches[i].pageY);
+                
+                // Geri Bildirim
+                tg.HapticFeedback.impactOccurred('medium');
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
         }
     });
 
-    function handleTap(x, y) {
-        if (energy < perTap) {
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
-
-        // Değerleri Güncelle
-        balance += perTap;
-        energy -= perTap;
+    function spawnText(x, y) {
+        const text = document.createElement('div');
+        text.className = 'float-text';
+        text.innerText = `+${perTap}`;
+        text.style.left = (x - 20) + 'px';
+        text.style.top = (y - 50) + 'px';
         
-        // Arayüzü Güncelle
-        updateUI();
-
-        // Görsel Efekt Oluştur (Uçan Sayı)
-        createFloatingText(x, y);
-
-        // Telegram Titreşim
-        tg.HapticFeedback.impactOccurred('medium');
+        document.body.appendChild(text);
+        
+        // Belleği temizlemek için 0.7s sonra sil
+        setTimeout(() => text.remove(), 700);
     }
 
-    function createFloatingText(x, y) {
-        const span = document.createElement('span');
-        span.className = 'floating-value';
-        span.innerText = `+${perTap}`;
-        span.style.left = `${x - 25}px`;
-        span.style.top = `${y - 50}px`;
-        
-        document.body.appendChild(span);
-        
-        // Animasyon bittiğinde sil
-        setTimeout(() => span.remove(), 800);
-    }
-
-    function updateUI() {
-        balUI.innerText = Math.floor(balance).toLocaleString();
-        energyText.innerText = energy;
-        const energyWidth = (energy / maxEnergy) * 100;
-        energyBar.style.width = energyWidth + "%";
-    }
-
-    // Pasif Enerji Dolumu (Saniyede +3)
+    // Enerji Yenilenmesi (Saniyede +3)
     setInterval(() => {
         if (energy < maxEnergy) {
             energy = Math.min(maxEnergy, energy + 3);
-            updateUI();
+            energyUI.innerText = energy;
+            barUI.style.width = (energy / maxEnergy * 100) + "%";
         }
     }, 1000);
 
-    window.onload = updateUI;
 </script>
 </body>
 </html>
