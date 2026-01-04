@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorts Pro - Çakışma Fix</title>
+    <title>Shorts API Fix</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        .reels-wrapper { width: 100%; max-width: 400px; height: 100vh; margin: auto; position: relative; background: #000; }
+        body { margin: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .reels-wrapper { width: 100%; max-width: 420px; height: 100vh; margin: auto; position: relative; }
         
         .reels-container {
             height: 100%;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
-            -ms-overflow-style: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
@@ -25,13 +24,15 @@
             position: relative;
             background: #000;
         }
+
+        /* Video tam ekran ve ortalı */
         iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.4); }
 
-        /* Arayüz Elemanları */
-        .side-bar { position: absolute; right: 15px; bottom: 120px; z-index: 100; display: flex; flex-direction: column; gap: 20px; }
-        .action-btn { background: rgba(255,255,255,0.1); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); font-size: 24px; }
+        /* Arayüz */
+        .side-bar { position: absolute; right: 15px; bottom: 100px; z-index: 100; display: flex; flex-direction: column; gap: 20px; }
+        .action-btn { background: rgba(255,255,255,0.15); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); font-size: 24px; }
         .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
-        .info { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 4px #000; }
+        .video-info { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 4px black; }
     </style>
 </head>
 <body>
@@ -43,11 +44,16 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    const videos = [
-        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık ✨' },
-        { id: 'dj7QJ0-VIHc', title: 'Türkiye Hitleri 2025' },
-        { id: 'fkDpX8UXHN4', title: 'Dans Challenge 🔥' },
-        { id: 'lB6IgV1kapU', title: 'Yeni Popüler Parça' }
+    // Senin API Key'in
+    const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
+    
+    // Güncel Popüler Shorts ID Listesi
+    const videoData = [
+        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık Olamazsın' },
+        { id: 'dj7QJ0-VIHc', title: 'Her Yılın En Çok Dinlenen Şarkısı' },
+        { id: 'fkDpX8UXHN4', title: 'Bir Dans Bu Kadar Mı Tatlı Olur?' },
+        { id: 'lB6IgV1kapU', title: 'Begüm Polat - Kahpe' },
+        { id: 'XHYVGwXC4Tc', title: 'Şarkı Yaparken Benim Haller' }
     ];
 
     const players = {};
@@ -55,7 +61,7 @@
     function onYouTubeIframeAPIReady() {
         const container = document.getElementById('reelsContainer');
         
-        videos.forEach((v, index) => {
+        videoData.forEach((v, index) => {
             const card = document.createElement('div');
             card.className = 'video-card';
             card.setAttribute('data-id', v.id);
@@ -63,49 +69,69 @@
                 <div class="click-layer" onclick="handleTap('${v.id}')"></div>
                 <div id="player-${v.id}"></div>
                 <div class="side-bar">
-                    <div class="action-btn">❤️</div>
-                    <div class="action-btn">💬</div>
+                    <div class="action-btn" onclick="event.stopPropagation(); alert('Sana özel beğenildi!')">❤️</div>
+                    <div class="action-btn" onclick="event.stopPropagation(); prompt('Yorumun nedir?')">💬</div>
+                    <div class="action-btn">🔖</div>
                 </div>
-                <div class="info"><strong>@benim_sitem</strong><p>${v.title}</p></div>
+                <div class="video-info">
+                    <strong>@benim_sitem</strong>
+                    <p>${v.title}</p>
+                </div>
             `;
             container.appendChild(card);
 
             players[v.id] = new YT.Player(`player-${v.id}`, {
                 videoId: v.id,
-                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 'mute': 1, 'modestbranding': 1 },
-                events: { 'onReady': (e) => { if(index === 0) e.target.playVideo(); } }
+                playerVars: { 
+                    'autoplay': 0, 
+                    'controls': 0, 
+                    'loop': 1, 
+                    'playlist': v.id, 
+                    'mute': 1, 
+                    'modestbranding': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': (e) => { 
+                        // İlk videoyu başlat
+                        if(index === 0) {
+                            e.target.playVideo();
+                            e.target.unMute();
+                        }
+                    }
+                }
             });
         });
 
-        setupObserver();
+        setupStrictObserver();
     }
 
-    // ÇAKIŞMAYI DÜZELTEN ANA FONKSİYON
-    function setupObserver() {
-        const options = { threshold: 0.85 }; // Video %85 ekrandaysa tetiklenir
+    // ÇAKIŞMAYI KESİN ÖNLEYEN GÖZLEMCİ
+    function setupStrictObserver() {
+        const options = { threshold: 0.8 }; // Video %80 ekrana oturunca tetiklenir
         
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const id = entry.target.getAttribute('data-id');
                 
                 if (entry.isIntersecting) {
-                    // 1. ÖNCE DİĞER TÜM VİDEOLARI KESİN OLARAK DURDUR
-                    Object.values(players).forEach(p => {
-                        if (p && typeof p.pauseVideo === 'function') {
-                            p.pauseVideo();
+                    // KESİN ÇÖZÜM: Yeni video başlamadan önce DİĞER TÜM videoları durdur
+                    Object.keys(players).forEach(key => {
+                        if (key !== id && players[key].pauseVideo) {
+                            players[key].pauseVideo();
+                            players[key].mute();
                         }
                     });
 
-                    // 2. SADECE AKTİF VİDEOYU BAŞLAT VE SESİNİ AÇ
-                    if (players[id] && typeof players[id].playVideo === 'function') {
+                    // Aktif videoyu oynat
+                    if (players[id] && players[id].playVideo) {
                         players[id].playVideo();
                         players[id].unMute();
                     }
                 } else {
-                    // Ekrandan çıkanı durdur ve sesini kapat
-                    if (players[id] && typeof players[id].pauseVideo === 'function') {
+                    // Ekrandan çıkan videoyu anında durdur
+                    if (players[id] && players[id].pauseVideo) {
                         players[id].pauseVideo();
-                        players[id].mute();
                     }
                 }
             });
@@ -114,9 +140,14 @@
         document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
     }
 
+    // Tek tıkla Durdur/Başlat
     function handleTap(id) {
         const state = players[id].getPlayerState();
-        state === 1 ? players[id].pauseVideo() : players[id].playVideo();
+        if (state === YT.PlayerState.PLAYING) {
+            players[id].pauseVideo();
+        } else {
+            players[id].playVideo();
+        }
     }
 </script>
 </body>
