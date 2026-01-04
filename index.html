@@ -3,127 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoStream Pro</title>
+    <title>StreamVerse - Full Özellikli Video Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0f0f0f; color: white; scroll-behavior: smooth; }
+        body { background-color: #0f0f0f; color: white; scroll-behavior: smooth; font-family: 'Inter', sans-serif; }
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .video-card:hover img { transform: scale(1.05); }
+        /* Özel Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        .chat-messages { max-height: 400px; overflow-y: auto; } /* Sohbet yüksekliği */
     </style>
 </head>
 <body>
 
     <header class="flex items-center justify-between px-6 py-4 sticky top-0 z-50 glass">
         <div class="flex items-center gap-6">
-            <i class="fas fa-bars text-xl cursor-pointer"></i>
+            <i class="fas fa-bars text-xl cursor-pointer text-zinc-400 hover:text-white"></i>
             <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
                 <i class="fab fa-youtube text-3xl text-red-600"></i>
-                <span class="text-xl font-bold tracking-tighter">PREMIUM TUBE</span>
+                <span class="text-xl font-bold tracking-tighter">StreamVerse</span>
             </div>
         </div>
         
-        <div class="hidden md:flex w-1/3 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
-            <input id="searchInput" type="text" placeholder="Keşfetmeye başla..." class="w-full bg-transparent px-6 py-2 outline-none">
+        <div class="hidden md:flex w-1/3 max-w-xl bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
+            <input id="searchInput" type="text" placeholder="İzleyecek bir şeyler ara..." class="w-full bg-transparent px-6 py-2 outline-none">
             <button onclick="searchVideos()" class="bg-zinc-700 px-6 hover:bg-zinc-600 transition">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search text-zinc-300"></i>
             </button>
         </div>
 
-        <div class="flex items-center gap-5">
-            <i class="fas fa-video text-xl cursor-pointer hover:text-red-500"></i>
-            <i class="fas fa-bell text-xl cursor-pointer"></i>
-            <div class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center font-bold">A</div>
+        <div class="flex items-center gap-5 text-zinc-400">
+            <i class="fas fa-video text-xl cursor-pointer hover:text-white"></i>
+            <i class="fas fa-bell text-xl cursor-pointer hover:text-white"></i>
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-bold text-sm">A</div>
         </div>
     </header>
 
     <main class="p-6 lg:p-10">
         <div id="playerSection" class="hidden mb-12 animate-in slide-in-from-bottom duration-700">
-            <div class="max-w-[1200px] mx-auto">
-                <div class="video-container shadow-[0_20px_50px_rgba(220,38,38,0.15)]">
-                    <div id="player"></div>
-                </div>
-                <div class="mt-6 flex justify-between items-start">
-                    <div>
-                        <h2 id="currentTitle" class="text-2xl font-bold mb-2"></h2>
-                        <div class="flex items-center gap-4 text-zinc-400">
-                            <span id="channelName" class="font-medium text-white"></span>
-                            <span>•</span>
-                            <span class="bg-zinc-800 px-3 py-1 rounded-full text-xs">1.2M İzlenme</span>
+            <div class="max-w-[1400px] mx-auto grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="video-container shadow-[0_20px_50px_rgba(220,38,38,0.15)]">
+                        <div id="player"></div>
+                    </div>
+                    <div class="mt-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h2 id="currentTitle" class="text-2xl font-bold mb-2"></h2>
+                            <div class="flex items-center gap-4 text-zinc-400">
+                                <span id="channelName" class="font-medium text-white"></span>
+                                <span class="text-xs">•</span>
+                                <span id="viewCount" class="bg-zinc-800 px-3 py-1 rounded-full text-xs">1.2M İzlenme</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-4 md:mt-0">
+                            <button class="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-zinc-200 transition">Abone Ol</button>
+                            <button class="bg-zinc-800 px-4 py-2 rounded-full hover:bg-zinc-700 transition"><i class="fas fa-thumbs-up mr-2"></i>12K</button>
+                            <button class="bg-zinc-800 px-4 py-2 rounded-full hover:bg-zinc-700 transition"><i class="fas fa-share mr-2"></i>Paylaş</button>
                         </div>
                     </div>
-                    <div class="flex gap-3">
-                        <button class="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-zinc-200">Abone Ol</button>
-                        <button class="bg-zinc-800 px-4 py-2 rounded-full hover:bg-zinc-700"><i class="fas fa-thumbs-up"></i></button>
+
+                    <hr class="my-8 border-zinc-800">
+                    <h3 class="text-xl font-bold mb-5">Yorumlar (543)</h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center font-bold text-sm">E</div>
+                            <div>
+                                <p class="text-sm font-semibold">Emre Can <span class="text-zinc-500 text-xs ml-2">2 saat önce</span></p>
+                                <p class="mt-1 text-zinc-300">Harika bir video! Görüntü kalitesi ve anlatım muhteşem olmuş. Emeğinize sağlık.</p>
+                                <div class="flex items-center gap-4 text-zinc-500 text-sm mt-2">
+                                    <i class="fas fa-thumbs-up cursor-pointer hover:text-white"></i> 15
+                                    <i class="fas fa-thumbs-down cursor-pointer hover:text-white"></i> 2
+                                    <span class="cursor-pointer hover:text-white">Yanıtla</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-green-500 flex-shrink-0 flex items-center justify-center font-bold text-sm">Z</div>
+                            <div>
+                                <p class="text-sm font-semibold">Zeynep Yılmaz <span class="text-zinc-500 text-xs ml-2">5 saat önce</span></p>
+                                <p class="mt-1 text-zinc-300">Bu tarz içeriklerin devamını bekliyoruz. İzlerken çok keyif aldım!</p>
+                                <div class="flex items-center gap-4 text-zinc-500 text-sm mt-2">
+                                    <i class="fas fa-thumbs-up cursor-pointer hover:text-white"></i> 8
+                                    <i class="fas fa-thumbs-down cursor-pointer hover:text-white"></i> 0
+                                    <span class="cursor-pointer hover:text-white">Yanıtla</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <hr class="my-8 border-zinc-800">
+
+                <div class="lg:col-span-1 bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
+                    <h3 class="font-bold text-sm mb-4 text-zinc-400 uppercase tracking-widest">Canlı Sohbet</h3>
+                    <div class="chat-messages space-y-4 pr-2 mb-4 border-b border-zinc-800 pb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-red-400 text-xs">Mod</span>
+                            <span class="text-sm">Hoş geldiniz! Sohbet kurallarına uymayı unutmayın.</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-blue-400 text-sm">Gamze:</span>
+                            <span class="text-sm">Video muhteşem! 😍</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-yellow-400 text-sm">Caner:</span>
+                            <span class="text-sm">Arka plan müziği harika!</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-green-400 text-sm">Buse:</span>
+                            <span class="text-sm">Kaç defa izledim sayısını unuttum 😂</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-purple-400 text-sm">Deniz:</span>
+                            <span class="text-sm">Daha fazla böyle içerik lütfen!</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Mesaj yaz..." class="w-full bg-zinc-800 px-4 py-2 rounded-full outline-none text-sm">
+                        <button class="bg-red-600 px-4 py-2 rounded-full hover:bg-red-700 transition"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+
+                    <h3 class="font-bold text-sm mt-8 mb-4 text-zinc-400 uppercase tracking-widest">Sıradaki Videolar</h3>
+                    <div id="sideSuggestions" class="space-y-4">
+                        </div>
+                </div>
             </div>
         </div>
 
         <div class="flex gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar">
-            <button class="bg-white text-black px-4 py-1.5 rounded-lg text-sm font-medium">Tümü</button>
+            <button class="bg-white text-black px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-zinc-200 transition">Tümü</button>
             <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Müzik</button>
             <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Oyun</button>
             <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Canlı</button>
+            <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Bilim</button>
+            <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Haberler</button>
             <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Teknoloji</button>
+            <button class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-sm font-medium transition">Yemek Tarifleri</button>
         </div>
 
-        <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10">
+        <h2 id="mainListHeader" class="text-2xl font-bold mb-6">Önerilen Videolar</h2>
+        <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
             </div>
     </main>
 
     <script>
         const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI'; 
         const videoGrid = document.getElementById('videoGrid');
+        const sideSuggestions = document.getElementById('sideSuggestions');
 
-        // Sayfa açıldığında ana sayfayı doldur
-        window.onload = () => fetchVideos('en iyi 4k videolar 2024');
+        window.onload = () => fetchVideos('trending music videos 2024');
 
-        async function fetchVideos(query) {
+        async function fetchVideos(query, target = 'main') {
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${target === 'main' ? 20 : 5}&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`);
                 const data = await res.json();
-                renderVideos(data.items);
+                
+                if (target === 'main') {
+                    renderVideos(data.items);
+                } else {
+                    renderSideSuggestions(data.items);
+                }
             } catch (err) {
-                console.error("Yükleme başarısız.");
+                console.error("Video yükleme hatası:", err);
+                const errorMessage = `<div class="col-span-full bg-red-900/20 p-6 rounded-xl border border-red-800 text-center">
+                    <p class="text-red-400">Video yüklenirken bir hata oluştu.</p>
+                    <p class="text-sm text-zinc-500 mt-2">API kotası tükenmiş veya geçersiz anahtar kullanılmış olabilir.</p>
+                </div>`;
+                if (target === 'main') {
+                    videoGrid.innerHTML = errorMessage;
+                } else {
+                    sideSuggestions.innerHTML = errorMessage;
+                }
             }
         }
 
         function renderVideos(videos) {
             videoGrid.innerHTML = '';
             videos.forEach(v => {
-                videoGrid.innerHTML += `
-                    <div class="video-card cursor-pointer transition-all" onclick="playVideo('${v.id.videoId}', '${v.snippet.title.replace(/'/g, "")}', '${v.snippet.channelTitle}')">
-                        <div class="relative overflow-hidden rounded-xl aspect-video mb-3">
-                            <img src="${v.snippet.thumbnails.high.url}" class="w-full h-full object-cover transition duration-500">
-                            <span class="absolute bottom-2 right-2 bg-black/80 text-xs px-2 py-1 rounded">10:42</span>
-                        </div>
-                        <div class="flex gap-3">
-                            <div class="w-10 h-10 rounded-full bg-zinc-800 flex-shrink-0"></div>
-                            <div>
-                                <h3 class="font-bold text-sm line-clamp-2 leading-tight">${v.snippet.title}</h3>
-                                <p class="text-zinc-400 text-xs mt-1 hover:text-white transition">${v.snippet.channelTitle}</p>
+                if (v.id.videoId) { // Sadece video ID'si olanları göster
+                    videoGrid.innerHTML += `
+                        <div class="video-card group cursor-pointer" onclick="playVideo('${v.id.videoId}', '${v.snippet.title.replace(/'/g, "")}', '${v.snippet.channelTitle}')">
+                            <div class="relative overflow-hidden rounded-xl aspect-video mb-3">
+                                <img src="${v.snippet.thumbnails.high.url}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">12:34</span>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="w-10 h-10 rounded-full bg-zinc-700 flex-shrink-0 flex items-center justify-center text-sm font-bold">U</div>
+                                <div>
+                                    <h3 class="font-bold text-base line-clamp-2 leading-tight group-hover:text-red-500">${v.snippet.title}</h3>
+                                    <p class="text-zinc-400 text-sm mt-1 hover:text-white transition">${v.snippet.channelTitle}</p>
+                                    <p class="text-zinc-500 text-xs">1.5M Görüntülenme • 3 hafta önce</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
+            });
+        }
+
+        function renderSideSuggestions(videos) {
+            sideSuggestions.innerHTML = '';
+            videos.forEach(v => {
+                if (v.id.videoId) {
+                    sideSuggestions.innerHTML += `
+                        <div class="flex gap-3 cursor-pointer group" onclick="playVideo('${v.id.videoId}', '${v.snippet.title.replace(/'/g, "")}', '${v.snippet.channelTitle}')">
+                            <div class="w-32 h-20 flex-shrink-0 relative overflow-hidden rounded-lg bg-zinc-800">
+                                <img src="${v.snippet.thumbnails.medium.url}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                                <span class="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 rounded">08:15</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold line-clamp-2 leading-tight group-hover:text-red-500">${v.snippet.title}</h4>
+                                <p class="text-zinc-400 text-xs mt-1">${v.snippet.channelTitle}</p>
+                                <p class="text-zinc-500 text-xs">250K Görüntülenme</p>
+                            </div>
+                        </div>
+                    `;
+                }
             });
         }
 
         function playVideo(id, title, channel) {
             document.getElementById('playerSection').classList.remove('hidden');
-            document.getElementById('player').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="autoplay; fullscreen"></iframe>`;
+            document.getElementById('player').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
             document.getElementById('currentTitle').innerText = title;
             document.getElementById('channelName').innerText = channel;
+            
+            // Yan önerileri güncelle (API kotasını az harcamak için ana videonun kanalından veya benzer bir sorguyla çekilebilir)
+            fetchVideos(channel, 'side'); 
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function searchVideos() {
             const q = document.getElementById('searchInput').value;
-            if(q) fetchVideos(q);
+            if(q) {
+                document.getElementById('mainListHeader').innerText = `"${q}" İçin Sonuçlar`;
+                fetchVideos(q);
+            }
         }
 
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
