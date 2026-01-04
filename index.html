@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Player - 4 Video</title>
+    <title>Reels Player v4</title>
     <style>
         body {
             margin: 0; padding: 0; background-color: #0b0b0b;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; font-family: 'Segoe UI', sans-serif; color: white;
+            overflow: hidden;
         }
 
-        /* Telefon Görünümü */
+        /* Telefon Çerçevesi */
         .reels-wrapper {
-            width: 100%; max-width: 380px; height: 88vh;
+            width: 100%; max-width: 380px; height: 90vh;
             position: relative; background: #000;
-            border-radius: 35px; overflow: hidden; border: 5px solid #222;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            border-radius: 40px; overflow: hidden; border: 6px solid #222;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
         }
 
         .reels-container {
@@ -26,43 +27,44 @@
         .reels-container::-webkit-scrollbar { display: none; }
 
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
-        video { width: 100%; height: 100%; object-fit: cover; }
+        video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
 
-        /* Ses Açma Tuşu */
+        /* Sağ Üst Ses Ayar Butonu */
         .volume-toggle-btn {
             position: absolute; top: 25px; right: 20px;
             width: 45px; height: 45px; border-radius: 50%;
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
             color: white; font-size: 20px; cursor: pointer; z-index: 101;
             display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
-        /* Ses Paneli */
+        /* Açılır Ses Paneli */
         .volume-panel {
             position: absolute; top: 80px; right: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.85);
             padding: 20px 10px; border-radius: 20px;
             display: flex; flex-direction: column; align-items: center;
             gap: 12px; z-index: 100;
-            transition: all 0.3s ease;
-            opacity: 0; transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transform: scale(0.5) translateY(-20px);
             pointer-events: none;
         }
 
         .volume-panel.active {
-            opacity: 1; transform: scale(1);
+            opacity: 1; transform: scale(1) translateY(0);
             pointer-events: all;
         }
 
         .volume-slider {
             -webkit-appearance: slider-vertical;
-            width: 12px; height: 140px; cursor: pointer;
+            width: 12px; height: 150px; cursor: pointer;
         }
 
+        /* Alt Bilgi Alanı */
         .info-overlay { 
             position: absolute; bottom: 30px; left: 20px; 
-            pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none; text-shadow: 0 2px 10px rgba(0,0,0,0.9);
         }
     </style>
 </head>
@@ -72,8 +74,8 @@
     <button class="volume-toggle-btn" onclick="toggleVolumePanel()">🔊</button>
 
     <div class="volume-panel" id="volumePanel">
-        <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="0.5" oninput="changeVolume(this.value)">
-        <span id="volPercent" style="font-size: 12px; font-weight: bold;">50%</span>
+        <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="0.5" oninput="updateVolume(this.value)">
+        <span id="volText" style="font-size: 12px; font-weight: bold;">50%</span>
     </div>
 
     <div class="reels-container" id="reelsContainer">
@@ -81,70 +83,68 @@
 </div>
 
 <script>
-    // reeels4.mp4 diziye eklendi!
-    const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4'];
+    // Klasöründeki 4 video
+    const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4'];
     const container = document.getElementById('reelsContainer');
-    let currentVolume = 0.5;
+    let globalVolume = 0.5;
 
+    // Ses panelini aç/kapat
     function toggleVolumePanel() {
         document.getElementById('volumePanel').classList.toggle('active');
     }
 
-    function changeVolume(val) {
-        currentVolume = val;
-        document.getElementById('volPercent').innerText = Math.round(val * 100) + "%";
-        const vids = document.querySelectorAll('video');
-        vids.forEach(v => {
+    // Ses seviyesini güncelle
+    function updateVolume(val) {
+        globalVolume = val;
+        document.getElementById('volText').innerText = Math.round(val * 100) + "%";
+        document.querySelectorAll('video').forEach(v => {
             v.volume = val;
-            v.muted = val == 0;
+            v.muted = (val == 0);
         });
     }
 
-    function createVideo(src, id) {
-        const div = document.createElement('div');
-        div.className = 'video-card';
-        div.innerHTML = `
-            <video src="${src}" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
-            <div class="info-overlay">
-                <h4 style="margin:0;">@Kullanıcı</h4>
-                <p style="margin:5px 0 0; font-size:14px;">Video İçeriği #${id}</p>
-            </div>`;
-        return div;
-    }
-
-    function loadContent() {
-        videoFiles.forEach((file, i) => {
-            container.appendChild(createVideo(file, i + 1));
+    // Video kartı oluştur
+    function renderVideos() {
+        videoList.forEach((file, index) => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <video src="${file}" loop playsinline onclick="this.paused ? this.play() : this.pause()"></video>
+                <div class="info-overlay">
+                    <h4 style="margin:0;">Reels #${index + 1}</h4>
+                    <p style="margin:5px 0 0; font-size:13px; opacity:0.7;">Sonsuz Döngü Aktif</p>
+                </div>
+            `;
+            container.appendChild(card);
         });
     }
 
-    // Kaydırma Takibi (Oynat/Durdur ve Sonsuz Döngü)
+    // Kaydırma ve Otomatik Oynatma
     container.addEventListener('scroll', () => {
         // Sonsuz döngü: Sona gelince tekrar yükle
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 20) {
-            loadContent();
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
+            renderVideos();
         }
-        
+
         const videos = document.querySelectorAll('video');
         videos.forEach(v => {
-            const rect = v.getBoundingClientRect();
-            // Video görünür alandaysa oynat
-            if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 100) {
+            const pos = v.getBoundingClientRect();
+            // Video tam ekrandaysa oynat, değilse durdur
+            if (pos.top >= -100 && pos.bottom <= window.innerHeight + 100) {
                 v.play().catch(() => {});
-                v.volume = currentVolume;
+                v.volume = globalVolume;
             } else {
                 v.pause();
             }
         });
     });
 
-    // Sayfa hazır olduğunda videoları bas
-    loadContent();
+    // Başlat
+    renderVideos();
 
-    // İlk tıklamada ses kısıtlamasını kaldır
+    // Tarayıcı kısıtlamasını aşmak için ilk tıkla sesi aktif et
     window.addEventListener('click', () => {
-        const vids = document.querySelectorAll('video');
-        vids.forEach(v => v.muted = false);
+        document.querySelectorAll('video').forEach(v => v.muted = false);
     }, { once: true });
 </script>
 
