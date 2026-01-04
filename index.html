@@ -3,160 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Keşfet - TikTok Clone</title>
+    <title>TikTok API Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; }
-        
-        .main-feed {
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+        .feed {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
         }
-        .main-feed::-webkit-scrollbar { display: none; }
-
-        .video-section {
+        .feed::-webkit-scrollbar { display: none; }
+        .video-card {
             height: 100vh;
             width: 100%;
             scroll-snap-align: start;
             position: relative;
             display: flex;
             justify-content: center;
-            background: #000;
+            align-items: center;
         }
-
-        /* Video Bilgi Katmanı */
-        .overlay {
+        video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+        .ui-overlay {
             position: absolute;
-            bottom: 90px;
+            bottom: 100px;
             left: 15px;
             right: 80px;
-            z-index: 10;
             color: white;
+            z-index: 10;
             pointer-events: none;
         }
-
-        /* Sağ Etkileşim Paneli */
-        .side-panel {
+        .side-bar {
             position: absolute;
-            right: 12px;
-            bottom: 110px;
+            right: 15px;
+            bottom: 120px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 22px;
+            gap: 25px;
             z-index: 20;
-        }
-
-        .icon-circle {
-            width: 48px;
-            height: 48px;
-            background: rgba(40, 40, 40, 0.6);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .icon-circle:active { transform: scale(0.9); }
-        .heart-active { color: #ff3b5c; }
-
-        /* TikTok Embed Responsive Ayarı */
-        .tiktok-embed {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 450px !important;
-            margin: 0 !important;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-feed" id="mainFeed">
-        <div class="video-section">
-            <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/7591531252507789368" data-video-id="7591531252507789368">
-                <section></section>
-            </blockquote>
-            
-            <div class="overlay">
-                <h3 class="font-bold text-lg">@kesfet_merkezi</h3>
-                <p class="text-sm opacity-90 mt-1 text-wrap">Bu harika içeriği kaçırmayın! ✨ #kesfet #trend</p>
-            </div>
-
-            <div class="side-panel">
-                <div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden mb-2">
-                    <img src="https://i.pravatar.cc/100?u=tiktok" alt="avatar">
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="icon-circle" onclick="this.classList.toggle('heart-active')"><i class="fas fa-heart"></i></div>
-                    <span class="text-xs mt-1 text-white">124K</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
-                    <span class="text-xs mt-1 text-white">850</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="icon-circle"><i class="fas fa-share"></i></div>
-                    <span class="text-xs mt-1 text-white">Paylaş</span>
-                </div>
-            </div>
+    <div class="feed" id="videoFeed">
         </div>
-    </div>
-
-    <script async src="https://www.tiktok.com/embed.js"></script>
 
     <script>
-        const feed = document.getElementById('mainFeed');
-        
-        // Gerçekte bir veritabanından veya API'den gelecek video ID havuzu
-        const idPool = [
-            '7400000000000000000', // Örnek ID'ler
-            '7411111111111111111',
-            '7422222222222222222'
-        ];
+        // RAPIDAPI BILGILERI (Buraya kendi key'ini yapıştır)
+        const API_KEY = 'SENIN_RAPIDAPI_ANAHTARIN';
+        const API_HOST = 'tiktok-all-in-one.p.rapidapi.com';
 
-        let index = 0;
+        const feed = document.getElementById('videoFeed');
 
-        // Kaydırma İzleyici
-        feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 100) {
-                loadMoreVideos();
+        // Sayfa yüklendiğinde keşfet videolarını çek
+        window.onload = () => fetchTrendingVideos();
+
+        async function fetchTrendingVideos() {
+            const url = `https://${API_HOST}/trending?region=TR`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-host': API_HOST
+                }
+            };
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                // API'den gelen video listesini işle
+                renderVideos(result.data.videos);
+            } catch (error) {
+                console.error("Hata:", error);
+                alert("API Anahtarı geçersiz veya limit doldu!");
             }
-        });
-
-        function loadMoreVideos() {
-            if (index >= idPool.length) return;
-
-            const nextId = idPool[index];
-            const videoDiv = document.createElement('div');
-            videoDiv.className = 'video-section';
-            videoDiv.innerHTML = `
-                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${nextId}" data-video-id="${nextId}">
-                    <section></section>
-                </blockquote>
-                <div class="overlay">
-                    <h3 class="font-bold text-lg">@yeni_icerik_${index + 1}</h3>
-                    <p class="text-sm opacity-90 mt-1 text-wrap">Daha fazla video için kaydırın... 🚀</p>
-                </div>
-                <div class="side-panel">
-                    <div class="icon-circle"><i class="fas fa-heart"></i></div>
-                    <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
-                    <div class="icon-circle"><i class="fas fa-share"></i></div>
-                </div>
-            `;
-            feed.appendChild(videoDiv);
-            
-            // TikTok Embed'i yeniden tetikler
-            if (window.tiktok && window.tiktok.render) {
-                window.tiktok.render();
-            }
-            index++;
         }
+
+        function renderVideos(videos) {
+            videos.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <video loop onclick="togglePlay(this)" poster="${video.cover}">
+                        <source src="${video.play_url}" type="video/mp4">
+                    </video>
+                    
+                    <div class="ui-overlay">
+                        <h3 class="font-bold text-lg">@${video.author.nickname}</h3>
+                        <p class="text-sm line-clamp-2">${video.title}</p>
+                    </div>
+
+                    <div class="side-bar">
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-heart text-3xl mb-1 text-white"></i>
+                            <span class="text-xs text-white">${formatCount(video.digg_count)}</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-comment-dots text-3xl mb-1 text-white"></i>
+                            <span class="text-xs text-white">${formatCount(video.comment_count)}</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-share text-3xl text-white"></i>
+                        </div>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+
+            // İlk videoyu otomatik oynatmayı dene
+            document.querySelector('video').play().catch(() => {});
+        }
+
+        function togglePlay(video) {
+            if (video.paused) video.play();
+            else video.pause();
+        }
+
+        function formatCount(num) {
+            return num >= 1000 ? (num / 1000).toFixed(1) + 'K' : num;
+        }
+
+        // Otomatik Oynatma İzleyici (Scroll bittiğinde videoyu oynat)
+        feed.addEventListener('scroll', () => {
+            const videos = document.querySelectorAll('video');
+            videos.forEach(v => {
+                const rect = v.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                    v.play();
+                } else {
+                    v.pause();
+                }
+            });
+        });
     </script>
 </body>
 </html>
