@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Shorts Pro - Earn</title>
+    <title>Shorts Pro - Scroll Snap</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; color: white; }
@@ -11,38 +11,51 @@
         /* ALT NAVİGASYON */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 65px;
-            background: #111; display: flex; justify-content: space-around;
-            align-items: center; z-index: 2000; border-top: 1px solid #333;
+            background: #0f0f0f; display: flex; justify-content: space-around;
+            align-items: center; z-index: 2000; border-top: 1px solid #222;
         }
         .nav-item { color: white; text-align: center; font-size: 10px; opacity: 0.5; cursor: pointer; flex: 1; }
-        .nav-item.active { opacity: 1; border-top: 2px solid #ff0000; }
+        .nav-item.active { opacity: 1; border-top: 2px solid red; }
         .nav-item b { font-size: 20px; display: block; margin-bottom: 2px; }
 
         /* SAYFA YAPISI */
-        .page { display: none; height: calc(100vh - 65px); width: 100%; overflow-y: auto; }
+        .page { display: none; height: calc(100vh - 65px); width: 100%; overflow: hidden; }
         .active-page { display: block; }
 
         /* ANA SAYFA (BAKİYE) */
-        #homePage { padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .balance-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #00ff00; width: 100%; margin-bottom: 20px; }
-        .info-box { background: #222; padding: 15px; border-radius: 12px; font-size: 13px; color: #aaa; }
+        #homePage { padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #0f0f0f; }
+        .balance-card { background: #1a1a1a; padding: 25px; border-radius: 20px; border: 2px solid #4CAF50; width: 100%; margin-bottom: 20px; }
 
-        /* SHORTS AKIŞI */
-        #shortsPage { overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        /* SHORTS KAYDIRMA ALANI (SNAP-POINT) */
+        #shortsPage { 
+            overflow-y: scroll; 
+            scroll-snap-type: y mandatory; /* Kaydırmayı videoda sabitler */
+            height: 100%;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
         #shortsPage::-webkit-scrollbar { display: none; }
-        .short-unit { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        
+
+        .short-unit { 
+            width: 100%; 
+            height: calc(100vh - 65px); /* Tam ekran yükseklik */
+            scroll-snap-align: start; /* Her video başlangıca yapışır */
+            position: relative; 
+            background: #000;
+        }
+        video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
         /* REKLAM KATMANI */
         .ad-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 100; text-align: center;
         }
-        .ad-timer { font-size: 24px; color: #ffcc00; margin-top: 15px; font-weight: bold; }
+        .ad-timer { font-size: 32px; color: #FFD700; margin-top: 15px; font-weight: bold; }
 
-        /* GEÇMİŞ */
-        .history-card { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 10px; border-left: 4px solid #ff0000; }
+        /* GEÇMİŞ SAYFASI */
+        #historyPage { overflow-y: auto; padding: 20px; background: #0f0f0f; }
+        .history-card { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid red; }
     </style>
 </head>
 <body>
@@ -52,19 +65,18 @@
         <p style="color: #aaa;">Mevcut Kazanç</p>
         <h1 id="balanceDisplay">0.0000$</h1>
     </div>
-    <div class="info-box">
-        <b>Sistem Bilgisi:</b><br>
-        Her 4 videodan sonra geçilemez reklam çıkar. <br>
-        Reklam başına <b>0.0003$</b> kazanırsınız.
+    <div style="background: #222; padding: 15px; border-radius: 12px; font-size: 13px;">
+        <b>Bilgi:</b> Her 4 videoda bir reklam çıkar. <br>
+        Her reklam sonrası <b>0.0003$</b> kazanırsınız.
     </div>
 </div>
 
-<div id="shortsPage" class="page">
+<div id="shortsPage" class="page" onscroll="handleScroll()">
     <div id="shortsContent"></div>
 </div>
 
 <div id="historyPage" class="page">
-    <h2 style="padding: 20px;">İzleme Geçmişi</h2>
+    <h2 style="margin-bottom: 20px;">İzleme Geçmişi</h2>
     <div id="histList"></div>
 </div>
 
@@ -77,21 +89,22 @@
 <script>
     const reels = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
     let balance = 0;
-    let watchCounter = 0;
+    let videoCounter = 0;
     let historySet = new Set();
     let isMuted = true;
 
+    // Shorts içeriklerini oluştur
     function buildShorts() {
         const container = document.getElementById('shortsContent');
-        // Sonsuz akış hissi için listeyi 10 kez tekrarla
-        for(let i=0; i<10; i++) {
+        // Sonsuz hissi için 5 set oluştur (Toplam 20 video)
+        for(let i=0; i<5; i++) {
             reels.forEach((file, idx) => {
                 container.innerHTML += `
-                    <div class="short-unit">
-                        <video src="${file}" loop muted playsinline onclick="toggleMute()"></video>
-                        <div style="position:absolute; bottom:30px; left:20px; text-shadow: 2px 2px 4px #000;">
-                            <h3>Shorts #${idx+1}</h3>
-                            <p style="font-size:12px; opacity:0.8;">${file}</p>
+                    <div class="short-unit" onclick="toggleMuteAll()">
+                        <video src="${file}" loop muted playsinline></video>
+                        <div style="position:absolute; bottom:30px; left:20px; pointer-events:none;">
+                            <h3>Kanal #${idx+1}</h3>
+                            <p style="font-size:12px; opacity:0.7;">${file}</p>
                         </div>
                     </div>`;
             });
@@ -99,60 +112,64 @@
         setupObserver();
     }
 
+    // Video Oynatma ve Geçmiş Mantığı
     function setupObserver() {
         const obs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
+                const video = e.target;
                 if (e.isIntersecting) {
-                    const video = e.target;
-                    video.play().catch(err => console.log("Otomatik oynatma bekliyor..."));
+                    video.muted = isMuted;
+                    video.play().catch(() => {});
                     
-                    watchCounter++;
-
-                    // Reklam Mantığı: Her 4 videoda bir
-                    if(watchCounter % 4 === 0 && watchCounter !== 0) {
-                        triggerAd(video);
+                    videoCounter++;
+                    // Reklam Tetikleyici: Her 4. video
+                    if(videoCounter % 4 === 0 && videoCounter !== 0) {
+                        showLockedAd(video);
                     }
 
-                    // Akıllı Geçmiş: 1 defa ekle
+                    // Akıllı Geçmiş: Dosya adına göre sadece bir kez ekler
                     const src = video.getAttribute('src');
                     if(!historySet.has(src)) {
                         historySet.add(src);
-                        addToHistoryUI(src);
+                        updateHistoryList(src);
                     }
                 } else {
-                    e.target.pause();
+                    video.pause();
                 }
             });
-        }, { threshold: 0.8 });
+        }, { threshold: 0.6 });
+
         document.querySelectorAll('video').forEach(v => obs.observe(v));
     }
 
-    function triggerAd(video) {
+    // Geçilemez Reklam Fonksiyonu
+    function showLockedAd(video) {
         video.pause();
-        const overlay = document.createElement('div');
-        overlay.className = 'ad-overlay';
-        overlay.innerHTML = `
-            <div style="font-size:40px;">💰</div>
+        const parent = video.parentElement;
+        const adOverlay = document.createElement('div');
+        adOverlay.className = 'ad-overlay';
+        adOverlay.innerHTML = `
+            <div style="font-size:50px;">📺</div>
             <h2>REKLAM İZLENİYOR</h2>
-            <p>Kazanç hesabınıza aktarılıyor...</p>
+            <p>Lütfen bekleyin, kazanç ekleniyor...</p>
             <div class="ad-timer">5</div>
         `;
-        video.parentElement.appendChild(overlay);
+        parent.appendChild(adOverlay);
 
-        let timeLeft = 5;
-        const interval = setInterval(() => {
-            timeLeft--;
-            overlay.querySelector('.ad-timer').innerText = timeLeft;
-            if(timeLeft <= 0) {
-                clearInterval(interval);
-                overlay.remove();
+        let timer = 5;
+        const countdown = setInterval(() => {
+            timer--;
+            adOverlay.querySelector('.ad-timer').innerText = timer;
+            if(timer <= 0) {
+                clearInterval(countdown);
+                adOverlay.remove();
                 video.play();
-                processPayment();
+                addProfit();
             }
         }, 1000);
     }
 
-    function processPayment() {
+    function addProfit() {
         balance += 0.0003;
         document.getElementById('balanceDisplay').innerText = balance.toFixed(4) + "$";
     }
@@ -160,22 +177,26 @@
     function switchTab(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
         document.getElementById(id).classList.add('active-page');
         document.getElementById('btn-' + id.replace('Page', '')).classList.add('active');
-        if(id !== 'shortsPage') document.querySelectorAll('video').forEach(v => v.pause());
+
+        if(id !== 'shortsPage') {
+            document.querySelectorAll('video').forEach(v => v.pause());
+        }
     }
 
-    function toggleMute() {
+    function toggleMuteAll() {
         isMuted = !isMuted;
         document.querySelectorAll('video').forEach(v => v.muted = isMuted);
     }
 
-    function addToHistoryUI(fileName) {
+    function updateHistoryList(fileName) {
         const list = document.getElementById('histList');
         list.innerHTML = `
             <div class="history-card">
                 <p><b>${fileName}</b></p>
-                <small style="color:#666;">İzlenme başarıyla kaydedildi.</small>
+                <small style="color:#aaa;">Tamamlandı - Geçmişe İşlendi</small>
             </div>` + list.innerHTML;
     }
 
