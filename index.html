@@ -3,24 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınırsız YouTube Shorts</title>
+    <title>YouTube Shorts - API'siz Mod</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        body, html { 
+            height: 100%; 
+            background-color: #000; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
-        #shorts-wrapper {
+        /* Ana Konteynır */
+        #shorts-container {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        #shorts-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        #shorts-container::-webkit-scrollbar { display: none; }
 
-        .short-card {
+        /* Video Kartı */
+        .video-card {
             height: 100vh;
             width: 100%;
             scroll-snap-align: start;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* Mobil görünümü korumak için */
+            height: 100%;
             background: #000;
         }
 
@@ -28,94 +45,100 @@
             width: 100%;
             height: 100%;
             border: none;
-            pointer-events: auto;
         }
 
-        .overlay {
+        /* Yan Butonlar (Beğen, Paylaş vb.) */
+        .side-bar {
             position: absolute;
-            bottom: 40px;
-            left: 15px;
-            right: 70px;
-            color: white;
-            z-index: 5;
-            pointer-events: none;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+            right: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
         }
 
-        .channel-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; }
-        .video-title { font-size: 0.95rem; line-height: 1.4; opacity: 0.9; }
+        .action-btn {
+            background: rgba(40, 40, 40, 0.6);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
 
-        .loader {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-size: 1.2rem; display: none;
+        /* Video Bilgileri */
+        .video-meta {
+            position: absolute;
+            bottom: 30px;
+            left: 15px;
+            color: white;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .channel-info { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .subscribe-btn {
+            background: #fff;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            pointer-events: auto;
         }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="loader">Videolar Yükleniyor...</div>
-    <div id="shorts-wrapper"></div>
+    <div id="shorts-container">
+        </div>
 
     <script>
-        // Senin API Key'in
-        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-        const wrapper = document.getElementById('shorts-wrapper');
-        const loader = document.getElementById('loader');
+        // API Key gerektirmeyen, doğrudan Video ID listesi
+        // Buraya istediğin Shorts videolarının ID'lerini ekleyebilirsin
+        const videoList = [
+            { id: 'tFKdZPvyOc8', channel: 'Brazilian Couple', title: 'Ready for the day! #shorts' },
+            { id: 'luM--KkUwCc', channel: 'Danno Cal', title: 'Most Hated Videos Ever' },
+            { id: 'agC7mcC7WoQ', channel: 'Modern Millie', title: '10 Shorts Hacks' },
+            { id: 'd6AhB4teFk8', channel: 'vidIQ', title: 'Simple Trick for Views' },
+            { id: '9-z_SAsYl_E', channel: 'Chef Rush', title: 'Cooking with Rush' }
+        ];
 
-        async function getVideos() {
-            // 1. ÖNCE CACHE (HAFIZA) KONTROLÜ
-            const cached = localStorage.getItem('yt_shorts_cache');
-            const cacheTime = localStorage.getItem('yt_cache_time');
-            
-            // Eğer veriler 30 dakikadan yeniyse API'ye hiç sorma (Kota koruması)
-            if (cached && cacheTime && (Date.now() - cacheTime < 1800000)) {
-                console.log("Veriler hafızadan getirildi (Kota harcanmadı)");
-                render(JSON.parse(cached));
-                return;
-            }
+        const container = document.getElementById('shorts-container');
 
-            // 2. KOTA DOSTU API ÇAĞRISI (Arama yapmaz, popülerleri çeker)
-            // Bu metod sadece 1 kota birimi harcar!
-            loader.style.display = 'block';
-            try {
-                const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&maxResults=20&regionCode=TR&videoCategoryId=42&key=${API_KEY}`);
-                const data = await response.json();
-
-                if (data.items) {
-                    localStorage.setItem('yt_shorts_cache', JSON.stringify(data.items));
-                    localStorage.setItem('yt_cache_time', Date.now());
-                    render(data.items);
-                } else {
-                    wrapper.innerHTML = "<div style='color:white; padding:20px;'>Kota dolmuş veya API anahtarı geçersiz.</div>";
-                }
-            } catch (err) {
-                console.error("Hata:", err);
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
-
-        function render(videos) {
-            wrapper.innerHTML = '';
-            videos.forEach(v => {
+        function loadVideos() {
+            videoList.forEach(video => {
                 const card = document.createElement('div');
-                card.className = 'short-card';
+                card.className = 'video-card';
                 card.innerHTML = `
-                    <div class="overlay">
-                        <div class="channel-name">@${v.snippet.channelTitle}</div>
-                        <div class="video-title">${v.snippet.title}</div>
+                    <div class="video-container">
+                        <div class="side-bar">
+                            <div class="action-btn">❤️</div>
+                            <div class="action-btn">💬</div>
+                            <div class="action-btn">🔁</div>
+                        </div>
+                        <div class="video-meta">
+                            <div class="channel-info">
+                                <span>@${video.channel}</span>
+                                <div class="subscribe-btn">Abone Ol</div>
+                            </div>
+                            <div class="video-title">${video.title}</div>
+                        </div>
+                        <iframe 
+                            src="https://www.youtube.com/embed/${video.id}?autoplay=0&controls=0&loop=1&playlist=${video.id}&modestbranding=1&rel=0&iv_load_policy=3" 
+                            allow="autoplay; encrypted-media">
+                        </iframe>
                     </div>
-                    <iframe 
-                        src="https://www.youtube.com/embed/${v.id}?autoplay=0&controls=0&loop=1&playlist=${v.id}&modestbranding=1&rel=0" 
-                        allow="autoplay; encrypted-media">
-                    </iframe>
                 `;
-                wrapper.appendChild(card);
+                container.appendChild(card);
             });
         }
 
-        // Başlat
-        getVideos();
+        loadVideos();
     </script>
 </body>
 </html>
