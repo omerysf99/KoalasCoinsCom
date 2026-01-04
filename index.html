@@ -8,129 +8,114 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
+        .dogs-text { font-weight: 900; letter-spacing: -0.05em; }
+        .glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hidden { display: none; }
         
-        /* Karakter Tıklama Animasyonu */
-        .character-tap { transition: transform 0.05s active; }
-        .character-tap:active { transform: scale(0.92); }
-
-        /* Puan Uçuş Efekti */
-        .plus-one {
-            position: absolute;
-            color: #fff;
-            font-weight: 900;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
-
-        .nav-active { color: #fff; opacity: 1 !important; border-top: 2px solid #fff; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        /* Animasyonlar */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
-    <header class="p-6 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black">D</div>
-            <span class="text-xs font-bold tracking-widest uppercase italic">Dogs World</span>
+    <div id="screen-checking" class="flex-1 flex flex-col items-center justify-center p-8">
+        <div class="mb-12 relative">
+            <div class="text-9xl animate-pulse">🦴</div>
         </div>
-        <div class="glass px-4 py-2 rounded-2xl flex items-center gap-2">
-            <i class="fas fa-wallet text-gray-400 text-xs"></i>
-            <span class="text-[10px] font-mono">aw01...l9</span>
-        </div>
-    </header>
-
-    <main class="flex-1 flex flex-col items-center justify-center px-6 relative">
+        <h2 class="text-4xl dogs-text mb-12 italic uppercase text-center">Checking your <br>Account stats</h2>
         
-        <div class="text-center mb-10">
-            <div class="flex items-center justify-center gap-3 mb-1">
-                <span class="text-6xl font-black italic tracking-tighter" id="score">6,840</span>
-                <span class="text-2xl">🦴</span>
+        <div class="w-full max-w-xs space-y-6">
+            <div id="step-1" class="flex justify-between items-center opacity-20 transition-opacity duration-500">
+                <span class="text-xs font-bold uppercase tracking-widest">Account Age</span>
+                <i class="fas fa-check text-white hidden" id="check-1"></i>
             </div>
-            <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em]">Total Balance</p>
+            <div id="step-2" class="flex justify-between items-center opacity-20 transition-opacity duration-500">
+                <span class="text-xs font-bold uppercase tracking-widest">Activity Level</span>
+                <i class="fas fa-check text-white hidden" id="check-2"></i>
+            </div>
+            <div id="step-3" class="flex justify-between items-center opacity-20 transition-opacity duration-500">
+                <span class="text-xs font-bold uppercase tracking-widest">Premium Status</span>
+                <i class="fas fa-check text-white hidden" id="check-3"></i>
+            </div>
+        </div>
+        
+        <p class="absolute bottom-10 text-[10px] text-gray-600 font-mono italic">aw01joj8wk4rnll9</p>
+    </div>
+
+    <div id="screen-main" class="flex-1 flex flex-col hidden overflow-y-auto">
+        <div class="flex-1 flex flex-col items-center justify-center py-12 px-6">
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4">You are a legend</p>
+            <div class="flex items-center gap-4 mb-2">
+                <h1 class="text-7xl dogs-text italic">6,840</h1>
+                <span class="text-4xl">🦴</span>
+            </div>
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">DOGS Points</p>
         </div>
 
-        <div class="relative group" onclick="handleTap(event)">
-            <div class="w-64 h-64 bg-white/5 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl group-active:bg-white/10 transition-colors"></div>
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Scooter&backgroundColor=000000" 
-                 class="w-72 h-72 relative z-10 character-tap cursor-pointer drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                 alt="Dogs Character">
-        </div>
-
-        <div class="w-full max-w-xs mt-16">
-            <div class="flex justify-between items-center mb-2">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-bolt text-yellow-400"></i>
-                    <span class="text-xs font-bold" id="energy-text">1000 / 1000</span>
+        <div class="glass rounded-t-[3rem] p-8 space-y-6">
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4">Account Rewards</h3>
+            
+            <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                    <div>
+                        <p class="text-sm font-bold">Account Age</p>
+                        <p class="text-[10px] text-gray-500">4 Years on Telegram</p>
+                    </div>
                 </div>
-                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Recharging</span>
+                <span class="font-black text-sm">+4,200</span>
             </div>
-            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="energy-bar" class="h-full bg-white w-full transition-all duration-300"></div>
-            </div>
-        </div>
-    </main>
 
-    <nav class="p-6 pb-10 flex justify-around items-center glass rounded-t-[3rem]">
-        <div class="flex flex-col items-center gap-1 opacity-40 nav-active">
-            <i class="fas fa-paw text-xl"></i>
-            <span class="text-[8px] font-black uppercase">Home</span>
+            <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-star text-yellow-500"></i>
+                    <div>
+                        <p class="text-sm font-bold">Telegram Premium</p>
+                        <p class="text-[10px] text-gray-500">Status Active</p>
+                    </div>
+                </div>
+                <span class="font-black text-sm">+2,640</span>
+            </div>
+
+            <button class="w-full bg-white text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest active:scale-95 transition-all">
+                Join Community
+            </button>
         </div>
-        <div class="flex flex-col items-center gap-1 opacity-40">
-            <i class="fas fa-tasks text-xl"></i>
-            <span class="text-[8px] font-black uppercase">Tasks</span>
-        </div>
-        <div class="flex flex-col items-center gap-1 opacity-40">
-            <i class="fas fa-users text-xl"></i>
-            <span class="text-[8px] font-black uppercase">Friends</span>
-        </div>
-        <div class="flex flex-col items-center gap-1 opacity-40">
-            <i class="fas fa-rocket text-xl"></i>
-            <span class="text-[8px] font-black uppercase">Boost</span>
-        </div>
-    </nav>
+
+        <nav class="flex justify-around py-6 bg-black border-t border-white/5">
+            <div class="text-white"><i class="fas fa-home text-xl"></i></div>
+            <div class="text-gray-600"><i class="fas fa-users text-xl"></i></div>
+            <div class="text-gray-600"><i class="fas fa-coins text-xl"></i></div>
+        </nav>
+    </div>
 
     <script>
-        let score = 6840;
-        let energy = 1000;
-        const maxEnergy = 1000;
+        // Sayfa yüklendiğinde analizi başlat
+        window.onload = function() {
+            startChecking();
+        };
 
-        function handleTap(e) {
-            if (energy <= 0) return;
+        function startChecking() {
+            const steps = [1, 2, 3];
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    document.getElementById(`step-${step}`).style.opacity = "1";
+                    setTimeout(() => {
+                        document.getElementById(`check-${step}`).classList.remove('hidden');
+                    }, 400);
+                }, (index + 1) * 1200);
+            });
 
-            // Puanı Artır
-            score += 10;
-            energy -= 5;
-            
-            // UI Güncelle
-            document.getElementById('score').innerText = score.toLocaleString();
-            document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
-            document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + '%';
-
-            // Puan Uçuş Efekti
-            const plus = document.createElement('div');
-            plus.className = 'plus-one';
-            plus.innerText = '+10';
-            plus.style.left = e.pageX + 'px';
-            plus.style.top = e.pageY + 'px';
-            document.body.appendChild(plus);
-
-            // 1 saniye sonra elementi kaldır
-            setTimeout(() => plus.remove(), 800);
+            // 5 saniye sonra ana ekrana geç
+            setTimeout(() => {
+                document.getElementById('screen-checking').classList.add('hidden');
+                const main = document.getElementById('screen-main');
+                main.classList.remove('hidden');
+                main.classList.add('animate-fade');
+            }, 5000);
         }
-
-        // Enerji Yenileme (Saniyede +1)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy += 1;
-                document.getElementById('energy-text').innerText = `${energy} / ${maxEnergy}`;
-                document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + '%';
-            }
-        }, 1000);
     </script>
 </body>
 </html>
