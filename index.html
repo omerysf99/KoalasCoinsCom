@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube TR 2026 | Long & Shorts</title>
+    <title>YouTube 2026 | Dinamik Keşfet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --header-bg: #1c1c1c; --yt-red: #ff0000; --tg-blue: #3390ec; }
+        :root { --bg: #0f0f0f; --header-bg: #1c1c1c; --yt-red: #ff0000; --accent: #3390ec; }
         
         /* ÜSTTE 1CM BOŞLUK */
         body { background: #000; padding-top: 1cm; margin: 0; color: #fff; font-family: "Roboto", sans-serif; overflow: hidden; }
@@ -17,7 +17,7 @@
             padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 2000; gap: 15px;
         }
 
-        /* SOL SABİT BUTONLAR (Navigasyon) */
+        /* SOL SABİT NAVİGASYON */
         .left-nav {
             position: fixed; left: 0; top: calc(56px + 1cm); width: 72px; height: 100%;
             background: var(--bg); display: flex; flex-direction: column; align-items: center;
@@ -25,138 +25,140 @@
         }
         .nav-btn {
             width: 100%; padding: 15px 0; display: flex; flex-direction: column;
-            align-items: center; gap: 5px; cursor: pointer; transition: 0.2s;
+            align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; color: #aaa;
         }
-        .nav-btn:hover { background: #272727; }
-        .nav-btn i { font-size: 20px; color: #aaa; }
-        .nav-btn span { font-size: 10px; color: #aaa; }
-        .nav-btn.active i, .nav-btn.active span { color: #fff; }
+        .nav-btn:hover, .nav-btn.active { background: #272727; color: #fff; }
+        .nav-btn i { font-size: 20px; }
+        .nav-btn span { font-size: 10px; }
 
-        /* ANA İÇERİK ALANI */
+        /* ANA İÇERİK */
         .content-container { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 15px; }
 
-        /* VİDEO TASARIMLARI (UZUN VİDEOLAR) */
-        .section-title { font-size: 18px; font-weight: bold; margin: 20px 0 15px; display: flex; align-items: center; gap: 10px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-        .v-card { cursor: pointer; margin-bottom: 20px; }
+        /* VİDEO TASARIMI */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .v-card { cursor: pointer; animation: fadeIn 0.5s ease-in; }
         .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #222; }
         .v-info { display: flex; gap: 12px; margin-top: 10px; }
-        .v-chan { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
-        .v-text h4 { font-size: 15px; font-weight: 500; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-text p { font-size: 13px; color: #aaa; margin-top: 4px; }
+        .v-chan { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(45deg, #444, #222); flex-shrink: 0; }
+        .v-text h4 { font-size: 14px; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-text p { font-size: 12px; color: #aaa; margin-top: 4px; }
 
-        /* SHORTS YATAY RAFI */
-        .shorts-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-        .short-item { min-width: 160px; aspect-ratio: 9/16; background: #222; border-radius: 12px; position: relative; overflow: hidden; cursor: pointer; }
+        /* SHORTS RAFI */
+        .shorts-shelf { margin: 25px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; padding: 20px 0; }
+        .shorts-title { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-weight: bold; }
+        .shorts-row { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
+        .short-item { min-width: 150px; aspect-ratio: 9/16; background: #222; border-radius: 12px; position: relative; overflow: hidden; }
         .short-item img { width: 100%; height: 100%; object-fit: cover; }
-        .short-overlay { position: absolute; bottom: 10px; left: 10px; font-size: 12px; font-weight: bold; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
-        /* REKLAM KARTI */
-        .ad-card { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 15px; margin: 20px 0; display: flex; gap: 15px; align-items: center; }
-        .ad-badge { background: #fbc02d; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* YENİLEME BUTONU (LOGO) */
+        .refresh-logo { cursor: pointer; transition: 0.3s; }
+        .refresh-logo:active { transform: scale(0.9); opacity: 0.7; }
     </style>
 </head>
 <body>
 
 <header>
-    <i class="fas fa-bars" style="color:#aaa; cursor:pointer; font-size: 20px;"></i>
-    <div style="font-weight:bold; font-size:20px; display:flex; align-items:center; gap:5px;">
-        <i class="fab fa-youtube" style="color:red; font-size:24px;"></i> YouTube<sup>TR</sup>
+    <div class="refresh-logo" onclick="refreshFeed()">
+        <i class="fab fa-youtube" style="color:red; font-size:24px;"></i> 
+        <span style="font-weight:bold; font-size:18px; margin-left:5px;">YouTube<sup>TR</sup></span>
     </div>
     <div style="margin-left:auto; display:flex; gap:20px; align-items:center; color:#aaa;">
+        <i class="fas fa-redo-alt" onclick="refreshFeed()" style="cursor:pointer;"></i>
         <i class="fas fa-search"></i>
-        <div style="width:30px; height:30px; border-radius:50%; background:var(--tg-blue);"></div>
+        <div style="width:30px; height:30px; border-radius:50%; background:var(--accent);"></div>
     </div>
 </header>
 
 <nav class="left-nav">
-    <div class="nav-btn active">
-        <i class="fas fa-home"></i>
-        <span>Ana Sayfa</span>
-    </div>
-    <div class="nav-btn">
-        <i class="fas fa-bolt"></i>
-        <span>Shorts</span>
-    </div>
-    <div class="nav-btn">
-        <i class="fas fa-layer-group"></i>
-        <span>Abonelik</span>
-    </div>
-    <div class="nav-btn">
-        <i class="fas fa-play-circle"></i>
-        <span>Kitaplık</span>
-    </div>
+    <div class="nav-btn active" onclick="refreshFeed()"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
+    <div class="nav-btn"><i class="fas fa-bolt"></i><span>Shorts</span></div>
+    <div class="nav-btn"><i class="fas fa-layer-group"></i><span>Abonelik</span></div>
 </nav>
 
-<div class="content-container">
-    
-    <div class="section-title">Önerilen Türkçe Videolar</div>
-    <div class="video-grid" id="long-videos">
-        </div>
-
-    <div class="ad-card">
-        <div style="flex:1;">
-            <span class="ad-badge">Sponsorlu</span>
-            <h4 style="margin-top:5px;">Hepsiburada Efsane Kasım Başladı!</h4>
-            <p style="font-size:12px; color:#aaa;">Binlerce üründe dev indirimleri kaçırma.</p>
-        </div>
-        <button style="background:var(--tg-blue); color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">Alışverişe Başla</button>
+<div class="content-container" id="feed-container">
     </div>
-
-    <div class="section-title"><i class="fas fa-bolt" style="color:red;"></i> Shorts</div>
-    <div class="shorts-row" id="shorts-row">
-        </div>
-
-    <div class="section-title">En Popülerler</div>
-    <div class="video-grid" id="more-videos"></div>
-
-</div>
 
 <script>
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
+    
+    // Algoritma için rastgele Türkçe anahtar kelimeler
+    const keywords = ['Vlog', 'Oyun', 'Müzik', 'Belgesel', 'Teknoloji', 'Yemek Tarifleri', 'Komedi', 'Haber', 'Eğitim', 'Araba', 'Gezi', 'İstanbul', 'Podcast'];
 
-    // TÜRKÇE UZUN VİDEOLARI GETİR
-    async function loadLongVideos() {
+    async function refreshFeed() {
+        const container = document.getElementById('feed-container');
+        container.innerHTML = '<p style="text-align:center; padding:50px;">Algoritma sana özel videoları hazırlıyor...</p>';
+        
+        // Rastgele bir anahtar kelime seç
+        const randomKey = keywords[Math.floor(Math.random() * keywords.length)];
+        
         try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=türkçe+uzun+video+vlog+belgesel&type=video&key=${API_KEY}`);
-            const data = await res.json();
-            const container = document.getElementById('long-videos');
+            // 1. Uzun Videoları Getir
+            const vRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=türkçe+${randomKey}&type=video&key=${API_KEY}`);
+            const vData = await vRes.json();
             
-            data.items.forEach(v => {
-                container.innerHTML += `
-                    <div class="v-card">
-                        <img src="${v.snippet.thumbnails.high.url}" class="v-thumb">
-                        <div class="v-info">
-                            <div class="v-chan"></div>
-                            <div class="v-text">
-                                <h4>${v.snippet.title}</h4>
-                                <p>${v.snippet.channelTitle} • 154 B izlenme</p>
-                            </div>
+            // 2. Shorts Videolarını Getir
+            const sRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=türkçe+shorts&type=video&videoDuration=short&key=${API_KEY}`);
+            const sData = await sRes.json();
+
+            renderFeed(vData.items, sData.items);
+        } catch(e) {
+            container.innerHTML = '<p style="text-align:center; color:red;">Kota doldu! Lütfen biraz bekleyin.</p>';
+        }
+    }
+
+    function renderFeed(videos, shorts) {
+        const container = document.getElementById('feed-container');
+        container.innerHTML = '';
+
+        // İlk 4 Videoyu Göster
+        let grid1 = '<div class="video-grid">';
+        for(let i=0; i<4; i++) {
+            grid1 += videoTemplate(videos[i]);
+        }
+        grid1 += '</div>';
+
+        // Shorts Rafını Ekle
+        let shortsShelf = `
+            <div class="shorts-shelf">
+                <div class="shorts-title"><i class="fas fa-bolt" style="color:red;"></i> Shorts</div>
+                <div class="shorts-row">
+                    ${shorts.map(s => `
+                        <div class="short-item">
+                            <img src="${s.snippet.thumbnails.high.url}">
                         </div>
-                    </div>`;
-            });
-        } catch(e) {}
+                    `).join('')}
+                </div>
+            </div>`;
+
+        // Kalan Videoları Göster
+        let grid2 = '<div class="video-grid">';
+        for(let i=4; i<videos.length; i++) {
+            grid2 += videoTemplate(videos[i]);
+        }
+        grid2 += '</div>';
+
+        container.innerHTML = grid1 + shortsShelf + grid2;
     }
 
-    // TÜRKÇE SHORTS GETİR
-    async function loadShorts() {
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=türkçe+shorts+komik+oyun&type=video&videoDuration=short&key=${API_KEY}`);
-            const data = await res.json();
-            const row = document.getElementById('shorts-row');
-            
-            data.items.forEach(s => {
-                row.innerHTML += `
-                    <div class="short-item">
-                        <img src="${s.snippet.thumbnails.high.url}">
-                        <div class="short-overlay">${s.snippet.title.substring(0,20)}...</div>
-                    </div>`;
-            });
-        } catch(e) {}
+    function videoTemplate(v) {
+        if(!v) return '';
+        return `
+            <div class="v-card">
+                <img src="${v.snippet.thumbnails.high.url}" class="v-thumb">
+                <div class="v-info">
+                    <div class="v-chan"></div>
+                    <div class="v-text">
+                        <h4>${v.snippet.title}</h4>
+                        <p>${v.snippet.channelTitle} • ${Math.floor(Math.random()*900)+1}B izlenme</p>
+                    </div>
+                </div>
+            </div>`;
     }
 
-    loadLongVideos();
-    loadShorts();
+    // İlk yükleme
+    refreshFeed();
 </script>
 </body>
 </html>
