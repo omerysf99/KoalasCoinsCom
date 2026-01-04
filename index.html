@@ -3,170 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 GEP | Ultra Player</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>YouTube Shorts Clone</title>
     <style>
-        :root { --bg: #0f0f0f; --yt-red: #ff0000; --header: #0f0f0f; --card-hover: #1e1e1e; }
-        * { box-sizing: border-box; margin: 0; padding: 0; scrollbar-width: none; }
-        body { background: #000; padding-top: 1cm; color: #fff; font-family: "Roboto", sans-serif; overflow: hidden; }
-
-        /* HEADER */
-        header { 
-            height: 56px; background: var(--header); display: flex; align-items: center; 
-            padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 5000; border-bottom: 1px solid #222;
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
         }
-        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; width: 40%; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; }
-        .search-bar input { background: transparent; border: none; color: white; height: 38px; width: 100%; outline: none; }
-        
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed; left: 0; top: calc(56px + 1cm); width: 72px; height: 100%;
-            background: var(--bg); display: flex; flex-direction: column; align-items: center;
-            padding-top: 20px; border-right: 1px solid #222; z-index: 4000;
+
+        /* Shorts Konteynırı */
+        #shorts-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
         }
-        .nav-link { width: 100%; padding: 15px 0; text-align: center; cursor: pointer; color: #aaa; transition: 0.2s; }
-        .nav-link.active { color: #fff; background: var(--card-hover); }
-        .nav-link i { font-size: 22px; display: block; margin-bottom: 5px; }
 
-        /* ANA SAYFA */
-        .page { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 20px; display: none; }
-        #home-page { display: block; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .v-card { cursor: pointer; transition: 0.2s; }
-        .v-card:hover { transform: scale(1.02); }
-        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
-        
-        /* IZLEME EKRANI - FULL GEP */
-        #watch-screen { 
-            position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); 
-            background: #000; z-index: 6000; display: none; padding: 20px;
+        .short-video-card {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #333;
         }
-        .watch-container { max-width: 1200px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
-        .video-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; overflow: hidden; position: relative; }
-        iframe { width: 100%; height: 100%; border: none; }
 
-        .close-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-bottom: 15px; width: fit-content; }
-        .close-btn:hover { background: rgba(255,255,255,0.2); }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-        /* SHORTS */
-        #shorts-page { padding: 0; scroll-snap-type: y mandatory; overflow-y: scroll; }
-        .short-unit { height: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; }
-        .short-player { width: 360px; height: 92%; background: #000; border-radius: 16px; position: relative; overflow: hidden; }
+        /* Bilgi Paneli */
+        .video-info {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .channel-name {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Kaydırma Çubuğunu Gizle */
+        #shorts-container::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="switchPage('home')">
-        <i class="fab fa-youtube" style="color:red; font-size:28px;"></i>
-        <span style="font-weight:bold; font-size:20px;">YouTube<sup>GEP</sup></span>
-    </div>
-    <div class="search-bar"><input type="text" placeholder="Gep ile ara..."></div>
-</header>
+    <div id="shorts-container">
+        </div>
 
-<nav class="sidebar">
-    <div class="nav-link active" id="btn-home" onclick="switchPage('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
-    <div class="nav-link" id="btn-shorts" onclick="switchPage('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
-</nav>
+    <script>
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+        const container = document.getElementById('shorts-container');
 
-<div class="page" id="home-page">
-    <div class="video-grid" id="grid-content"></div>
-</div>
+        // Shorts videolarını getir
+        async function fetchShorts() {
+            try {
+                // 'Shorts' araması yaparak kısa videoları getiriyoruz
+                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=shorts&type=video&videoDuration=short&key=${API_KEY}`);
+                const data = await response.json();
 
-<div class="page" id="shorts-page"></div>
-
-<div id="watch-screen">
-    <div class="watch-container">
-        <button class="close-btn" onclick="closeVideo()"><i class="fas fa-times"></i> Kapat</button>
-        <div class="video-box" id="player-mount"></div>
-        <h2 id="video-title" style="margin-top:20px; font-size:20px;"></h2>
-    </div>
-</div>
-
-<script>
-    // Yerleştirme izni olan garantili videolar
-    const videoData = [
-        {id: 'S_E2E_u557I', title: 'BLOK3 - KUSURA BAKMA (Gep Edition)', chan: 'Blok3'},
-        {id: 'dQw4w9WgXcQ', title: 'NEVER GONNA GIVE YOU UP (Classic)', chan: 'Rick Astley'},
-        {id: 't9-v_rF06Xk', title: 'Mars Kolonisi Başladı', chan: 'Evrim Ağacı'},
-        {id: 'vGZ_M5Y9EwA', title: 'Kulüp Başkanı Simülasyonu', chan: 'Ertan Saban'}
-    ];
-
-    const shortIds = ['3X_Y12Z_K88', 'XvW_7G9Dk0I', 'vS7W_M44P5Q'];
-
-    function loadHome() {
-        const grid = document.getElementById('grid-content');
-        grid.innerHTML = Array(12).fill(0).map(() => {
-            const v = videoData[Math.floor(Math.random() * videoData.length)];
-            return `
-                <div class="v-card" onclick="openVideo('${v.id}', '${v.title}')">
-                    <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" class="v-thumb">
-                    <div style="display:flex; gap:12px; margin-top:12px;">
-                        <div style="width:36px; height:36px; border-radius:50%; background:#333;"></div>
-                        <div>
-                            <h4 style="font-size:14px; color:#fff;">${v.title}</h4>
-                            <p style="font-size:12px; color:#aaa; margin-top:4px;">${v.chan}</p>
-                        </div>
-                    </div>
-                </div>`;
-        }).join('');
-    }
-
-    // Video Oynatıcıyı Temiz ve Hatasız Açma
-    function openVideo(id, title) {
-        document.getElementById('watch-screen').style.display = 'block';
-        document.getElementById('video-title').innerText = title;
-        
-        // "Video kullanılamıyor" hatasını en aza indirmek için origin ve autoplay parametreleri eklendi
-        const playerMount = document.getElementById('player-mount');
-        playerMount.innerHTML = `
-            <iframe 
-                src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" 
-                allow="autoplay; encrypted-media" 
-                allowfullscreen>
-            </iframe>`;
-    }
-
-    function closeVideo() {
-        document.getElementById('watch-screen').style.display = 'none';
-        document.getElementById('player-mount').innerHTML = ''; // İframe'i tamamen siler
-    }
-
-    function loadShorts() {
-        const page = document.getElementById('shorts-page');
-        page.innerHTML = shortIds.map(id => `
-            <div class="short-unit" data-id="${id}">
-                <div class="short-player" id="box-${id}">
-                    <div style="width:100%; height:100%; background:#111; display:flex; align-items:center; justify-content:center;">
-                        <i class="fab fa-youtube" style="font-size:50px; color:#222;"></i>
-                    </div>
-                </div>
-            </div>`).join('');
-
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                const id = entry.target.dataset.id;
-                const box = document.getElementById(`box-${id}`);
-                if(entry.isIntersecting) {
-                    box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}&modestbranding=1" style="width:100%; height:100%;"></iframe>`;
+                if (data.items) {
+                    renderVideos(data.items);
                 } else {
-                    box.innerHTML = '';
+                    container.innerHTML = "<p style='color:white; text-align:center;'>Video yüklenemedi. API kotasını kontrol edin.</p>";
                 }
+            } catch (error) {
+                console.error("Hata:", error);
+            }
+        }
+
+        function renderVideos(videos) {
+            videos.forEach(video => {
+                const videoId = video.id.videoId;
+                const title = video.snippet.title;
+                const channel = video.snippet.channelTitle;
+
+                const card = document.createElement('div');
+                card.className = 'short-video-card';
+
+                // YouTube Embed Player (Shorts formatı için dikey ayarlandı)
+                card.innerHTML = `
+                    <div class="video-info">
+                        <div class="video-title">${title}</div>
+                        <div class="channel-name">@${channel}</div>
+                    </div>
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&loop=1&playlist=${videoId}&modestbranding=1" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+                container.appendChild(card);
             });
-        }, {threshold: 0.8});
-        document.querySelectorAll('.short-unit').forEach(u => observer.observe(u));
-    }
+        }
 
-    function switchPage(p) {
-        document.getElementById('home-page').style.display = p === 'home' ? 'block' : 'none';
-        document.getElementById('shorts-page').style.display = p === 'shorts' ? 'block' : 'none';
-        document.getElementById('btn-home').classList.toggle('active', p === 'home');
-        document.getElementById('btn-shorts').classList.toggle('active', p === 'shorts');
-        closeVideo();
-        if(p === 'home') loadHome(); else loadShorts();
-    }
-
-    loadHome();
-</script>
+        // Başlat
+        fetchShorts();
+    </script>
 </body>
 </html>
