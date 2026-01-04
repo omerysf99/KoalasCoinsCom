@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Türkiye Pro - 2026</title>
+    <title>TikTok Pro - Tekil Oynatma</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; }
         
-        /* Dikey Kaydırma Konteyneri */
+        /* Kaydırma Alanı */
         .tiktok-feed {
             height: 100vh;
             overflow-y: scroll;
@@ -18,8 +18,7 @@
         }
         .tiktok-feed::-webkit-scrollbar { display: none; }
 
-        /* Her Bir Video Kartı */
-        .video-wrapper {
+        .video-item {
             height: 100vh;
             width: 100%;
             scroll-snap-align: start;
@@ -30,151 +29,89 @@
             background: #000;
         }
 
-        /* TikTok Embed Responsive Ayarı */
-        .tiktok-embed {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 500px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* Video Üzerindeki Bilgiler */
-        .video-overlay {
-            position: absolute;
-            bottom: 100px;
-            left: 20px;
-            right: 80px;
-            z-index: 10;
-            pointer-events: none;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
-        }
-
-        /* Sağ Etkileşim Paneli */
-        .side-actions {
-            position: absolute;
-            right: 15px;
-            bottom: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-            z-index: 20;
-        }
-
-        .action-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .action-item i {
-            font-size: 32px;
-            margin-bottom: 5px;
-            transition: transform 0.2s;
-        }
-
-        .action-item i:active { transform: scale(0.8); }
-        .fa-heart:hover { color: #ff3b5c; }
-
-        .profile-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid white;
-            margin-bottom: 10px;
-            object-fit: cover;
-        }
+        /* Video Bilgileri ve Butonlar */
+        .overlay { position: absolute; bottom: 100px; left: 20px; z-index: 20; pointer-events: none; }
+        .side-panel { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
+        
+        /* Iframe Kapsayıcı (Kontrol İçin) */
+        .video-container { width: 100%; height: 100%; max-width: 450px; }
+        iframe { width: 100%; height: 100%; pointer-events: all; }
     </style>
 </head>
 <body>
 
-    <div class="fixed top-8 left-0 w-full flex justify-center gap-8 z-50 text-white font-bold text-lg opacity-80">
-        <span class="cursor-pointer">Takip Edilen</span>
-        <span class="border-b-4 border-white pb-1 cursor-pointer">Sizin İçin</span>
-    </div>
-
-    <div class="tiktok-feed" id="mainFeed">
+    <div class="tiktok-feed" id="feed">
         </div>
 
-    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-4 z-50">
-        <div class="flex flex-col items-center"><i class="fas fa-home text-xl"></i><span class="text-[10px] mt-1">Ana Sayfa</span></div>
-        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-users text-xl"></i><span class="text-[10px] mt-1">Arkadaşlar</span></div>
-        <div class="relative bg-white text-black px-4 py-1 rounded-lg font-extrabold text-xl">+</div>
-        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-comment-dots text-xl"></i><span class="text-[10px] mt-1">Gelen Kutusu</span></div>
-        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-user text-xl"></i><span class="text-[10px] mt-1">Profil</span></div>
-    </nav>
-
-    <script async src="https://www.tiktok.com/embed.js"></script>
-
     <script>
-        // Görseldeki API Kimlik Bilgilerin (Gelecek geliştirmeler için hazır tutuluyor)
-        const CLIENT_KEY = 'aw01joj8wk4rnll9';
-        const CLIENT_SECRET = 'U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91';
+        // Senin Geliştirici Kimliklerin (Görselden)
+        const CLIENT_ID = 'aw01joj8wk4rnll9';
 
-        // GÜNCEL TÜRKÇE VİDEO DATA HAVUZU
-        const turkishVideos = [
-            {id: '7591531252507789368', user: 'istek_ozel', desc: 'Senin seçtiğin video! ✨ #trend', likes: '1.2M'},
-            {id: 'kpaFYhxDFl8', user: 'yunuscanpolat', desc: 'Denize gireceksindir ama kız arkadaşın... 😂 #bahar', likes: '159K', isYoutube: true},
-            {id: 'AY4dgEwCVyU', user: 'cerenyaldiz', desc: 'Galatasaray formasına el koydum! 🦁 #gs', likes: '167K', isYoutube: true},
-            {id: 'kz234YDHU-0', user: 'freyawie', desc: 'Top 10 - Haftanın En Popüler Türkçe Şarkıları 🎵', likes: '47K', isYoutube: true},
-            {id: 'k8eQP7b2LDU', user: 'lyrics_melodic', desc: 'Bi Dakika - Aynur Aydın #lyrics #kesfet', likes: '69K', isYoutube: true}
+        // GÜNCEL TÜRKÇE VİDEO VERİLERİ
+        const videoData = [
+            { id: '7591531252507789368', user: 'istek_ozel', desc: 'Senin videon yayında! 🚀' },
+            { id: 'kpaFYhxDFl8', user: 'yunuscanpolat', desc: 'Gülmek garanti! 😂 #bahar' },
+            { id: 'AY4dgEwCVyU', user: 'cerenyaldiz', desc: '🦁 Şampiyon Galatasaray! #gs' },
+            { id: 'kz234YDHU-0', user: 'freyawie', desc: '2026 Ocak - En Popüler Şarkılar 🎵' },
+            { id: 'k8eQP7b2LDU', user: 'lyrics_melodic', desc: 'Aynur Aydın - Bi Dakika 🎤' }
         ];
 
-        const feed = document.getElementById('mainFeed');
+        const feed = document.getElementById('feed');
 
-        function renderVideos() {
-            turkishVideos.forEach((v, index) => {
-                const section = document.createElement('div');
-                section.className = 'video-wrapper';
+        // Videoları Oluştur
+        function createFeed() {
+            videoData.forEach((v, index) => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                div.setAttribute('data-index', index);
                 
-                // TikTok ve YouTube Short İçeriklerini TikTok tarzı render etme
-                let videoHTML = "";
-                if(v.isYoutube) {
-                    videoHTML = `<iframe src="https://www.youtube.com/embed/${v.id}?autoplay=0&controls=0&loop=1&playlist=${v.id}" frameborder="0" class="w-full h-full max-w-[450px]"></iframe>`;
-                } else {
-                    videoHTML = `
-                        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${v.id}" data-video-id="${v.id}">
-                            <section></section>
-                        </blockquote>`;
-                }
-
-                section.innerHTML = `
-                    ${videoHTML}
-                    <div class="video-overlay">
-                        <h3 class="font-bold text-lg">@${v.user}</h3>
-                        <p class="text-sm mt-2">${v.desc}</p>
-                        <div class="flex items-center gap-2 mt-3 italic text-xs">
-                            <i class="fas fa-music"></i>
-                            <marquee class="w-32">Orijinal Ses - ${v.user} - 2026 Trend</marquee>
-                        </div>
+                // YouTube videolarını "shorts" modunda ve sessiz başlatılacak şekilde ekle (autoplay politikası gereği)
+                const videoSrc = `https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&modestbranding=1&rel=0`;
+                
+                div.innerHTML = `
+                    <div class="video-container">
+                        <iframe id="player-${index}" src="${videoSrc}" frameborder="0" allow="autoplay; encrypted-media"></iframe>
                     </div>
-                    <div class="side-actions">
-                        <img src="https://i.pravatar.cc/100?u=${index}" class="profile-avatar">
-                        <div class="action-item"><i class="fas fa-heart"></i><span class="text-xs font-bold">${v.likes}</span></div>
-                        <div class="action-item"><i class="fas fa-comment-dots"></i><span class="text-xs font-bold">1,2k</span></div>
-                        <div class="action-item"><i class="fas fa-bookmark"></i><span class="text-xs font-bold">Kaydet</span></div>
-                        <div class="action-item"><i class="fas fa-share"></i><span class="text-xs font-bold">Paylaş</span></div>
+                    <div class="overlay">
+                        <h3 class="font-bold">@${v.user}</h3>
+                        <p class="text-sm mt-1">${v.desc}</p>
+                    </div>
+                    <div class="side-panel">
+                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl mb-1"></i><span class="text-xs font-bold">12K</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl mb-1"></i><span class="text-xs font-bold">450</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-share text-2xl"></i></div>
                     </div>
                 `;
-                feed.appendChild(section);
+                feed.appendChild(div);
             });
-
-            // TikTok embedlerini işle
-            if (window.tiktok && window.tiktok.render) {
-                window.tiktok.render();
-            }
         }
 
-        // Başlat
-        renderVideos();
+        createFeed();
 
-        // Sonsuz Kaydırma Mantığı
-        feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 20) {
-                renderVideos(); // Sona gelince listeyi tekrar ekle
-            }
+        // AKILLI DURDURMA VE OYNATMA MANTIĞI
+        // Intersection Observer ile ekrandaki videoyu takip et
+        const observerOptions = {
+            root: feed,
+            threshold: 0.8 // Videonun %80'i görünür olduğunda tetiklenir
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const iframe = entry.target.querySelector('iframe');
+                
+                if (entry.isIntersecting) {
+                    // Video ekrana girdi: Oynat
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                } else {
+                    // Video ekrandan çıktı: Durdur
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                }
+            });
+        }, observerOptions);
+
+        // Her video kartını gözlemle
+        document.querySelectorAll('.video-item').forEach(item => {
+            observer.observe(item);
         });
     </script>
 </body>
