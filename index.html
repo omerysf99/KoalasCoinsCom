@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Projeleri - API & Local</title>
+    <title>TikTok API Video Feed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #000; color: white; margin: 0; overflow: hidden; }
+        body { background-color: #000; margin: 0; color: white; font-family: 'Proxima Nova', sans-serif; overflow: hidden; }
         
-        /* Kaydırma Alanı */
-        #feed {
+        /* Ana Akış Konteynırı */
+        #main-feed {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Firefox */
         }
+        #main-feed::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
-        /* Video Bölümü - Sabit Boyutlandırma */
+        /* Video Bölümü */
         .video-wrapper {
             height: 100vh;
             scroll-snap-align: start;
@@ -24,19 +26,18 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            background: #000;
         }
 
-        /* Video Boyutunu Sabitleyen Kap (9:16 Oranı) */
+        /* Video Boyut Sabitleme (9:16 Oranı) */
         .video-container {
+            height: 95vh;
+            width: calc(95vh * 9 / 16);
             position: relative;
-            height: 90vh; /* Ekranın %90'ı */
-            aspect-ratio: 9 / 16;
             background: #121212;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid #333;
         }
 
         video {
@@ -45,102 +46,111 @@
             object-fit: cover; /* Videoyu kutuya sığdırır, taşanı keser */
         }
 
-        .side-bar {
+        /* Sağ Etkileşim Paneli */
+        .actions {
             position: absolute;
-            right: 15px;
-            bottom: 100px;
+            right: -60px;
+            bottom: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            text-align: center;
+            gap: 15px;
+            align-items: center;
         }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .action-btn i {
+            font-size: 26px;
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .action-btn i:hover { background: rgba(255,255,255,0.2); }
+        .action-btn span { font-size: 12px; margin-top: 4px; font-weight: 600; }
 
-        .info-bar {
+        /* Alt Bilgi */
+        .video-info {
             position: absolute;
             bottom: 20px;
-            left: 20px;
-            right: 80px;
+            left: 15px;
+            right: 15px;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-    <div id="feed">
+    <header class="fixed top-0 w-full flex justify-center gap-6 py-4 z-50 bg-gradient-to-b from-black/60 to-transparent">
+        <button class="font-bold text-gray-400">Takip Edilenler</button>
+        <button class="font-bold text-white border-b-2 border-white pb-1">Sizin İçin</button>
+    </header>
+
+    <div id="main-feed">
         </div>
 
     <script>
-        // API Bilgilerin
-        const API_CONFIG = {
+        // API Anahtarların (Görselden alındı)
+        const TIKTOK_CREDENTIALS = {
             clientKey: "aw01joj8wk4rnll9",
             clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
         };
 
-        // Yerel Dosyaların
-        const videoFiles = [
-            { src: 'reels1.mp4', user: '@api_tester', desc: 'API Test Verisi #1' },
-            { src: 'reels2.mp4', user: '@dev_mode', desc: 'TikTok SDK Entegrasyonu' },
-            { src: 'reels3.mp4', user: '@fullstack', desc: 'Local Video Rendering' },
-            { src: 'reels4.mp4', user: '@ui_designer', desc: 'Fixed Aspect Ratio 9:16' },
-            { src: 'reels5.mp4', user: '@coding', desc: 'JavaScript Observer API' }
+        // Yerel Video Veritabanın
+        const myVideos = [
+            { id: 1, file: 'reels1.mp4', user: 'yazilimci', desc: 'TikTok API entegrasyonu tamamlandı! #coding' },
+            { id: 2, file: 'reels2.mp4', user: 'dev_ahmet', desc: 'Yeni arayüz denemesi nasıl olmuş? 🚀' },
+            { id: 3, file: 'reels3.mp4', user: 'tech_bot', desc: 'Video boyut hatası giderildi. #bugfix' },
+            { id: 4, file: 'reels4.mp4', user: 'creative_mind', desc: 'Full-screen scroll deneyimi.' },
+            { id: 5, file: 'reels5.mp4', user: 'api_master', desc: 'Client Secret: ' + TIKTOK_CREDENTIALS.clientSecret.substring(0,8) + '...' }
         ];
 
-        const feed = document.getElementById('feed');
+        const feed = document.getElementById('main-feed');
 
-        // Arayüzü oluştur
-        videoFiles.forEach(videoData => {
-            const section = document.createElement('div');
-            section.className = 'video-wrapper';
-            section.innerHTML = `
+        // Arayüzü Oluşturma
+        myVideos.forEach(v => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            wrapper.innerHTML = `
                 <div class="video-container">
-                    <video loop class="tiktok-video" src="${videoData.src}"></video>
+                    <video loop class="tk-video" src="${v.file}"></video>
                     
-                    <div class="side-bar">
-                        <div class="flex flex-col items-center">
-                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-heart text-2xl"></i></div>
-                            <span class="text-xs font-bold">API</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-comment-dots text-2xl"></i></div>
-                            <span class="text-xs font-bold">Live</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-share text-2xl"></i></div>
-                            <span class="text-xs">Paylaş</span>
-                        </div>
+                    <div class="actions">
+                        <div class="action-btn"><i class="fas fa-heart"></i><span>12.4K</span></div>
+                        <div class="action-btn"><i class="fas fa-comment-dots"></i><span>856</span></div>
+                        <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
                     </div>
 
-                    <div class="info-bar">
-                        <h3 class="font-bold text-lg mb-1">${videoData.user}</h3>
-                        <p class="text-sm text-gray-200">${videoData.desc}</p>
-                        <div class="flex items-center mt-2 text-xs">
-                            <i class="fas fa-music mr-2"></i> Orijinal Ses - TikTok API (${API_CONFIG.clientKey.substring(0,6)}...)
+                    <div class="video-info">
+                        <h4 class="font-bold text-lg">@${v.user}</h4>
+                        <p class="text-sm mt-1">${v.desc}</p>
+                        <div class="flex items-center mt-3 text-xs">
+                            <i class="fas fa-music mr-2"></i> Orijinal Ses - ${TIKTOK_CREDENTIALS.clientKey}
                         </div>
                     </div>
                 </div>
             `;
-            feed.appendChild(section);
+            feed.appendChild(wrapper);
         });
 
-        // OTOMATİK OYNATMA VE DURDURMA (Video Boyut Farklarını Engeller)
+        // AKILLI OYNATMA (Intersection Observer)
+        const options = { threshold: 0.6 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting) {
-                    video.play().catch(() => {}); // Kullanıcı etkileşimi yoksa hata vermesin
+                    video.play().catch(e => console.log("Otomatik oynatma için etkileşim gerekiyor."));
                 } else {
                     video.pause();
+                    video.currentTime = 0;
                 }
             });
-        }, { threshold: 0.8 });
+        }, options);
 
-        document.querySelectorAll('.tiktok-video').forEach(vid => observer.observe(vid));
-
-        // API'den veri çekme simülasyonu (Altyapı hazır)
-        async function fetchTikTokData() {
-            console.log("Bağlanılıyor: " + API_CONFIG.clientKey);
-            // Gerçek TikTok API Endpoint'leri buraya eklenebilir
-        }
-        fetchTikTokData();
+        document.querySelectorAll('.tk-video').forEach(v => observer.observe(v));
     </script>
 </body>
 </html>
