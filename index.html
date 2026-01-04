@@ -3,28 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Sonsuz Çiftli Döngü</title>
+    <title>Reels Pro Loop</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            overflow: hidden;
-            font-family: sans-serif;
-        }
+        body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
 
-        /* Ana Kaydırma Kabı */
         .reels-container {
             width: 100%;
-            max-width: 450px; /* PC'de telefon görünümü */
+            max-width: 450px;
             height: 100vh;
             margin: 0 auto;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
-            -ms-overflow-style: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
@@ -36,19 +27,40 @@
             background: #000;
         }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Ses İkon Animasyonu */
+        .mute-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            z-index: 20;
+            pointer-events: none;
+            transition: transform 0.3s ease-out, opacity 0.3s;
+            opacity: 0;
         }
 
-        .ui-overlay {
+        .mute-overlay.show {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 1;
+        }
+
+        .ui-info {
             position: absolute;
-            bottom: 60px;
+            bottom: 40px;
             left: 20px;
             color: white;
             text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-            pointer-events: none;
             z-index: 10;
         }
     </style>
@@ -58,54 +70,74 @@
 <div class="reels-container" id="reelsContainer">
     <div class="reel">
         <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
-        <div class="ui-overlay"><h3>@video_1</h3><p>Sonsuz akış başladı...</p></div>
+        <div class="mute-overlay">🔊</div>
+        <div class="ui-info"><h3>@video_1</h3><p>Sonsuz akış...</p></div>
     </div>
     <div class="reel">
         <video src="videoplayback2.mp4" loop muted playsinline></video>
-        <div class="ui-overlay"><h3>@video_2</h3><p>İkinci video devrede.</p></div>
+        <div class="mute-overlay">🔊</div>
+        <div class="ui-info"><h3>@video_2</h3><p>Döngü devam ediyor.</p></div>
     </div>
 </div>
 
 <script>
     const container = document.getElementById('reelsContainer');
     const videoSources = ["videoplayback.mp4", "videoplayback2.mp4"];
-    let currentIndex = 0; // Sıradaki videoyu takip eder
+    let currentIndex = 0;
+    let isAudioUnlocked = false;
 
-    // Sonsuz Kaydırma Mantığı
-    container.addEventListener('scroll', () => {
-        // Kullanıcı sona yaklaştığında (son 100 piksel) yeni video ekle
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-            createNewReel();
+    // SESİ AÇMA VE ANİMASYON FONKSİYONU
+    function toggleAudio(v, overlay) {
+        v.muted = !v.muted;
+        overlay.innerText = v.muted ? "🔇" : "🔊";
+        overlay.classList.add('show');
+        
+        setTimeout(() => {
+            overlay.classList.remove('show');
+        }, 500);
+    }
+
+    // İLK DOKUNUŞTA SES KİLİDİNİ KALDIRMA
+    document.addEventListener('click', () => {
+        if (!isAudioUnlocked) {
+            document.querySelectorAll('video').forEach(v => v.muted = false);
+            isAudioUnlocked = true;
+        }
+    }, { once: true });
+
+    // TIKLAMA OLAYI
+    document.addEventListener('click', (e) => {
+        const reel = e.target.closest('.reel');
+        if (reel) {
+            const v = reel.querySelector('video');
+            const overlay = reel.querySelector('.mute-overlay');
+            toggleAudio(v, overlay);
         }
     });
 
-    function createNewReel() {
-        // Sıradaki videoyu seç (1-2-1-2 diye gider)
-        const src = videoSources[currentIndex];
-        currentIndex = (currentIndex + 1) % videoSources.length;
+    // SONSUZ DÖNGÜ EKLEME
+    container.addEventListener('scroll', () => {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
+            const src = videoSources[currentIndex];
+            currentIndex = (currentIndex + 1) % videoSources.length;
 
-        const newReel = document.createElement('div');
-        newReel.className = 'reel';
-        newReel.innerHTML = `
-            <video src="${src}" loop muted playsinline></video>
-            <div class="ui-overlay">
-                <h3>@video_${src.includes('2') ? '2' : '1'}</h3>
-                <p>Aşağı kaydırmaya devam et!</p>
-            </div>
-        `;
-        container.appendChild(newReel);
-        
-        // Yeni eklenen videoyu kontrolcüye (observer) kaydet
-        const video = newReel.querySelector('video');
-        observer.observe(video);
-    }
+            const newReel = document.createElement('div');
+            newReel.className = 'reel';
+            newReel.innerHTML = `
+                <video src="${src}" loop ${isAudioUnlocked ? '' : 'muted'} playsinline></video>
+                <div class="mute-overlay">🔊</div>
+                <div class="ui-info"><h3>@video_${src.includes('2') ? '2' : '1'}</h3><p>Kaydır...</p></div>
+            `;
+            container.appendChild(newReel);
+            observer.observe(newReel.querySelector('video'));
+        }
+    });
 
-    // Videoları ekrana girince oynatan sistem
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const v = entry.target;
             if (entry.isIntersecting) {
-                v.currentTime = 0; // Başa sar
+                v.currentTime = 0;
                 v.play().catch(() => {});
             } else {
                 v.pause();
@@ -113,14 +145,7 @@
         });
     }, { threshold: 0.6 });
 
-    // Mevcut videoları başlat
     document.querySelectorAll('video').forEach(v => observer.observe(v));
-
-    // Tıklayınca sesi aç/kapat
-    document.addEventListener('click', (e) => {
-        const v = e.target.closest('.reel')?.querySelector('video');
-        if (v) v.muted = !v.muted;
-    });
 </script>
 
 </body>
