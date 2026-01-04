@@ -3,61 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Reels Infinite Loop</title>
+    <title>Reels 3 Video Loop</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
 
-        /* Reels Ana Kapsayıcı */
         .reels-container {
-            width: 100%;
-            max-width: 450px;
-            height: 100vh;
-            margin: 0 auto;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            width: 100%; max-width: 450px; height: 100vh; margin: 0 auto;
+            overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
-        .reel {
-            width: 100%;
-            height: 100vh;
-            scroll-snap-align: start;
-            position: relative;
-            background: #000;
-        }
+        .reel { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; background: #000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Ses İkonu Animasyonu */
         .status-icon {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: rgba(0,0,0,0.6);
-            color: white;
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; z-index: 100; opacity: 0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: rgba(0,0,0,0.6); color: white; width: 80px; height: 80px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; z-index: 100; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .status-icon.active { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-
-        .info {
-            position: absolute;
-            bottom: 40px; left: 20px;
-            color: white; z-index: 10;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-            pointer-events: none;
-        }
+        
+        .info { position: absolute; bottom: 40px; left: 20px; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.9); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -67,75 +35,68 @@
 
 <script>
     const container = document.getElementById('reelsDiv');
-    const videoSources = ["reels1.mp4", "reels2.mp4"];
+    const sources = ["reels1.mp4", "reels2.mp4", "reels3.mp4"];
     let currentIndex = 0;
-    let isAudioUnlocked = false;
+    let isUnlocked = false;
 
-    // Yeni Reel Ekleme Fonksiyonu
     function createReel(src) {
         const reel = document.createElement('div');
         reel.className = 'reel';
         reel.innerHTML = `
-            <video src="${src}" loop muted playsinline></video>
+            <video src="${src}" loop muted playsinline preload="auto"></video>
             <div class="status-icon">🔊</div>
-            <div class="info"><h3>@user_reels</h3><p>Sonsuz döngü aktif!</p></div>
+            <div class="info"><h3>@user_reels</h3><p>Video: ${src}</p></div>
         `;
         container.appendChild(reel);
-        const video = reel.querySelector('video');
-        video.load(); // Videoyu önden yükle
-        observer.observe(video);
+        const v = reel.querySelector('video');
+        
+        // Oynatma hatası denetimi
+        v.onerror = () => console.error(src + " yüklenemedi! Dosya adını kontrol et.");
+        v.load(); 
+        observer.observe(v);
     }
 
-    // Video Oynatma/Durdurma Kontrolü
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const video = entry.target;
+            const v = entry.target;
             if (entry.isIntersecting) {
-                video.currentTime = 0;
-                const playPromise = video.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => { console.log("Etkileşim bekleniyor"); });
-                }
+                v.currentTime = 0;
+                v.play().catch(e => console.log("Oynatma bekleniyor..."));
             } else {
-                video.pause();
+                v.pause();
             }
         });
     }, { threshold: 0.6 });
 
-    // Başlangıç için ilk 2 videoyu ekle
-    videoSources.forEach(src => createReel(src));
+    // İlk 3 videoyu yükle
+    sources.forEach(src => createReel(src));
 
-    // Sonsuz Kaydırma Mantığı (Sona gelince yeni video ekle)
-    container.addEventListener('scroll', () => {
+    // Sonsuz Kaydırma (1-2-3-1-2-3...)
+    container.onscroll = () => {
         if (container.scrollTop + container.clientHeight >= container.scrollHeight - 200) {
-            const nextSrc = videoSources[currentIndex % 2];
-            createReel(nextSrc);
+            createReel(sources[currentIndex % 3]);
             currentIndex++;
         }
-    });
+    };
 
-    // Tıklama ve Ses Yönetimi
-    document.addEventListener('click', (e) => {
+    // Tıklama ve Ses Kilidi
+    document.onclick = (e) => {
         const reel = e.target.closest('.reel');
         if (!reel) return;
-
-        const video = reel.querySelector('video');
+        const v = reel.querySelector('video');
         const icon = reel.querySelector('.status-icon');
 
-        // İlk tıklamada tüm sistemin ses engelini kaldır
-        if (!isAudioUnlocked) {
-            document.querySelectorAll('video').forEach(v => v.muted = false);
-            isAudioUnlocked = true;
+        if (!isUnlocked) {
+            document.querySelectorAll('video').forEach(vid => vid.muted = false);
+            isUnlocked = true;
         } else {
-            video.muted = !video.muted;
+            v.muted = !v.muted;
         }
 
-        // İkon Animasyonunu Tetikle
-        icon.innerText = video.muted ? "🔇" : "🔊";
+        icon.innerText = v.muted ? "🔇" : "🔊";
         icon.classList.add('active');
         setTimeout(() => icon.classList.remove('active'), 500);
-    });
+    };
 </script>
-
 </body>
 </html>
