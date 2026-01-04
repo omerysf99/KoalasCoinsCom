@@ -2,121 +2,185 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Scroll Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TikTok Pro Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; }
-        /* Tam ekran video kaydırma konteyneri */
-        .video-stack {
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; }
+        
+        /* Dikey Kaydırma Alanı */
+        .feed-container {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Firefox */
         }
-        .video-container {
+        .feed-container::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+
+        .video-card {
             height: 100vh;
             width: 100%;
             scroll-snap-align: start;
             position: relative;
+            background: #000;
             display: flex;
             justify-content: center;
-            align-items: center;
         }
-        iframe {
-            width: 100%;
-            height: 100%;
-            max-width: 500px; /* Mobil dikey görünüm için */
-        }
-        /* Sağdaki etkileşim butonları */
-        .actions {
+
+        /* Video Alt Bilgileri */
+        .video-info {
             position: absolute;
-            right: 15px;
+            bottom: 80px;
+            left: 15px;
+            right: 80px;
+            z-index: 20;
+            color: white;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+        }
+
+        /* Sağ Etkileşim Paneli */
+        .side-bar {
+            position: absolute;
+            right: 12px;
             bottom: 100px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            z-index: 10;
-        }
-        .action-btn {
-            background: rgba(0,0,0,0.5);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
             align-items: center;
-            color: white;
-            font-size: 20px;
+            gap: 20px;
+            z-index: 30;
+        }
+
+        .side-icon-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .side-icon-btn i {
+            font-size: 30px;
+            margin-bottom: 4px;
+            transition: transform 0.2s;
+        }
+
+        .side-icon-btn i:active { transform: scale(0.8); }
+
+        .profile-pic {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-bottom: 15px;
+        }
+
+        /* TikTok Embed Özelleştirme */
+        .tiktok-embed {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 </head>
 <body>
 
-    <div class="video-stack" id="videoStack">
-        <div class="video-container" id="vid-7591531252507789368">
-            <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/7591531252507789368" data-video-id="7591531252507789368" style="max-width: 605px;min-width: 325px;" > 
-                <section> </section> 
+    <div class="fixed top-6 left-0 w-full flex justify-center gap-6 z-50 text-white font-bold opacity-70">
+        <span class="border-b-2 border-transparent pb-1">Takip Edilen</span>
+        <span class="border-b-2 border-white pb-1">Sizin İçin</span>
+    </div>
+
+    <div class="feed-container" id="feed">
+        <div class="video-card">
+            <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/7591531252507789368" data-video-id="7591531252507789368">
+                <section></section>
             </blockquote>
-            <div class="actions">
-                <div class="action-btn">❤️</div>
-                <div class="action-btn">💬</div>
-                <div class="action-btn">🔗</div>
+
+            <div class="video-info">
+                <h3 class="font-bold text-lg">@kullanici_adi</h3>
+                <p class="text-sm mt-1">Bu video harika bir deneyim sunuyor! 🚀 #viral #tiktokclone</p>
+                <div class="flex items-center gap-2 mt-3">
+                    <i class="fas fa-music text-xs"></i>
+                    <marquee class="w-32 text-xs">Orijinal Ses - Geliştirici Sesi</marquee>
+                </div>
+            </div>
+
+            <div class="side-bar">
+                <img src="https://i.pravatar.cc/100?u=1" class="profile-pic" alt="profil">
+                <div class="side-icon-btn"><i class="fas fa-heart text-white"></i><span class="text-xs text-white">45.2K</span></div>
+                <div class="side-icon-btn"><i class="fas fa-comment-dots text-white"></i><span class="text-xs text-white">1,230</span></div>
+                <div class="side-icon-btn"><i class="fas fa-bookmark text-white"></i><span class="text-xs text-white">İndir</span></div>
+                <div class="side-icon-btn"><i class="fas fa-share text-white"></i><span class="text-xs text-white">Paylaş</span></div>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 w-full p-4 flex justify-around bg-black border-t border-zinc-800 text-white z-20">
-        <i class="fas fa-home text-xl"></i>
-        <i class="fas fa-search text-xl"></i>
-        <div class="bg-white text-black px-4 rounded-lg font-bold">+</div>
-        <i class="fas fa-comment text-xl"></i>
-        <i class="fas fa-user text-xl"></i>
-    </div>
+    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-800 flex justify-around items-center py-3 z-50">
+        <div class="flex flex-col items-center text-white"><i class="fas fa-home text-xl"></i><span class="text-[10px] mt-1">Ana Sayfa</span></div>
+        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-users text-xl"></i><span class="text-[10px] mt-1">Arkadaşlar</span></div>
+        <div class="relative group">
+            <div class="bg-gradient-to-r from-cyan-400 via-white to-pink-500 p-[2px] rounded-lg">
+                <div class="bg-black px-4 py-1 rounded-md"><i class="fas fa-plus text-white"></i></div>
+            </div>
+        </div>
+        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-inbox text-xl"></i><span class="text-[10px] mt-1">Gelen Kutusu</span></div>
+        <div class="flex flex-col items-center text-zinc-500"><i class="fas fa-user text-xl"></i><span class="text-[10px] mt-1">Profil</span></div>
+    </nav>
 
     <script async src="https://www.tiktok.com/embed.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
-        const videoStack = document.getElementById('videoStack');
+        const feed = document.getElementById('feed');
         
-        // Simülasyon için rastgele video ID'leri (Senin ID'nden sonra gelecekler)
-        const nextVideoIds = [
-            '7412345678901234567',
-            '7312345678901234567',
-            '7212345678901234567'
-        ];
+        // Örnek rastgele video havuzu (Sonsuz kaydırma için)
+        const moreVideos = ['7312345678901234567', '7412345678901234567', '7212345678901234567'];
+        let videoCount = 0;
 
-        let loadedIndex = 0;
-
-        // Sonsuz kaydırma simülasyonu
-        videoStack.addEventListener('scroll', () => {
-            if (videoStack.scrollTop + videoStack.clientHeight >= videoStack.scrollHeight - 50) {
-                if (loadedIndex < nextVideoIds.length) {
-                    addNextVideo(nextVideoIds[loadedIndex]);
-                    loadedIndex++;
+        // Sonsuz kaydırma kontrolü
+        feed.addEventListener('scroll', () => {
+            const scrollPos = feed.scrollTop + feed.clientHeight;
+            if (scrollPos >= feed.scrollHeight - 10) {
+                if (videoCount < moreVideos.length) {
+                    addNewVideo(moreVideos[videoCount]);
+                    videoCount++;
                 }
             }
         });
 
-        function addNextVideo(id) {
-            const div = document.createElement('div');
-            div.className = 'video-container';
-            div.innerHTML = `
-                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${id}" data-video-id="${id}" style="max-width: 605px;min-width: 325px;">
+        function addNewVideo(id) {
+            const videoDiv = document.createElement('div');
+            videoDiv.className = 'video-card';
+            videoDiv.innerHTML = `
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${id}" data-video-id="${id}">
                     <section></section>
                 </blockquote>
-                <div class="actions">
-                    <div class="action-btn">❤️</div>
-                    <div class="action-btn">💬</div>
-                    <div class="action-btn">🔗</div>
+                <div class="video-info">
+                    <h3 class="font-bold text-lg">@user_new_${id.slice(-4)}</h3>
+                    <p class="text-sm mt-1">Yeni içerikleri keşfedin! #trend #keşfet</p>
+                </div>
+                <div class="side-bar">
+                    <img src="https://i.pravatar.cc/100?u=${id}" class="profile-pic" alt="profil">
+                    <div class="side-icon-btn"><i class="fas fa-heart text-white"></i><span class="text-xs text-white">12.8K</span></div>
+                    <div class="side-icon-btn"><i class="fas fa-comment-dots text-white"></i><span class="text-xs text-white">850</span></div>
+                    <div class="side-icon-btn"><i class="fas fa-share text-white"></i><span class="text-xs text-white">Paylaş</span></div>
                 </div>
             `;
-            videoStack.appendChild(div);
-            // TikTok scriptini yeni video için tekrar tetikler
+            feed.appendChild(videoDiv);
+            
+            // TikTok scriptini yeni element için tetikle
             if (window.tiktok && window.tiktok.render) {
                 window.tiktok.render();
             }
         }
+
+        // Beğeni butonu efekti
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('fa-heart')) {
+                e.target.classList.toggle('text-red-500');
+                e.target.classList.toggle('text-white');
+            }
+        });
     </script>
 </body>
 </html>
