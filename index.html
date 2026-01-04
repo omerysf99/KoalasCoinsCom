@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 | Ultimate UI</title>
+    <title>YouTube 2026 | Integrated Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #0f0f0f; --text: #f1f1f1; --side-hover: #272727; --pill-bg: #272727; --yt-red: #ff0000; }
@@ -18,190 +18,170 @@
         .search-area { display: flex; align-items: center; width: 45%; gap: 10px; }
         .search-box { flex: 1; display: flex; background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 4px 0 16px; align-items: center; }
         .search-box input { flex: 1; background: transparent; border: none; color: white; height: 40px; outline: none; font-size: 16px; }
-        .search-btn { background: #222; border-left: 1px solid #333; padding: 10px 20px; border-radius: 0 40px 40px 0; cursor: pointer; color: white; }
 
-        /* SIDEBAR (Geliştirildi) */
-        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: calc(100vh - 56px); overflow-y: auto; padding: 12px; border-right: 1px solid rgba(255,255,255,0.1); z-index: 1500; }
-        .side-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 14px; transition: all 0.2s ease; font-weight: 500; }
-        .side-item i { font-size: 20px; width: 24px; text-align: center; }
-        .side-item:hover { background: var(--side-hover); transform: translateX(5px); }
-        .side-item.active { background: var(--side-hover); font-weight: bold; }
-        .side-title { padding: 15px 12px 10px; font-weight: bold; font-size: 16px; color: #fff; }
+        /* SIDEBAR */
+        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: calc(100vh - 56px); overflow-y: auto; padding: 12px; border-right: 1px solid #333; z-index: 1500; }
+        .side-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .side-item:hover, .side-item.active { background: var(--side-hover); }
 
-        /* MAIN CONTENT */
-        #page-home { display: block; }
-        #page-shorts { display: none; margin-left: 240px; height: calc(100vh - 56px); margin-top: 56px; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        /* MAIN PAGES */
+        .page { display: none; margin-left: 240px; margin-top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+        #page-home { display: block; padding: 24px; }
         
-        .pills-container { margin-left: 240px; margin-top: 56px; padding: 12px 24px; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; background: var(--bg); position: sticky; top: 56px; z-index: 1000; }
-        .pill { background: var(--pill-bg); padding: 8px 16px; border-radius: 10px; font-size: 14px; cursor: pointer; white-space: nowrap; transition: 0.3s; border: 1px solid transparent; }
-        .pill.active { background: #fff; color: #000; }
+        /* VIDEO GRID */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px; row-gap: 40px; }
+        .v-card { cursor: pointer; }
+        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; margin-bottom: 12px; }
+        .v-title { font-weight: 500; font-size: 16px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-meta { color: #aaa; font-size: 14px; }
 
-        .main-content { margin-left: 240px; height: calc(100vh - 120px); overflow-y: auto; padding: 0 24px 24px 24px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; row-gap: 40px; }
+        /* WATCH PAGE (İzleme Sayfası Tasarımı) */
+        #page-watch { padding: 24px; display: none; }
+        .watch-container { display: flex; gap: 24px; max-width: 1600px; margin: 0 auto; }
+        .player-area { flex: 3; }
+        .player-box { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+        .player-box iframe { width: 100%; height: 100%; border: none; }
+        .video-info-box { margin-top: 20px; }
+        .recommend-area { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        
+        .rec-card { display: flex; gap: 10px; cursor: pointer; }
+        .rec-thumb { width: 160px; aspect-ratio: 16/9; border-radius: 8px; object-fit: cover; }
+        .rec-title { font-size: 14px; font-weight: 500; line-height: 1.2; }
 
-        /* SHORTS TASARIMI */
-        .short-container { 
-            height: calc(100vh - 56px); width: 100%; display: flex; justify-content: center; align-items: center; 
-            scroll-snap-align: start; position: relative; padding: 20px;
-        }
-        .short-video-card { 
-            width: 400px; height: 90%; background: #000; border-radius: 20px; position: relative; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
-        }
-        .short-video-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-        .short-overlay { position: absolute; bottom: 20px; left: 20px; right: 80px; z-index: 10; }
-        .short-side-btns { position: absolute; bottom: 40px; right: 15px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        .s-btn { background: rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); }
-        .s-btn:hover { background: rgba(255,255,255,0.2); }
-
-        /* VIDEO CARDS */
-        .v-card { cursor: pointer; transition: 0.3s; }
-        .v-thumb-wrap { position: relative; border-radius: 15px; overflow: hidden; aspect-ratio: 16/9; background: #222; }
-        .v-thumb { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
-        .v-details { display: flex; gap: 12px; margin-top: 14px; }
-        .v-avatar { width: 40px; height: 40px; border-radius: 50%; background: #444; flex-shrink: 0; }
-        .v-title { font-size: 16px; font-weight: 600; color: #fff; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-info { font-size: 14px; color: #aaa; margin-top: 5px; }
-
-        @media (max-width: 1000px) { .sidebar { display: none; } .pills-container, .main-content, #page-shorts { margin-left: 0; } }
+        @media (max-width: 1000px) { .sidebar { display: none; } .page { margin-left: 0; } .watch-container { flex-direction: column; } }
     </style>
 </head>
 <body>
 
 <header>
     <div style="display:flex; align-items:center; gap:20px;">
-        <i class="fas fa-bars" style="font-size:20px; cursor:pointer;"></i>
-        <div style="font-weight:bold; font-size:22px; display:flex; align-items:center; gap:5px; cursor:pointer;" onclick="showPage('home')">
-            <i class="fab fa-youtube" style="color:var(--yt-red); font-size:28px;"></i> YouTube<span style="font-weight:300; font-size:14px; margin-top:-10px;">TR</span>
+        <i class="fas fa-bars" style="cursor:pointer;" onclick="toggleSidebar()"></i>
+        <div style="font-weight:bold; font-size:22px; cursor:pointer;" onclick="showHome()">
+            <i class="fab fa-youtube" style="color:red;"></i> YouTube<sup>TR</sup>
         </div>
     </div>
     <div class="search-area">
         <div class="search-box">
-            <input type="text" id="s-input" placeholder="Aramak istediğin her şeyi yaz...">
-            <button class="search-btn" onclick="search()"><i class="fas fa-search"></i></button>
+            <input type="text" id="s-input" placeholder="Ara...">
+            <button style="background:none; border:none; color:white; padding:0 15px; cursor:pointer;" onclick="search()"><i class="fas fa-search"></i></button>
         </div>
-        <div style="background:#181818; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-microphone"></i></div>
     </div>
     <div style="display:flex; gap:20px; align-items:center;">
-        <div style="background:#272727; padding:8px 16px; border-radius:25px; font-size:14px; font-weight:500; cursor:pointer;">+ Oluştur</div>
-        <i class="far fa-bell" style="font-size:20px;"></i>
-        <div style="width:34px; height:34px; border-radius:50%; background: linear-gradient(45deg, #FF512F, #DD2476);"></div>
+        <i class="fas fa-video"></i><i class="far fa-bell"></i>
+        <div style="width:32px; height:32px; border-radius:50%; background: #555;"></div>
     </div>
 </header>
 
-<div class="sidebar">
-    <div class="side-item active" id="btn-home" onclick="showPage('home')"><i class="fas fa-home"></i> Ana Sayfa</div>
-    <div class="side-item" id="btn-shorts" onclick="showPage('shorts')"><i class="fas fa-bolt" style="color:#ff4444;"></i> Shorts</div>
+<div class="sidebar" id="sidebar">
+    <div class="side-item active" onclick="showHome()"><i class="fas fa-home"></i> Ana Sayfa</div>
+    <div class="side-item"><i class="fas fa-bolt"></i> Shorts</div>
     <div class="side-item"><i class="fas fa-layer-group"></i> Abonelikler</div>
     <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-    <div class="side-title">Sen</div>
     <div class="side-item"><i class="fas fa-history"></i> Geçmiş</div>
-    <div class="side-item"><i class="fas fa-play-circle"></i> Oynatma Listeleri</div>
-    <div class="side-item"><i class="fas fa-clock"></i> Daha Sonra İzle</div>
-    <div class="side-item"><i class="fas fa-thumbs-up"></i> Beğenilen Videolar</div>
 </div>
 
-<div id="page-home">
-    <div class="pills-container">
-        <div class="pill active" onclick="pillClick('türkçe genel')">Tümü</div>
-        <div class="pill" onclick="pillClick('oyun videoları')">Oyun</div>
-        <div class="pill" onclick="pillClick('teknoloji incelemeleri')">Teknoloji</div>
-        <div class="pill" onclick="pillClick('türkçe vlog')">Vlog</div>
-        <div class="pill" onclick="pillClick('roblox türkiye')">Roblox</div>
-    </div>
-    <main class="main-content">
-        <div class="video-grid" id="v-grid"></div>
-    </main>
+<div id="page-home" class="page">
+    <div class="video-grid" id="main-grid"></div>
 </div>
 
-<div id="page-shorts">
-    <div id="shorts-container">
+<div id="page-watch" class="page">
+    <div class="watch-container">
+        <div class="player-area">
+            <div class="player-box" id="player-container">
+                </div>
+            <div class="video-info-box">
+                <h1 id="watch-title" style="font-size: 20px; margin-bottom: 10px;">Video Başlığı</h1>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:40px; height:40px; border-radius:50%; background:#444;"></div>
+                        <div id="watch-channel" style="font-weight:bold;">Kanal Adı</div>
+                        <button style="background:white; color:black; border:none; padding:8px 16px; border-radius:20px; font-weight:bold; margin-left:15px;">Abone Ol</button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button style="background:#272727; color:white; border:none; padding:8px 16px; border-radius:20px;"><i class="fas fa-thumbs-up"></i> Beğen</button>
+                        <button style="background:#272727; color:white; border:none; padding:8px 16px; border-radius:20px;"><i class="fas fa-share"></i> Paylaş</button>
+                    </div>
+                </div>
+            </div>
         </div>
+        <div class="recommend-area" id="rec-grid">
+            </div>
+    </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
 
-    // SAYFA GEÇİŞ SİSTEMİ
-    function showPage(page) {
-        document.getElementById('page-home').style.display = page === 'home' ? 'block' : 'none';
-        document.getElementById('page-shorts').style.display = page === 'shorts' ? 'block' : 'none';
-        
-        document.querySelectorAll('.side-item').forEach(el => el.classList.remove('active'));
-        document.getElementById('btn-' + page).classList.add('active');
-
-        if(page === 'shorts') loadShorts();
-    }
-
-    // ANA SAYFA VİDEOLARI
-    async function load(q) {
-        const grid = document.getElementById('v-grid');
-        grid.innerHTML = '<p>Yükleniyor...</p>';
+    // ANA SAYFAYI YÜKLE
+    async function loadHome(query = 'türkçe trend') {
+        const grid = document.getElementById('main-grid');
         try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&relevanceLanguage=tr&type=video&key=${API_KEY}`);
-            const data = await res.json();
-            render(data.items);
-        } catch (e) { grid.innerHTML = 'Kota doldu!'; }
-    }
-
-    function render(items) {
-        const grid = document.getElementById('v-grid');
-        grid.innerHTML = '';
-        items.forEach(i => {
-            grid.innerHTML += `
-                <div class="v-card" onclick="window.open('https://youtube.com/watch?v=${i.id.videoId}')">
-                    <div class="v-thumb-wrap"><img src="${i.snippet.thumbnails.high.url}" class="v-thumb"></div>
-                    <div class="v-details">
-                        <img class="v-avatar" src="https://ui-avatars.com/api/?name=${encodeURIComponent(i.snippet.channelTitle)}&background=random">
-                        <div>
-                            <div class="v-title">${i.snippet.title}</div>
-                            <div class="v-info">${i.snippet.channelTitle}</div>
-                        </div>
-                    </div>
-                </div>`;
-        });
-    }
-
-    // SHORTS SİSTEMİ (Kaydırmalı)
-    async function loadShorts() {
-        const container = document.getElementById('shorts-container');
-        container.innerHTML = '<p style="text-align:center; padding:50px;">Shorts hazırlanıyor...</p>';
-        
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=shorts&relevanceLanguage=tr&type=video&videoDuration=short&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=16&q=${query}&type=video&key=${API_KEY}`);
             const data = await res.json();
             
-            container.innerHTML = '';
+            grid.innerHTML = '';
             data.items.forEach(i => {
-                container.innerHTML += `
-                    <div class="short-container">
-                        <div class="short-video-card" onclick="window.open('https://youtube.com/watch?v=${i.id.videoId}')">
-                            <img src="${i.snippet.thumbnails.high.url}">
-                            <div class="short-overlay">
-                                <div style="font-weight:bold; font-size:18px;">${i.snippet.title}</div>
-                                <div style="font-size:14px; margin-top:10px;">@${i.snippet.channelTitle}</div>
-                            </div>
-                            <div class="short-side-btns">
-                                <div class="s-btn"><i class="fas fa-thumbs-up"></i></div>
-                                <div class="s-btn"><i class="fas fa-thumbs-down"></i></div>
-                                <div class="s-btn"><i class="fas fa-comment"></i></div>
-                                <div class="s-btn"><i class="fas fa-share"></i></div>
-                            </div>
+                grid.innerHTML += `
+                    <div class="v-card" onclick="watchVideo('${i.id.videoId}', '${i.snippet.title.replace(/'/g, "\\'")}', '${i.snippet.channelTitle.replace(/'/g, "\\'")}')">
+                        <img src="${i.snippet.thumbnails.high.url}" class="v-thumb">
+                        <div class="v-title">${i.snippet.title}</div>
+                        <div class="v-meta">${i.snippet.channelTitle}</div>
+                    </div>`;
+            });
+        } catch (e) { grid.innerHTML = 'Hata: Kota dolmuş olabilir.'; }
+    }
+
+    // VİDEO İZLEME MODU (DAHİLİ)
+    function watchVideo(id, title, channel) {
+        // Sayfa geçişi
+        document.getElementById('page-home').style.display = 'none';
+        document.getElementById('page-watch').style.display = 'block';
+        
+        // Player'ı yerleştir
+        document.getElementById('player-container').innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        `;
+        
+        // Bilgileri güncelle
+        document.getElementById('watch-title').innerText = title;
+        document.getElementById('watch-channel').innerText = channel;
+        
+        // Önerilenleri yükle
+        loadRecommendations(title);
+        window.scrollTo(0,0);
+    }
+
+    async function loadRecommendations(q) {
+        const recGrid = document.getElementById('rec-grid');
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&key=${API_KEY}`);
+            const data = await res.json();
+            recGrid.innerHTML = '';
+            data.items.forEach(i => {
+                recGrid.innerHTML += `
+                    <div class="rec-card" onclick="watchVideo('${i.id.videoId}', '${i.snippet.title.replace(/'/g, "\\'")}', '${i.snippet.channelTitle.replace(/'/g, "\\'")}')">
+                        <img src="${i.snippet.thumbnails.medium.url}" class="rec-thumb">
+                        <div>
+                            <div class="rec-title">${i.snippet.title}</div>
+                            <div class="v-meta">${i.snippet.channelTitle}</div>
                         </div>
                     </div>`;
             });
-        } catch (e) { container.innerHTML = 'Kota doldu!'; }
+        } catch (e) {}
     }
 
-    function pillClick(q) {
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        event.target.classList.add('active');
-        load(q);
+    function showHome() {
+        document.getElementById('page-watch').style.display = 'none';
+        document.getElementById('page-home').style.display = 'block';
+        document.getElementById('player-container').innerHTML = ''; // Durdur
     }
 
-    function search() { const val = document.getElementById('s-input').value; if(val) load(val); }
+    function search() {
+        const v = document.getElementById('s-input').value;
+        if(v) { showHome(); loadHome(v); }
+    }
 
-    load('türkçe trend');
+    loadHome();
 </script>
 </body>
 </html>
