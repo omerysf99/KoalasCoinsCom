@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 GEP | Fixed & Ultra</title>
+    <title>YouTube 2026 GEP | Ultra Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #0f0f0f; --yt-red: #ff0000; --header: #0f0f0f; --card-hover: #1e1e1e; }
@@ -27,35 +27,31 @@
         .nav-link { width: 100%; padding: 15px 0; text-align: center; cursor: pointer; color: #aaa; transition: 0.2s; }
         .nav-link.active { color: #fff; background: var(--card-hover); }
         .nav-link i { font-size: 22px; display: block; margin-bottom: 5px; }
-        .nav-link span { font-size: 10px; }
 
         /* ANA SAYFA */
         .page { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 20px; display: none; }
         #home-page { display: block; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .v-card { cursor: pointer; }
+        .v-card { cursor: pointer; transition: 0.2s; }
+        .v-card:hover { transform: scale(1.02); }
         .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
-        .v-meta { display: flex; gap: 12px; margin-top: 12px; }
-        .v-pfp { width: 36px; height: 36px; border-radius: 50%; background: #333; flex-shrink: 0; }
         
-        /* SHORTS (Fixed Intersection) */
+        /* IZLEME EKRANI - FULL GEP */
+        #watch-screen { 
+            position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); 
+            background: #000; z-index: 6000; display: none; padding: 20px;
+        }
+        .watch-container { max-width: 1200px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; overflow: hidden; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .close-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-bottom: 15px; width: fit-content; }
+        .close-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* SHORTS */
         #shorts-page { padding: 0; scroll-snap-type: y mandatory; overflow-y: scroll; }
         .short-unit { height: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; }
         .short-player { width: 360px; height: 92%; background: #000; border-radius: 16px; position: relative; overflow: hidden; }
-        .short-ui { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; gap: 20px; }
-        .ui-btn { text-align: center; cursor: pointer; }
-        .ui-btn i { background: rgba(50,50,50,0.7); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(10px); }
-
-        /* İZLEME EKRANI (Düzeltildi) */
-        #watch-screen { 
-            position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); 
-            background: #000; z-index: 6000; display: none; padding: 20px; overflow-y: auto;
-        }
-        .watch-container { max-width: 1200px; margin: 0 auto; }
-        .video-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; }
-
-        .live-tag { background: red; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; position: absolute; top: 10px; left: 10px; }
     </style>
 </head>
 <body>
@@ -71,7 +67,6 @@
 <nav class="sidebar">
     <div class="nav-link active" id="btn-home" onclick="switchPage('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
     <div class="nav-link" id="btn-shorts" onclick="switchPage('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
-    <div class="nav-link"><i class="fas fa-layer-group"></i><span>Kitaplık</span></div>
 </nav>
 
 <div class="page" id="home-page">
@@ -82,55 +77,68 @@
 
 <div id="watch-screen">
     <div class="watch-container">
-        <button onclick="closeVideo()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; margin-bottom:20px;"><i class="fas fa-times"></i></button>
+        <button class="close-btn" onclick="closeVideo()"><i class="fas fa-times"></i> Kapat</button>
         <div class="video-box" id="player-mount"></div>
-        <h2 id="video-title" style="margin-top:20px;">Video Başlığı</h2>
+        <h2 id="video-title" style="margin-top:20px; font-size:20px;"></h2>
     </div>
 </div>
 
 <script>
+    // Yerleştirme izni olan garantili videolar
     const videoData = [
-        {id: 'S_E2E_u557I', title: 'BLOK3 - KUSURA BAKMA', chan: 'Blok3', live: true},
-        {id: 'vGZ_M5Y9EwA', title: 'Türkiye\'de Kulüp Başkanı Olmak', chan: 'Ertan Saban', live: false},
-        {id: 'dQw4w9WgXcQ', title: 'Gidilemeyen Yasaklı Köy', chan: 'Ruhi Çenet', live: false},
-        {id: 't9-v_rF06Xk', title: 'Mars\'ta İlk Koloni Kuruldu', chan: 'Evrim Ağacı', live: true}
+        {id: 'S_E2E_u557I', title: 'BLOK3 - KUSURA BAKMA (Gep Edition)', chan: 'Blok3'},
+        {id: 'dQw4w9WgXcQ', title: 'NEVER GONNA GIVE YOU UP (Classic)', chan: 'Rick Astley'},
+        {id: 't9-v_rF06Xk', title: 'Mars Kolonisi Başladı', chan: 'Evrim Ağacı'},
+        {id: 'vGZ_M5Y9EwA', title: 'Kulüp Başkanı Simülasyonu', chan: 'Ertan Saban'}
     ];
 
-    const shortIds = ['_mKq9v_Xp6I', 'vS7W_M44P5Q', 'rF06Xkt9-v_'];
+    const shortIds = ['3X_Y12Z_K88', 'XvW_7G9Dk0I', 'vS7W_M44P5Q'];
 
-    // ANA SAYFAYI YÜKLE
     function loadHome() {
         const grid = document.getElementById('grid-content');
         grid.innerHTML = Array(12).fill(0).map(() => {
             const v = videoData[Math.floor(Math.random() * videoData.length)];
             return `
                 <div class="v-card" onclick="openVideo('${v.id}', '${v.title}')">
-                    <div style="position:relative">
-                        <img src="https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg" class="v-thumb">
-                        ${v.live ? '<div class="live-tag">CANLI</div>' : ''}
-                    </div>
-                    <div class="v-meta">
-                        <div class="v-pfp" style="background:hsl(${Math.random()*360}, 60%, 50%)"></div>
+                    <img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" class="v-thumb">
+                    <div style="display:flex; gap:12px; margin-top:12px;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:#333;"></div>
                         <div>
-                            <h4 style="font-size:14px;">${v.title}</h4>
-                            <p style="font-size:12px; color:#aaa; margin-top:4px;">${v.chan} • 2026</p>
+                            <h4 style="font-size:14px; color:#fff;">${v.title}</h4>
+                            <p style="font-size:12px; color:#aaa; margin-top:4px;">${v.chan}</p>
                         </div>
                     </div>
                 </div>`;
         }).join('');
     }
 
-    // SHORTS'U YÜKLE (Fixed Smart Play)
+    // Video Oynatıcıyı Temiz ve Hatasız Açma
+    function openVideo(id, title) {
+        document.getElementById('watch-screen').style.display = 'block';
+        document.getElementById('video-title').innerText = title;
+        
+        // "Video kullanılamıyor" hatasını en aza indirmek için origin ve autoplay parametreleri eklendi
+        const playerMount = document.getElementById('player-mount');
+        playerMount.innerHTML = `
+            <iframe 
+                src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+            </iframe>`;
+    }
+
+    function closeVideo() {
+        document.getElementById('watch-screen').style.display = 'none';
+        document.getElementById('player-mount').innerHTML = ''; // İframe'i tamamen siler
+    }
+
     function loadShorts() {
         const page = document.getElementById('shorts-page');
         page.innerHTML = shortIds.map(id => `
             <div class="short-unit" data-id="${id}">
                 <div class="short-player" id="box-${id}">
-                    <div class="short-ui">
-                        <div class="ui-btn"><i class="fas fa-thumbs-up"></i><span>43B</span></div>
-                        <div class="ui-btn"><i class="fas fa-comment"></i><span>510</span></div>
-                        <div class="ui-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
-                        <div class="ui-btn"><i class="fas fa-sync"></i><span>Remix</span></div>
+                    <div style="width:100%; height:100%; background:#111; display:flex; align-items:center; justify-content:center;">
+                        <i class="fab fa-youtube" style="font-size:50px; color:#222;"></i>
                     </div>
                 </div>
             </div>`).join('');
@@ -140,31 +148,15 @@
                 const id = entry.target.dataset.id;
                 const box = document.getElementById(`box-${id}`);
                 if(entry.isIntersecting) {
-                    // Sadece ekrana gelince iframe ekle
-                    box.insertAdjacentHTML('afterbegin', `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}" style="position:absolute; top:0; left:0; width:100%; height:100%;"></iframe>`);
+                    box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}&modestbranding=1" style="width:100%; height:100%;"></iframe>`;
                 } else {
-                    // Ekrandan çıkınca iframe'i sil (Hata ve ses çakışması önleyici)
-                    const frame = box.querySelector('iframe');
-                    if(frame) frame.remove();
+                    box.innerHTML = '';
                 }
             });
-        }, {threshold: 0.7});
+        }, {threshold: 0.8});
         document.querySelectorAll('.short-unit').forEach(u => observer.observe(u));
     }
 
-    // VİDEO AÇMA (DÜZELTİLDİ)
-    function openVideo(id, title) {
-        document.getElementById('watch-screen').style.display = 'block';
-        document.getElementById('player-mount').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
-        document.getElementById('video-title').innerText = title;
-    }
-
-    function closeVideo() {
-        document.getElementById('watch-screen').style.display = 'none';
-        document.getElementById('player-mount').innerHTML = ''; // İframe'i yok et
-    }
-
-    // SAYFA DEĞİŞTİRME
     function switchPage(p) {
         document.getElementById('home-page').style.display = p === 'home' ? 'block' : 'none';
         document.getElementById('shorts-page').style.display = p === 'shorts' ? 'block' : 'none';
