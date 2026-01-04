@@ -3,210 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 | Ultra Platform</title>
+    <title>Shorts Pro | 2026 Focus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --text: #f1f1f1; --side-hover: #272727; --yt-red: #ff0000; --card-bg: #1e1e1e; }
+        :root { --bg: #000; --text: #fff; --yt-red: #ff0000; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: "Roboto", sans-serif; overflow: hidden; }
 
-        /* HEADER */
-        header { 
-            height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;
-            position: fixed; width: 100%; top: 0; background: var(--bg); z-index: 3000;
+        /* HEADER & SIDEBAR (Sabit) */
+        header { height: 56px; padding: 0 16px; display: flex; align-items: center; position: fixed; width: 100%; top: 0; background: #0f0f0f; z-index: 3000; }
+        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: 100vh; padding: 12px; background: #0f0f0f; z-index: 2000; }
+        .side-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; cursor: pointer; }
+        .side-item.active { background: #272727; font-weight: bold; }
+
+        /* SHORTS FEED (Sadece 1 Tane Odaklanır) */
+        .shorts-wrapper {
+            margin-left: 240px;
+            margin-top: 56px;
+            height: calc(100vh - 56px);
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Tek tek kaydırma */
+            scrollbar-width: none;
         }
-        .search-box { display: flex; background: #121212; border: 1px solid #333; border-radius: 40px; width: 40%; padding: 0 16px; align-items: center; }
-        .search-box input { flex: 1; background: transparent; border: none; color: white; height: 40px; outline: none; }
+        .short-container {
+            height: calc(100vh - 56px);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            scroll-snap-align: start;
+            position: relative;
+        }
 
-        /* SIDEBAR */
-        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: 100vh; padding: 12px; border-right: 1px solid #333; z-index: 2000; transition: 0.3s; background: var(--bg); }
-        .side-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .side-item:hover, .side-item.active { background: var(--side-hover); }
-        .side-item i { font-size: 20px; width: 24px; text-align: center; }
+        .short-player-frame {
+            width: 380px;
+            height: 90%;
+            background: #111;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255,255,255,0.05);
+        }
+        .short-player-frame iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
-        /* PAGES */
-        .page { display: none; margin-left: 240px; margin-top: 56px; height: calc(100vh - 56px); overflow-y: auto; scroll-behavior: smooth; }
-        #page-home { display: block; padding: 20px; }
+        /* Etkileşim Butonları */
+        .short-actions {
+            position: absolute;
+            right: -70px;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .action-btn {
+            background: #272727;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .action-label { font-size: 12px; margin-top: 5px; color: #aaa; }
 
-        /* SHORTS MODE (Dikey Kaydırma) */
-        #page-shorts { display: none; margin-left: 240px; scroll-snap-type: y mandatory; overflow-y: scroll; height: calc(100vh - 56px); }
-        .short-feed-item { height: calc(100vh - 56px); width: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; position: relative; }
-        .short-player { width: 400px; height: 90%; background: #000; border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .short-player iframe { width: 100%; height: 100%; border: none; }
-        .short-ui { position: absolute; right: -60px; bottom: 50px; display: flex; flex-direction: column; gap: 20px; }
-        .short-btn { background: #272727; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        /* WATCH PAGE */
-        #page-watch { display: none; position: fixed; top: 56px; left: 0; width: 100%; height: calc(100vh - 56px); background: var(--bg); z-index: 2500; overflow-y: auto; padding: 20px 5%; }
-        .watch-container { display: grid; grid-template-columns: 1fr 400px; gap: 24px; max-width: 1800px; margin: 0 auto; }
-        .main-video-area iframe { width: 100%; aspect-ratio: 16/9; border-radius: 12px; }
-        .video-meta-pro { margin-top: 15px; }
-        .right-sidebar-pro { display: flex; flex-direction: column; gap: 15px; }
-        .rec-card-pro { display: flex; gap: 10px; cursor: pointer; }
-        .rec-card-pro img { width: 160px; border-radius: 8px; }
-
-        /* GRID */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .v-card { cursor: pointer; }
-        .v-card img { width: 100%; aspect-ratio: 16/9; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; }
-        .v-card:hover img { border-radius: 0; }
-
-        @media (max-width: 1000px) { .sidebar { display: none; } .page, #page-shorts { margin-left: 0; } .watch-container { grid-template-columns: 1fr; } }
+        @media (max-width: 1000px) { .sidebar { display: none; } .shorts-wrapper { margin-left: 0; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; align-items:center; gap:20px;">
-        <i class="fas fa-bars" style="cursor:pointer;" onclick="toggleMenu()"></i>
-        <div style="font-weight:bold; font-size:22px; cursor:pointer;" onclick="changePage('home')">
-            <i class="fab fa-youtube" style="color:red;"></i> YouTube<sup>TR</sup>
-        </div>
-    </div>
-    <div class="search-box">
-        <input type="text" id="search-in" placeholder="Ara...">
-        <i class="fas fa-search" style="cursor:pointer;" onclick="search()"></i>
-    </div>
-    <div style="display:flex; gap:15px; align-items:center;">
-        <i class="fas fa-video"></i><i class="far fa-bell"></i>
-        <div style="width:32px; height:32px; border-radius:50%; background: #555;"></div>
-    </div>
+    <div style="font-weight:bold; font-size:22px;"><i class="fab fa-youtube" style="color:red;"></i> YouTube<sup>TR</sup></div>
 </header>
 
-<div class="sidebar" id="sidebar">
-    <div class="side-item active" id="menu-home" onclick="changePage('home')"><i class="fas fa-home"></i> Ana Sayfa</div>
-    <div class="side-item" id="menu-shorts" onclick="changePage('shorts')"><i class="fas fa-bolt"></i> Shorts</div>
+<div class="sidebar">
+    <div class="side-item"><i class="fas fa-home"></i> Ana Sayfa</div>
+    <div class="side-item active"><i class="fas fa-bolt" style="color:#ff4444;"></i> Shorts</div>
     <div class="side-item"><i class="fas fa-layer-group"></i> Abonelikler</div>
-    <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-    <div class="side-item"><i class="fas fa-history"></i> Geçmiş</div>
 </div>
 
-<div id="page-home" class="page">
-    <div class="video-grid" id="main-grid"></div>
-</div>
-
-<div id="page-shorts" class="page">
-    <div id="shorts-feed"></div>
-</div>
-
-<div id="page-watch" class="page">
-    <div class="watch-container">
-        <div class="main-video-area">
-            <div id="player-frame"></div>
-            <div class="video-meta-pro">
-                <h1 id="watch-title" style="font-size:20px; margin-bottom:10px;">Video Başlığı</h1>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#181818; padding:15px; border-radius:12px;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="width:40px; height:40px; border-radius:50%; background:#444;"></div>
-                        <div id="watch-chan" style="font-weight:bold;">Kanal</div>
-                        <button style="background:white; color:black; border:none; padding:8px 16px; border-radius:20px; font-weight:bold; cursor:pointer;">Abone Ol</button>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button style="background:#333; color:white; border:none; padding:8px 16px; border-radius:20px;"><i class="fas fa-thumbs-up"></i> Beğen</button>
-                        <button style="background:#333; color:white; border:none; padding:8px 16px; border-radius:20px;"><i class="fas fa-share"></i> Paylaş</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="right-sidebar-pro" id="rec-pro"></div>
+<div class="shorts-wrapper" id="shorts-feed">
     </div>
-</div>
 
 <script>
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
+    let currentVideos = [];
 
-    // SAYFA YÖNETİMİ
-    function changePage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        document.querySelectorAll('.side-item').forEach(m => m.classList.remove('active'));
-        
-        document.getElementById('page-' + pageId).style.display = (pageId === 'shorts' ? 'block' : (pageId === 'home' ? 'block' : 'none'));
-        if(pageId === 'watch') document.getElementById('page-watch').style.display = 'block';
-        
-        const menuBtn = document.getElementById('menu-' + pageId);
-        if(menuBtn) menuBtn.classList.add('active');
-
-        if(pageId === 'shorts') loadShorts();
-        if(pageId === 'home') loadHome();
-    }
-
-    // ANA SAYFA
-    async function loadHome(q = 'türkçe popüler') {
-        const grid = document.getElementById('main-grid');
-        grid.innerHTML = 'Yükleniyor...';
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${q}&type=video&key=${API_KEY}`);
-            const data = await res.json();
-            grid.innerHTML = '';
-            data.items.forEach(i => {
-                grid.innerHTML += `
-                    <div class="v-card" onclick="openWatch('${i.id.videoId}', '${i.snippet.title.replace(/'/g,"")}', '${i.snippet.channelTitle}')">
-                        <img src="${i.snippet.thumbnails.high.url}">
-                        <div style="font-weight:bold;">${i.snippet.title}</div>
-                        <div style="color:#aaa; font-size:14px;">${i.snippet.channelTitle}</div>
-                    </div>`;
-            });
-        } catch(e) { grid.innerHTML = 'Kota hatası!'; }
-    }
-
-    // SHORTS (Dikey Kaydırma)
     async function loadShorts() {
         const feed = document.getElementById('shorts-feed');
-        feed.innerHTML = '<p style="text-align:center; padding:20px;">Shorts yükleniyor...</p>';
         try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=shorts&videoDuration=short&type=video&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=shorts&videoDuration=short&type=video&relevanceLanguage=tr&key=${API_KEY}`);
             const data = await res.json();
+            
             feed.innerHTML = '';
-            data.items.forEach(i => {
+            data.items.forEach((item, index) => {
+                const videoId = item.id.videoId;
                 feed.innerHTML += `
-                    <div class="short-feed-item">
-                        <div class="short-player">
-                            <iframe src="https://www.youtube.com/embed/${i.id.videoId}?autoplay=1&loop=1&controls=0"></iframe>
-                            <div class="short-ui">
-                                <div class="short-btn"><i class="fas fa-thumbs-up"></i></div>
-                                <div class="short-btn"><i class="fas fa-thumbs-down"></i></div>
-                                <div class="short-btn"><i class="fas fa-comment"></i></div>
+                    <div class="short-container" id="container-${index}">
+                        <div class="short-player-frame">
+                            <iframe id="video-${index}" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${videoId}"></iframe>
+                            <div class="short-actions">
+                                <div class="action-btn"><i class="fas fa-thumbs-up"></i></div>
+                                <div class="action-label">${Math.floor(Math.random()*500)}B</div>
+                                <div class="action-btn"><i class="fas fa-comment"></i></div>
+                                <div class="action-label">2.4B</div>
+                                <div class="action-btn"><i class="fas fa-share"></i></div>
                             </div>
                         </div>
                     </div>`;
             });
-        } catch(e) { feed.innerHTML = 'Kota doldu.'; }
+
+            setupIntersectionObserver();
+        } catch(e) { console.error("Kota Doldu!"); }
     }
 
-    // İZLEME EKRANI
-    function openWatch(id, title, channel) {
-        changePage('watch');
-        document.getElementById('player-frame').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
-        document.getElementById('watch-title').innerText = title;
-        document.getElementById('watch-chan').innerText = channel;
-        loadRecs(title);
-    }
+    // "Sadece 1 Short İzle" Mekanizması
+    function setupIntersectionObserver() {
+        const options = { threshold: 0.7 }; // Videonun %70'i göründüğünde
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const iframe = entry.target.querySelector('iframe');
+                if (entry.isIntersecting) {
+                    // Odaklanan videoyu oynat
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                } else {
+                    // Ekrandan çıkan videoyu durdur
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                }
+            });
+        }, options);
 
-    async function loadRecs(q) {
-        const recBox = document.getElementById('rec-pro');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${q}&type=video&key=${API_KEY}`);
-        const data = await res.json();
-        recBox.innerHTML = '';
-        data.items.forEach(i => {
-            recBox.innerHTML += `
-                <div class="rec-card-pro" onclick="openWatch('${i.id.videoId}', '${i.snippet.title.replace(/'/g,"")}', '${i.snippet.channelTitle}')">
-                    <img src="${i.snippet.thumbnails.medium.url}">
-                    <div><h4 style="font-size:14px;">${i.snippet.title}</h4><p style="font-size:12px;color:#aaa;">${i.snippet.channelTitle}</p></div>
-                </div>`;
+        document.querySelectorAll('.short-container').forEach(container => {
+            observer.observe(container);
         });
     }
 
-    function toggleMenu() {
-        const sb = document.getElementById('sidebar');
-        sb.style.display = sb.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function search() {
-        const v = document.getElementById('search-in').value;
-        if(v) { changePage('home'); loadHome(v); }
-    }
-
-    loadHome();
+    loadShorts();
 </script>
 </body>
 </html>
