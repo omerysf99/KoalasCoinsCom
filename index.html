@@ -3,197 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan Ultimate</title>
+    <title>PaylaşKazan - YouTube API Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #000; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
         .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        .active-page { display: block; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Reels - TikTok Style Fixed */
-        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; background: #000; }
-        .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; position: relative; }
-        .v-container { height: 100vh; width: 100%; max-width: 500px; position: relative; background: #000; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Cam Efekti */
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .active-page { display: block; }
+        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .video-wrapper { height: 100vh; scroll-snap-align: start; position: relative; background: #000; }
+        .iframe-container { height: 100vh; width: 100%; pointer-events: none; } /* Tıklamaları engellemek için */
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .nav-active { color: #00f2ea; border-top: 2px solid #00f2ea; }
-        
-        /* Progress Bar */
-        .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #00f2ea, #ff0050); width: 65%; }
     </style>
 </head>
 <body>
 
-    <div id="page-home" class="page active-page overflow-y-auto pb-24 px-6">
-        <header class="py-6 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ff0050] to-[#00f2ea] p-0.5">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" class="rounded-full bg-black">
-                </div>
-                <div>
-                    <h2 class="font-bold text-lg">Yazılımcı <i class="fas fa-check-circle text-blue-400 text-xs"></i></h2>
-                    <p class="text-[10px] text-gray-500 font-mono">ID: aw01...l9</p>
-                </div>
-            </div>
-            <i class="fas fa-bell text-xl text-gray-400"></i>
-        </header>
+    <div class="fixed top-0 w-full flex justify-between p-6 z-[1000] pointer-events-none">
+        <div class="glass px-4 py-2 rounded-full pointer-events-auto flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-[10px] font-mono">YT-API ACTIVE</span>
+        </div>
+        <div onclick="toggleMute()" class="glass w-10 h-10 rounded-full flex items-center justify-center pointer-events-auto cursor-pointer">
+            <i id="mute-icon" class="fas fa-volume-up"></i>
+        </div>
+    </div>
 
-        <div class="glass p-6 rounded-[2rem] mb-6 shadow-2xl relative overflow-hidden">
-            <div class="flex justify-between items-start mb-4">
-                <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full uppercase tracking-tighter">Diamond Rank</span>
-                <i class="fab fa-tiktok text-gray-600"></i>
-            </div>
-            <p class="text-gray-400 text-xs uppercase mb-1">Cüzdan Bakiyesi</p>
-            <h1 class="text-4xl font-black mb-4">2,840.00 ₺</h1>
-            <div class="flex gap-2">
-                <button class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm">Cüzdanı Yönet</button>
-                <button class="w-12 bg-white/10 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line"></i></button>
+    <div id="page-home" class="page active-page p-6 overflow-y-auto pb-24">
+        <div class="mt-10 mb-8">
+            <h1 class="text-3xl font-black italic">YOUTUBE<span class="text-[#ff0050]">KAZAN</span></h1>
+            <p class="text-[10px] text-gray-500 font-mono">Anahtar: AIzaSyD...mq1gg</p>
+        </div>
+
+        <div class="glass p-6 rounded-[2rem] mb-6">
+            <p class="text-gray-400 text-xs mb-1">Kazanılan Toplam</p>
+            <h2 id="balance" class="text-4xl font-black">12.45 ₺</h2>
+            <div class="flex gap-2 mt-4">
+                <div class="bg-cyan-500/20 text-cyan-400 text-[10px] px-3 py-1 rounded-full">Level 15</div>
+                <div class="bg-yellow-500/20 text-yellow-400 text-[10px] px-3 py-1 rounded-full">VIP Multiplier x2</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div onclick="navigate('reels')" class="bg-[#ff0050] p-4 rounded-2xl cursor-pointer">
-                <i class="fas fa-bolt mb-2"></i>
-                <p class="font-bold text-sm">Hemen Kazan</p>
-                <p class="text-[9px] opacity-70">İzlediğin her saniye puan!</p>
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="navigate('reels')" class="bg-[#ff0050] p-6 rounded-3xl flex flex-col items-center gap-3 cursor-pointer">
+                <i class="fas fa-play text-2xl"></i>
+                <span class="font-bold">İzle Kazan</span>
             </div>
-            <div onclick="alert('Video Seç')" class="glass p-4 rounded-2xl cursor-pointer">
-                <i class="fas fa-upload mb-2 text-cyan-400"></i>
-                <p class="font-bold text-sm">Video Paylaş</p>
-                <p class="text-[9px] opacity-70">İşlenen her video +100 XP</p>
-            </div>
-        </div>
-
-        <h3 class="font-bold mb-4">Trendler</h3>
-        <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-            <div class="min-w-[140px] h-20 glass rounded-2xl p-3 flex flex-col justify-between">
-                <span class="text-[10px] text-pink-500">#Crypto</span>
-                <span class="text-xs font-bold">+120% Kazanç</span>
-            </div>
-            <div class="min-w-[140px] h-20 glass rounded-2xl p-3 flex flex-col justify-between">
-                <span class="text-[10px] text-cyan-500">#Dance</span>
-                <span class="text-xs font-bold">+80% Kazanç</span>
+            <div onclick="navigate('tasks')" class="glass p-6 rounded-3xl flex flex-col items-center gap-3 cursor-pointer">
+                <i class="fas fa-tasks text-2xl text-cyan-400"></i>
+                <span class="font-bold">Görevler</span>
             </div>
         </div>
     </div>
 
     <div id="page-reels" class="page">
-        <div id="reels-feed"></div>
-        <div id="global-mute-btn" onclick="toggleMute()" class="fixed top-6 right-6 z-[100] w-10 h-10 glass rounded-full flex items-center justify-center">
-            <i id="mute-icon" class="fas fa-volume-mute"></i>
-        </div>
+        <div id="reels-feed">
+            </div>
     </div>
 
-    <div id="page-tasks" class="page overflow-y-auto pb-24 px-6">
-        <h2 class="text-2xl font-black mt-8 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500">Görev Merkezi</h2>
-        <p class="text-gray-500 text-xs mb-8">Görevleri tamamla, seviye atla ve çarpanları aç.</p>
-
-        <div class="glass p-5 rounded-2xl mb-8">
-            <div class="flex justify-between items-end mb-2">
-                <span class="text-xs font-bold">Seviye 12</span>
-                <span class="text-[10px] text-gray-400">840 / 1200 XP</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill"></div></div>
-        </div>
-
+    <div id="page-tasks" class="page p-6 overflow-y-auto pb-24">
+        <h2 class="text-2xl font-bold mb-6 mt-8 italic">ÖDÜL MERKEZİ</h2>
         <div class="space-y-4">
-            <div class="glass p-4 rounded-2xl flex items-center justify-between border-l-4 border-yellow-500">
+            <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-cyan-400">
                 <div>
-                    <p class="text-sm font-bold">Günlük Giriş</p>
-                    <p class="text-[10px] text-gray-500">100 Puan + 10 XP</p>
+                    <p class="text-sm font-bold">YouTube API Bağlantısı</p>
+                    <p class="text-[10px] text-gray-400">Cüzdan güvenliği aktif</p>
                 </div>
-                <button class="bg-yellow-500 text-black text-[10px] px-4 py-2 rounded-lg font-bold">Topla</button>
+                <i class="fas fa-check-circle text-cyan-400"></i>
             </div>
-
-            <div class="glass p-4 rounded-2xl flex items-center justify-between border-l-4 border-cyan-500">
+            <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-yellow-500">
                 <div>
-                    <p class="text-sm font-bold">5 Video Beğen</p>
-                    <p class="text-[10px] text-gray-400">Puan Çarpanı: 1.2x</p>
+                    <p class="text-sm font-bold">10 Video İzle</p>
+                    <p class="text-[10px] text-gray-400">Kazanç: +1.50 ₺</p>
                 </div>
-                <div class="text-cyan-400 text-xs font-bold">2 / 5</div>
-            </div>
-
-            <div class="glass p-4 rounded-2xl flex items-center justify-between opacity-50">
-                <div>
-                    <p class="text-sm font-bold text-pink-500"><i class="fas fa-lock mr-2"></i> Canlı Yayın İzle</p>
-                    <p class="text-[10px]">Seviye 15'te açılır</p>
-                </div>
+                <span class="text-xs font-mono">4/10</span>
             </div>
         </div>
     </div>
 
     <nav class="fixed bottom-0 w-full glass border-t border-white/10 flex justify-around py-4 z-[1000]">
         <div onclick="navigate('home')" class="nav-item flex flex-col items-center gap-1 active nav-active">
-            <i class="fas fa-home text-xl"></i><span class="text-[9px] font-bold">Panel</span>
+            <i class="fas fa-home"></i><span class="text-[9px]">Panel</span>
         </div>
         <div onclick="navigate('reels')" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-play-circle text-xl"></i><span class="text-[9px] font-bold">Reels</span>
+            <i class="fas fa-bolt"></i><span class="text-[9px]">Reels</span>
         </div>
         <div onclick="navigate('tasks')" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-tasks text-xl"></i><span class="text-[9px] font-bold">Görevler</span>
+            <i class="fas fa-coins"></i><span class="text-[9px]">Görevler</span>
         </div>
     </nav>
 
     <script>
-        const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4', 'reels5.mp4'];
-        let isMuted = true;
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+        let nextPageToken = '';
+        let balance = 12.45;
 
         function navigate(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('page-' + id).classList.add('active-page');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
             event.currentTarget.classList.add('nav-active');
-            if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
         }
+
+        // YouTube'dan Video Çekme
+        async function fetchVideos() {
+            const query = 'shorts motivation fitness trend';
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${query}&type=video&videoDuration=short&key=${API_KEY}&pageToken=${nextPageToken}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                nextPageToken = data.nextPageToken;
+                
+                data.items.forEach(item => {
+                    renderVideo(item.id.videoId, item.snippet.title, item.snippet.channelTitle);
+                });
+            } catch (error) {
+                console.error("YouTube API Hatası:", error);
+            }
+        }
+
+        function renderVideo(id, title, channel) {
+            const feed = document.getElementById('reels-feed');
+            const wrap = document.createElement('div');
+            wrap.className = 'video-wrapper';
+            wrap.innerHTML = `
+                <div class="iframe-container">
+                    <iframe width="100%" height="100%" 
+                        src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}&mute=1&modestbranding=1" 
+                        frameborder="0" allow="autoplay; encrypted-media">
+                    </iframe>
+                </div>
+                <div class="absolute inset-0 pointer-events-none flex flex-col justify-end p-6 pb-28">
+                    <div class="flex justify-between items-end pointer-events-auto">
+                        <div class="max-w-[70%]">
+                            <h4 class="font-bold text-white shadow-sm">@${channel}</h4>
+                            <p class="text-xs opacity-80 mt-1 line-clamp-2">${title}</p>
+                        </div>
+                        <div class="flex flex-col gap-5 items-center">
+                            <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl"></i><span class="text-[10px]">Puan+</span></div>
+                            <div class="flex flex-col items-center"><i class="fas fa-share text-2xl"></i><span class="text-[10px]">Kazan</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute top-24 left-6 pointer-events-none bg-black/50 px-3 py-1 rounded-full text-[9px] text-green-400 border border-green-400/30">
+                    <i class="fas fa-sync animate-spin mr-1"></i> Video İşleniyor: +0.05 ₺/sn
+                </div>
+            `;
+            feed.appendChild(wrap);
+            
+            // Puan Artış Simülasyonu
+            setInterval(() => {
+                if(document.getElementById('page-reels').classList.contains('active-page')) {
+                    balance += 0.01;
+                    document.getElementById('balance').innerText = balance.toFixed(2) + " ₺";
+                }
+            }, 5000);
+        }
+
+        // Sonsuz Kaydırma Tetikleyici
+        document.getElementById('reels-feed').addEventListener('scroll', () => {
+            const feed = document.getElementById('reels-feed');
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 100) {
+                fetchVideos();
+            }
+        });
+
+        // Başlat
+        fetchVideos();
 
         function toggleMute() {
-            isMuted = !isMuted;
-            document.getElementById('mute-icon').className = isMuted ? "fas fa-volume-mute" : "fas fa-volume-up";
-            document.querySelectorAll('video').forEach(v => v.muted = isMuted);
+            const icon = document.getElementById('mute-icon');
+            icon.className = icon.className.includes('up') ? "fas fa-volume-mute" : "fas fa-volume-up";
+            alert("YouTube ses politikası gereği, videolara dokunarak sesi açabilirsiniz.");
         }
-
-        function setupReels() {
-            const feed = document.getElementById('reels-feed');
-            [...videoFiles].sort(() => Math.random() - 0.5).forEach(file => {
-                const wrap = document.createElement('div');
-                wrap.className = 'video-wrapper';
-                wrap.innerHTML = `
-                    <div class="v-container">
-                        <video loop muted playsinline src="${file}"></video>
-                        <div class="absolute right-4 bottom-32 flex flex-col gap-6 items-center">
-                            <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl mb-1 text-white/80"></i><span class="text-[10px]">1.2K</span></div>
-                            <div class="flex flex-col items-center"><i class="fas fa-comment text-2xl mb-1 text-white/80"></i><span class="text-[10px]">42</span></div>
-                            <div class="flex flex-col items-center"><i class="fas fa-share text-2xl mb-1 text-white/80"></i><span class="text-[10px]">Paylaş</span></div>
-                        </div>
-                        <div class="absolute bottom-10 left-6">
-                            <h4 class="font-bold flex items-center gap-2">@creators <span class="bg-cyan-500 text-black text-[8px] px-1 rounded">PRO</span></h4>
-                            <p class="text-xs opacity-70 mt-1">İzle ve kazancını katla! 💸</p>
-                        </div>
-                        <div class="absolute top-10 left-6 glass px-3 py-1 rounded-full text-[10px] flex items-center gap-2">
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> API VERIFIED: aw01...l9
-                        </div>
-                    </div>`;
-                feed.appendChild(wrap);
-                observer.observe(wrap.querySelector('video'));
-            });
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                if(e.isIntersecting) {
-                    e.target.play();
-                    e.target.muted = isMuted;
-                    if(e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) setupReels();
-                } else { e.target.pause(); }
-            });
-        }, { threshold: 0.8 });
-
-        setupReels();
     </script>
 </body>
 </html>
