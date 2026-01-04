@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Reels 3 Video Loop</title>
+    <title>Reels 4 Video Loop</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
@@ -22,6 +22,7 @@
             background: rgba(0,0,0,0.6); color: white; width: 80px; height: 80px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 30px; z-index: 100; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
         }
         .status-icon.active { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         
@@ -35,7 +36,8 @@
 
 <script>
     const container = document.getElementById('reelsDiv');
-    const sources = ["reels1.mp4", "reels2.mp4", "reels3.mp4"];
+    // 4 video dosyası buraya tanımlandı
+    const sources = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
     let currentIndex = 0;
     let isUnlocked = false;
 
@@ -45,13 +47,13 @@
         reel.innerHTML = `
             <video src="${src}" loop muted playsinline preload="auto"></video>
             <div class="status-icon">🔊</div>
-            <div class="info"><h3>@user_reels</h3><p>Video: ${src}</p></div>
+            <div class="info"><h3>@reels_master</h3><p>Şu an oynatılan: ${src}</p></div>
         `;
         container.appendChild(reel);
         const v = reel.querySelector('video');
         
-        // Oynatma hatası denetimi
-        v.onerror = () => console.error(src + " yüklenemedi! Dosya adını kontrol et.");
+        // Hata kontrolü ve ön yükleme
+        v.onerror = () => console.error(src + " bulunamadı veya bozuk!");
         v.load(); 
         observer.observe(v);
     }
@@ -61,25 +63,25 @@
             const v = entry.target;
             if (entry.isIntersecting) {
                 v.currentTime = 0;
-                v.play().catch(e => console.log("Oynatma bekleniyor..."));
+                v.play().catch(() => { /* Kullanıcı etkileşimi bekleniyor */ });
             } else {
                 v.pause();
             }
         });
     }, { threshold: 0.6 });
 
-    // İlk 3 videoyu yükle
+    // Başlangıçta 4 videoyu da yükle
     sources.forEach(src => createReel(src));
 
-    // Sonsuz Kaydırma (1-2-3-1-2-3...)
+    // Sonsuz Kaydırma Mantığı (1-2-3-4-1-2-3-4...)
     container.onscroll = () => {
         if (container.scrollTop + container.clientHeight >= container.scrollHeight - 200) {
-            createReel(sources[currentIndex % 3]);
+            createReel(sources[currentIndex % 4]);
             currentIndex++;
         }
     };
 
-    // Tıklama ve Ses Kilidi
+    // Tıklama ile Ses Kontrolü ve Animasyon
     document.onclick = (e) => {
         const reel = e.target.closest('.reel');
         if (!reel) return;
@@ -87,6 +89,7 @@
         const icon = reel.querySelector('.status-icon');
 
         if (!isUnlocked) {
+            // İlk dokunuşta tüm mevcut videoların sesini aç
             document.querySelectorAll('video').forEach(vid => vid.muted = false);
             isUnlocked = true;
         } else {
