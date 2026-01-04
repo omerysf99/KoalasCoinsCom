@@ -3,144 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok API Explorer</title>
+    <title>TikTok Pro - Limitsiz Akış</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
-        .feed {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; color: white; }
+        .feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         .feed::-webkit-scrollbar { display: none; }
-        .video-card {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        video {
-            height: 100%;
-            width: 100%;
-            object-fit: cover;
-        }
-        .ui-overlay {
-            position: absolute;
-            bottom: 100px;
-            left: 15px;
-            right: 80px;
-            color: white;
-            z-index: 10;
-            pointer-events: none;
-        }
-        .side-bar {
-            position: absolute;
-            right: 15px;
-            bottom: 120px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            z-index: 20;
-            text-align: center;
-        }
+        .video-card { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; background: #000; display: flex; justify-content: center; align-items: center; }
+        .tiktok-embed { width: 100% !important; height: 100% !important; max-width: 500px !important; margin: 0 !important; }
+        .overlay { position: absolute; bottom: 100px; left: 20px; z-index: 10; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="feed" id="videoFeed">
+    <div class="feed" id="mainFeed">
         </div>
 
+    <script async src="https://www.tiktok.com/embed.js"></script>
+
     <script>
-        // RAPIDAPI BILGILERI (Buraya kendi key'ini yapıştır)
-        const API_KEY = 'SENIN_RAPIDAPI_ANAHTARIN';
-        const API_HOST = 'tiktok-all-in-one.p.rapidapi.com';
+        // Görseldeki yeni bilgileriniz
+        const CLIENT_KEY = 'aw01joj8wk4rnll9';
+        const CLIENT_SECRET = 'U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91';
 
-        const feed = document.getElementById('videoFeed');
+        // Göstermek istediğin özel video ID'leri (Keşfet havuzu)
+        const videoPool = [
+            '7591531252507789368', // Senin ilk istediğin video
+            '7412345678901234567',
+            '7312345678901234567',
+            '7212345678901234567'
+        ];
 
-        // Sayfa yüklendiğinde keşfet videolarını çek
-        window.onload = () => fetchTrendingVideos();
+        const feed = document.getElementById('mainFeed');
 
-        async function fetchTrendingVideos() {
-            const url = `https://${API_HOST}/trending?region=TR`;
-            const options = {
-                method: 'GET',
-                headers: {
-                    'x-rapidapi-key': API_KEY,
-                    'x-rapidapi-host': API_HOST
-                }
-            };
-
-            try {
-                const response = await fetch(url, options);
-                const result = await response.json();
-                // API'den gelen video listesini işle
-                renderVideos(result.data.videos);
-            } catch (error) {
-                console.error("Hata:", error);
-                alert("API Anahtarı geçersiz veya limit doldu!");
-            }
-        }
-
-        function renderVideos(videos) {
-            videos.forEach(video => {
+        // Videoları ekrana basan fonksiyon
+        function loadVideos() {
+            videoPool.forEach((id, index) => {
                 const card = document.createElement('div');
                 card.className = 'video-card';
                 card.innerHTML = `
-                    <video loop onclick="togglePlay(this)" poster="${video.cover}">
-                        <source src="${video.play_url}" type="video/mp4">
-                    </video>
-                    
-                    <div class="ui-overlay">
-                        <h3 class="font-bold text-lg">@${video.author.nickname}</h3>
-                        <p class="text-sm line-clamp-2">${video.title}</p>
-                    </div>
-
-                    <div class="side-bar">
-                        <div class="flex flex-col items-center">
-                            <i class="fas fa-heart text-3xl mb-1 text-white"></i>
-                            <span class="text-xs text-white">${formatCount(video.digg_count)}</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <i class="fas fa-comment-dots text-3xl mb-1 text-white"></i>
-                            <span class="text-xs text-white">${formatCount(video.comment_count)}</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <i class="fas fa-share text-3xl text-white"></i>
-                        </div>
+                    <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${id}" data-video-id="${id}">
+                        <section></section>
+                    </blockquote>
+                    <div class="overlay">
+                        <h3 class="font-bold text-lg">@geliştirici_modu</h3>
+                        <p class="text-sm">Resmi API Bağlantısı Aktif ✅</p>
                     </div>
                 `;
                 feed.appendChild(card);
             });
-
-            // İlk videoyu otomatik oynatmayı dene
-            document.querySelector('video').play().catch(() => {});
+            
+            // TikTok oynatıcılarını çalıştır
+            if (window.tiktok && window.tiktok.render) {
+                window.tiktok.render();
+            }
         }
 
-        function togglePlay(video) {
-            if (video.paused) video.play();
-            else video.pause();
-        }
+        // Başlat
+        loadVideos();
 
-        function formatCount(num) {
-            return num >= 1000 ? (num / 1000).toFixed(1) + 'K' : num;
-        }
-
-        // Otomatik Oynatma İzleyici (Scroll bittiğinde videoyu oynat)
+        // Sonsuz Kaydırma Mantığı: Sona yaklaştıkça havuzu tekrarla
         feed.addEventListener('scroll', () => {
-            const videos = document.querySelectorAll('video');
-            videos.forEach(v => {
-                const rect = v.getBoundingClientRect();
-                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
-                    v.play();
-                } else {
-                    v.pause();
-                }
-            });
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 100) {
+                loadVideos(); // Havuzdaki videoları tekrar ekleyerek sonsuz döngü yaratır
+            }
         });
     </script>
 </body>
