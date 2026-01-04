@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok API Video Feed</title>
+    <title>TikTok Infinite Loop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #000; margin: 0; color: white; font-family: 'Proxima Nova', sans-serif; overflow: hidden; }
+        body { background-color: #000; margin: 0; color: white; overflow: hidden; }
         
-        /* Ana Akış Konteynırı */
         #main-feed {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        #main-feed::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        #main-feed::-webkit-scrollbar { display: none; }
 
-        /* Video Bölümü */
         .video-wrapper {
             height: 100vh;
             scroll-snap-align: start;
@@ -26,10 +24,8 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            background: #000;
         }
 
-        /* Video Boyut Sabitleme (9:16 Oranı) */
         .video-container {
             height: 95vh;
             width: calc(95vh * 9 / 16);
@@ -37,120 +33,106 @@
             background: #121212;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid #333;
         }
 
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Videoyu kutuya sığdırır, taşanı keser */
+            object-fit: cover;
         }
 
-        /* Sağ Etkileşim Paneli */
         .actions {
             position: absolute;
             right: -60px;
-            bottom: 20px;
+            bottom: 30px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            align-items: center;
+            gap: 20px;
         }
-        .action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-        .action-btn i {
-            font-size: 26px;
-            background: rgba(255,255,255,0.1);
-            padding: 12px;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-        .action-btn i:hover { background: rgba(255,255,255,0.2); }
-        .action-btn span { font-size: 12px; margin-top: 4px; font-weight: 600; }
 
-        /* Alt Bilgi */
         .video-info {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 15px;
-            right: 15px;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
-    <header class="fixed top-0 w-full flex justify-center gap-6 py-4 z-50 bg-gradient-to-b from-black/60 to-transparent">
-        <button class="font-bold text-gray-400">Takip Edilenler</button>
-        <button class="font-bold text-white border-b-2 border-white pb-1">Sizin İçin</button>
-    </header>
-
     <div id="main-feed">
         </div>
 
     <script>
-        // API Anahtarların (Görselden alındı)
         const TIKTOK_CREDENTIALS = {
             clientKey: "aw01joj8wk4rnll9",
             clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
         };
 
-        // Yerel Video Veritabanın
-        const myVideos = [
-            { id: 1, file: 'reels1.mp4', user: 'yazilimci', desc: 'TikTok API entegrasyonu tamamlandı! #coding' },
-            { id: 2, file: 'reels2.mp4', user: 'dev_ahmet', desc: 'Yeni arayüz denemesi nasıl olmuş? 🚀' },
-            { id: 3, file: 'reels3.mp4', user: 'tech_bot', desc: 'Video boyut hatası giderildi. #bugfix' },
-            { id: 4, file: 'reels4.mp4', user: 'creative_mind', desc: 'Full-screen scroll deneyimi.' },
-            { id: 5, file: 'reels5.mp4', user: 'api_master', desc: 'Client Secret: ' + TIKTOK_CREDENTIALS.clientSecret.substring(0,8) + '...' }
+        // Mevcut yerel videoların
+        const baseVideos = [
+            { file: 'reels1.mp4', user: 'yazilimci', desc: 'Sonsuz döngü aktif! #loop' },
+            { file: 'reels2.mp4', user: 'dev_ahmet', desc: 'TikTok API v2 test' },
+            { file: 'reels3.mp4', user: 'tech_bot', desc: 'Kesintisiz video akışı' },
+            { file: 'reels4.mp4', user: 'creative', desc: 'Scroll yaptıkça yenilenir' },
+            { file: 'reels5.mp4', user: 'api_master', desc: 'Key: ' + TIKTOK_CREDENTIALS.clientKey }
         ];
 
         const feed = document.getElementById('main-feed');
 
-        // Arayüzü Oluşturma
-        myVideos.forEach(v => {
+        // Video Elementi Oluşturma Fonksiyonu
+        function createVideoElement(v) {
             const wrapper = document.createElement('div');
             wrapper.className = 'video-wrapper';
             wrapper.innerHTML = `
                 <div class="video-container">
-                    <video loop class="tk-video" src="${v.file}"></video>
-                    
+                    <video loop muted class="tk-video" src="${v.file}"></video>
                     <div class="actions">
-                        <div class="action-btn"><i class="fas fa-heart"></i><span>12.4K</span></div>
-                        <div class="action-btn"><i class="fas fa-comment-dots"></i><span>856</span></div>
-                        <div class="action-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl"></i><span class="text-xs">Like</span></div>
+                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl"></i><span class="text-xs">85</span></div>
                     </div>
-
                     <div class="video-info">
                         <h4 class="font-bold text-lg">@${v.user}</h4>
-                        <p class="text-sm mt-1">${v.desc}</p>
-                        <div class="flex items-center mt-3 text-xs">
-                            <i class="fas fa-music mr-2"></i> Orijinal Ses - ${TIKTOK_CREDENTIALS.clientKey}
-                        </div>
+                        <p class="text-sm">${v.desc}</p>
                     </div>
                 </div>
             `;
             feed.appendChild(wrapper);
-        });
+            
+            // Yeni eklenen videoyu izlemeye al
+            videoObserver.observe(wrapper.querySelector('video'));
+        }
 
-        // AKILLI OYNATMA (Intersection Observer)
-        const options = { threshold: 0.6 };
-        const observer = new IntersectionObserver((entries) => {
+        // Başlangıçta videoları yükle
+        function loadMoreVideos() {
+            baseVideos.forEach(v => createVideoElement(v));
+        }
+
+        // Akıllı Oynatıcı ve Sonsuz Döngü Tetikleyici
+        const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting) {
-                    video.play().catch(e => console.log("Otomatik oynatma için etkileşim gerekiyor."));
+                    video.play();
+                    
+                    // Eğer son videoya gelindiyse (liste sonuna 2 kala) yeni videolar ekle
+                    if (video === feed.lastElementChild.querySelector('video')) {
+                        loadMoreVideos();
+                    }
                 } else {
                     video.pause();
-                    video.currentTime = 0;
                 }
             });
-        }, options);
+        }, { threshold: 0.7 });
 
-        document.querySelectorAll('.tk-video').forEach(v => observer.observe(v));
+        // İlk yükleme
+        loadMoreVideos();
+
+        // Tarayıcı sessiz oynatma kuralı için ilk tıklama desteği
+        window.addEventListener('click', () => {
+            const currentVid = document.querySelector('.tk-video');
+            if(currentVid) currentVid.muted = false;
+        }, { once: true });
     </script>
 </body>
 </html>
