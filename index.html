@@ -25,6 +25,7 @@
         .k-card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #222; margin-bottom: 12px; }
         .k-btn { background: #fff; color: #000; font-weight: 900; border-radius: 14px; padding: 18px; text-align: center; font-size: 14px; text-transform: uppercase; cursor: pointer; border:none; width: 100%; transition: 0.2s; }
         .k-btn:active { transform: scale(0.96); }
+        .k-btn.done { background: #222; color: #555; cursor: default; }
 
         nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 30px; z-index: 1000; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
@@ -35,7 +36,6 @@
         .ex-option { border: 2px solid #222; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer; }
         .ex-option.selected { border-color: #fff; background: #1a1a1a; }
         
-        /* Admin & Gözlem Modu */
         #admin-dash { position: fixed; inset: 0; background: #000; z-index: 15000; display: none; flex-direction: column; padding: 60px 24px; overflow-y: auto; }
         #admin-btn { position: fixed; top: 45px; right: 20px; z-index: 11000; display: none; background: #ff3b3b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; }
         #exit-view-btn { position: fixed; top: 45px; left: 50%; transform: translateX(-50%); z-index: 16000; display: none; background: #007bff; color: #fff; padding: 10px 20px; border-radius: 30px; font-weight: 900; font-size: 12px; border: none; }
@@ -56,7 +56,6 @@
             <h1 class="text-3xl font-black italic uppercase">Admin Central</h1>
             <button onclick="toggleAdmin()" class="text-2xl text-zinc-500">&times;</button>
         </div>
-        <p class="text-[10px] text-zinc-500 font-black mb-4 uppercase">Click user to observe their screen</p>
         <div id="admin-user-list" class="space-y-3"></div>
     </div>
 
@@ -75,6 +74,32 @@
         <button id="mine-btn" class="k-btn" onclick="watchAd()">Watch Ad & Mine</button>
     </div>
 
+    <div id="p-tasks" class="page">
+        <h1 class="text-4xl font-black mb-6 uppercase italic">Tasks</h1>
+        <div class="k-card flex justify-between items-center">
+            <div>
+                <p class="font-black text-sm uppercase">Join Community</p>
+                <p class="text-xs text-green-500 font-bold">+5,000 Koala</p>
+            </div>
+            <button id="task-btn" class="bg-white text-black px-6 py-2 rounded-lg font-black text-xs" onclick="doTask()">GO</button>
+        </div>
+    </div>
+
+    <div id="p-squad" class="page">
+        <h1 class="text-4xl font-black mb-6 uppercase italic">Squad</h1>
+        <div class="k-card text-center mb-6">
+            <p class="text-[10px] text-zinc-500 font-black mb-2 uppercase italic">Your Invite Code</p>
+            <div id="ui-mycode" class="bg-white text-black px-8 py-3 rounded-xl font-mono font-black text-2xl inline-block">...</div>
+        </div>
+        <div id="ref-input-area" class="mb-6">
+            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-4 rounded-xl text-center font-black mb-2 outline-none focus:border-white text-white" placeholder="ENTER FRIEND CODE">
+            <button class="k-btn" onclick="submitRef()">Claim 1000 Bonus</button>
+        </div>
+        <h3 class="text-[10px] text-zinc-500 font-black uppercase mb-3 tracking-widest">Your Referrals</h3>
+        <div id="ui-ref-list" class="space-y-2"></div>
+        <button class="k-btn mt-6 bg-yellow-400" onclick="shareRef()">Invite Friends</button>
+    </div>
+
     <div id="p-wallet" class="page">
         <h1 class="text-4xl font-black mb-6 uppercase italic">Borsa</h1>
         <div class="ex-option" id="ex-binance" onclick="setEx('Binance')">
@@ -91,9 +116,6 @@
         </div>
     </div>
 
-    <div id="p-tasks" class="page"><h1 class="text-4xl font-black italic">TASKS</h1></div>
-    <div id="p-squad" class="page"><h1 class="text-4xl font-black italic">SQUAD</h1></div>
-
     <nav id="main-nav">
         <div class="nav-link active" onclick="tab('earn', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
         <div class="nav-link" onclick="tab('tasks', this)"><i class="fa-solid fa-bolt"></i><span>Tasks</span></div>
@@ -102,8 +124,8 @@
     </nav>
 
 <script>
-    const ADMIN_ID = "8392479231"; // Seninkini yaz!
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Bilgilerini gir!
+    const ADMIN_ID = "8392479231";
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -116,15 +138,15 @@
 
     async function init() {
         if(myId === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
-        
         const doc = await db.collection("users").doc(myId).get();
         if(doc.exists) {
             currentUserData = doc.data();
         } else {
             currentUserData = { 
-                bal: 0, refCode: "KOA-"+Math.floor(Math.random()*1e5),
+                bal: 0, refCode: "KOA-"+Math.floor(10000+Math.random()*89999),
                 exchange: null, name: tg.initDataUnsafe?.user?.first_name || "Koala",
-                nick: tg.initDataUnsafe?.user?.username || "anon"
+                nick: tg.initDataUnsafe?.user?.username || "anon",
+                usedRef: false, referrals: [], taskDone: false
             };
             await save();
         }
@@ -132,17 +154,11 @@
         render(currentUserData);
     }
 
-    // REKLAM VE ÖDÜL (1 Reklam = 1 Koala)
     function watchAd() {
-        if(isObserving) return alert("Gözlem modunda reklam izlenemez!");
-        
+        if(isObserving) return;
         if(window.showAdexora) {
-            window.showAdexora()
-                .then(() => { addReward(1); })
-                .catch(() => { addReward(1); }); // Hata olsa da senin isteğin üzere 1 veriyoruz
-        } else {
-            addReward(1); 
-        }
+            window.showAdexora().then(() => { addReward(1); }).catch(() => { addReward(1); });
+        } else { addReward(1); }
     }
 
     async function addReward(amt) {
@@ -152,27 +168,52 @@
         tg.HapticFeedback.notificationOccurred('success');
     }
 
-    // ADMIN GÖZLEM FONKSİYONLARI
+    async function doTask() {
+        if(isObserving || currentUserData.taskDone) return;
+        tg.openTelegramLink("https://t.me/KoalasCommunity");
+        currentUserData.bal += 5000;
+        currentUserData.taskDone = true;
+        await save();
+        render(currentUserData);
+    }
+
+    async function submitRef() {
+        const input = document.getElementById('ref-input').value.trim();
+        if(isObserving || currentUserData.usedRef || input === currentUserData.refCode) return alert("Hatalı işlem!");
+
+        const snap = await db.collection("users").where("refCode", "==", input).get();
+        if(!snap.empty) {
+            const invId = snap.docs[0].id;
+            const invRef = db.collection("users").doc(invId);
+            await db.runTransaction(async (t) => {
+                const d = await t.get(invRef);
+                const r = d.data().referrals || [];
+                r.push({ name: currentUserData.name, nick: currentUserData.nick });
+                t.update(invRef, { bal: (d.data().bal || 0) + 5000, referrals: r });
+            });
+            currentUserData.usedRef = true;
+            currentUserData.bal += 1000;
+            await save(); render(currentUserData);
+            alert("Referans bonusu eklendi!");
+        } else { alert("Kod bulunamadı!"); }
+    }
+
+    // GÖZLEM
     async function observeUser(userId) {
         isObserving = true;
-        const targetDoc = await db.collection("users").doc(userId).get();
-        if(targetDoc.exists) {
-            const targetData = targetDoc.data();
-            toggleAdmin(); // Paneli kapat
+        const doc = await db.collection("users").doc(userId).get();
+        if(doc.exists) {
+            toggleAdmin();
             document.getElementById('exit-view-btn').style.display = 'block';
-            document.getElementById('mine-btn').style.opacity = '0.3';
-            tab('earn', document.querySelector('.nav-link')); // Ana sayfaya odakla
-            render(targetData);
-            alert("Observing: " + targetData.name);
+            tab('earn', document.querySelector('.nav-link'));
+            render(doc.data());
         }
     }
 
     function exitObserve() {
         isObserving = false;
         document.getElementById('exit-view-btn').style.display = 'none';
-        document.getElementById('mine-btn').style.opacity = '1';
         render(currentUserData);
-        alert("Returned to your account.");
     }
 
     async function toggleAdmin() {
@@ -180,18 +221,15 @@
         dash.style.display = dash.style.display === 'flex' ? 'none' : 'flex';
         if(dash.style.display === 'flex') {
             const list = document.getElementById('admin-user-list');
-            list.innerHTML = "<p class='text-center opacity-50'>Loading Users...</p>";
+            list.innerHTML = "Loading...";
             const snap = await db.collection("users").orderBy('bal', 'desc').limit(30).get();
             list.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
                 const item = document.createElement('div');
-                item.className = "k-card flex justify-between items-center cursor-pointer active:scale-95 transition";
+                item.className = "k-card flex justify-between items-center cursor-pointer";
                 item.onclick = () => observeUser(doc.id);
-                item.innerHTML = `
-                    <div><b class="text-white">${d.name}</b><br><small class="text-zinc-500">@${d.nick}</small></div>
-                    <div class="text-right"><b>${Math.floor(d.bal)} K</b><br><small class="text-blue-500 uppercase font-black">${d.exchange || 'No Ex'}</small></div>
-                `;
+                item.innerHTML = `<div><b>${d.name}</b><br><small>@${d.nick}</small></div><div class="text-right"><b>${Math.floor(d.bal)} K</b></div>`;
                 list.appendChild(item);
             });
         }
@@ -200,8 +238,23 @@
     function render(data) {
         document.getElementById('ui-bal').innerText = Math.floor(data.bal).toLocaleString();
         document.getElementById('ui-ex-tag').innerText = data.exchange || "No Borsa";
+        document.getElementById('ui-mycode').innerText = data.refCode;
         
-        // Borsa sayfasındaki seçili kutucuğu güncelle
+        // Task UI
+        const tBtn = document.getElementById('task-btn');
+        if(data.taskDone) { tBtn.innerText = "DONE"; tBtn.classList.add('done'); tBtn.onclick = null; }
+        else { tBtn.innerText = "GO"; tBtn.classList.remove('done'); tBtn.onclick = doTask; }
+
+        // Squad UI
+        if(data.usedRef) document.getElementById('ref-input-area').style.display = 'none';
+        else document.getElementById('ref-input-area').style.display = 'block';
+
+        const refList = document.getElementById('ui-ref-list');
+        refList.innerHTML = data.referrals?.length ? '' : '<p class="text-center opacity-30 text-xs">No referrals</p>';
+        data.referrals?.forEach(r => {
+            refList.innerHTML += `<div class="k-card py-3 flex justify-between"><span>@${r.nick}</span><span class="text-green-500">+5K</span></div>`;
+        });
+
         document.querySelectorAll('.ex-option').forEach(el => {
             el.classList.toggle('selected', el.id === 'ex-' + data.exchange?.toLowerCase());
         });
@@ -221,6 +274,11 @@
         document.getElementById('p-' + id).classList.add('active');
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         if(el) el.classList.add('active');
+    }
+
+    function shareRef() {
+        const text = `Join Koala Arcade! Use my code for 1000 bonus: ${currentUserData.refCode}`;
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
     }
 
     window.onload = init;
