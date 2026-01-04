@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorts API Fix</title>
+    <title>Shorts Pro - Çakışma Fix</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        .reels-wrapper { width: 100%; max-width: 420px; height: 100vh; margin: auto; position: relative; }
+        /* Tasarımı ve Kaydırma Mekanizmasını Düzenle */
+        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
         
+        .reels-wrapper { 
+            width: 100%; max-width: 420px; height: 100vh; 
+            margin: auto; position: relative; background: #000; 
+        }
+
         .reels-container {
             height: 100%;
             overflow-y: scroll;
-            scroll-snap-type: y mandatory;
+            scroll-snap-type: y mandatory; /* Videoların takılmadan hizalanmasını sağlar */
             scrollbar-width: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
@@ -22,17 +27,32 @@
             scroll-snap-align: start;
             scroll-snap-stop: always;
             position: relative;
-            background: #000;
+            overflow: hidden;
         }
 
-        /* Video tam ekran ve ortalı */
-        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.4); }
+        /* YouTube Videosunu Tam Ekran Yap ve Siyah Boşlukları Kapat */
+        iframe { 
+            width: 100%; height: 100%; 
+            pointer-events: none; 
+            transform: scale(1.5); /* Videoyu büyütüp kenarları kırpar (Shorts hissi) */
+        }
 
-        /* Arayüz */
-        .side-bar { position: absolute; right: 15px; bottom: 100px; z-index: 100; display: flex; flex-direction: column; gap: 20px; }
-        .action-btn { background: rgba(255,255,255,0.15); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); font-size: 24px; }
-        .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
-        .video-info { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 4px black; }
+        /* Etkileşim Katmanları */
+        .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; }
+        
+        .side-bar { 
+            position: absolute; right: 15px; bottom: 100px; 
+            z-index: 100; display: flex; flex-direction: column; gap: 20px; 
+        }
+
+        .action-btn { 
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
+            border-radius: 50%; width: 50px; height: 50px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 24px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-panel { position: absolute; bottom: 30px; left: 15px; z-index: 60; text-shadow: 0 2px 4px black; }
     </style>
 </head>
 <body>
@@ -44,16 +64,12 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Senin API Key'in
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
-    
-    // Güncel Popüler Shorts ID Listesi
     const videoData = [
-        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık Olamazsın' },
-        { id: 'dj7QJ0-VIHc', title: 'Her Yılın En Çok Dinlenen Şarkısı' },
-        { id: 'fkDpX8UXHN4', title: 'Bir Dans Bu Kadar Mı Tatlı Olur?' },
-        { id: 'lB6IgV1kapU', title: 'Begüm Polat - Kahpe' },
-        { id: 'XHYVGwXC4Tc', title: 'Şarkı Yaparken Benim Haller' }
+        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık ✨' },
+        { id: 'dj7QJ0-VIHc', title: 'Türkiye 2024 Hitleri' },
+        { id: 'fkDpX8UXHN4', title: 'Manifest Dans Vibe 🔥' },
+        { id: 'lB6IgV1kapU', title: 'Yeni Hit Şarkı' }
     ];
 
     const players = {};
@@ -70,10 +86,9 @@
                 <div id="player-${v.id}"></div>
                 <div class="side-bar">
                     <div class="action-btn" onclick="event.stopPropagation(); alert('Sana özel beğenildi!')">❤️</div>
-                    <div class="action-btn" onclick="event.stopPropagation(); prompt('Yorumun nedir?')">💬</div>
-                    <div class="action-btn">🔖</div>
+                    <div class="action-btn" onclick="event.stopPropagation(); prompt('Yorumun:')">💬</div>
                 </div>
-                <div class="video-info">
+                <div class="info-panel">
                     <strong>@benim_sitem</strong>
                     <p>${v.title}</p>
                 </div>
@@ -83,71 +98,51 @@
             players[v.id] = new YT.Player(`player-${v.id}`, {
                 videoId: v.id,
                 playerVars: { 
-                    'autoplay': 0, 
-                    'controls': 0, 
-                    'loop': 1, 
-                    'playlist': v.id, 
-                    'mute': 1, 
-                    'modestbranding': 1,
-                    'rel': 0
+                    'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 
+                    'mute': 1, 'modestbranding': 1, 'rel': 0 
                 },
-                events: {
-                    'onReady': (e) => { 
-                        // İlk videoyu başlat
-                        if(index === 0) {
-                            e.target.playVideo();
-                            e.target.unMute();
-                        }
-                    }
-                }
+                events: { 'onReady': (e) => { if(index === 0) e.target.playVideo(); } }
             });
         });
 
-        setupStrictObserver();
+        setupSafeObserver();
     }
 
-    // ÇAKIŞMAYI KESİN ÖNLEYEN GÖZLEMCİ
-    function setupStrictObserver() {
-        const options = { threshold: 0.8 }; // Video %80 ekrana oturunca tetiklenir
-        
+    // ÇAKIŞMAYI ÖNLEYEN GÜVENLİ GÖZLEMCİ
+    function setupSafeObserver() {
+        // threshold: 0.8 -> Videonun %80'i ekrana girmeden işlem yapmaz
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const id = entry.target.getAttribute('data-id');
                 
                 if (entry.isIntersecting) {
-                    // KESİN ÇÖZÜM: Yeni video başlamadan önce DİĞER TÜM videoları durdur
+                    // 1. ADIM: DİĞER TÜM VİDEOLARI KESİN OLARAK DURDUR
                     Object.keys(players).forEach(key => {
                         if (key !== id && players[key].pauseVideo) {
                             players[key].pauseVideo();
-                            players[key].mute();
                         }
                     });
 
-                    // Aktif videoyu oynat
+                    // 2. ADIM: SADECE AKTİF VİDEOYU OYNAT VE SESİNİ AÇ
                     if (players[id] && players[id].playVideo) {
                         players[id].playVideo();
                         players[id].unMute();
                     }
                 } else {
-                    // Ekrandan çıkan videoyu anında durdur
+                    // Ekrandan çıkanı durdur
                     if (players[id] && players[id].pauseVideo) {
                         players[id].pauseVideo();
                     }
                 }
             });
-        }, options);
+        }, { threshold: 0.8 });
 
         document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
     }
 
-    // Tek tıkla Durdur/Başlat
     function handleTap(id) {
         const state = players[id].getPlayerState();
-        if (state === YT.PlayerState.PLAYING) {
-            players[id].pauseVideo();
-        } else {
-            players[id].playVideo();
-        }
+        state === 1 ? players[id].pauseVideo() : players[id].playVideo();
     }
 </script>
 </body>
