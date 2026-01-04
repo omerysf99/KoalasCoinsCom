@@ -3,93 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Pro - Rastgele Keşfet</title>
+    <title>TikTok Pro - Global & Türkçe Akış</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; }
-        .feed-wrapper { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        .feed-wrapper::-webkit-scrollbar { display: none; }
-        .video-card { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; background: #000; display: flex; justify-content: center; align-items: center; }
-        iframe { width: 100%; height: 100%; max-width: 500px; pointer-events: all; }
-        .ui-overlay { position: absolute; bottom: 100px; left: 20px; z-index: 20; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
-        .side-bar { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
-        .tab-active { border-bottom: 3px solid white; color: white; opacity: 1; }
+        /* GENEL TASARIM AYARLARI */
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            overflow: hidden; background: #000; color: white; 
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        /* KAYDIRMA KONTEYNERI */
+        #videoFeed {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        #videoFeed::-webkit-scrollbar { display: none; }
+
+        /* VIDEO KARTI */
+        .video-card {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        .player-wrapper {
+            width: 100%;
+            height: 100%;
+            max-width: 450px;
+            background: #000;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Videoya doğrudan tıklamayı engeller, bizim kontrolleri aktifleştirir */
+        }
+
+        /* UI OVERLAY */
+        .overlay-content {
+            position: absolute;
+            bottom: 100px;
+            left: 16px;
+            right: 80px;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        /* SAG BUTONLAR */
+        .side-bar {
+            position: absolute;
+            right: 12px;
+            bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            z-index: 60;
+        }
+
+        .side-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .side-icon i {
+            font-size: 32px;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            transition: 0.2s;
+        }
+
+        .side-icon i:active { transform: scale(0.8); }
+
+        /* DÖNEN MÜZİK PLAK ANIMASYONU */
+        .music-disc {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #333, #000, #333);
+            border-radius: 50%;
+            border: 8px solid #111;
+            animation: spin 3s linear infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ÇİFT TIKLAMA KALP EFEKTİ */
+        .heart-animation {
+            position: absolute;
+            color: #ff3b5c;
+            font-size: 100px;
+            animation: popOut 0.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) translateY(-100px); opacity: 0; }
+        }
+
+        /* ÜST SEKME */
+        .top-nav {
+            position: fixed;
+            top: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 100;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .active-tab {
+            border-bottom: 3px solid white;
+            padding-bottom: 4px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="fixed top-0 left-0 w-full flex justify-center gap-6 z-50 bg-gradient-to-b from-black/80 to-transparent pt-8 pb-4">
-        <button onclick="changeCategory('kesfet')" id="tab-kesfet" class="tab-active font-bold">Keşfet</button>
-        <button onclick="changeCategory('trend')" id="tab-trend" class="opacity-50 font-bold">Trendler</button>
+    <div class="top-nav">
+        <span class="opacity-60">Takip Edilen</span>
+        <span class="active-tab">Sizin İçin</span>
     </div>
 
-    <div class="feed-wrapper" id="videoFeed"></div>
+    <div id="videoFeed"></div>
 
-    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-4 z-50">
+    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-4 z-[100]">
         <i class="fas fa-home text-xl"></i>
-        <i class="fas fa-compass text-xl text-zinc-500"></i>
+        <i class="fas fa-search text-xl text-zinc-500"></i>
         <div class="bg-white text-black px-4 py-1 rounded-lg font-bold text-xl">+</div>
         <i class="fas fa-comment-dots text-xl text-zinc-500"></i>
         <i class="fas fa-user text-xl text-zinc-500"></i>
     </nav>
 
     <script>
-        // BÜYÜK VİDEO HAVUZU (Buraya istediğin kadar ID ekleyebilirsin)
-        const videoPool = [
-            { id: '7591531252507789368', user: 'ana_video', desc: 'Senin özel seçimin! ✨' },
-            { id: 'kpaFYhxDFl8', user: 'yunuscanpolat', desc: 'Türkiye sahilleri 😂 #bahar' },
-            { id: 'AY4dgEwCVyU', user: 'cerenyaldiz', desc: 'Galatasaray her yerde! 🦁' },
-            { id: 'kz234YDHU-0', user: 'muzik_tr', desc: 'Haftalık Top 10 Şarkı 🎵' },
-            { id: 'k8eQP7b2LDU', user: 'lyrics_tr', desc: 'Bi Dakika - Aynur Aydın 🎤' },
-            { id: 'WzxXh3UMBF0', user: 'spor_aktif', desc: 'Sabah antrenmanı! ⚽' },
-            { id: '3vK7G9mRUXo', user: 'yemek_tr', desc: 'Harika bir tarif! 🍲' },
-            { id: 'l40S0r4tP_s', user: 'gezi_rehber', desc: 'İstanbul sokakları 🇹🇷' },
-            { id: 'v2pG0B9uW18', user: 'komedi_tr', desc: 'Bunu beklemiyordum! 🤣' }
+        // VIDEO HAVUZU (Hata vermeyen, embed izni olan güncel videolar)
+        const videoLibrary = [
+            { id: 'WzxXh3UMBF0', user: 'trend_dans', desc: '2026 Dans Akımları Başladı! 🔥' },
+            { id: 'kz234YDHU-0', user: 'muzik_merkezi', desc: 'Türkçe Top 10 Şarkılar Listesi 🎵' },
+            { id: 'kpaFYhxDFl8', user: 'yunus_can', desc: 'Tatil modu aktif! 😂 #keşfet' },
+            { id: 'AY4dgEwCVyU', user: 'ceren_y', desc: '🦁 Şampiyonluk hatırası! #Galatasaray' },
+            { id: 'k8eQP7b2LDU', user: 'lyrics_tr', desc: 'Aynur Aydın - Bi Dakika 🎤 #müzik' },
+            { id: '3vK7G9mRUXo', user: 'mutfak_sanati', desc: '5 Dakikada Akşam Yemeği 🍲' },
+            { id: 'te6wAKXTito', user: 'tasarim_gunlugu', desc: '2026 Tasarım Trendleri 🎨' },
+            { id: 'XsFDTNvMrxM', user: 'ai_video', desc: 'Yapay Zeka ile Üretildi 🤖' }
         ];
 
         const feed = document.getElementById('videoFeed');
-        let renderedCount = 0;
+        let cardCount = 0;
 
-        // Rastgele Video Seçme Fonksiyonu
+        // Rastgele video getir
         function getRandomVideo() {
-            const randomIndex = Math.floor(Math.random() * videoPool.length);
-            return videoPool[randomIndex];
+            return videoLibrary[Math.floor(Math.random() * videoLibrary.length)];
         }
 
-        // Yeni Video Ekleme (Her seferinde farklı gelir)
-        function appendVideo() {
+        // Yeni video kartı oluştur
+        function createVideoCard() {
             const v = getRandomVideo();
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-                <iframe id="player-${renderedCount}" src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${v.id}" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-                <div class="ui-overlay">
-                    <h3 class="font-bold">@${v.user}</h3>
-                    <p class="text-sm mt-1">${v.desc}</p>
-                </div>
-                <div class="side-bar">
-                    <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl"></i><span class="text-[10px] mt-1">10K</span></div>
-                    <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl"></i><span class="text-[10px] mt-1">800</span></div>
-                    <div class="flex flex-col items-center"><i class="fas fa-share text-2xl"></i></div>
+            const div = document.createElement('div');
+            div.className = 'video-card';
+            div.innerHTML = `
+                <div class="player-wrapper" ondblclick="showHeart(event)">
+                    <iframe id="player-${cardCount}" 
+                            src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&modestbranding=1&rel=0&playlist=${v.id}" 
+                            frameborder="0" 
+                            allow="autoplay; encrypted-media"></iframe>
+                    
+                    <div class="overlay-content">
+                        <h3 class="font-extrabold text-lg">@${v.user}</h3>
+                        <p class="text-sm mt-1 opacity-90">${v.desc}</p>
+                        <div class="flex items-center gap-2 mt-4">
+                            <i class="fas fa-music text-xs"></i>
+                            <marquee class="w-32 text-xs font-medium">Orijinal Ses - ${v.user}</marquee>
+                        </div>
+                    </div>
+
+                    <div class="side-bar">
+                        <div class="side-icon">
+                            <img src="https://i.pravatar.cc/100?u=${v.user}" class="w-12 h-12 rounded-full border-2 border-white mb-4">
+                        </div>
+                        <div class="side-icon" onclick="like(this)">
+                            <i class="fas fa-heart"></i>
+                            <span class="text-[10px] font-bold">14.5K</span>
+                        </div>
+                        <div class="side-icon">
+                            <i class="fas fa-comment-dots"></i>
+                            <span class="text-[10px] font-bold">1,024</span>
+                        </div>
+                        <div class="side-icon">
+                            <i class="fas fa-share"></i>
+                            <span class="text-[10px] font-bold">Paylaş</span>
+                        </div>
+                        <div class="music-disc mt-4">
+                            <div class="w-4 h-4 bg-zinc-800 rounded-full"></div>
+                        </div>
+                    </div>
                 </div>
             `;
-            feed.appendChild(card);
-            renderedCount++;
-            setupObserver(); // Yeni eklenen videoyu izlemeye al
+            feed.appendChild(div);
+            cardCount++;
+            reinitObserver();
         }
 
-        // İlk başta 5 tane rastgele video yükle
-        for(let i=0; i<5; i++) { appendVideo(); }
+        // ÇİFT TIKLAMA KALP EFEKTİ
+        function showHeart(e) {
+            const heart = document.createElement('i');
+            heart.className = 'fas fa-heart heart-animation';
+            heart.style.left = (e.clientX - 50) + 'px';
+            heart.style.top = (e.clientY - 50) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 800);
+        }
 
-        // SADECE EKRANDAKİ VİDEOYU OYNAT
-        function setupObserver() {
-            const observer = new IntersectionObserver((entries) => {
+        function like(el) {
+            const icon = el.querySelector('i');
+            icon.classList.toggle('text-red-500');
+            icon.style.transform = 'scale(1.3)';
+            setTimeout(() => icon.style.transform = 'scale(1)', 200);
+        }
+
+        // AKILLI OYNATMA SİSTEMİ (Intersection Observer)
+        let observer;
+        function reinitObserver() {
+            if (observer) observer.disconnect();
+            
+            observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const iframe = entry.target.querySelector('iframe');
                     if (entry.isIntersecting) {
+                        // Ekrana giren videoyu oynat
                         iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                     } else {
+                        // Ekrandan çıkan videoyu durdur
                         iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
                     }
                 });
@@ -98,20 +267,17 @@
             document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
         }
 
-        // KAYDIRINCA YENİ VİDEO ÇEK (Sonsuz Algoritma)
+        // SONSUZ KAYDIRMA MANTIĞI
         feed.addEventListener('scroll', () => {
-            // Sona 2 video kala yenilerini ekle ki takılma olmasın
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - (window.innerHeight * 2)) {
-                appendVideo();
+            // Sona yaklaştıkça yeni videolar ekle
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 500) {
+                createVideoCard();
             }
         });
 
-        function changeCategory(cat) {
-            alert(cat + " kategorisi için videolar karıştırılıyor...");
-            feed.innerHTML = '';
-            for(let i=0; i<5; i++) { appendVideo(); }
-            feed.scrollTop = 0;
-        }
+        // BAŞLANGIÇTA 10 VİDEO YÜKLE
+        for(let i=0; i<10; i++) { createVideoCard(); }
+
     </script>
 </body>
 </html>
