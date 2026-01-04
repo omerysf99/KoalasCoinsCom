@@ -3,101 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Reels</title>
+    <title>Dikey Reels</title>
     <style>
-        /* Sayfa sıfırlama */
+        * { box-sizing: border-box; }
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            overflow: hidden; /* Dış scrollu engelle */
+            background-color: #000;
+            overflow: hidden;
+            font-family: sans-serif;
         }
 
-        /* Ana konteyner: Kaydırma burada gerçekleşir */
+        /* Ana Konteyner */
         .reels-container {
             width: 100%;
             height: 100vh;
             overflow-y: scroll;
-            scroll-snap-type: y mandatory; /* Dikeyde videolara mıknatıslanma sağlar */
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Firefox için scroll gizle */
         }
+        .reels-container::-webkit-scrollbar { display: none; } /* Chrome/Safari için scroll gizle */
 
-        /* Her bir video bölümü */
+        /* Video Bölümü */
         .reel-video {
             width: 100%;
             height: 100vh;
-            scroll-snap-align: start; /* Kaydırınca videonun başında dur */
+            scroll-snap-align: start;
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: #000;
         }
 
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Videonun ekranı kaplamasını sağlar (Instagram gibi) */
+            object-fit: cover; /* Dikey tam ekran yapar */
         }
 
-        /* Video üzerindeki yazılar (Opsiyonel) */
-        .video-info {
+        /* Video Bilgileri */
+        .overlay {
             position: absolute;
-            bottom: 20px;
-            left: 15px;
+            bottom: 30px;
+            left: 20px;
             color: white;
-            font-family: sans-serif;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Ses Kontrol Butonu */
+        #mute-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
 
+<button id="mute-btn">🔇</button>
+
 <div class="reels-container">
-    
     <div class="reel-video">
-        <video src="reels1.mp4" loop muted playsinline autoplay></video>
-        <div class="video-info">
-            <h3>@kullanici_1</h3>
-            <p>Harika bir manzara! 🌊</p>
+        <video src="reels1.mp4" loop muted playsinline></video>
+        <div class="overlay">
+            <h3>@video_1</h3>
+            <p>Harika dikey görünüm!</p>
         </div>
     </div>
 
     <div class="reel-video">
         <video src="reels2.mp4" loop muted playsinline></video>
-        <div class="video-info">
-            <h3>@kullanici_2</h3>
-            <p>Bugün kod yazıyoruz... 💻</p>
+        <div class="overlay">
+            <h3>@video_2</h3>
+            <p>Ses butonuna basmayı unutma 🔊</p>
         </div>
     </div>
 
     <div class="reel-video">
         <video src="reels3.mp4" loop muted playsinline></video>
-        <div class="video-info">
-            <h3>@kullanici_3</h3>
-            <p>Yeni tarif yayında! 🍕</p>
+        <div class="overlay">
+            <h3>@video_3</h3>
+            <p>Kaydırmaya devam et...</p>
         </div>
     </div>
-
 </div>
 
 <script>
-    // Basit bir otomatik oynatma mantığı:
-    // Sadece ekranda olan videoyu oynatmak performansı artırır.
     const videos = document.querySelectorAll('video');
-    
+    const muteBtn = document.getElementById('mute-btn');
+    let isMuted = true;
+
+    // Ses Açma/Kapama İşlemi
+    muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        videos.forEach(v => v.muted = isMuted);
+        muteBtn.innerText = isMuted ? "🔇" : "🔊";
+    });
+
+    // Kaydırma Takibi (Intersection Observer)
+    const observerOptions = {
+        threshold: 0.6 // Videonun %60'ı göründüğünde
+    };
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            const video = entry.target;
             if (entry.isIntersecting) {
-                entry.target.play();
+                video.play().catch(e => console.log("Oynatma engellendi: ", e));
             } else {
-                entry.target.pause();
-                entry.target.currentTime = 0; // Başa sar
+                video.pause();
+                video.currentTime = 0;
             }
         });
-    }, { threshold: 0.5 }); // Videonun yarısı görünce tetikle
+    }, observerOptions);
 
-    videos.forEach(video => observer.observe(video));
+    videos.forEach(v => observer.observe(v));
 </script>
 
 </body>
