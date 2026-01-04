@@ -3,158 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Projesi - Sonsuz Döngü</title>
+    <title>TikTok Pro - Sync & Airdrop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #000; margin: 0; color: white; overflow: hidden; font-family: sans-serif; }
-        #feed {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
+        body { background-color: #000; margin: 0; color: white; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        #feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
         #feed::-webkit-scrollbar { display: none; }
-        .video-wrapper {
-            height: 100vh;
-            scroll-snap-align: start;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .container-9-16 {
-            height: 100vh;
-            width: calc(100vh * 9 / 16);
-            position: relative;
-            background: #000;
-        }
+        .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
+        .container-9-16 { height: 100vh; width: calc(100vh * 9 / 16); position: relative; background: #000; }
         video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Sağ Menü - Görseldeki Gibi */
-        .side-menu {
-            position: absolute;
-            right: 15px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-            z-index: 50;
-        }
-        .icon-group { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .icon-circle {
-            background: rgba(40, 40, 40, 0.8);
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-        .icon-group span { font-size: 12px; font-weight: bold; }
+        /* Üst Sekmeler */
+        .nav-tabs { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: center; gap: 30px; padding: 20px; z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
+        .tab-item { cursor: pointer; font-weight: bold; opacity: 0.6; transition: 0.3s; border-bottom: 2px solid transparent; padding-bottom: 5px; }
+        .tab-item.active { opacity: 1; border-bottom: 2px solid white; }
+        .tab-item:hover { opacity: 1; }
 
-        /* Alt Bilgi */
-        .bottom-info {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            right: 80px;
-            z-index: 50;
-        }
-
-        /* Ses Kontrolü */
-        .sound-toggle {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            z-index: 100;
-            cursor: pointer;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 50%;
-        }
+        /* Sağ Menü */
+        .side-menu { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; align-items: center; z-index: 50; }
+        .icon-circle { background: rgba(40, 40, 40, 0.8); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 4px; cursor: pointer; }
+        
+        /* Sabit Ses Butonu */
+        .sound-btn { position: absolute; top: 80px; right: 25px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
-    <div class="sound-toggle" onclick="toggleMute()">
-        <i id="mute-icon" class="fas fa-volume-mute text-xl"></i>
+    <div class="nav-tabs">
+        <div class="tab-item active" onclick="switchTab('main')">Ana Sayfa</div>
+        <div class="tab-item" onclick="switchTab('airdrop')">Airdrop <i class="fas fa-parachute-box ml-1 text-yellow-400"></i></div>
     </div>
 
-    <div id="feed">
-        </div>
+    <div class="sound-btn" onclick="toggleMute()">
+        <i id="mute-icon" class="fas fa-volume-mute text-xl w-6 text-center"></i>
+    </div>
+
+    <div id="feed"></div>
 
     <script>
-        // Görseldeki API Bilgileri
-        const TIKTOK_API = {
-            clientKey: "aw01joj8wk4rnll9",
-            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
-        };
-
-        // Klasöründeki Dosyalar
+        // API ve Video Tanımları
+        const TIKTOK_API = { clientKey: "aw01joj8wk4rnll9" };
         const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4', 'reels5.mp4'];
-        let isMuted = true;
+        
+        // SES DURUMU (Global Değişken)
+        let isGlobalMuted = true;
 
         const feed = document.getElementById('feed');
 
-        // Karıştırma (Shuffle) Fonksiyonu
-        function shuffleArray(array) {
-            return array.sort(() => Math.random() - 0.5);
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+        function createVideo(fileName) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            wrapper.innerHTML = `
+                <div class="container-9-16">
+                    <video loop playsinline class="tk-video" src="${fileName}"></video>
+                    <div class="side-menu">
+                        <div class="icon-circle"><i class="fas fa-heart text-red-500"></i></div>
+                        <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
+                        <div class="icon-circle"><i class="fas fa-share"></i></div>
+                    </div>
+                    <div class="absolute bottom-8 left-5 right-10">
+                        <h4 class="font-bold">@dev_user</h4>
+                        <p class="text-sm opacity-90 italic">TikTok API: ${TIKTOK_API.clientKey}</p>
+                    </div>
+                </div>
+            `;
+            feed.appendChild(wrapper);
+            const videoElement = wrapper.querySelector('video');
+            
+            // Yeni video eklenirken anlık ses durumunu zorla uygula
+            videoElement.muted = isGlobalMuted;
+            observer.observe(videoElement);
         }
 
-        // Video Elementi Oluşturma
-        function addVideosToFeed() {
-            const shuffled = shuffleArray([...videoList]);
-            shuffled.forEach(fileName => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'video-wrapper';
-                wrapper.innerHTML = `
-                    <div class="container-9-16">
-                        <video loop muted playsinline class="tk-video" src="${fileName}"></video>
-                        
-                        <div class="side-menu">
-                            <div class="icon-group"><div class="icon-circle"><i class="fas fa-thumbs-up"></i></div><span>931</span></div>
-                            <div class="icon-group"><div class="icon-circle"><i class="fas fa-thumbs-down"></i></div><span>Beğenme</span></div>
-                            <div class="icon-group"><div class="icon-circle"><i class="fas fa-comment-dots"></i></div><span>1</span></div>
-                            <div class="icon-group"><div class="icon-circle"><i class="fas fa-share"></i></div><span>Paylaş</span></div>
-                            <div class="icon-group"><div class="icon-circle"><i class="fas fa-sync"></i></div><span>Remix</span></div>
-                        </div>
-
-                        <div class="bottom-info">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-10 h-10 bg-gradient-to-tr from-yellow-400 to-red-500 rounded-full border-2 border-white"></div>
-                                <span class="font-bold">@LocalUser</span>
-                                <button class="bg-white text-black px-3 py-1 rounded-full text-xs font-bold">Abone ol</button>
-                            </div>
-                            <p class="text-sm">API Key: ${TIKTOK_API.clientKey} ile loop aktif! 🔥</p>
-                        </div>
-                    </div>
-                `;
-                feed.appendChild(wrapper);
-                observer.observe(wrapper.querySelector('video'));
+        function toggleMute() {
+            isGlobalMuted = !isGlobalMuted;
+            const icon = document.getElementById('mute-icon');
+            icon.className = isGlobalMuted ? "fas fa-volume-mute text-xl w-6 text-center" : "fas fa-volume-up text-xl w-6 text-center";
+            
+            // Tüm videoların sesini anında güncelle
+            document.querySelectorAll('.tk-video').forEach(v => {
+                v.muted = isGlobalMuted;
             });
         }
 
-        // Ses Kontrolü
-        function toggleMute() {
-            isMuted = !isMuted;
-            const icon = document.getElementById('mute-icon');
-            icon.className = isMuted ? "fas fa-volume-mute text-xl" : "fas fa-volume-up text-xl";
-            document.querySelectorAll('.tk-video').forEach(v => v.muted = isMuted);
+        function switchTab(tab) {
+            if(tab === 'airdrop') {
+                alert("Airdrop sekmesine hoş geldin! Yakında buraya cüzdan bağlama eklenecek.");
+            }
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.toggle('active', el.innerText.toLowerCase().includes(tab)));
         }
 
-        // Otomatik Oynatma ve Sonsuz Döngü Tetikleyici
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting) {
-                    video.play();
-                    // Liste sonuna yaklaşıldıysa yeni karışık videolar ekle
+                    // Oynatmadan hemen önce ses durumunu tekrar kontrol et (Tarayıcı hatasını önler)
+                    video.muted = isGlobalMuted;
+                    video.play().catch(e => console.log("Etkileşim bekleniyor..."));
+                    
                     if (video === feed.lastElementChild.querySelector('video')) {
-                        addVideosToFeed();
+                        loadMore();
                     }
                 } else {
                     video.pause();
@@ -162,12 +113,16 @@
             });
         }, { threshold: 0.8 });
 
-        // Başlat
-        addVideosToFeed();
+        function loadMore() {
+            shuffle([...videoList]).forEach(file => createVideo(file));
+        }
 
-        // Tarayıcı ses engeli için ilk tıkta sesi açma opsiyonu
+        // Başlat
+        loadMore();
+
+        // Tarayıcı Kilidini Kırmak İçin: İlk tıklamada her şeyi senkronize et
         window.addEventListener('click', () => {
-            // İlk etkileşimde istersen sesi açabilirsin
+            document.querySelectorAll('.tk-video').forEach(v => v.muted = isGlobalMuted);
         }, { once: true });
     </script>
 </body>
