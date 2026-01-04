@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Reels 4 Video Loop</title>
+    <title>Reels Pro Control</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
 
         .reels-container {
             width: 100%; max-width: 450px; height: 100vh; margin: 0 auto;
-            overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
+            overflow-y: scroll;
+            /* Yavaşlatma ve kontrol için snap-type'ı JS ile yöneteceğiz */
+            scrollbar-width: none;
+            scroll-behavior: smooth; 
         }
         .reels-container::-webkit-scrollbar { display: none; }
 
-        .reel { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; background: #000; }
+        .reel { width: 100%; height: 100vh; position: relative; background: #000; flex-shrink: 0; }
         video { width: 100%; height: 100%; object-fit: cover; }
 
         .status-icon {
@@ -22,7 +25,6 @@
             background: rgba(0,0,0,0.6); color: white; width: 80px; height: 80px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 30px; z-index: 100; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
         }
         .status-icon.active { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         
@@ -36,25 +38,21 @@
 
 <script>
     const container = document.getElementById('reelsDiv');
-    // 4 video dosyası buraya tanımlandı
     const sources = ["reels1.mp4", "reels2.mp4", "reels3.mp4", "reels4.mp4"];
-    let currentIndex = 0;
-    let isUnlocked = false;
+    let globalMuted = true; // Başlangıçta ses kapalı
+    let isScrolling = false;
 
     function createReel(src) {
         const reel = document.createElement('div');
         reel.className = 'reel';
         reel.innerHTML = `
             <video src="${src}" loop muted playsinline preload="auto"></video>
-            <div class="status-icon">🔊</div>
-            <div class="info"><h3>@reels_master</h3><p>Şu an oynatılan: ${src}</p></div>
+            <div class="status-icon">🔇</div>
+            <div class="info"><h3>@reels_pro</h3><p>Ses Durumu Korunuyor</p></div>
         `;
         container.appendChild(reel);
         const v = reel.querySelector('video');
-        
-        // Hata kontrolü ve ön yükleme
-        v.onerror = () => console.error(src + " bulunamadı veya bozuk!");
-        v.load(); 
+        v.load();
         observer.observe(v);
     }
 
@@ -62,43 +60,59 @@
         entries.forEach(entry => {
             const v = entry.target;
             if (entry.isIntersecting) {
+                // Kaydığında ses durumunu koru
+                v.muted = globalMuted; 
                 v.currentTime = 0;
-                v.play().catch(() => { /* Kullanıcı etkileşimi bekleniyor */ });
+                v.play().catch(() => {});
             } else {
                 v.pause();
             }
         });
     }, { threshold: 0.6 });
 
-    // Başlangıçta 4 videoyu da yükle
+    // İlk 4 videoyu yükle
     sources.forEach(src => createReel(src));
 
-    // Sonsuz Kaydırma Mantığı (1-2-3-4-1-2-3-4...)
-    container.onscroll = () => {
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 200) {
-            createReel(sources[currentIndex % 4]);
-            currentIndex++;
-        }
-    };
+    // Manuel Kaydırma Kontrolü (Hız Sınırlandırıcı)
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (isScrolling) return;
 
-    // Tıklama ile Ses Kontrolü ve Animasyon
+        isScrolling = true;
+        const direction = e.deltaY > 0 ? 1 : -1;
+        container.scrollBy({ top: window.innerHeight * direction, behavior: 'smooth' });
+
+        // 2 saniye boyunca yeni kaydırmayı engelle
+        setTimeout(() => { isScrolling = false; }, 2000); 
+    }, { passive: false });
+
+    // Tıklama ve Küresel Ses Kontrolü
     document.onclick = (e) => {
         const reel = e.target.closest('.reel');
         if (!reel) return;
         const v = reel.querySelector('video');
         const icon = reel.querySelector('.status-icon');
 
-        if (!isUnlocked) {
-            // İlk dokunuşta tüm mevcut videoların sesini aç
-            document.querySelectorAll('video').forEach(vid => vid.muted = false);
-            isUnlocked = true;
-        } else {
-            v.muted = !v.muted;
-        }
+        // Küresel ses durumunu tersine çevir
+        globalMuted = !globalMuted;
+        
+        // Tüm videolara anlık uygula
+        document.querySelectorAll('video').forEach(vid => {
+            vid.muted = globalMuted;
+        });
 
-        icon.innerText = v.muted ? "🔇" : "🔊";
+        icon.innerText = globalMuted ? "🔇" : "🔊";
         icon.classList.add('active');
         setTimeout(() => icon.classList.remove('active'), 500);
+    };
+
+    // Sonsuz Ekleme
+    let scrollIndex = 0;
+    container.onscroll = () => {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
+            createReel(sources[scrollIndex % 4]);
+            scrollIndex++;
+        }
     };
 </script>
 </body>
