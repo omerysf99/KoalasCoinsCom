@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA KOMBAT | PRO</title>
+    <title>KOALA KOMBAT</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -17,142 +17,147 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* Sayfa Yapısı */
-        .page { display: none; height: 100vh; padding: 20px 20px 100px; overflow-y: auto; }
+        .page { display: none; height: 100vh; padding: 15px 15px 100px; overflow-y: auto; }
         .page.active { display: block; }
 
-        /* İstatistik Kartları */
-        .stat-card { background: var(--dark-card); border-radius: 12px; padding: 8px; border: 1px solid var(--border); text-align: center; }
+        /* Üst Panel */
+        .stat-card { background: var(--dark-card); border-radius: 12px; padding: 6px; border: 1px solid var(--border); text-align: center; }
         
-        /* Koala Butonu (Merkezi) */
-        .koala-circle {
-            position: relative; width: 260px; height: 260px; margin: 20px auto;
-            border-radius: 50%; background: radial-gradient(circle, #2d333b 0%, #000 100%);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 60px rgba(245, 187, 95, 0.1); border: 6px solid var(--border);
-            transition: transform 0.05s;
-        }
-        .koala-circle:active { transform: scale(0.92); }
-        .koala-circle img { width: 90%; height: 90%; border-radius: 50%; object-fit: cover; pointer-events: none; }
+        /* Coin İkonu & Bakiye */
+        .balance-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; }
+        .usdt-logo { width: 35px; height: 35px; filter: drop-shadow(0 0 5px #26a17b); }
 
-        /* İlerleme Çubukları */
-        .bar-bg { width: 100%; height: 8px; background: #111; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        /* Merkez Koala (Görsel Odaklı) */
+        .koala-circle {
+            position: relative; width: 250px; height: 250px; margin: 15px auto;
+            border-radius: 50%; background: radial-gradient(circle, #333 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center;
+            border: 10px solid #2d333b; transition: transform 0.05s;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .koala-circle img { width: 95%; height: 95%; border-radius: 50%; object-fit: cover; }
+        .koala-circle:active { transform: scale(0.95); }
+
+        /* Progress Barlar */
+        .bar-container { width: 100%; height: 8px; background: #111; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
         .bar-fill-blue { height: 100%; background: #3b82f6; width: 0%; transition: width 0.3s; }
-        .bar-fill-orange { height: 100%; background: linear-gradient(90deg, #f5bb5f, #ff8c00); width: 100%; transition: width 0.2s; }
+        .bar-fill-orange { height: 100%; background: #f5bb5f; width: 100%; }
 
         /* Navigasyon */
-        nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; 
-            background: #0d0d0d; border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; z-index: 1000;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 10px; font-weight: bold; transition: 0.2s; }
-        .nav-item.active { color: #fff; transform: translateY(-3px); }
-        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: #0d0d0d; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 15px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 10px; font-weight: bold; }
+        .nav-item.active { color: #fff; }
 
-        /* Kartlar (Mine & Friends) */
-        .upgrade-card { background: var(--dark-card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; margin-bottom: 10px; }
+        /* Upgrade Kartları */
+        .card-item { background: var(--dark-card); border: 1px solid var(--border); border-radius: 15px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         
-        /* Tap Animasyonu */
-        .tap-pop { position: absolute; color: white; font-size: 28px; font-weight: 900; pointer-events: none; animation: popUp 0.8s forwards; }
-        @keyframes popUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        /* Efektler */
+        .tap-pop { position: absolute; color: white; font-size: 24px; font-weight: 900; pointer-events: none; animation: popUp 0.8s forwards; }
+        @keyframes popUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div id="p-home" class="page active">
-        <div class="grid grid-cols-3 gap-2 mb-4">
-            <div class="stat-card"><p class="text-[8px] text-zinc-500 uppercase">Tık Başı</p><p class="text-xs font-black text-yellow-400" id="ui-tık">+1</p></div>
-            <div class="stat-card"><p class="text-[8px] text-zinc-500 uppercase">Seviye</p><p class="text-xs font-black text-blue-400">Bronze</p></div>
-            <div class="stat-card"><p class="text-[8px] text-zinc-500 uppercase">Saatlik Kâr</p><p class="text-xs font-black text-green-400" id="ui-pps">0</p></div>
+        <div class="grid grid-cols-3 gap-2">
+            <div class="stat-card">
+                <p class="text-[8px] text-zinc-500 uppercase">Tık Başı</p>
+                <p class="text-xs font-black text-yellow-400" id="ui-tık">+1</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-[8px] text-zinc-500 uppercase">Seviye</p>
+                <p class="text-xs font-black text-blue-400">Bronze</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-[8px] text-zinc-500 uppercase">Saatlik Kâr</p>
+                <p class="text-xs font-black text-green-400" id="ui-pps">+0</p>
+            </div>
         </div>
 
-        <div class="text-center px-4">
-            <div class="flex items-center justify-center gap-2 mb-1">
-                <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-8 h-8">
-                <h1 id="ui-bal" class="text-5xl font-black italic">0</h1>
+        <div class="balance-container">
+            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="usdt-logo">
+            <h1 id="ui-bal" class="text-5xl font-black italic">0</h1>
+        </div>
+
+        <div class="px-2 mb-4">
+            <div class="flex justify-between text-[9px] font-bold text-zinc-500 mb-1">
+                <span>LVL 1</span>
+                <span id="ui-lvl-text">0 / 100M</span>
             </div>
-            <div class="flex justify-between items-center text-[10px] font-bold text-zinc-500 mb-1"><span>LVL 1</span><span id="ui-lvl-text">0 / 100M</span></div>
-            <div class="bar-bg"><div id="lvl-bar" class="bar-fill-blue"></div></div>
+            <div class="bar-container"><div id="lvl-bar" class="bar-fill-blue"></div></div>
         </div>
 
         <div class="koala-circle" id="tap-btn">
             <img src="coinkoala.jpg" alt="Koala">
         </div>
 
-        <div class="flex justify-center mb-6">
-            <button class="bg-gradient-to-r from-orange-400 to-orange-600 text-black font-black px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg" onclick="activateBoost()">
+        <div class="flex justify-center my-4">
+            <button class="bg-[#f5bb5f] text-black font-black px-8 py-2 rounded-xl text-sm shadow-[0_0_15px_rgba(245,187,95,0.4)] flex items-center gap-2" onclick="activateBoost()">
                 <i class="fa-solid fa-rocket"></i> BOOST X2
             </button>
         </div>
 
-        <div class="mt-4 px-2">
-            <div class="flex justify-between items-center mb-2">
-                <div class="flex items-center gap-1 font-black text-lg"><i class="fa-solid fa-bolt text-yellow-400"></i><span id="ui-energy">1000 / 1000</span></div>
-                <span class="text-xs font-bold text-zinc-500">@<span id="ui-handle">CEO</span></span>
+        <div class="mt-8">
+            <div class="flex justify-between items-center mb-1">
+                <div class="flex items-center gap-1 font-black text-lg">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i>
+                    <span id="ui-energy">1000 / 1000</span>
+                </div>
+                <span class="text-[10px] text-zinc-500 font-bold" id="ui-handle">@Koala</span>
             </div>
-            <div class="bar-bg"><div id="energy-bar" class="bar-fill-orange"></div></div>
+            <div class="bar-container"><div id="energy-bar" class="bar-fill-orange" style="width: 100%;"></div></div>
         </div>
     </div>
 
     <div id="p-mine" class="page">
-        <h1 class="text-2xl font-black mb-4 italic">Borsa Geliştir</h1>
-        <div class="space-y-3">
-            <div class="upgrade-card flex justify-between items-center" onclick="buyUpgrade(1000, 250)">
+        <h1 class="text-2xl font-black mb-6 italic">Geliştirmeler</h1>
+        <div id="mine-list">
+            <div class="card-item" onclick="buyUpgrade('Madenci Koala', 500, 100)">
                 <div>
-                    <h3 class="font-bold">Koala Madenciliği</h3>
-                    <p class="text-[10px] text-zinc-500">Saatlik: <span class="text-green-400">+250 🪙</span></p>
+                    <h3 class="font-bold text-sm">Madenci Koala</h3>
+                    <p class="text-[10px] text-green-400">+100/saat</p>
                 </div>
-                <button class="bg-zinc-800 px-4 py-2 rounded-xl text-xs font-black border border-zinc-700">1,000</button>
+                <button class="bg-zinc-800 px-4 py-2 rounded-xl text-xs font-black">500 🪙</button>
             </div>
-            <div class="upgrade-card flex justify-between items-center opacity-50">
+            <div class="card-item" onclick="buyUpgrade('Borsa Uzmanı', 2000, 450)">
                 <div>
-                    <h3 class="font-bold">Koala Borsa Listeleme</h3>
-                    <p class="text-[10px] text-zinc-500">Kilitli: Seviye 5</p>
+                    <h3 class="font-bold text-sm">Borsa Uzmanı</h3>
+                    <p class="text-[10px] text-green-400">+450/saat</p>
                 </div>
-                <i class="fa-solid fa-lock"></i>
+                <button class="bg-zinc-800 px-4 py-2 rounded-xl text-xs font-black">2,000 🪙</button>
             </div>
         </div>
-    </div>
-
-    <div id="p-friends" class="page text-center">
-        <i class="fa-solid fa-users text-6xl text-blue-500 mb-4"></i>
-        <h1 class="text-2xl font-black mb-2">Arkadaşlarını Davet Et!</h1>
-        <p class="text-zinc-500 text-sm mb-8">Her arkadaşın için 50.000 koala kazan.</p>
-        <button class="w-full bg-blue-600 py-4 rounded-2xl font-black mb-4" onclick="invite()">DAVET ET</button>
-        <div class="upgrade-card text-left">
-            <p class="text-xs font-bold text-zinc-400">Davet Edilenler (0)</p>
-            <p class="text-sm py-4 text-center text-zinc-600 italic">Henüz kimseyi davet etmedin.</p>
-        </div>
-    </div>
-
-    <div id="p-airdrop" class="page text-center flex flex-col justify-center">
-        <div class="mb-6">
-            <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" class="w-20 h-20 mx-auto mb-4 animate-bounce">
-            <h1 class="text-3xl font-black mb-2">Listeleme Yakında</h1>
-            <p class="text-zinc-500">Cüzdan bağlama ve çekim işlemleri çok yakında açılacak. Koalaları biriktirmeye devam et!</p>
-        </div>
-        <button class="bg-zinc-800 text-zinc-500 font-bold py-4 rounded-2xl cursor-not-allowed">CÜZDAN BAĞLA (YAKINDA)</button>
     </div>
 
     <nav>
         <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Giriş</div>
         <div class="nav-item" onclick="nav('mine', this)"><i class="fa-solid fa-pickaxe"></i>Geliştir</div>
-        <div class="nav-item" onclick="nav('friends', this)"><i class="fa-solid fa-users"></i>Arkadaşlar</div>
-        <div class="nav-item" onclick="nav('airdrop', this)"><i class="fa-solid fa-parachute-box"></i>Airdrop</div>
+        <div class="nav-item" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-users"></i>Arkadaşlar</div>
+        <div class="nav-item" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-parachute-box"></i>Airdrop</div>
     </nav>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Oyun Değişkenleri
-    let user = { bal: 0, pps: 0, energy: 1000, maxEnergy: 1000, handle: tg.initDataUnsafe?.user?.first_name || "CEO" };
-    const LVL_TARGET = 100000000;
-    let baseTık = 1; // İstediğin +1 tık geliri
-    let boostActive = false;
+    // Firebase Ayarları (Daha sonra kendi config bilgilerini ekle)
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Navigasyon Fonksiyonu
+    let user = { bal: 0, pps: 0, energy: 1000, maxEnergy: 1000, handle: tg.initDataUnsafe?.user?.first_name || "Koala" };
+    const myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_USER";
+    const LVL_TARGET = 100000000;
+    let boost = false;
+
+    // Başlatma
+    async function init() {
+        const doc = await db.collection("users").doc(myId).get();
+        if(doc.exists) user = { ...user, ...doc.data() };
+        render();
+        startLoops();
+    }
+
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
@@ -161,22 +166,20 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    // Tıklama Motoru
+    // TIKLAMA: 1 tık = +1 coin / -1 enerji
     document.getElementById('tap-btn').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if(user.energy < 1) return; // 1 tıklama = 1 enerji
+        if(user.energy < 1) return;
 
-        let kazanc = boostActive ? baseTık * 2 : baseTık;
-        user.bal += kazanc;
-        user.energy -= 1; // 1 tıklama = -1 enerji
-        
+        let amount = boost ? 2 : 1;
+        user.bal += amount;
+        user.energy -= 1;
         render();
 
-        // Sayı fırlatma efekti
         const touch = e.touches[0];
         const p = document.createElement('div');
         p.className = 'tap-pop';
-        p.innerText = `+${kazanc}`;
+        p.innerText = `+${amount}`;
         p.style.left = touch.pageX + 'px';
         p.style.top = touch.pageY + 'px';
         document.body.appendChild(p);
@@ -185,55 +188,53 @@
         tg.HapticFeedback.impactOccurred('medium');
     });
 
-    // Satın Alma Fonksiyonu
-    function buyUpgrade(cost, profit) {
+    function buyUpgrade(name, cost, profit) {
         if(user.bal >= cost) {
             user.bal -= cost;
             user.pps += profit;
-            render();
             tg.HapticFeedback.notificationOccurred('success');
+            render();
+            save();
         } else {
             tg.showAlert("Yetersiz Koala!");
         }
     }
 
-    // Boost Aktif Et
     function activateBoost() {
-        if(boostActive) return;
-        boostActive = true;
-        tg.HapticFeedback.notificationOccurred('warning');
-        setTimeout(() => { boostActive = false; render(); }, 15000);
+        if(boost) return;
+        boost = true;
+        tg.showAlert("Boost Aktif! 15 saniye X2!");
+        setTimeout(() => { boost = false; render(); }, 15000);
         render();
     }
 
-    // Döngüler (Pasif Gelir & Enerji Dolumu)
-    setInterval(() => {
-        if(user.energy < user.maxEnergy) user.energy = Math.min(user.maxEnergy, user.energy + 2);
-        if(user.pps > 0) user.bal += (user.pps / 3600);
-        render();
-    }, 1000);
+    function startLoops() {
+        setInterval(() => {
+            // Enerji Dolumu (Saniyede +3)
+            if(user.energy < user.maxEnergy) user.energy = Math.min(user.maxEnergy, user.energy + 3);
+            // Pasif Gelir
+            if(user.pps > 0) user.bal += (user.pps / 3600);
+            render();
+        }, 1000);
+        setInterval(save, 15000);
+    }
 
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
         document.getElementById('ui-pps').innerText = "+" + user.pps.toLocaleString();
         document.getElementById('ui-energy').innerText = `${user.energy} / ${user.maxEnergy}`;
-        document.getElementById('ui-handle').innerText = user.handle;
-        document.getElementById('ui-tık').innerText = "+" + (boostActive ? baseTık * 2 : baseTık);
+        document.getElementById('ui-handle').innerText = "@" + user.handle;
+        document.getElementById('ui-tık').innerText = "+" + (boost ? 2 : 1);
         
-        // Enerji Barı
         document.getElementById('energy-bar').style.width = (user.energy / user.maxEnergy * 100) + "%";
-
-        // Level Barı
-        const lvlPercent = (user.bal / LVL_TARGET) * 100;
-        document.getElementById('lvl-bar').style.width = Math.min(100, lvlPercent) + "%";
+        const lvlP = (user.bal / LVL_TARGET) * 100;
+        document.getElementById('lvl-bar').style.width = Math.min(100, lvlP) + "%";
         document.getElementById('ui-lvl-text').innerText = `${Math.floor(user.bal).toLocaleString()} / 100M`;
     }
 
-    function invite() {
-        tg.openTelegramLink("https://t.me/share/url?url=https://t.me/KoalaBot&text=Koala%20Kombat%20oyna!");
-    }
+    async function save() { if(myId !== "DEV_USER") db.collection("users").doc(myId).update(user); }
 
-    window.onload = render;
+    window.onload = init;
 </script>
 </body>
 </html>
