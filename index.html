@@ -3,45 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube TR | Ana Sayfa</title>
+    <title>YouTube TR | 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --text: #f1f1f1; --side-hover: #272727; --pill-bg: #272727; }
+        :root { --bg: #0f0f0f; --text: #f1f1f1; --side-hover: #272727; --pill-bg: #272727; --yt-red: #ff0000; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--text); font-family: "Roboto", sans-serif; overflow: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: "Roboto", Arial, sans-serif; overflow: hidden; }
 
         /* HEADER */
-        header { height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; position: fixed; width: 100%; top: 0; background: var(--bg); z-index: 2000; }
-        .search-area { display: flex; width: 45%; gap: 10px; }
+        header { 
+            height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;
+            position: fixed; width: 100%; top: 0; background: var(--bg); z-index: 2000;
+        }
+        .search-area { display: flex; align-items: center; width: 45%; gap: 10px; }
         .search-box { flex: 1; display: flex; background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 4px 0 16px; align-items: center; }
         .search-box input { flex: 1; background: transparent; border: none; color: white; height: 40px; outline: none; font-size: 16px; }
         .search-btn { background: #222; border-left: 1px solid #333; padding: 10px 20px; border-radius: 0 40px 40px 0; cursor: pointer; color: white; }
+        .mic-btn { background: #181818; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* SIDEBAR - ABONELİKLER SIFIRLANDI */
-        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: calc(100vh - 56px); padding: 12px; overflow-y: auto; }
+        /* SIDEBAR (Görseldeki gibi sıfırlanmış abonelikler) */
+        .sidebar { position: fixed; left: 0; top: 56px; width: 240px; height: calc(100vh - 56px); overflow-y: auto; padding: 12px; }
         .side-sec { border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; }
-        .side-item { display: flex; align-items: center; gap: 20px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .side-item { display: flex; align-items: center; gap: 20px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; }
         .side-item:hover, .side-item.active { background: var(--side-hover); }
-        .sub-title { padding: 10px 12px; font-weight: bold; font-size: 16px; color: #fff; }
+        .sub-title { padding: 10px 12px; font-weight: bold; font-size: 16px; }
         .empty-subs { padding: 10px 12px; font-size: 13px; color: #aaa; font-style: italic; }
 
         /* CATEGORY PILLS */
-        .pills-container { margin-left: 240px; margin-top: 56px; padding: 12px 24px; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; background: var(--bg); position: sticky; top: 56px; z-index: 1000; }
-        .pill { background: var(--pill-bg); padding: 6px 14px; border-radius: 8px; font-size: 14px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .pills-container {
+            margin-left: 240px; margin-top: 56px; padding: 12px 24px;
+            display: flex; gap: 12px; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+            position: sticky; top: 56px; background: var(--bg); z-index: 1000;
+        }
+        .pill { background: var(--pill-bg); padding: 6px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid transparent; }
         .pill.active { background: white; color: black; }
-        .pill:hover:not(.active) { background: #3f3f3f; }
 
-        /* MAIN CONTENT - VİDEO LİSTELEME */
-        .main-content { margin-left: 240px; height: calc(100vh - 120px); overflow-y: auto; padding: 24px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; row-gap: 32px; }
+        /* MAIN CONTENT AREA */
+        .main-content { margin-left: 240px; height: calc(100vh - 120px); overflow-y: auto; padding: 0 24px 24px 24px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; row-gap: 32px; }
 
-        /* VIDEO CARD */
-        .v-card { cursor: pointer; width: 100%; }
-        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #222; }
+        /* VIDEO CARD STYLES */
+        .v-card { cursor: pointer; }
+        .v-thumb-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #222; }
+        .v-thumb-wrap img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
         .v-details { display: flex; gap: 12px; margin-top: 12px; }
         .v-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
-        .v-title { font-size: 15px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; }
-        .v-meta { font-size: 13px; color: #aaa; margin-top: 4px; }
+        .v-title { font-size: 16px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-meta { font-size: 14px; color: #aaa; margin-top: 4px; }
 
         @media (max-width: 1000px) { .sidebar { display: none; } .pills-container, .main-content { margin-left: 0; } }
     </style>
@@ -50,103 +58,99 @@
 
 <header>
     <div style="display:flex; align-items:center; gap:20px;">
-        <i class="fas fa-bars" style="cursor:pointer; font-size:20px;"></i>
-        <div style="font-weight:bold; font-size:20px; cursor:pointer;" onclick="location.reload()">
-            <i class="fab fa-youtube" style="color:red; font-size:24px; vertical-align: middle;"></i> YouTube<sup>TR</sup>
+        <i class="fas fa-bars" style="font-size:20px; cursor:pointer;"></i>
+        <div style="display:flex; align-items:center; gap:4px; font-weight:bold; font-size:20px; letter-spacing:-1px;">
+            <i class="fab fa-youtube" style="color:var(--yt-red); font-size:24px;"></i> YouTube<sup>TR</sup>
         </div>
     </div>
     <div class="search-area">
         <div class="search-box">
-            <input type="text" id="main-search" placeholder="Ara">
-            <button class="search-btn" onclick="performSearch()"><i class="fas fa-search"></i></button>
+            <input type="text" id="search-input" placeholder="Ara">
+            <button class="search-btn" onclick="searchVideos()"><i class="fas fa-search"></i></button>
         </div>
+        <div class="mic-btn"><i class="fas fa-microphone"></i></div>
     </div>
-    <div style="display:flex; gap:20px; align-items:center;">
-        <i class="fas fa-video" title="Video Ekle"></i>
-        <i class="far fa-bell"></i>
-        <div style="width:32px; height:32px; border-radius:50%; background: #717171; text-align:center; line-height:32px; font-weight:bold;">U</div>
+    <div style="display:flex; gap:15px; align-items:center;">
+        <div style="display:flex; align-items:center; gap:8px; background:#272727; padding:6px 12px; border-radius:20px; cursor:pointer;">
+            <i class="fas fa-plus"></i> Oluştur
+        </div>
+        <i class="far fa-bell" style="font-size:20px;"></i>
+        <div style="width:32px; height:32px; border-radius:50%; background: #555;"></div>
     </div>
 </header>
 
 <div class="sidebar">
     <div class="side-sec">
-        <div class="side-item active" onclick="loadMainFeed('türkçe popüler')"><i class="fas fa-home"></i> Ana Sayfa</div>
+        <div class="side-item active" onclick="loadFeed('türkçe popüler')"><i class="fas fa-home"></i> Ana Sayfa</div>
         <div class="side-item"><i class="fas fa-bolt"></i> Shorts</div>
     </div>
     
     <div class="side-sec">
         <div class="sub-title">Abonelikler</div>
-        <div class="empty-subs">Henüz kimseye abone değilsiniz.</div>
+        <div class="empty-subs">Henüz abone olunan kanal yok.</div>
     </div>
 
     <div class="side-sec">
         <div class="sub-title">Siz</div>
         <div class="side-item"><i class="fas fa-history"></i> Geçmiş</div>
-        <div class="side-item"><i class="fas fa-list"></i> Oynatma listeleri</div>
+        <div class="side-item"><i class="fas fa-play-circle"></i> Oynatma listeleri</div>
     </div>
 </div>
 
 <div class="pills-container">
-    <div class="pill active" onclick="filterCategory('türkçe popüler')">Tümü</div>
-    <div class="pill" onclick="filterCategory('türkçe oyun')">Oyun</div>
-    <div class="pill" onclick="filterCategory('türkçe müzik')">Müzik</div>
-    <div class="pill" onclick="filterCategory('türkçe canlı yayın')">Canlı</div>
-    <div class="pill" onclick="filterCategory('türkçe haberler')">Haberler</div>
-    <div class="pill" onclick="filterCategory('türkçe teknoloji')">Teknoloji</div>
+    <div class="pill active" onclick="loadFeed('türkçe popüler')">Tümü</div>
+    <div class="pill" onclick="loadFeed('türkçe oyun')">Oyun</div>
+    <div class="pill" onclick="loadFeed('türkçe müzik')">Müzik</div>
+    <div class="pill" onclick="loadFeed('türkçe canlı yayın')">Canlı</div>
+    <div class="pill" onclick="loadFeed('roblox türkçe')">Roblox</div>
 </div>
 
 <main class="main-content">
-    <div class="video-grid" id="video-display-grid">
+    <div class="video-grid" id="main-grid">
         </div>
 </main>
 
 <script>
-    const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+    const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
 
-    // ANA SAYFA VİDEO LİSTELEME MANTIĞI
-    async function loadMainFeed(query) {
-        const grid = document.getElementById('video-display-grid');
-        grid.innerHTML = '<p style="padding:20px;">Videolar hazırlanıyor...</p>';
+    async function loadFeed(query) {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '<p>Yükleniyor...</p>';
         
         try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${query} -çocuk&relevanceLanguage=tr&type=video&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${query}&relevanceLanguage=tr&type=video&key=${API_KEY}`);
             const data = await res.json();
             
             grid.innerHTML = '';
             data.items.forEach(item => {
                 const v = item.snippet;
-                const videoId = item.id.videoId;
                 grid.innerHTML += `
-                    <div class="v-card" onclick="window.open('https://youtube.com/watch?v=${videoId}')">
-                        <img src="${v.thumbnails.high.url}" class="v-thumb">
+                    <div class="v-card" onclick="window.open('https://youtube.com/watch?v=${item.id.videoId}')">
+                        <div class="v-thumb-wrap">
+                            <img src="${v.thumbnails.high.url}">
+                        </div>
                         <div class="v-details">
                             <div class="v-avatar"></div>
-                            <div>
+                            <div class="v-text">
                                 <div class="v-title">${v.title}</div>
                                 <div class="v-meta">${v.channelTitle}</div>
-                                <div class="v-meta">${Math.floor(Math.random()*500)}B görüntüleme • ${Math.floor(Math.random()*10)+1} saat önce</div>
+                                <div class="v-meta">${Math.floor(Math.random()*100)}B görüntüleme • 1 saat önce</div>
                             </div>
                         </div>
                     </div>`;
             });
-        } catch (error) {
-            grid.innerHTML = '<p style="padding:20px; color:red;">Hata: API kotası dolmuş olabilir veya bağlantı kesildi.</p>';
+        } catch (e) {
+            grid.innerHTML = '<p style="color:red">Kotan bitti veya API hatası oluştu. Lütfen yarın tekrar dene knk!</p>';
         }
     }
 
-    function filterCategory(cat) {
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        event.target.classList.add('active');
-        loadMainFeed(cat);
+    function searchVideos() {
+        const q = document.getElementById('search-input').value;
+        if(q) loadFeed(q);
     }
 
-    function performSearch() {
-        const val = document.getElementById('main-search').value;
-        if(val) loadMainFeed(val + " türkçe");
-    }
-
-    // Başlangıç yüklemesi
-    loadMainFeed('türkçe popüler');
+    // İlk açılışta popüler videoları getir
+    loadFeed('türkçe popüler');
 </script>
 </body>
 </html>
