@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Projesi</title>
+    <title>Reels Fix</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             background-color: #000;
             display: flex;
@@ -14,49 +15,60 @@
             overflow: hidden;
             font-family: sans-serif;
         }
+
+        /* Ana Taşıyıcı */
         .reels-container {
             width: 100%;
-            max-width: 420px; /* Telefon genişliği */
+            max-width: 400px; /* Telefon ekranı genişliği */
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
         }
         .reels-container::-webkit-scrollbar { display: none; }
+
         .reel {
             width: 100%;
             height: 100vh;
             scroll-snap-align: start;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: #000;
         }
+
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Reels gibi tam ekran kapla */
+            object-fit: cover; /* Videoyu kırparak ekrana tam oturtur */
+            background: #000;
         }
-        .ui {
+
+        /* Alt Yazılar */
+        .info {
             position: absolute;
             bottom: 40px;
-            left: 15px;
+            left: 20px;
             color: white;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+            z-index: 5;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
             pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div class="reels-container">
+<div class="reels-container" id="container">
     
     <div class="reel">
-        <video src="videoplayback.mp4" loop muted playsinline></video>
-        <div class="ui"><h4>@video_1</h4><p>Açıklama alanı...</p></div>
+        <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
+        <div class="info"><h3>@video_1</h3><p>Ses için ekrana tıkla 🔊</p></div>
     </div>
 
     <div class="reel">
         <video src="videoplayback2.mp4" loop muted playsinline></video>
-        <div class="ui"><h4>@video_2</h4><p>İkinci video döngüde!</p></div>
+        <div class="info"><h3>@video_2</h3><p>İkinci video başarıyla yüklendi ✅</p></div>
     </div>
 
 </div>
@@ -64,31 +76,46 @@
 <script>
     const videos = document.querySelectorAll('video');
 
+    // Kaydırma (Scroll) Yönetimi
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            const video = entry.target;
             if (entry.isIntersecting) {
-                // Ekrana girdiğinde oynat
-                entry.target.play().catch(error => console.log("Oynatma hatası:", error));
+                // Video ekrana girdiğinde oynat
+                video.currentTime = 0; // Her girişte baştan başlasın
+                const playPromise = video.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Otomatik oynatma engellendi, etkileşim bekleniyor.");
+                    });
+                }
             } else {
-                // Ekrandan çıktığında durdur ve başa sar
-                entry.target.pause();
-                entry.target.currentTime = 0;
+                // Ekrandan çıkınca durdur
+                video.pause();
             }
         });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.8 }); // %80'i göründüğünde başla
 
     videos.forEach(v => {
         observer.observe(v);
-        // Tıklayınca sesi aç/kapat (Tarayıcı engeli için gerekli)
+        
+        // TIKLAMA İLE SESİ AÇMA (Çok önemli!)
         v.addEventListener('click', () => {
-            v.muted = !v.muted;
+            if (v.muted) {
+                v.muted = false;
+                console.log("Ses açıldı");
+            } else {
+                v.muted = true;
+                console.log("Ses kapatıldı");
+            }
         });
     });
 
-    // İlk videoyu sayfa yüklenince başlatmaya zorla
-    window.addEventListener('load', () => {
-        videos[0].play();
-    });
+    // Mobil tarayıcılar için ilk dokunuşta her şeyi hazırla
+    document.body.addEventListener('touchstart', function() {
+        videos.forEach(v => v.muted = v.muted); 
+    }, {once: true});
 </script>
 
 </body>
