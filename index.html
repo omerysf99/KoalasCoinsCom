@@ -2,132 +2,111 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dikey Reels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dikey Reels - Sesli</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body, html {
-            margin: 0;
-            padding: 0;
             width: 100%;
             height: 100%;
             background-color: #000;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        /* Ana Konteyner */
+        /* Giriş Ekranı (Ses Engelini Aşmak İçin) */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Ana Kaydırma Alanı */
         .reels-container {
             width: 100%;
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none; /* Firefox için scroll gizle */
+            scrollbar-width: none;
         }
-        .reels-container::-webkit-scrollbar { display: none; } /* Chrome/Safari için scroll gizle */
+        .reels-container::-webkit-scrollbar { display: none; }
 
-        /* Video Bölümü */
         .reel-video {
             width: 100%;
             height: 100vh;
             scroll-snap-align: start;
             position: relative;
-            background: #000;
         }
 
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Dikey tam ekran yapar */
+            object-fit: cover; /* Videoyu dikeyde tam sığdırır */
         }
 
-        /* Video Bilgileri */
-        .overlay {
+        .info {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             left: 20px;
             color: white;
-            z-index: 10;
-        }
-
-        /* Ses Kontrol Butonu */
-        #mute-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-<button id="mute-btn">🔇</button>
+<div id="overlay" onclick="startReels()">
+    <div style="text-align: center;">
+        <div style="font-size: 50px;">▶️</div>
+        <p>İzlemek için dokun (Ses Açık)</p>
+    </div>
+</div>
 
 <div class="reels-container">
     <div class="reel-video">
-        <video src="reels1.mp4" loop muted playsinline></video>
-        <div class="overlay">
-            <h3>@video_1</h3>
-            <p>Harika dikey görünüm!</p>
-        </div>
+        <video src="reels1.mp4" loop playsinline></video>
+        <div class="info"><h3>@reels_1</h3><p>Sesli video deneyimi başladı!</p></div>
     </div>
-
     <div class="reel-video">
-        <video src="reels2.mp4" loop muted playsinline></video>
-        <div class="overlay">
-            <h3>@video_2</h3>
-            <p>Ses butonuna basmayı unutma 🔊</p>
-        </div>
+        <video src="reels2.mp4" loop playsinline></video>
+        <div class="info"><h3>@reels_2</h3><p>İkinci harika video...</p></div>
     </div>
-
     <div class="reel-video">
-        <video src="reels3.mp4" loop muted playsinline></video>
-        <div class="overlay">
-            <h3>@video_3</h3>
-            <p>Kaydırmaya devam et...</p>
-        </div>
+        <video src="reels3.mp4" loop playsinline></video>
+        <div class="info"><h3>@reels_3</h3><p>Kaydırmaya devam et!</p></div>
     </div>
 </div>
 
 <script>
     const videos = document.querySelectorAll('video');
-    const muteBtn = document.getElementById('mute-btn');
-    let isMuted = true;
+    const overlay = document.getElementById('overlay');
 
-    // Ses Açma/Kapama İşlemi
-    muteBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        videos.forEach(v => v.muted = isMuted);
-        muteBtn.innerText = isMuted ? "🔇" : "🔊";
-    });
+    // İlk tıklama ile ses engelini kaldır ve ilk videoyu başlat
+    function startReels() {
+        overlay.style.display = 'none';
+        videos.forEach(v => {
+            v.muted = false; // Sesleri aç
+        });
+        videos[0].play();
+    }
 
-    // Kaydırma Takibi (Intersection Observer)
-    const observerOptions = {
-        threshold: 0.6 // Videonun %60'ı göründüğünde
-    };
-
+    // Kaydırma takibi
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const video = entry.target;
             if (entry.isIntersecting) {
-                video.play().catch(e => console.log("Oynatma engellendi: ", e));
+                entry.target.play();
             } else {
-                video.pause();
-                video.currentTime = 0;
+                entry.target.pause();
+                entry.target.currentTime = 0;
             }
         });
-    }, observerOptions);
+    }, { threshold: 0.7 });
 
     videos.forEach(v => observer.observe(v));
 </script>
