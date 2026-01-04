@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 | Pro</title>
+    <title>YouTube 2026 | Shorts Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --header: #1c1c1c; --yt-red: #ff0000; --card: #1e1e1e; }
+        :root { --bg: #0f0f0f; --header: #0f0f0f; --yt-red: #ff0000; --accent: #3390ec; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; padding-top: 1cm; color: #fff; font-family: "Roboto", sans-serif; overflow: hidden; }
 
@@ -15,152 +15,151 @@
             height: 56px; background: var(--header); display: flex; align-items: center; 
             padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 2000;
         }
-        .search-box { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 15px; width: 40%; margin-left: 15%; display: flex; align-items: center; }
-        .search-box input { background: transparent; border: none; color: white; height: 36px; width: 100%; outline: none; }
+        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 20px; width: 40%; margin-left: 10%; display: flex; align-items: center; }
+        .search-bar input { background: transparent; border: none; color: white; height: 38px; width: 100%; outline: none; font-size: 16px; }
 
-        /* LEFT NAVIGATION */
+        /* SOL NAVİGASYON (Geliştirilmiş) */
         .left-nav {
             position: fixed; left: 0; top: calc(56px + 1cm); width: 72px; height: 100%;
             background: var(--bg); display: flex; flex-direction: column; align-items: center;
-            padding-top: 10px; border-right: 1px solid #222; z-index: 1000;
+            padding-top: 15px; border-right: 1px solid #222; z-index: 1000;
         }
-        .nav-btn { width: 100%; padding: 15px 0; text-align: center; cursor: pointer; color: #aaa; }
-        .nav-btn:hover, .nav-btn.active { background: #272727; color: #fff; }
-        .nav-btn i { font-size: 20px; margin-bottom: 5px; display: block; }
-        .nav-btn span { font-size: 10px; }
+        .nav-btn { width: 100%; padding: 12px 0; margin-bottom: 10px; cursor: pointer; color: #aaa; transition: 0.3s; text-align: center; }
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 8px; width: 90%; }
+        .nav-btn.active { color: #fff; }
+        .nav-btn i { font-size: 22px; margin-bottom: 4px; display: block; }
+        .nav-btn span { font-size: 10px; font-weight: 400; }
 
-        /* CONTENT */
-        .main-content { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 20px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .v-card { cursor: pointer; transition: 0.2s; }
-        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; }
-        .v-title { font-size: 15px; font-weight: 500; margin-top: 10px; line-height: 1.2; }
-
-        /* WATCH SCREEN (image_1cf40d uyumlu) */
-        #watch-page { 
-            display: none; position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm);
-            background: var(--bg); z-index: 3000; overflow-y: auto; padding: 20px 5%;
+        /* SHORTS ANA YAPI (Görsel 1d73ac uyumlu) */
+        #shorts-container { 
+            margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm);
+            overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
         }
-        .watch-grid { display: grid; grid-template-columns: 1fr 400px; gap: 24px; }
-        .player-box iframe { width: 100%; aspect-ratio: 16/9; border-radius: 12px; }
-        .video-meta { margin-top: 15px; }
-        .meta-actions { display: flex; justify-content: space-between; align-items: center; background: #181818; padding: 15px; border-radius: 12px; margin-top: 10px; }
+        .short-slide { 
+            height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; 
+            scroll-snap-align: start; position: relative; padding: 10px;
+        }
+        .video-wrapper { 
+            width: 380px; height: 95%; background: #111; border-radius: 16px; 
+            position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        /* SAĞ BUTONLAR (Görseldeki gibi) */
+        .short-actions { 
+            position: absolute; right: 15px; bottom: 80px; display: flex; 
+            flex-direction: column; gap: 15px; align-items: center; z-index: 10;
+        }
+        .action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+        .action-circle { 
+            width: 48px; height: 48px; background: rgba(40,40,40,0.6); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; backdrop-filter: blur(5px);
+        }
+        .action-circle:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+        .action-item span { font-size: 12px; font-weight: 500; text-shadow: 1px 1px 2px #000; }
 
-        /* SHORTS FEED (image_1d73ac uyumlu) */
-        #shorts-page { display: none; margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); scroll-snap-type: y mandatory; overflow-y: scroll; }
-        .short-container { height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; }
-        .short-video { width: 380px; height: 90%; background: #111; border-radius: 15px; position: relative; overflow: hidden; }
-        .short-ui { position: absolute; right: 10px; bottom: 60px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        .short-btn { background: rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .short-btn i { font-size: 18px; }
+        /* ALT BİLGİ (Kanal ve Başlık) */
+        .short-info { position: absolute; bottom: 20px; left: 15px; right: 80px; z-index: 10; }
+        .channel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .chan-img { width: 36px; height: 36px; border-radius: 50%; background: #3390ec; }
+        .sub-btn { background: #fff; color: #000; padding: 6px 12px; border-radius: 18px; font-size: 12px; font-weight: bold; border: none; }
 
-        @media (max-width: 1000px) { .watch-grid { grid-template-columns: 1fr; } .left-nav { display: none; } .main-content { margin-left: 0; } }
+        iframe { pointer-events: none; } /* Kaydırmayı bozmaması için */
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="showPage('home')">
-        <i class="fab fa-youtube" style="color:red; font-size:24px;"></i>
-        <span style="font-weight:bold; font-size:18px;">YouTube<sup>TR</sup></span>
+    <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="location.reload()">
+        <i class="fab fa-youtube" style="color:red; font-size:28px;"></i>
+        <span style="font-weight:bold; font-size:20px; letter-spacing:-1px;">YouTube<sup>TR</sup></span>
     </div>
-    <div class="search-box">
+    <div class="search-bar">
         <input type="text" placeholder="Ara">
+        <i class="fas fa-search" style="color:#aaa;"></i>
     </div>
 </header>
 
 <nav class="left-nav">
-    <div class="nav-btn active" onclick="showPage('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
-    <div class="nav-btn" onclick="showPage('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
-    <div class="nav-btn"><i class="fas fa-layer-group"></i><span>Kitaplık</span></div>
+    <div class="nav-btn" onclick="alert('Ana Sayfaya Dönülüyor...')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
+    <div class="nav-btn active"><i class="fas fa-bolt" style="color:#fff;"></i><span>Shorts</span></div>
+    <div class="nav-btn"><i class="fas fa-layer-group"></i><span>Abonelik</span></div>
+    <div class="nav-btn"><i class="fas fa-play-circle"></i><span>Kitaplık</span></div>
+    <div style="margin-top:auto; padding-bottom: 2cm;">
+        <div class="nav-btn"><i class="fas fa-cog"></i><span>Ayarlar</span></div>
+    </div>
 </nav>
 
-<main class="main-content" id="home-page">
-    <div class="video-grid" id="main-grid"></div>
-</main>
-
-<div id="watch-page">
-    <button onclick="showPage('home')" style="background:none; border:none; color:white; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> Geri Dön</button>
-    <div class="watch-grid">
-        <div class="player-box">
-            <div id="video-frame"></div>
-            <div class="video-meta">
-                <h2 id="watch-title">Video Başlığı</h2>
-                <div class="meta-actions">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="width:40px; height:40px; border-radius:50%; background:#333;"></div>
-                        <div id="watch-chan" style="font-weight:bold;">Kanal Adı</div>
-                        <button style="background:white; color:black; border:none; padding:8px 15px; border-radius:20px; font-weight:bold;">Abone Ol</button>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button style="background:#333; color:white; border:none; padding:8px 15px; border-radius:20px;"><i class="fas fa-thumbs-up"></i> 591 B</button>
-                        <button style="background:#333; color:white; border:none; padding:8px 15px; border-radius:20px;"><i class="fas fa-share"></i> Paylaş</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="related-videos" style="display:flex; flex-direction:column; gap:15px;"></div>
+<div id="shorts-container">
     </div>
-</div>
-
-<div id="shorts-page"></div>
 
 <script>
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
-    const topics = ['Müzik', 'Oyun', 'Vlog', 'Teknoloji', 'Komedi'];
 
-    async function loadHome() {
-        const grid = document.getElementById('main-grid');
-        const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=türkçe+${randomTopic}&type=video&key=${API_KEY}`);
-        const data = await res.json();
-        
-        grid.innerHTML = data.items.map(v => `
-            <div class="v-card" onclick="openWatch('${v.id.videoId}', '${v.snippet.title.replace(/'/g,"")}', '${v.snippet.channelTitle}')">
-                <img src="${v.snippet.thumbnails.high.url}" class="v-thumb">
-                <div class="v-title">${v.snippet.title}</div>
-                <div style="font-size:12px; color:#aaa; margin-top:5px;">${v.snippet.channelTitle}</div>
-            </div>
-        `).join('');
-    }
+    async function fetchShorts() {
+        const container = document.getElementById('shorts-container');
+        try {
+            // Türkçe Shorts videolarını çek
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=türkçe+shorts+komik+vlog&type=video&videoDuration=short&key=${API_KEY}`);
+            const data = await res.json();
+            
+            container.innerHTML = data.items.map(item => `
+                <div class="short-slide">
+                    <div class="video-wrapper">
+                        <iframe width="100%" height="100%" 
+                            src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=1&controls=0&loop=1&playlist=${item.id.videoId}&mute=0" 
+                            frameborder="0" allow="autoplay; encrypted-media">
+                        </iframe>
+                        
+                        <div class="short-actions">
+                            <div class="action-item">
+                                <div class="action-circle"><i class="fas fa-thumbs-up"></i></div>
+                                <span>${Math.floor(Math.random()*90)+1} B</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-circle"><i class="fas fa-thumbs-down"></i></div>
+                                <span>Beğenme</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-circle"><i class="fas fa-comment"></i></div>
+                                <span>${Math.floor(Math.random()*500)+1}</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-circle"><i class="fas fa-share"></i></div>
+                                <span>Paylaş</span>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-circle"><i class="fas fa-sync-alt"></i></div>
+                                <span>Remix</span>
+                            </div>
+                        </div>
 
-    function openWatch(id, title, channel) {
-        showPage('watch');
-        document.getElementById('video-frame').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
-        document.getElementById('watch-title').innerText = title;
-        document.getElementById('watch-chan').innerText = channel;
-    }
-
-    async function loadShorts() {
-        const page = document.getElementById('shorts-page');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=türkçe+shorts&videoDuration=short&type=video&key=${API_KEY}`);
-        const data = await res.json();
-        
-        page.innerHTML = data.items.map(s => `
-            <div class="short-container">
-                <div class="short-video">
-                    <iframe src="https://www.youtube.com/embed/${s.id.videoId}?autoplay=1&controls=0&loop=1" style="width:100%; height:100%; border:none;"></iframe>
-                    <div class="short-ui">
-                        <div class="short-btn"><i class="fas fa-thumbs-up"></i></div>
-                        <span style="font-size:12px;">43 B</span>
-                        <div class="short-btn"><i class="fas fa-comment"></i></div>
-                        <span style="font-size:12px;">312</span>
-                        <div class="short-btn"><i class="fas fa-share"></i></div>
-                        <div class="short-btn"><i class="fas fa-sync"></i></div>
+                        <div class="short-info">
+                            <div class="channel-row">
+                                <div class="chan-img"></div>
+                                <span style="font-weight:bold; font-size:14px;">@${item.snippet.channelTitle.replace(/\s+/g, '').toLowerCase()}</span>
+                                <button class="sub-btn">Abone Ol</button>
+                            </div>
+                            <p style="font-size:14px; line-height:1.3;">${item.snippet.title}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        } catch(e) {
+            container.innerHTML = "<p style='padding:100px; text-align:center;'>API Kotası Doldu. Lütfen daha sonra deneyin.</p>";
+        }
     }
 
-    function showPage(p) {
-        ['home-page', 'watch-page', 'shorts-page'].forEach(id => document.getElementById(id).style.display = 'none');
-        document.getElementById(p + '-page').style.display = 'block';
-        if(p === 'shorts') loadShorts();
-        if(p === 'home') loadHome();
-    }
+    fetchShorts();
 
-    loadHome();
+    // Mouse Wheel ile kaydırma desteği
+    document.getElementById('shorts-container').addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) {
+            e.currentTarget.scrollBy(0, window.innerHeight);
+        } else {
+            e.currentTarget.scrollBy(0, -window.innerHeight);
+        }
+    });
 </script>
 </body>
 </html>
