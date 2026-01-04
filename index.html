@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ULTIMATE EDITION</title>
+    <title>KOALA ARCADE | ADMIN COMMAND CENTER</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,92 +14,86 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        :root { --bg: #000; --fg: #fff; --card: #0c0c0e; --border: #1d1d21; --accent: #fff; }
-        
+        :root { --bg: #000; --fg: #fff; --card: #0c0c0e; --border: #1d1d21; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
 
-        /* ADMIN UI */
-        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; padding: 40px 20px; overflow-y: auto; }
-        #admin-btn { position: fixed; top: 20px; right: 20px; background: #ff3b3b; color: #fff; padding: 8px 15px; border-radius: 12px; font-weight: 900; font-size: 10px; z-index: 10001; display: none; box-shadow: 0 0 20px rgba(255,59,59,0.4); }
-        .admin-user-card { background: #0c0c0e; border: 1px solid #1d1d21; padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        /* --- ADMIN PANEL UI --- */
+        #admin-panel { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; padding: 30px 20px; overflow-y: auto; }
+        #admin-float-btn { position: fixed; top: 20px; right: 20px; background: #ff3b3b; color: #fff; padding: 10px 15px; border-radius: 15px; font-weight: 900; font-size: 11px; z-index: 10001; display: none; box-shadow: 0 0 20px rgba(255,59,59,0.5); border: 2px solid rgba(255,255,255,0.2); }
+        #exit-view-btn { position: fixed; top: 20px; left: 20px; background: #fbbf24; color: #000; padding: 10px 15px; border-radius: 15px; font-weight: 900; font-size: 11px; z-index: 10002; display: none; }
+        .admin-card { background: #0c0c0e; border: 1px solid #1d1d21; padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .admin-card:hover { border-color: #333; }
 
-        /* SCREENS & PAGES */
+        /* --- SCREENS --- */
         .page { display: none; height: 100vh; flex-direction: column; padding: 25px 20px 110px; overflow-y: auto; }
         .page.active { display: flex; animation: pFade 0.4s ease; }
-        @keyframes pFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pFade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         #checker-screen { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; padding: 50px 25px; }
-        .check-h { font-size: 36px; font-weight: 900; line-height: 1; letter-spacing: -1.5px; margin-bottom: 40px; }
-        .c-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #111; color: #222; font-weight: 800; text-transform: uppercase; font-size: 13px; }
+        .c-row { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #111; color: #222; font-weight: 800; font-size: 13px; }
         .c-row.active { color: #fff; }
-        .spin { width: 16px; height: 16px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.6s linear infinite; }
+        .spin { width: 14px; height: 14px; border: 2px solid #111; border-top-color: #fff; border-radius: 50%; animation: rot 0.6s linear infinite; }
         @keyframes rot { to { transform: rotate(360deg); } }
 
-        /* COMPONENTS */
+        /* --- GAME UI --- */
         .hero-bal { text-align: center; margin: 40px 0; }
-        .hero-bal h1 { font-size: 72px; font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 1; }
-        
-        .koala-main { width: 220px; height: 220px; margin: 0 auto; background: #fff; border-radius: 50px; border: 8px solid #111; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.9); }
+        .hero-bal h1 { font-size: 75px; font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 0.9; }
+        .koala-main { width: 230px; height: 230px; margin: 0 auto; background: #fff; border-radius: 60px; border: 8px solid #111; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.8); }
         .koala-main img { width: 100%; height: 100%; object-fit: cover; }
+        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
 
-        .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
-        .task-card:active { transform: scale(0.97); }
-
-        /* AIRDROP LIST */
-        .ex-list { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
-        .ex-item { background: var(--card); border: 2px solid var(--border); border-radius: 25px; padding: 18px; display: flex; align-items: center; gap: 15px; transition: 0.3s; position: relative; }
-        .ex-item img { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
-        .ex-item.selected { border-color: #fff; background: #111; }
-        .ex-item.selected::after { content: '\f058'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 20px; color: #fff; }
-
-        /* NAVIGATION */
-        nav { position: fixed; bottom: 0; width: 100%; height: 90px; background: rgba(0,0,0,0.9); border-top: 1px solid #111; display: flex; padding: 0 10px 15px; z-index: 999; backdrop-filter: blur(15px); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333; gap: 5px; }
+        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(0,0,0,0.95); border-top: 1px solid #111; display: flex; padding: 0 10px 20px; z-index: 999; backdrop-filter: blur(20px); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; gap: 6px; }
         .nav-btn.active { color: #fff; }
-        .nav-btn span { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-
-        .btn-action { background: #fff; color: #000; width: 100%; padding: 20px; border-radius: 24px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; }
+        .btn-action { background: #fff; color: #000; width: 100%; padding: 22px; border-radius: 25px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; }
         
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="admin-btn" onclick="toggleAdmin()">ADMIN PANEL</div>
+    <div id="admin-float-btn" onclick="toggleAdmin()">ADMIN PANEL</div>
+    <div id="exit-view-btn" onclick="exitImpersonation()">← KENDİ HESABINA DÖN</div>
+
     <div id="admin-panel">
         <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-black italic">YÖNETİM</h1>
-            <button onclick="toggleAdmin()" class="bg-zinc-800 w-10 h-10 rounded-full text-white"><i class="fa-solid fa-xmark"></i></button>
+            <div>
+                <h1 class="text-2xl font-black italic text-white">COMMAND CENTER</h1>
+                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Kullanıcı Yönetimi</p>
+            </div>
+            <button onclick="toggleAdmin()" class="bg-zinc-900 w-12 h-12 rounded-2xl border border-zinc-800"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="admin-user-list"></div>
+        <div id="admin-user-list" class="space-y-1">
+            <p class="text-zinc-700 animate-pulse">Veritabanına bağlanılıyor...</p>
+        </div>
     </div>
 
     <div id="checker-screen">
-        <h1 class="check-h">KOALA<br>ANALİZİ</h1>
-        <div class="flex-1">
-            <div id="L1" class="c-row"><span>Hesap Durumu</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L2" class="c-row"><span>Puan Verisi</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
-            <div id="L3" class="c-row"><span>Güvenlik</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+        <h1 class="text-4xl font-black mb-12 italic">KOALA<br>ARCADE</h1>
+        <div class="flex-1 space-y-2">
+            <div id="L1" class="c-row"><span>Sistem Kontrolü</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="L2" class="c-row"><span>Veri Senkronizasyonu</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
+            <div id="L3" class="c-row"><span>Güvenlik Katmanı</span><div class="spin"></div><i class="fa-solid fa-check hidden"></i></div>
         </div>
-        <div id="go-btn" class="btn-action hidden" onclick="startApp()">Giriş Yap</div>
+        <div id="go-btn" class="btn-action hidden" onclick="startApp()">Sisteme Giriş</div>
     </div>
 
     <div id="p-home" class="page">
-        <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase tracking-[4px] mt-3">$KOALA SCORE</p></div>
+        <div class="hero-bal"><h1 id="ui-bal">0</h1><p class="text-[10px] text-zinc-600 font-black uppercase tracking-[5px] mt-4">$KOALA SCORE</p></div>
         <div class="koala-main"><img src="coinkoala.jpg"></div>
         <div class="mt-12 space-y-3">
             <div class="task-card" onclick="mine()">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center text-xl text-white border border-zinc-800"><i class="fa-solid fa-bolt"></i></div>
-                    <div><h4 class="font-black text-sm uppercase italic">Madenciliğe Başla</h4><p class="text-[10px] text-zinc-500 font-bold">+1 KOALA</p></div>
+                    <div class="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center text-white"><i class="fa-solid fa-bolt"></i></div>
+                    <div><h4 class="font-black text-sm italic uppercase">Madencilik</h4><p class="text-[10px] text-zinc-500 font-bold">+1 KOALA</p></div>
                 </div>
-                <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">İZLE</div>
+                <div class="bg-white text-black px-6 py-2 rounded-xl font-black text-[10px]">REKLAM</div>
             </div>
             <div id="card-tg" class="task-card" onclick="completeJoinTask()">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 bg-sky-950/30 rounded-2xl flex items-center justify-center text-xl text-sky-500 border border-sky-900/20"><i class="fa-brands fa-telegram"></i></div>
-                    <div><h4 class="font-black text-sm uppercase italic">Topluluğa Katıl</h4><p class="text-[10px] text-zinc-500 font-bold">+500 KOALA</p></div>
+                    <div class="w-14 h-14 bg-sky-900/20 rounded-2xl flex items-center justify-center text-sky-500"><i class="fa-brands fa-telegram"></i></div>
+                    <div><h4 class="font-black text-sm italic uppercase">Topluluk</h4><p class="text-[10px] text-zinc-500 font-bold">+500 KOALA</p></div>
                 </div>
                 <div id="tg-btn-label" class="bg-sky-600 text-white px-6 py-2 rounded-xl font-black text-[10px]">KATIL</div>
             </div>
@@ -107,59 +101,42 @@
     </div>
 
     <div id="p-squad" class="page">
-        <h1 class="check-h">EKİBİN</h1>
+        <h1 class="text-4xl font-black mb-8 italic">EKİBİN</h1>
         <div class="task-card py-12 flex-col gap-3">
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Davet Başına</p>
+            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Referans Kazancı</p>
             <h2 class="text-6xl font-black italic">+10,000</h2>
         </div>
-        <div class="flex-1 mt-6 flex flex-col items-center justify-center border-2 border-dashed border-zinc-900 rounded-3xl p-6 text-center text-zinc-600">
-            <i class="fa-solid fa-users-rays text-3xl mb-3"></i>
-            <p class="font-bold uppercase text-[10px]">Henüz ekip üyen yok.<br>Hemen arkadaşlarına gönder!</p>
-        </div>
-        <div class="btn-action mt-6" onclick="shareTelegram()">Arkadaşlarını Davet Et</div>
-    </div>
-
-    <div id="p-airdrop" class="page">
-        <h1 class="check-h">AIRDROP</h1>
-        <div class="task-card bg-white text-black py-8 border-none text-left w-full">
-            <div>
-                <p class="text-[9px] font-black uppercase opacity-60 mb-1">Tahmini Token Miktarı</p>
-                <div class="flex items-baseline gap-2"><h2 id="ui-air" class="text-5xl font-black italic">0</h2><span class="text-xs font-bold">$KOALA</span></div>
-            </div>
-        </div>
-        <p class="text-[10px] text-zinc-600 font-black uppercase mt-6 ml-1 tracking-widest">Borsa Seçimi</p>
-        <div class="ex-list">
-            <div id="ex-Binance" class="ex-item" onclick="setEx('Binance')"><img src="binance.jpg"><div><h3 class="font-black">Binance</h3><p class="text-[9px] text-zinc-500 font-bold">GLOBAL</p></div></div>
-            <div id="ex-OKX" class="ex-item" onclick="setEx('OKX')"><img src="okx.jpg"><div><h3 class="font-black">OKX</h3><p class="text-[9px] text-zinc-500 font-bold">WEB3</p></div></div>
-            <div id="ex-Bitget" class="ex-item" onclick="setEx('Bitget')"><img src="bitget.jpg"><div><h3 class="font-black">Bitget</h3><p class="text-[9px] text-zinc-500 font-bold">TRADING</p></div></div>
-        </div>
+        <div class="btn-action mt-auto" onclick="shareTelegram()">Arkadaşlarını Davet Et</div>
     </div>
 
     <nav id="navbar" class="hidden">
-        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-bolt"></i><span>Kazan</span></div>
-        <div class="nav-btn" onclick="tab('squad', this)"><i class="fa-solid fa-users"></i><span>Ekip</span></div>
-        <div class="nav-btn" onclick="tab('airdrop', this)"><i class="fa-solid fa-parachute-box"></i><span>Airdrop</span></div>
+        <div class="nav-btn active" onclick="tab('home', this)"><i class="fa-solid fa-bolt-lightning text-xl"></i><span class="font-bold text-[9px] uppercase">Kazan</span></div>
+        <div class="nav-btn" onclick="tab('squad', this)"><i class="fa-solid fa-users text-xl"></i><span class="font-bold text-[9px] uppercase">Ekip</span></div>
     </nav>
 
 <script>
-    // --- CONFIG & INIT ---
+    // --- SETTINGS ---
     const ADMIN_ID = "8392479231";
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // User ID Detection
     let tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    let uid = tgUser ? String(tgUser.id) : (localStorage.getItem('koala_uid') || 'K' + Math.floor(Math.random()*1000000));
-    localStorage.setItem('koala_uid', uid);
+    const realAdminUid = tgUser ? String(tgUser.id) : (localStorage.getItem('koala_real_uid') || 'K'+Math.floor(Math.random()*1e6));
+    localStorage.setItem('koala_real_uid', realAdminUid);
 
+    let activeUid = realAdminUid; // Başlangıçta biziz
     let u = { bal: 0, ex: '', checked: false, task_tg: false };
 
     async function init() {
-        if(uid === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
+        if(realAdminUid === ADMIN_ID) document.getElementById('admin-float-btn').style.display = 'block';
+        loadUserData(activeUid);
+    }
 
-        const doc = await db.collection("users").doc(uid).get();
-        if(doc.exists) u = {...u, ...doc.data()};
+    async function loadUserData(targetId) {
+        const doc = await db.collection("users").doc(targetId).get();
+        if(doc.exists) u = doc.data();
+        else u = { bal: 1000, ex: '', checked: false, task_tg: false };
         
         if(u.checked) {
             document.getElementById('checker-screen').style.display = 'none';
@@ -170,76 +147,80 @@
         render();
     }
 
-    // --- ADMIN LOGIC ---
+    // --- ADMIN ENGINE ---
     function toggleAdmin() {
-        const panel = document.getElementById('admin-panel');
-        panel.style.display = (panel.style.display === 'flex') ? 'none' : 'flex';
-        if(panel.style.display === 'flex') loadAllUsers();
+        const p = document.getElementById('admin-panel');
+        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+        if(p.style.display === 'flex') fetchUsers();
     }
 
-    async function loadAllUsers() {
+    async function fetchUsers() {
         const list = document.getElementById('admin-user-list');
-        list.innerHTML = '<p class="text-zinc-600">Yükleniyor...</p>';
-        const snap = await db.collection("users").orderBy('bal', 'desc').limit(50).get();
+        const snap = await db.collection("users").orderBy('bal', 'desc').limit(40).get();
         list.innerHTML = '';
         snap.forEach(doc => {
             const data = doc.data();
-            const card = document.createElement('div');
-            card.className = 'admin-user-card';
-            card.innerHTML = `
-                <div><p class="text-[10px] text-zinc-500">${doc.id}</p><p class="font-black italic">${data.bal.toLocaleString()} KOALA</p></div>
+            const div = document.createElement('div');
+            div.className = 'admin-card';
+            div.innerHTML = `
+                <div class="flex-1">
+                    <p class="text-[10px] text-zinc-500 font-bold">${doc.id === realAdminUid ? 'SENSİN' : doc.id}</p>
+                    <p class="text-white font-black italic text-lg">${data.bal.toLocaleString()} <span class="text-[10px] text-zinc-500 italic">PT</span></p>
+                </div>
                 <div class="flex gap-2">
-                    <button onclick="editBal('${doc.id}')" class="bg-zinc-800 p-2 rounded-lg text-xs"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="viewAccount('${doc.id}')" class="bg-white text-black p-2 rounded-lg text-xs"><i class="fa-solid fa-eye"></i></button>
+                    <button onclick="quickEdit('${doc.id}')" class="bg-zinc-800 w-10 h-10 rounded-xl flex items-center justify-center border border-zinc-700"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                    <button onclick="impersonate('${doc.id}')" class="bg-white text-black w-10 h-10 rounded-xl flex items-center justify-center"><i class="fa-solid fa-eye text-xs"></i></button>
                 </div>
             `;
-            list.appendChild(card);
+            list.appendChild(div);
         });
     }
 
-    async function editBal(targetUid) {
-        const amount = prompt("Yeni puan:");
-        if(amount !== null) {
-            await db.collection("users").doc(targetUid).update({ bal: Number(amount) });
-            if(targetUid === uid) { u.bal = Number(amount); render(); }
-            loadAllUsers();
+    async function quickEdit(targetId) {
+        const n = prompt("Yeni puanı girin:");
+        if(n !== null) {
+            await db.collection("users").doc(targetId).update({ bal: Number(n) });
+            if(targetId === activeUid) { u.bal = Number(n); render(); }
+            fetchUsers();
         }
     }
 
-    async function viewAccount(targetUid) {
-        const doc = await db.collection("users").doc(targetUid).get();
-        if(doc.exists) {
-            u = doc.data();
-            render();
-            toggleAdmin();
-            alert("Hesap önizleniyor: " + targetUid);
-        }
+    function impersonate(targetId) {
+        if(!confirm("Bu kullanıcının hesabına erişilsin mi?")) return;
+        activeUid = targetId;
+        document.getElementById('exit-view-btn').style.display = 'block';
+        toggleAdmin();
+        loadUserData(targetId);
     }
 
-    // --- GAME LOGIC ---
+    function exitImpersonation() {
+        activeUid = realAdminUid;
+        document.getElementById('exit-view-btn').style.display = 'none';
+        loadUserData(realAdminUid);
+    }
+
+    // --- GAMEPLAY ---
     function runAnalysis() {
         ['L1', 'L2', 'L3'].forEach((id, i) => {
             setTimeout(() => {
                 const row = document.getElementById(id);
-                row.classList.add('active');
-                row.querySelector('.spin').classList.add('hidden');
-                row.querySelector('i').classList.remove('hidden');
+                if(row) {
+                    row.classList.add('active');
+                    row.querySelector('.spin').classList.add('hidden');
+                    row.querySelector('i').classList.remove('hidden');
+                }
                 if(i === 2) {
-                    if(u.bal === 0) u.bal = 1000; // Yeni kullanıcı bonusu
                     u.checked = true;
                     document.getElementById('go-btn').classList.remove('hidden');
                     save(); render();
                 }
-            }, (i + 1) * 800);
+            }, (i + 1) * 700);
         });
     }
 
     function startApp() {
         document.getElementById('checker-screen').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('checker-screen').style.display = 'none';
-            showUI();
-        }, 500);
+        setTimeout(() => { document.getElementById('checker-screen').style.display = 'none'; showUI(); }, 500);
     }
 
     function showUI() {
@@ -247,22 +228,18 @@
         document.getElementById('navbar').classList.remove('hidden');
     }
 
-    function mine() {
-        window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {});
-    }
+    function mine() { window.showAdexora().then(() => { u.bal += 1; save(); render(); }).catch(() => {}); }
 
     function completeJoinTask() {
         if(u.task_tg) return;
         window.open("https://t.me/KoalasCommunity", "_blank");
-        u.bal += 500;
-        u.task_tg = true;
+        u.bal += 500; u.task_tg = true;
         save(); render();
     }
 
     function shareTelegram() {
-        const botName = "KoalasUsdt_bot";
-        const link = `https://t.me/${botName}?startapp=${uid}`;
-        const text = encodeURIComponent("🐨 Koala Arcade'de madencilik yapmaya başla! \n\n🎁 1.000+ puan bonusla hemen katıl:");
+        const link = `https://t.me/KoalasUsdt_bot?startapp=${activeUid}`;
+        const text = encodeURIComponent("🐨 Koala Arcade'e katıl, madenciliğe başla!");
         window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
     }
 
@@ -273,25 +250,15 @@
         el.classList.add('active');
     }
 
-    function setEx(n) { u.ex = n; save(); render(); }
-
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString('tr-TR');
-        document.getElementById('ui-air').innerText = Math.floor(u.bal / 10).toLocaleString('tr-TR');
-        
         if(u.task_tg) {
-            const btn = document.getElementById('tg-btn-label');
-            btn.innerText = "BİTTİ";
-            btn.className = "bg-zinc-900 text-zinc-600 px-6 py-2 rounded-xl font-black text-[10px]";
-            document.getElementById('card-tg').style.opacity = "0.5";
+            const b = document.getElementById('tg-btn-label');
+            b.innerText = "OK"; b.className = "bg-zinc-900 text-zinc-700 px-6 py-2 rounded-xl font-black text-[10px]";
         }
-
-        document.querySelectorAll('.ex-item').forEach(i => i.classList.remove('selected'));
-        if(u.ex) document.getElementById('ex-' + u.ex)?.classList.add('selected');
     }
 
-    async function save() { try { await db.collection("users").doc(uid).set(u); } catch(e){} }
-    
+    async function save() { try { await db.collection("users").doc(activeUid).set(u); } catch(e){} }
     window.onload = init;
 </script>
 </body>
