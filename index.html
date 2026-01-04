@@ -3,149 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube - Ana Sayfa</title>
+    <title>Gelişmiş YouTube Klonu</title>
     <style>
-        :root {
-            --yt-black: #0f0f0f;
-            --yt-white: #ffffff;
-            --yt-gray: #272727;
-            --yt-text-gray: #aaaaaa;
-        }
-
+        :root { --yt-black: #0f0f0f; --yt-white: #ffffff; --yt-gray: #272727; --yt-red: #ff0000; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--yt-black); color: var(--yt-white); font-family: "Roboto", Arial, sans-serif; }
+        body { background-color: var(--yt-black); color: var(--yt-white); font-family: Roboto, Arial, sans-serif; }
 
-        /* --- Header --- */
-        header {
-            position: fixed; top: 0; width: 100%; height: 56px;
-            background: var(--yt-black); display: flex;
-            justify-content: space-between; align-items: center;
-            padding: 0 16px; z-index: 100;
-        }
-        .search-bar {
-            background: #121212; border: 1px solid #333;
-            border-radius: 40px; padding: 8px 20px; width: 40%;
-            color: white; outline: none;
-        }
+        /* HEADER */
+        header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--yt-black); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; z-index: 1000; }
+        .logo { font-weight: bold; font-size: 20px; cursor: pointer; color: white; text-decoration: none; }
+        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 8px 20px; width: 40%; color: white; outline: none; }
 
-        /* --- Sidebar --- */
-        nav {
-            position: fixed; left: 0; top: 56px; width: 240px; height: 100%;
-            padding: 12px; display: flex; flex-direction: column; gap: 5px;
-        }
-        .nav-item {
-            padding: 10px 12px; border-radius: 10px; cursor: pointer;
-            transition: 0.2s; font-size: 14px;
-        }
-        .nav-item:hover { background: var(--yt-gray); }
-        .nav-item.active { background: var(--yt-gray); font-weight: bold; }
-
-        /* --- Main Content --- */
-        main { margin-left: 240px; margin-top: 56px; padding: 24px; }
-        
-        /* Kategoriler */
-        .categories {
-            display: flex; gap: 12px; margin-bottom: 24px;
-            overflow-x: auto; white-space: nowrap; padding-bottom: 10px;
-        }
-        .cat-item {
-            background: var(--yt-gray); padding: 6px 12px;
-            border-radius: 8px; font-size: 14px; cursor: pointer;
-        }
-        .cat-item.active { background: white; color: black; }
-
-        /* Video Grid */
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
+        /* ANA SAYFA GRID */
+        main { margin-top: 60px; padding: 20px; transition: 0.3s; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .video-card { cursor: pointer; }
-        .thumbnail {
-            width: 100%; aspect-ratio: 16/9; background: #222;
-            border-radius: 12px; overflow: hidden; margin-bottom: 12px;
-            position: relative;
-        }
-        .thumbnail iframe { width: 100%; height: 100%; border: none; }
-        
-        .video-info { display: flex; gap: 12px; }
-        .channel-img {
-            width: 36px; height: 36px; background: #444;
-            border-radius: 50%; flex-shrink: 0;
-        }
-        .details h3 { font-size: 16px; margin-bottom: 4px; line-height: 1.4; }
-        .details p { color: var(--yt-text-gray); font-size: 14px; }
+        .thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; background: #222; margin-bottom: 10px; overflow: hidden; }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .v-info { display: flex; gap: 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; }
 
-        @media (max-width: 768px) {
-            nav { display: none; }
-            main { margin-left: 0; }
-        }
+        /* İZLEME EKRANI (MODAL) */
+        #watch-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--yt-black); z-index: 2000; display: none; overflow-y: auto; padding: 20px; padding-top: 70px; }
+        .watch-container { display: flex; max-width: 1280px; margin: 0 auto; gap: 24px; }
+        .main-video { flex: 3; }
+        .player { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; }
+        .sidebar-videos { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .side-card { display: flex; gap: 8px; cursor: pointer; }
+        .side-thumb { width: 168px; height: 94px; background: #222; border-radius: 8px; }
+
+        /* SHORTS GELİŞTİRİLMİŞ */
+        #shorts-section { display: none; height: calc(100vh - 56px); margin-top: 56px; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-frame { height: 100vh; width: 100%; scroll-snap-align: start; display: flex; justify-content: center; position: relative; background: #000; }
+        .short-content { height: 90%; aspect-ratio: 9/16; background: #111; position: relative; border-radius: 15px; margin-top: 20px; }
+        .short-actions { position: absolute; right: -60px; bottom: 50px; display: flex; flex-direction: column; gap: 20px; }
+        .action-item { text-align: center; font-size: 12px; }
+        .icon-circle { width: 48px; height: 48px; background: var(--yt-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; font-size: 20px; }
+
+        .close-btn { position: absolute; top: 15px; right: 25px; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: bold; font-size: 20px;">YouTube<sup>TR</sup></div>
+        <div class="logo" onclick="showPage('home')">YouTube<sup>TR</sup></div>
         <input type="text" class="search-bar" placeholder="Ara">
-        <div class="user-icons">👤</div>
+        <div style="cursor:pointer" onclick="showPage('shorts')">🩳 Shorts Modu</div>
     </header>
 
-    <nav>
-        <div class="nav-item active">🏠 Ana Sayfa</div>
-        <div class="nav-item">🩳 Shorts</div>
-        <div class="nav-item">📺 Abonelikler</div>
-        <hr style="border: 0.1px solid #333; margin: 10px 0;">
-        <div class="nav-item">🕒 Geçmiş</div>
-        <div class="nav-item">🎵 Müzik</div>
-        <div class="nav-item">🎮 Oyun</div>
-    </nav>
-
-    <main>
-        <div class="categories">
-            <div class="cat-item active">Tümü</div>
-            <div class="cat-item">Müzik</div>
-            <div class="cat-item">Oyun</div>
-            <div class="cat-item">Canlı</div>
-            <div class="cat-item">Yazılım</div>
-            <div class="cat-item">Mix'ler</div>
-        </div>
-
-        <div class="video-grid" id="videoGrid">
-            </div>
+    <main id="home-page">
+        <div class="video-grid" id="mainGrid"></div>
     </main>
 
+    <div id="watch-page">
+        <span class="close-btn" onclick="showPage('home')">×</span>
+        <div class="watch-container">
+            <div class="main-video">
+                <iframe class="player" id="mainPlayer" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <h2 id="videoTitle" style="margin-top:15px;">Türkiye'de Bir Kulüp Başkanı Olsaydın?</h2>
+                <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
+                    <div class="avatar" style="background: url('https://yt3.ggpht.com/sbqaLJpHYpGjDFZsVG9igloEr2Srr0PdqF_p9UJ8C4r8iWYcnVpjBpG2jNSOPChylHK70zQ6=s88-c-k-c0x00ffffff-no-rj') center/cover;"></div>
+                    <div><strong>ERTN</strong><br><small>4,5 B abone</small></div>
+                    <button style="background:white; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; margin-left:20px;">Abone Ol</button>
+                </div>
+            </div>
+            <div class="sidebar-videos" id="sideGrid"></div>
+        </div>
+    </div>
+
+    <div id="shorts-section"></div>
+
     <script>
-        // API KEYSIZ VIDEO LISTESI (Popüler Video ID'leri)
         const videos = [
-            { id: 'tFKdZPvyOc8', title: 'Muhteşem Bir Gün #vlog', channel: 'Yaşam Tarzı', views: '1.2 Mn izlenme' },
-            { id: 'luM--KkUwCc', title: 'Dünyanın En İlginç Bilgileri', channel: 'Bilgi Kanalı', views: '850 B izlenme' },
-            { id: 'agC7mcC7WoQ', title: 'YouTube Başarı Sırları 2026', channel: 'Creator Studio', views: '200 B izlenme' },
-            { id: 'd6AhB4teFk8', title: 'Hızlı İzlenme Artırma Taktiği', channel: 'Growth Hub', views: '500 B izlenme' },
-            { id: '9-z_SAsYl_E', title: 'Masterchef Özel Tarifler', channel: 'Yemek Dünyası', views: '3 Mn izlenme' },
-            { id: 'M7lc1UVf-VE', title: 'YouTube API Kullanımı Rehberi', channel: 'Kodlama Dersleri', views: '45 B izlenme' }
+            { id: 'WcJ0XbxVfug', title: "Türkiye'de Bir Kulüp Başkanı Olsaydın?", channel: "ERTN", views: "3.2 B" },
+            { id: 'HpdCKm6Y50I', title: "Mason olmanın şartları neler?", channel: "Habertürk TV", views: "137 B" },
+            { id: 'zabzfmyeawk', title: "Polat Alemdar'ın Kirli Plan Açıklaması", channel: "Kurtlar Vadisi", views: "3.4 Mn" },
+            { id: 'GqiigMLTxt4', title: "Masonluk Nedir? Tarihi Gerçekler", channel: "Tarih Arşivi", views: "295 B" }
         ];
 
-        const grid = document.getElementById('videoGrid');
+        // ANA SAYFAYI DOLDUR
+        function loadHome() {
+            const grid = document.getElementById('mainGrid');
+            videos.forEach(v => {
+                grid.innerHTML += `
+                    <div class="video-card" onclick="openVideo('${v.id}', '${v.title}')">
+                        <div class="thumb"><img src="https://img.youtube.com/vi/${v.id}/maxresdefault.jpg"></div>
+                        <div class="v-info">
+                            <div class="avatar"></div>
+                            <div>
+                                <h3>${v.title}</h3>
+                                <p style="color:#aaa; font-size:14px; margin-top:5px;">${v.channel} • ${v.views} izlenme</p>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
 
-        videos.forEach(v => {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            card.innerHTML = `
-                <div class="thumbnail">
-                    <iframe src="https://www.youtube.com/embed/${v.id}?modestbranding=1&rel=0" allowfullscreen></iframe>
-                </div>
-                <div class="video-info">
-                    <div class="channel-img"></div>
-                    <div class="details">
-                        <h3>${v.title}</h3>
-                        <p>${v.channel}</p>
-                        <p>${v.views} • 2 saat önce</p>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+        // İZLEME EKRANINI AÇ (Görseldeki gibi)
+        function openVideo(id, title) {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('shorts-section').style.display = 'none';
+            document.getElementById('watch-page').style.display = 'block';
+            document.getElementById('mainPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            document.getElementById('videoTitle').innerText = title;
+            
+            // Yan listeyi doldur
+            const side = document.getElementById('sideGrid');
+            side.innerHTML = "";
+            videos.forEach(v => {
+                side.innerHTML += `
+                    <div class="side-card" onclick="openVideo('${v.id}', '${v.title}')">
+                        <div class="side-thumb" style="background:url('https://img.youtube.com/vi/${v.id}/mqdefault.jpg') center/cover;"></div>
+                        <div>
+                            <p style="font-size:14px; font-weight:bold;">${v.title}</p>
+                            <p style="color:#aaa; font-size:12px;">${v.channel}</p>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // SHORTS MODUNU YÜKLE
+        function loadShorts() {
+            const sec = document.getElementById('shorts-section');
+            const shortsIds = ['DqTKmrzPHU0', 'tFKdZPvyOc8', 'd6AhB4teFk8'];
+            shortsIds.forEach(id => {
+                sec.innerHTML += `
+                    <div class="short-frame">
+                        <div class="short-content">
+                            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?controls=0&loop=1&playlist=${id}" frameborder="0"></iframe>
+                            <div class="short-actions">
+                                <div class="action-item"><div class="icon-circle">👍</div>126 B</div>
+                                <div class="action-item"><div class="icon-circle">👎</div>Beğenme</div>
+                                <div class="action-item"><div class="icon-circle">💬</div>452</div>
+                                <div class="action-item"><div class="icon-circle">🔁</div>Paylaş</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function showPage(page) {
+            document.getElementById('home-page').style.display = page === 'home' ? 'block' : 'none';
+            document.getElementById('shorts-section').style.display = page === 'shorts' ? 'block' : 'none';
+            document.getElementById('watch-page').style.display = 'none';
+            if(page === 'home') document.getElementById('mainPlayer').src = "";
+        }
+
+        loadHome();
+        loadShorts();
     </script>
 </body>
 </html>
