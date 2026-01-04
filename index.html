@@ -3,127 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Pro - Sync & Airdrop</title>
+    <title>TikTok Web App v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #000; margin: 0; color: white; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        #feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        #feed::-webkit-scrollbar { display: none; }
+        body { background-color: #000; color: white; margin: 0; font-family: sans-serif; overflow: hidden; }
+        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
+        .active-page { display: block; }
+        
+        /* Reels Scroll */
+        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        #reels-feed::-webkit-scrollbar { display: none; }
         .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
-        .container-9-16 { height: 100vh; width: calc(100vh * 9 / 16); position: relative; background: #000; }
+        .container-9-16 { height: 100vh; width: calc(100vh * 9 / 16); position: relative; background: #121212; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* Üst Sekmeler */
-        .nav-tabs { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: center; gap: 30px; padding: 20px; z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
-        .tab-item { cursor: pointer; font-weight: bold; opacity: 0.6; transition: 0.3s; border-bottom: 2px solid transparent; padding-bottom: 5px; }
-        .tab-item.active { opacity: 1; border-bottom: 2px solid white; }
-        .tab-item:hover { opacity: 1; }
 
-        /* Sağ Menü */
-        .side-menu { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; align-items: center; z-index: 50; }
-        .icon-circle { background: rgba(40, 40, 40, 0.8); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 4px; cursor: pointer; }
-        
-        /* Sabit Ses Butonu */
-        .sound-btn { position: absolute; top: 80px; right: 25px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
+        /* Alt Navigasyon */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; opacity: 0.6; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #fe2c55; }
+        .nav-item i { font-size: 20px; margin-bottom: 2px; }
+
+        /* Tutorial Overlay */
+        #tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="nav-tabs">
-        <div class="tab-item active" onclick="switchTab('main')">Ana Sayfa</div>
-        <div class="tab-item" onclick="switchTab('airdrop')">Airdrop <i class="fas fa-parachute-box ml-1 text-yellow-400"></i></div>
+    <div id="tutorial-overlay">
+        <div class="bg-[#2f2f2f] p-8 rounded-2xl max-w-sm border border-gray-600">
+            <i class="fas fa-magic text-5xl text-yellow-400 mb-4"></i>
+            <h2 class="text-2xl font-bold mb-2">Hoş Geldin!</h2>
+            <p class="text-gray-300 mb-6">Reels sekmesinde videoları kaydırarak izleyebilir, Airdrop sekmesinden ödül toplayabilirsin.</p>
+            <div class="text-xs text-gray-500 mb-6 font-mono bg-black p-2 rounded">API Key: aw01joj8wk4rnll9 Aktif!</div>
+            <button onclick="closeTutorial()" class="bg-[#fe2c55] w-full py-3 rounded-xl font-bold">Öğrenmeye Başla</button>
+        </div>
     </div>
 
-    <div class="sound-btn" onclick="toggleMute()">
-        <i id="mute-icon" class="fas fa-volume-mute text-xl w-6 text-center"></i>
+    <div id="page-home" class="page active-page p-6">
+        <div class="mt-12 text-center">
+            <h1 class="text-4xl font-black mb-2">Keşfet</h1>
+            <p class="text-gray-400">Günün özeti ve senin için seçilenler</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mt-8">
+            <div class="bg-[#1a1a1a] p-6 rounded-2xl border border-gray-800">
+                <i class="fas fa-fire text-orange-500 text-2xl mb-2"></i>
+                <div class="text-2xl font-bold">1.2K</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">İzlenme</div>
+            </div>
+            <div class="bg-[#1a1a1a] p-6 rounded-2xl border border-gray-800">
+                <i class="fas fa-coins text-yellow-500 text-2xl mb-2"></i>
+                <div class="text-2xl font-bold">850</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Airdrop Puanı</div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-gradient-to-r from-purple-900 to-blue-900 p-6 rounded-3xl relative overflow-hidden">
+            <h3 class="text-xl font-bold relative z-10">Haftalık Challenge</h3>
+            <p class="text-sm opacity-80 relative z-10">En çok izlenen sen ol!</p>
+            <i class="fas fa-trophy absolute right-4 bottom-2 text-6xl opacity-20"></i>
+        </div>
+        <button onclick="showTutorial()" class="mt-4 text-gray-500 text-sm border-b border-gray-600 italic">Öğreticiyi tekrar izle</button>
     </div>
 
-    <div id="feed"></div>
+    <div id="page-reels" class="page">
+        <div id="reels-feed"></div>
+    </div>
+
+    <div id="page-airdrop" class="page flex flex-col items-center justify-center p-6 text-center">
+        <i class="fas fa-parachute-box text-8xl text-yellow-500 mb-6"></i>
+        <h2 class="text-3xl font-bold">Airdrop Yakında!</h2>
+        <p class="text-gray-400 mt-2">API anahtarınla her gün giriş yaparak ödül kazanabilirsin.</p>
+        <div class="mt-8 p-4 border border-dashed border-gray-700 rounded-xl font-mono text-sm text-gray-500">
+            Client Key: aw01...l9
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="navigate('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
+        <div class="nav-item" onclick="navigate('reels')"><i class="fas fa-play-circle"></i><span>Reels</span></div>
+        <div class="nav-item" onclick="navigate('airdrop')"><i class="fas fa-gem"></i><span>Airdrop</span></div>
+    </nav>
 
     <script>
-        // API ve Video Tanımları
-        const TIKTOK_API = { clientKey: "aw01joj8wk4rnll9" };
         const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4', 'reels5.mp4'];
-        
-        // SES DURUMU (Global Değişken)
         let isGlobalMuted = true;
 
-        const feed = document.getElementById('feed');
-
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-
-        function createVideo(fileName) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'video-wrapper';
-            wrapper.innerHTML = `
-                <div class="container-9-16">
-                    <video loop playsinline class="tk-video" src="${fileName}"></video>
-                    <div class="side-menu">
-                        <div class="icon-circle"><i class="fas fa-heart text-red-500"></i></div>
-                        <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
-                        <div class="icon-circle"><i class="fas fa-share"></i></div>
-                    </div>
-                    <div class="absolute bottom-8 left-5 right-10">
-                        <h4 class="font-bold">@dev_user</h4>
-                        <p class="text-sm opacity-90 italic">TikTok API: ${TIKTOK_API.clientKey}</p>
-                    </div>
-                </div>
-            `;
-            feed.appendChild(wrapper);
-            const videoElement = wrapper.querySelector('video');
+        // Sayfa Değiştirme (Navigation)
+        function navigate(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById('page-' + pageId).classList.add('active-page');
             
-            // Yeni video eklenirken anlık ses durumunu zorla uygula
-            videoElement.muted = isGlobalMuted;
-            observer.observe(videoElement);
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            if (pageId !== 'reels') {
+                document.querySelectorAll('video').forEach(v => v.pause());
+            }
         }
 
-        function toggleMute() {
-            isGlobalMuted = !isGlobalMuted;
-            const icon = document.getElementById('mute-icon');
-            icon.className = isGlobalMuted ? "fas fa-volume-mute text-xl w-6 text-center" : "fas fa-volume-up text-xl w-6 text-center";
-            
-            // Tüm videoların sesini anında güncelle
-            document.querySelectorAll('.tk-video').forEach(v => {
-                v.muted = isGlobalMuted;
+        // Tutorial Kontrolü
+        function showTutorial() { document.getElementById('tutorial-overlay').style.display = 'flex'; }
+        function closeTutorial() { document.getElementById('tutorial-overlay').style.display = 'none'; }
+
+        // Video Ekleme (Shuffle/Loop)
+        function createReels() {
+            const feed = document.getElementById('reels-feed');
+            [...videoList].sort(() => Math.random() - 0.5).forEach(file => {
+                const wrap = document.createElement('div');
+                wrap.className = 'video-wrapper';
+                wrap.innerHTML = `
+                    <div class="container-9-16">
+                        <video loop muted playsinline src="${file}"></video>
+                        <div class="absolute bottom-20 left-4"><p class="font-bold">@local_creator</p></div>
+                    </div>`;
+                feed.appendChild(wrap);
+                observer.observe(wrap.querySelector('video'));
             });
         }
 
-        function switchTab(tab) {
-            if(tab === 'airdrop') {
-                alert("Airdrop sekmesine hoş geldin! Yakında buraya cüzdan bağlama eklenecek.");
-            }
-            document.querySelectorAll('.tab-item').forEach(el => el.classList.toggle('active', el.innerText.toLowerCase().includes(tab)));
-        }
-
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const video = entry.target;
-                if (entry.isIntersecting) {
-                    // Oynatmadan hemen önce ses durumunu tekrar kontrol et (Tarayıcı hatasını önler)
-                    video.muted = isGlobalMuted;
-                    video.play().catch(e => console.log("Etkileşim bekleniyor..."));
-                    
-                    if (video === feed.lastElementChild.querySelector('video')) {
-                        loadMore();
-                    }
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.play();
+                    if (e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) createReels();
                 } else {
-                    video.pause();
+                    e.target.pause();
                 }
             });
         }, { threshold: 0.8 });
 
-        function loadMore() {
-            shuffle([...videoList]).forEach(file => createVideo(file));
+        // Başlangıç Ayarları
+        createReels();
+        if (!localStorage.getItem('tutorialDone')) {
+            showTutorial();
+            localStorage.setItem('tutorialDone', 'true');
         }
-
-        // Başlat
-        loadMore();
-
-        // Tarayıcı Kilidini Kırmak İçin: İlk tıklamada her şeyi senkronize et
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.tk-video').forEach(v => v.muted = isGlobalMuted);
-        }, { once: true });
     </script>
 </body>
 </html>
