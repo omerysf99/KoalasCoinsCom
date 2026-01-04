@@ -3,162 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Türkçe Pop Reels</title>
+    <title>Benim Sitem - Özel Reels</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
-        .reels-wrapper { width: 100%; max-width: 380px; height: 94vh; position: relative; border-radius: 35px; overflow: hidden; border: 5px solid #222; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+        body { margin: 0; padding: 0; background-color: #050505; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .reels-wrapper { width: 100%; max-width: 400px; height: 95vh; position: relative; border-radius: 30px; overflow: hidden; border: 4px solid #1a1a1a; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .reels-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
         .reels-container::-webkit-scrollbar { display: none; }
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
-        iframe { width: 100%; height: 100%; pointer-events: none; }
+        iframe { width: 100%; height: 100%; pointer-events: none; transform: scale(1.01); }
         
-        /* Yan Menü (Beğen, Yorum, Kaydet) */
-        .side-bar { position: absolute; right: 12px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 100; }
-        .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.1s; }
-        .action-item:active { transform: scale(0.9); }
-        .icon { font-size: 30px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .count { font-size: 11px; font-weight: bold; margin-top: 2px; }
+        /* Sağ Panel Butonları */
+        .side-bar { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 25px; z-index: 100; }
+        .btn-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+        .btn-item:hover { transform: scale(1.1); }
+        .icon-circle { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); margin-bottom: 5px; font-size: 24px; }
+        .count-text { font-size: 12px; font-weight: 600; color: #eee; }
 
-        /* Tıklama Katmanı */
+        /* SİTEYE ÖZEL YORUM PANELİ */
+        .comment-panel { position: absolute; bottom: -100%; left: 0; width: 100%; height: 50%; background: #111; border-radius: 20px 20px 0 0; z-index: 200; transition: 0.4s ease; padding: 20px; box-sizing: border-box; }
+        .comment-panel.active { bottom: 0; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .comment-list { height: 70%; overflow-y: auto; font-size: 14px; margin-bottom: 10px; }
+        .comment-input-area { display: flex; gap: 10px; }
+        .comment-input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 10px; outline: none; }
+        .send-btn { background: #ff0050; border: none; color: white; padding: 0 15px; border-radius: 10px; cursor: pointer; }
+
+        /* Tıklama Alanı */
         .click-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; }
-
-        /* Kalp Animasyonu */
-        .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 100px; color: red; pointer-events: none; z-index: 200; }
-        .animate-heart { animation: heartPop 0.8s ease-out forwards; }
-        @keyframes heartPop { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; } 100% { transform: translate(-50%, -150%) scale(1.2); opacity: 0; } }
-
-        .video-info { position: absolute; bottom: 25px; left: 15px; width: 70%; pointer-events: none; z-index: 60; text-shadow: 0 2px 4px black; }
-        .video-info h3 { margin: 0; font-size: 16px; }
+        .video-title { position: absolute; bottom: 30px; left: 20px; z-index: 60; text-shadow: 0 2px 4px black; max-width: 60%; }
     </style>
 </head>
 <body>
 
 <div class="reels-wrapper">
-    <div id="heartPop" class="heart-animation">❤️</div>
     <div class="reels-container" id="reelsContainer"></div>
+    
+    <div class="comment-panel" id="commentPanel">
+        <div class="comment-header">
+            <span>Yorumlar</span>
+            <span onclick="toggleComments()" style="cursor:pointer; font-size: 20px;">✕</span>
+        </div>
+        <div class="comment-list" id="commentList"></div>
+        <div class="comment-input-area">
+            <input type="text" class="comment-input" id="cInput" placeholder="Sence nasıl?">
+            <button class="send-btn" onclick="addComment()">Gönder</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    // Güncel Türkçe Popüler Video ID'leri
-    const videoData = [
-        { id: 'znv__YAlrTQ', title: 'Ölene Kadar Aşık Olamazsın' },
-        { id: 'lB6IgV1kapU', title: 'Begüm Polat - Yeni Şarkı' },
-        { id: 'dj7QJ0-VIHc', title: 'Türkiye 2024 Hitleri' },
-        { id: 'XHYVGwXC4Tc', title: 'Mert Sarı - Şarkı Halleri' },
-        { id: 'fkDpX8UXHN4', title: 'Manifest - Dans Vibe' }
+    const videos = [
+        { id: 'znv__YAlrTQ', title: 'Aşk Sözleri - Popüler' },
+        { id: 'dj7QJ0-VIHc', title: 'Türkiye 2025 Hitleri' },
+        { id: 'fkDpX8UXHN4', title: 'Manifest Dans Vibe' },
+        { id: 'lB6IgV1kapU', title: 'Begüm Polat - Yeni Şarkı' }
     ];
-    
-    const players = {};
-    let clickTimer = null;
+
+    let players = {};
+    let activeVideoId = null;
 
     function onYouTubeIframeAPIReady() {
         const container = document.getElementById('reelsContainer');
-        videoData.forEach((video, i) => {
-            const isLiked = localStorage.getItem(`like_${video.id}`) === 'true';
-            const isSaved = localStorage.getItem(`save_${video.id}`) === 'true';
-            
+        videos.forEach((v, i) => {
+            const liked = localStorage.getItem(`sitem_like_${v.id}`) ? '❤️' : '🤍';
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <div class="click-layer" onclick="handleVideoTap('${video.id}', ${i})"></div>
-                <div id="player-${video.id}"></div>
+                <div class="click-layer" onclick="playPause('${v.id}')"></div>
+                <div id="player-${v.id}"></div>
                 <div class="side-bar">
-                    <div class="action-item" onclick="event.stopPropagation(); toggleAction('${video.id}', ${i}, 'like')">
-                        <span class="icon like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                        <span class="count like-count">${isLiked ? 1 : 0}</span>
+                    <div class="btn-item" onclick="siteLike('${v.id}', this)">
+                        <div class="icon-circle">${liked}</div>
+                        <span class="count-text">Beğen</span>
                     </div>
-                    <div class="action-item" onclick="event.stopPropagation(); promptComment('${video.id}')">
-                        <span class="icon">💬</span>
-                        <span class="count">Yorum</span>
-                    </div>
-                    <div class="action-item" onclick="event.stopPropagation(); toggleAction('${video.id}', ${i}, 'save')">
-                        <span class="icon save-icon">${isSaved ? '🔖' : '🏳️'}</span>
-                        <span class="count">${isSaved ? 'Kaydedildi' : 'Kaydet'}</span>
+                    <div class="btn-item" onclick="toggleComments('${v.id}')">
+                        <div class="icon-circle">💬</div>
+                        <span class="count-text">Yorum</span>
                     </div>
                 </div>
-                <div class="video-info">
-                    <h3>${video.title}</h3>
-                </div>
+                <div class="video-title"><h4>${v.title}</h4></div>
             `;
             container.appendChild(card);
 
-            players[video.id] = new YT.Player(`player-${video.id}`, {
-                videoId: video.id,
-                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': video.id, 'modestbranding': 1, 'rel': 0 },
-                events: { 'onReady': (e) => { if(i === 0) e.target.playVideo(); } }
+            players[v.id] = new YT.Player(`player-${v.id}`, {
+                videoId: v.id,
+                playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': v.id, 'mute': 1 },
+                events: { 'onReady': (e) => { if(i===0) { e.target.playVideo(); activeVideoId = v.id; } } }
             });
         });
     }
 
-    function handleVideoTap(id, index) {
-        if (!clickTimer) {
-            clickTimer = setTimeout(() => {
-                const state = players[id].getPlayerState();
-                state === 1 ? players[id].pauseVideo() : players[id].playVideo();
-                clickTimer = null;
-            }, 250);
+    function siteLike(id, el) {
+        const isLiked = localStorage.getItem(`sitem_like_${id}`);
+        if (!isLiked) {
+            localStorage.setItem(`sitem_like_${id}`, 'true');
+            el.querySelector('.icon-circle').innerText = '❤️';
         } else {
-            clearTimeout(clickTimer);
-            clickTimer = null;
-            toggleAction(id, index, 'like', true);
+            localStorage.removeItem(`sitem_like_${id}`);
+            el.querySelector('.icon-circle').innerText = '🤍';
         }
     }
 
-    function toggleAction(id, index, type, force = false) {
-        const key = `${type}_${id}`;
-        const isActive = localStorage.getItem(key) === 'true';
-        const iconEl = document.querySelector(`.video-card:nth-child(${index+1}) .${type}-icon`);
-        const countEl = document.querySelector(`.video-card:nth-child(${index+1}) .${type}-count`);
-
-        if (type === 'like') {
-            if (!isActive) {
-                localStorage.setItem(key, 'true');
-                iconEl.innerText = '❤️';
-                countEl.innerText = '1';
-                animateHeart();
-            } else if (!force) {
-                localStorage.removeItem(key);
-                iconEl.innerText = '🤍';
-                countEl.innerText = '0';
-            } else { animateHeart(); }
-        } else if (type === 'save') {
-            const saveIcon = document.querySelectorAll('.save-icon')[index];
-            const saveText = saveIcon.nextElementSibling;
-            if (!isActive) {
-                localStorage.setItem(key, 'true');
-                saveIcon.innerText = '🔖';
-                saveText.innerText = 'Kaydedildi';
-            } else {
-                localStorage.removeItem(key);
-                saveIcon.innerText = '🏳️';
-                saveText.innerText = 'Kaydet';
-            }
+    function toggleComments(id) {
+        const panel = document.getElementById('commentPanel');
+        if (id) {
+            activeVideoId = id;
+            loadComments(id);
+            panel.classList.add('active');
+        } else {
+            panel.classList.remove('active');
         }
     }
 
-    function promptComment(id) {
-        const userComment = prompt("Yorumunuzu yazın:");
-        if (userComment) {
-            alert("Yorumunuz başarıyla kaydedildi! (Lokal)");
-            localStorage.setItem(`comment_${id}`, userComment);
-        }
+    function addComment() {
+        const input = document.getElementById('cInput');
+        if (!input.value) return;
+        let comments = JSON.parse(localStorage.getItem(`sitem_comm_${activeVideoId}`) || "[]");
+        comments.push(input.value);
+        localStorage.setItem(`sitem_comm_${activeVideoId}`, JSON.stringify(comments));
+        input.value = "";
+        loadComments(activeVideoId);
     }
 
-    function animateHeart() {
-        const heart = document.getElementById('heartPop');
-        heart.classList.remove('animate-heart');
-        void heart.offsetWidth;
-        heart.classList.add('animate-heart');
+    function loadComments(id) {
+        const list = document.getElementById('commentList');
+        const comments = JSON.parse(localStorage.getItem(`sitem_comm_${id}`) || "[]");
+        list.innerHTML = comments.length ? "" : "Henüz yorum yok...";
+        comments.forEach(c => {
+            const div = document.createElement('div');
+            div.style.marginBottom = "8px";
+            div.innerHTML = `<strong>Misafir:</strong> ${c}`;
+            list.appendChild(div);
+        });
     }
 
-    // Otomatik Kaydırma Yönetimi
+    function playPause(id) {
+        const state = players[id].getPlayerState();
+        state === 1 ? players[id].pauseVideo() : players[id].playVideo();
+    }
+
+    // Scroll yönetimi
     document.getElementById('reelsContainer').addEventListener('scroll', () => {
-        videoData.forEach(v => {
+        videos.forEach(v => {
             const rect = document.getElementById(`player-${v.id}`).parentElement.getBoundingClientRect();
-            if (rect.top >= -100 && rect.top <= 100) {
+            if (rect.top >= -50 && rect.top <= 50) {
                 players[v.id].playVideo();
+                players[v.id].unMute();
             } else {
                 players[v.id].pauseVideo();
             }
