@@ -3,125 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Portalı 2026</title>
+    <title>TikTok Scroll Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0a0a0a; color: #f0f0f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .custom-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(220, 38, 38, 0.1); }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; }
+        /* Tam ekran video kaydırma konteyneri */
+        .video-stack {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+        .video-container {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            max-width: 500px; /* Mobil dikey görünüm için */
+        }
+        /* Sağdaki etkileşim butonları */
+        .actions {
+            position: absolute;
+            right: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+        .action-btn {
+            background: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-50 custom-glass p-4 mb-8">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
-                <div class="bg-red-600 p-2 rounded-lg"><i class="fab fa-youtube text-2xl text-white"></i></div>
-                <h1 class="text-2xl font-black tracking-tighter italic">V-TUBE</h1>
-            </div>
-            <div class="flex w-full md:w-1/2 bg-zinc-900 rounded-full px-4 py-2 border border-zinc-700">
-                <input id="q" type="text" placeholder="Hangi videoyu çekelim?" class="bg-transparent w-full outline-none text-sm px-2">
-                <button onclick="search()" class="text-zinc-400 hover:text-white"><i class="fas fa-search"></i></button>
-            </div>
-            <div class="flex gap-4 items-center">
-                <i class="fas fa-video text-zinc-400 cursor-pointer"></i>
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">API</div>
+    <div class="video-stack" id="videoStack">
+        <div class="video-container" id="vid-7591531252507789368">
+            <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/7591531252507789368" data-video-id="7591531252507789368" style="max-width: 605px;min-width: 325px;" > 
+                <section> </section> 
+            </blockquote>
+            <div class="actions">
+                <div class="action-btn">❤️</div>
+                <div class="action-btn">💬</div>
+                <div class="action-btn">🔗</div>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <main class="container mx-auto px-4 pb-20">
-        <div id="playerBox" class="hidden mb-12 animate-in fade-in zoom-in duration-500">
-            <div class="max-w-5xl mx-auto">
-                <div class="video-container shadow-2xl">
-                    <div id="mainPlayer"></div>
-                </div>
-                <div class="mt-6">
-                    <h2 id="videoTitle" class="text-2xl font-bold">Video Başlığı</h2>
-                    <p id="videoChannel" class="text-red-500 mt-1 font-medium"></p>
-                </div>
-                <hr class="my-6 border-zinc-800">
-            </div>
-        </div>
+    <div class="fixed bottom-0 w-full p-4 flex justify-around bg-black border-t border-zinc-800 text-white z-20">
+        <i class="fas fa-home text-xl"></i>
+        <i class="fas fa-search text-xl"></i>
+        <div class="bg-white text-black px-4 rounded-lg font-bold">+</div>
+        <i class="fas fa-comment text-xl"></i>
+        <i class="fas fa-user text-xl"></i>
+    </div>
 
-        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <div class="col-span-full text-center py-20 text-zinc-500">
-                <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-                <p>YouTube'dan videolar çekiliyor...</p>
-            </div>
-        </div>
-    </main>
+    <script async src="https://www.tiktok.com/embed.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
-        // Senin Yeni API Anahtarın
-        const KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg'; 
+        const videoStack = document.getElementById('videoStack');
         
-        // İlk yüklemede popüler içerikleri getir
-        window.onload = () => search('2026 trend videolar');
+        // Simülasyon için rastgele video ID'leri (Senin ID'nden sonra gelecekler)
+        const nextVideoIds = [
+            '7412345678901234567',
+            '7312345678901234567',
+            '7212345678901234567'
+        ];
 
-        async function search(query = null) {
-            const searchTerm = query || document.getElementById('q').value;
-            if(!searchTerm) return;
+        let loadedIndex = 0;
 
-            try {
-                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(searchTerm)}&type=video&key=${KEY}`);
-                const data = await response.json();
-                
-                if(data.items) {
-                    render(data.items);
-                } else {
-                    throw new Error();
+        // Sonsuz kaydırma simülasyonu
+        videoStack.addEventListener('scroll', () => {
+            if (videoStack.scrollTop + videoStack.clientHeight >= videoStack.scrollHeight - 50) {
+                if (loadedIndex < nextVideoIds.length) {
+                    addNextVideo(nextVideoIds[loadedIndex]);
+                    loadedIndex++;
                 }
-            } catch (err) {
-                document.getElementById('grid').innerHTML = `
-                    <div class="col-span-full text-center p-10 bg-red-900/10 rounded-xl border border-red-900/50">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl mb-2"></i>
-                        <p class="text-red-400">API Hatası: Anahtarınızı kontrol edin veya günlük limit dolmuş olabilir.</p>
-                    </div>`;
+            }
+        });
+
+        function addNextVideo(id) {
+            const div = document.createElement('div');
+            div.className = 'video-container';
+            div.innerHTML = `
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${id}" data-video-id="${id}" style="max-width: 605px;min-width: 325px;">
+                    <section></section>
+                </blockquote>
+                <div class="actions">
+                    <div class="action-btn">❤️</div>
+                    <div class="action-btn">💬</div>
+                    <div class="action-btn">🔗</div>
+                </div>
+            `;
+            videoStack.appendChild(div);
+            // TikTok scriptini yeni video için tekrar tetikler
+            if (window.tiktok && window.tiktok.render) {
+                window.tiktok.render();
             }
         }
-
-        function render(videos) {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            
-            videos.forEach(v => {
-                const videoId = v.id.videoId;
-                const title = v.snippet.title.replace(/"/g, '&quot;');
-                const channel = v.snippet.channelTitle;
-                const thumb = v.snippet.thumbnails.high.url;
-
-                grid.innerHTML += `
-                    <div class="card-hover group cursor-pointer" onclick="play('${videoId}', '${title}', '${channel}')">
-                        <div class="relative rounded-2xl overflow-hidden aspect-video bg-zinc-800">
-                            <img src="${thumb}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                <i class="fas fa-play text-white text-3xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <h3 class="font-bold text-sm line-clamp-2 leading-tight">${v.snippet.title}</h3>
-                            <p class="text-zinc-500 text-xs mt-2 italic">${channel}</p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function play(id, title, channel) {
-            document.getElementById('playerBox').classList.remove('hidden');
-            document.getElementById('mainPlayer').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen allow="autoplay"></iframe>`;
-            document.getElementById('videoTitle').innerHTML = title;
-            document.getElementById('videoChannel').innerText = channel;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        document.getElementById('q').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') search();
-        });
     </script>
 </body>
 </html>
