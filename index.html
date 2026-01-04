@@ -2,236 +2,188 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hamster Kombat Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #f3ba2f;
-            --bg: #000000;
-            --card-bg: #1c1f24;
-        }
-
         body {
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
-            user-select: none;
+            touch-action: manipulation;
         }
 
-        .header {
-            margin-top: 20px;
-            text-align: center;
+        .main-gradient {
+            background: radial-gradient(circle at center, #2d2d2d 0%, #000000 100%);
         }
 
-        .score-container {
-            font-size: 48px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .coin-shadow {
+            box-shadow: 0 0 50px rgba(243, 186, 47, 0.15);
         }
 
-        .coin-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border-radius: 50%;
+        .progress-gradient {
+            background: linear-gradient(90deg, #f3ba2f 0%, #fdb022 100%);
         }
 
-        .main-game {
-            flex-grow: 1;
+        .hamster-btn {
+            background: radial-gradient(circle, #4e4e4e 0%, #1a1a1a 100%);
+            border: 10px solid #282828;
+            transition: transform 0.05s ease-in-out;
+            position: relative;
+        }
+
+        .hamster-btn:active {
+            transform: scale(0.92);
+        }
+
+        /* Tıklama Efekti Sayısı */
+        .click-ani {
+            position: absolute;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 800;
+            pointer-events: none;
+            animation: fly 0.8s ease-out forwards;
+            z-index: 50;
+        }
+
+        @keyframes fly {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-150px); }
+        }
+
+        .nav-item {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            width: 100%;
+            font-size: 10px;
+            color: #888;
         }
 
-        .hamster-button {
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, #3a3f47 0%, #1c1f24 100%);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.1s;
-            border: 8px solid #333;
-            box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
-        }
-
-        .hamster-button:active {
-            transform: scale(0.95);
-        }
-
-        .hamster-emoji {
-            font-size: 120px;
-        }
-
-        .stats {
-            width: 90%;
-            max-width: 400px;
-            margin-bottom: 30px;
-        }
-
-        .energy-bar-container {
-            width: 100%;
-            height: 15px;
-            background: #333;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .energy-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f3ba2f, #ffea00);
-            width: 100%;
-            border-radius: 10px;
-            transition: width 0.2s;
-        }
-
-        .footer-menu {
-            width: 100%;
-            background: var(--card-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 2px solid #333;
-        }
-
-        .menu-item {
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.7;
-            cursor: pointer;
-        }
-
-        .menu-item:hover { opacity: 1; }
-
-        /* Tıklama Efekti */
-        .plus-one {
-            position: absolute;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            animation: moveUp 0.5s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes moveUp {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-100px); }
+        .nav-item.active {
+            color: #f3ba2f;
         }
     </style>
 </head>
-<body>
+<body class="main-gradient h-screen flex flex-col items-center justify-between pb-4">
 
-    <div class="header">
-        <p style="color: #888; margin: 0;">Toplam Bakiye</p>
-        <div class="score-container">
-            <span id="score">0</span>
+    <div class="w-full px-4 pt-4 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center font-bold text-black">H</div>
+            <div class="flex-1">
+                <p class="text-xs font-bold">Hamster (CEO)</p>
+                <div class="w-full bg-gray-800 h-2 rounded-full mt-1">
+                    <div class="progress-gradient h-full w-1/3 rounded-full"></div>
+                </div>
+            </div>
         </div>
-        <p style="color: var(--primary);">Saatlik Kazanç: +<span id="pps">0</span></p>
+
+        <div class="grid grid-cols-3 gap-2">
+            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
+                <p class="text-[10px] text-gray-400">Tık Başına</p>
+                <p class="text-xs font-bold text-yellow-500">+1</p>
+            </div>
+            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
+                <p class="text-[10px] text-gray-400">Limit</p>
+                <p class="text-xs font-bold text-blue-400">2.0M</p>
+            </div>
+            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
+                <p class="text-[10px] text-gray-400">Saatlik Kar</p>
+                <p class="text-xs font-bold text-green-500">+1.2K</p>
+            </div>
+        </div>
     </div>
 
-    <div class="main-game">
-        <div class="hamster-button" id="clickBtn">
-            <span class="hamster-emoji">🐹</span>
+    <div class="flex flex-col items-center mt-4">
+        <div class="flex items-center gap-3">
+            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-12 h-12" alt="coin">
+            <span id="score" class="text-5xl font-extrabold tracking-tighter">0</span>
         </div>
     </div>
 
-    <div class="stats">
-        <div style="display: flex; justify-content: space-between;">
-            <span>⚡ <span id="energy">1000</span> / 1000</span>
-            <span id="status">Rank: Bronz</span>
-        </div>
-        <div class="energy-bar-container">
-            <div class="energy-bar-fill" id="energyFill"></div>
+    <div class="relative">
+        <div id="clickArea" class="hamster-btn w-72 h-72 rounded-full flex items-center justify-center coin-shadow">
+            <span class="text-[140px] select-none">🐹</span>
         </div>
     </div>
 
-    <div class="footer-menu">
-        <div class="menu-item" onclick="upgrade()">⚒️<br>Geliştir</div>
-        <div class="menu-item">🤝<br>Arkadaşlar</div>
-        <div class="menu-item">💰<br>Görevler</div>
+    <div class="w-full px-6">
+        <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-1">
+                <span class="text-xl">⚡</span>
+                <span id="energy" class="font-bold text-lg">1000</span>
+                <span class="text-gray-500 text-sm">/ 1000</span>
+            </div>
+            <div class="text-sm font-bold text-yellow-500">Bronz ></div>
+        </div>
+        <div class="w-full bg-gray-800 h-3 rounded-full overflow-hidden border border-gray-700">
+            <div id="energyBar" class="progress-gradient h-full w-full transition-all duration-300"></div>
+        </div>
+    </div>
+
+    <div class="w-[95%] bg-[#1c1f24] py-3 rounded-2xl flex justify-around border border-gray-800 shadow-2xl">
+        <div class="nav-item active"><span>🏠</span><span>Borsa</span></div>
+        <div class="nav-item"><span>⛏️</span><span>Madenci</span></div>
+        <div class="nav-item"><span>👥</span><span>Arkadaşlar</span></div>
+        <div class="nav-item"><span>🪙</span><span>Kazan</span></div>
+        <div class="nav-item"><span>🚀</span><span>AirDrop</span></div>
     </div>
 
     <script>
         let score = 0;
         let energy = 1000;
-        let maxEnergy = 1000;
-        let profitPerHour = 0;
-        let clickValue = 1;
-
+        const maxEnergy = 1000;
+        
         const scoreEl = document.getElementById('score');
         const energyEl = document.getElementById('energy');
-        const energyFill = document.getElementById('energyFill');
-        const ppsEl = document.getElementById('pps');
-        const clickBtn = document.getElementById('clickBtn');
+        const energyBar = document.getElementById('energyBar');
+        const clickArea = document.getElementById('clickArea');
 
-        // Tıklama Fonksiyonu
-        clickBtn.addEventListener('click', (e) => {
-            if (energy >= clickValue) {
-                score += clickValue;
-                energy -= clickValue;
-                updateUI();
-                showClickEffect(e.clientX, e.clientY);
+        clickArea.addEventListener('click', (e) => {
+            if (energy > 0) {
+                // Skoru Artır
+                score += 1;
+                energy -= 1;
+                
+                // UI Güncelle
+                scoreEl.innerText = score.toLocaleString();
+                energyEl.innerText = energy;
+                energyBar.style.width = (energy / maxEnergy * 100) + '%';
+
+                // Sayı Efekti Oluştur
+                createClickEffect(e);
+                
+                // Hafif Titreşim (Mobil cihazlarda)
+                if (navigator.vibrate) navigator.vibrate(10);
             }
         });
 
-        // Tıklama Efekti (+1 yazısı)
-        function showClickEffect(x, y) {
-            const div = document.createElement('div');
-            div.className = 'plus-one';
-            div.innerText = `+${clickValue}`;
-            div.style.left = x + 'px';
-            div.style.top = y + 'px';
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 500);
+        function createClickEffect(e) {
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            const num = document.createElement('div');
+            num.className = 'click-ani';
+            num.innerText = '+1';
+            num.style.left = `${x - 20}px`;
+            num.style.top = `${y - 40}px`;
+            
+            document.body.appendChild(num);
+            
+            setTimeout(() => {
+                num.remove();
+            }, 800);
         }
 
-        // Geliştirme Sistemi (Basit)
-        function upgrade() {
-            if (score >= 50) {
-                score -= 50;
-                profitPerHour += 10;
-                alert("Geliştirme Yapıldı! Saatlik kazanç arttı.");
-                updateUI();
-            } else {
-                alert("Yetersiz bakiye! (50 coin lazım)");
-            }
-        }
-
-        // Otomatik Kazanç (Pasif Gelir)
-        setInterval(() => {
-            if (profitPerHour > 0) {
-                score += (profitPerHour / 3600); // Saniyeye bölüyoruz
-                updateUI();
-            }
-        }, 1000);
-
-        // Enerji Yenilenmesi
+        // Enerji Yenileme (Saniyede 1)
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 1);
-                updateUI();
+                energy += 1;
+                energyEl.innerText = energy;
+                energyBar.style.width = (energy / maxEnergy * 100) + '%';
             }
-        }, 1500);
-
-        function updateUI() {
-            scoreEl.innerText = Math.floor(score).toLocaleString();
-            energyEl.innerText = energy;
-            ppsEl.innerText = profitPerHour;
-            const energyPercent = (energy / maxEnergy) * 100;
-            energyFill.style.width = energyPercent + '%';
-        }
+        }, 1000);
     </script>
 </body>
 </html>
