@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Loop</title>
+    <title>Reels Projesi</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             background-color: #000;
             display: flex;
@@ -15,53 +14,34 @@
             overflow: hidden;
             font-family: sans-serif;
         }
-
-        /* Reels Akış Alanı */
         .reels-container {
             width: 100%;
-            max-width: 420px; /* Tam telefon genişliği */
+            max-width: 420px; /* Telefon genişliği */
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none;
         }
-
         .reels-container::-webkit-scrollbar { display: none; }
-
         .reel {
             width: 100%;
             height: 100vh;
             scroll-snap-align: start;
             position: relative;
             background: #000;
-            display: flex;
-            align-items: center;
         }
-
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Videoyu ekrana tam yayar, siyah boşluk bırakmaz */
+            object-fit: cover; /* Reels gibi tam ekran kapla */
         }
-
-        /* Yazı ve Buton Overlay */
-        .overlay {
+        .ui {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             left: 15px;
             color: white;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
             pointer-events: none;
-        }
-
-        .side-bar {
-            position: absolute;
-            right: 15px;
-            bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            color: white;
         }
     </style>
 </head>
@@ -70,40 +50,44 @@
 <div class="reels-container">
     
     <div class="reel">
-        <video src="videoplayback.mp4" loop muted playsinline autoplay></video>
-        <div class="side-bar"><div>❤️</div><div>💬</div></div>
-        <div class="overlay"><h4>@video1</h4><p>Döngü aktif!</p></div>
+        <video src="videoplayback.mp4" loop muted playsinline></video>
+        <div class="ui"><h4>@video_1</h4><p>Açıklama alanı...</p></div>
     </div>
 
     <div class="reel">
         <video src="videoplayback2.mp4" loop muted playsinline></video>
-        <div class="side-bar"><div>❤️</div><div>💬</div></div>
-        <div class="overlay"><h4>@video2</h4><p>Kaydırınca başlar.</p></div>
+        <div class="ui"><h4>@video_2</h4><p>İkinci video döngüde!</p></div>
     </div>
 
 </div>
 
 <script>
-    const allVideos = document.querySelectorAll('video');
+    const videos = document.querySelectorAll('video');
 
-    // Sadece ekranda olan videoyu oynat, diğerlerini durdur ve başa sar
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.play();
+                // Ekrana girdiğinde oynat
+                entry.target.play().catch(error => console.log("Oynatma hatası:", error));
             } else {
+                // Ekrandan çıktığında durdur ve başa sar
                 entry.target.pause();
-                entry.target.currentTime = 0; // Kaydırıp geri dönünce en baştan başlar
+                entry.target.currentTime = 0;
             }
         });
     }, { threshold: 0.6 });
 
-    allVideos.forEach(v => {
+    videos.forEach(v => {
         observer.observe(v);
-        // Tıklayınca Sesi Aç/Kapat
+        // Tıklayınca sesi aç/kapat (Tarayıcı engeli için gerekli)
         v.addEventListener('click', () => {
             v.muted = !v.muted;
         });
+    });
+
+    // İlk videoyu sayfa yüklenince başlatmaya zorla
+    window.addEventListener('load', () => {
+        videos[0].play();
     });
 </script>
 
