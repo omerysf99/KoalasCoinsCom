@@ -3,149 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kripto Simülatör - 10K Deneme Bakiyesi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Hamster Kombat Clone</title>
     <style>
-        body { background-color: #0f172a; color: white; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        :root {
+            --primary: #f3ba2f;
+            --bg: #000000;
+            --card-bg: #1c1f24;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .header {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .score-container {
+            font-size: 48px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .main-game {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hamster-button {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #3a3f47 0%, #1c1f24 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            border: 8px solid #333;
+            box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
+        }
+
+        .hamster-button:active {
+            transform: scale(0.95);
+        }
+
+        .hamster-emoji {
+            font-size: 120px;
+        }
+
+        .stats {
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        .energy-bar-container {
+            width: 100%;
+            height: 15px;
+            background: #333;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .energy-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f3ba2f, #ffea00);
+            width: 100%;
+            border-radius: 10px;
+            transition: width 0.2s;
+        }
+
+        .footer-menu {
+            width: 100%;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 2px solid #333;
+        }
+
+        .menu-item {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .menu-item:hover { opacity: 1; }
+
+        /* Tıklama Efekti */
+        .plus-one {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            animation: moveUp 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes moveUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-100px); }
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-8 glass p-6 rounded-2xl">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-400">CryptoTrade Sim</h1>
-                <p class="text-gray-400 text-sm">Anlık Verilerle İşlem Yap</p>
-            </div>
-            <div class="text-right">
-                <p class="text-gray-400">Toplam Bakiye</p>
-                <p id="total-balance" class="text-3xl font-mono text-green-400">$10,000.00</p>
-            </div>
+    <div class="header">
+        <p style="color: #888; margin: 0;">Toplam Bakiye</p>
+        <div class="score-container">
+            <span id="score">0</span>
         </div>
+        <p style="color: var(--primary);">Saatlik Kazanç: +<span id="pps">0</span></p>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2 glass rounded-2xl overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-800">
-                        <tr>
-                            <th class="p-4">Coin</th>
-                            <th class="p-4">Fiyat</th>
-                            <th class="p-4 text-right">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="market-list">
-                        </tbody>
-                </table>
-            </div>
-
-            <div class="glass p-6 rounded-2xl h-fit">
-                <h2 class="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Cüzdanım</h2>
-                <div id="portfolio-list" class="space-y-4">
-                    <p class="text-gray-500 italic text-sm">Henüz coin almadınız.</p>
-                </div>
-                <button onclick="resetGame()" class="mt-8 text-xs text-red-400 hover:underline w-full">Sıfırla ve Yeniden Başla</button>
-            </div>
+    <div class="main-game">
+        <div class="hamster-button" id="clickBtn">
+            <span class="hamster-emoji">🐹</span>
         </div>
     </div>
 
+    <div class="stats">
+        <div style="display: flex; justify-content: space-between;">
+            <span>⚡ <span id="energy">1000</span> / 1000</span>
+            <span id="status">Rank: Bronz</span>
+        </div>
+        <div class="energy-bar-container">
+            <div class="energy-bar-fill" id="energyFill"></div>
+        </div>
+    </div>
+
+    <div class="footer-menu">
+        <div class="menu-item" onclick="upgrade()">⚒️<br>Geliştir</div>
+        <div class="menu-item">🤝<br>Arkadaşlar</div>
+        <div class="menu-item">💰<br>Görevler</div>
+    </div>
+
     <script>
-        let balance = parseFloat(localStorage.getItem('crypto_balance')) || 10000;
-        let portfolio = JSON.parse(localStorage.getItem('crypto_portfolio')) || {};
-        const coins = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'AVAXUSDT', 'DOGEUSDT'];
-        let currentPrices = {};
+        let score = 0;
+        let energy = 1000;
+        let maxEnergy = 1000;
+        let profitPerHour = 0;
+        let clickValue = 1;
 
-        function updateUI() {
-            document.getElementById('total-balance').innerText = `$${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            localStorage.setItem('crypto_balance', balance);
-            localStorage.setItem('crypto_portfolio', JSON.stringify(portfolio));
-            renderPortfolio();
-        }
+        const scoreEl = document.getElementById('score');
+        const energyEl = document.getElementById('energy');
+        const energyFill = document.getElementById('energyFill');
+        const ppsEl = document.getElementById('pps');
+        const clickBtn = document.getElementById('clickBtn');
 
-        async function fetchPrices() {
-            try {
-                const response = await fetch('https://api.binance.com/api/v3/ticker/price');
-                const data = await response.json();
-                const filtered = data.filter(item => coins.includes(item.symbol));
-                
-                const tableBody = document.getElementById('market-list');
-                tableBody.innerHTML = '';
-
-                filtered.forEach(coin => {
-                    const price = parseFloat(coin.price);
-                    currentPrices[coin.symbol] = price;
-                    const name = coin.symbol.replace('USDT', '');
-                    
-                    tableBody.innerHTML += `
-                        <tr class="border-b border-gray-800 hover:bg-slate-800/50 transition">
-                            <td class="p-4 font-bold">${name}</td>
-                            <td class="p-4 font-mono text-yellow-500">$${price.toLocaleString()}</td>
-                            <td class="p-4 text-right">
-                                <button onclick="buyCoin('${coin.symbol}')" class="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm mr-1">AL</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (error) {
-                console.error("Veri çekilemedi", error);
+        // Tıklama Fonksiyonu
+        clickBtn.addEventListener('click', (e) => {
+            if (energy >= clickValue) {
+                score += clickValue;
+                energy -= clickValue;
+                updateUI();
+                showClickEffect(e.clientX, e.clientY);
             }
+        });
+
+        // Tıklama Efekti (+1 yazısı)
+        function showClickEffect(x, y) {
+            const div = document.createElement('div');
+            div.className = 'plus-one';
+            div.innerText = `+${clickValue}`;
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 500);
         }
 
-        function buyCoin(symbol) {
-            const price = currentPrices[symbol];
-            if (balance >= price) {
-                balance -= price;
-                portfolio[symbol] = (portfolio[symbol] || 0) + 1;
+        // Geliştirme Sistemi (Basit)
+        function upgrade() {
+            if (score >= 50) {
+                score -= 50;
+                profitPerHour += 10;
+                alert("Geliştirme Yapıldı! Saatlik kazanç arttı.");
                 updateUI();
             } else {
-                alert("Yetersiz bakiye! 1 adet almaya paranız yetmiyor.");
+                alert("Yetersiz bakiye! (50 coin lazım)");
             }
         }
 
-        function sellCoin(symbol) {
-            if (portfolio[symbol] > 0) {
-                const price = currentPrices[symbol];
-                balance += price;
-                portfolio[symbol] -= 1;
-                if (portfolio[symbol] === 0) delete portfolio[symbol];
+        // Otomatik Kazanç (Pasif Gelir)
+        setInterval(() => {
+            if (profitPerHour > 0) {
+                score += (profitPerHour / 3600); // Saniyeye bölüyoruz
                 updateUI();
             }
-        }
+        }, 1000);
 
-        function renderPortfolio() {
-            const container = document.getElementById('portfolio-list');
-            const keys = Object.keys(portfolio);
-            
-            if (keys.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 italic text-sm">Henüz coin almadınız.</p>';
-                return;
+        // Enerji Yenilenmesi
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy = Math.min(maxEnergy, energy + 1);
+                updateUI();
             }
+        }, 1500);
 
-            container.innerHTML = '';
-            keys.forEach(symbol => {
-                container.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg">
-                        <div>
-                            <p class="font-bold">${symbol.replace('USDT', '')}</p>
-                            <p class="text-xs text-gray-400">${portfolio[symbol]} Adet</p>
-                        </div>
-                        <button onclick="sellCoin('${symbol}')" class="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm">SAT</button>
-                    </div>
-                `;
-            });
+        function updateUI() {
+            scoreEl.innerText = Math.floor(score).toLocaleString();
+            energyEl.innerText = energy;
+            ppsEl.innerText = profitPerHour;
+            const energyPercent = (energy / maxEnergy) * 100;
+            energyFill.style.width = energyPercent + '%';
         }
-
-        function resetGame() {
-            if(confirm("Tüm ilerlemeniz silinecek. Emin misiniz?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // İlk yükleme ve periyodik güncelleme
-        fetchPrices();
-        updateUI();
-        setInterval(fetchPrices, 5000); // 5 saniyede bir fiyat güncelle
     </script>
 </body>
 </html>
