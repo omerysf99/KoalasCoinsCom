@@ -2,219 +2,148 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Ultimate Live</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>YouTube Long - Ultra Dynamic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- TEMA AYARLARI --- */
-        :root {
-            --yt-black: #0f0f0f;
-            --yt-white: #ffffff;
-            --yt-gray: #272727;
-            --yt-red: #ff0000;
-            --sidebar-width: 240px;
-        }
-
+        :root { --yt-black: #0f0f0f; --yt-gray: #272727; --yt-red: #ff0000; --sidebar-w: 240px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--yt-black); color: var(--yt-white); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        body { background: var(--yt-black); color: white; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
 
-        /* --- SKELETON LOADERS (Beyaz ekranı %100 engeller) --- */
-        .skeleton-card { margin-bottom: 20px; }
-        .sk-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; background: linear-gradient(90deg, #121212 25%, #1d1d1d 50%, #121212 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        .sk-text { height: 15px; background: #1d1d1d; margin-top: 10px; border-radius: 4px; width: 80%; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* --- HEADER --- */
+        /* HEADER */
         header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--yt-black); display: flex; align-items: center; padding: 0 16px; z-index: 5000; justify-content: space-between; border-bottom: 1px solid #222; }
-        .logo { font-size: 20px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; gap: 5px; }
+        .logo { font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .logo span { color: var(--yt-red); font-size: 26px; }
-        .search-box { flex: 0 1 600px; display: flex; border: 1px solid #333; border-radius: 40px; overflow: hidden; background: #121212; }
-        .search-box input { background: transparent; border: none; padding: 10px 20px; width: 100%; color: white; outline: none; }
-        .search-box button { background: var(--yt-gray); border: none; padding: 0 20px; color: white; cursor: pointer; }
+        .search-box { flex: 0 1 600px; display: flex; background: #121212; border: 1px solid #333; border-radius: 40px; padding: 2px; }
+        .search-box input { background: transparent; border: none; padding: 8px 20px; width: 100%; color: white; outline: none; }
 
-        /* --- SIDEBAR --- */
-        #sidebar { position: fixed; left: 0; top: 56px; width: var(--sidebar-width); height: 100%; background: var(--yt-black); padding: 12px; border-right: 1px solid #222; }
-        .nav-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .nav-item:hover { background: var(--yt-gray); }
-        .nav-item.active { background: var(--yt-gray); font-weight: bold; }
+        /* SIDEBAR */
+        #sidebar { position: fixed; left: 0; top: 56px; width: var(--sidebar-w); height: 100%; background: var(--yt-black); padding: 12px; border-right: 1px solid #222; }
+        .nav-link { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; cursor: pointer; }
+        .nav-link:hover { background: var(--yt-gray); }
 
-        /* --- CONTENT AREA --- */
-        main { margin-left: var(--sidebar-width); margin-top: 56px; padding: 24px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px; }
+        /* MAIN GRID */
+        main { margin-left: var(--sidebar-w); margin-top: 56px; padding: 24px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
 
-        /* --- VIDEO CARD --- */
-        .v-card { cursor: pointer; display: none; }
-        .v-thumb-container { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #1a1a1a; }
-        .v-thumb-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
-        .v-card:hover img { transform: scale(1.05); }
-        .v-duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 5px; border-radius: 4px; font-size: 12px; }
-        
-        .v-details { display: flex; gap: 12px; margin-top: 12px; }
-        .v-avatar { width: 36px; height: 36px; border-radius: 50%; background: #333; flex-shrink: 0; }
-        .v-info h3 { font-size: 15px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
-        .v-info p { font-size: 13px; color: #aaa; margin-top: 4px; }
+        /* BEYAZ EKRAN ÖNLEYİCİ SKELETON */
+        .skeleton { 
+            background: linear-gradient(90deg, #121212 25%, #1d1d1d 50%, #121212 75%);
+            background-size: 200% 100%; animation: skLoad 1.5s infinite;
+            height: 180px; border-radius: 12px; margin-bottom: 10px;
+        }
+        @keyframes skLoad { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* --- WATCH MODAL (ERTN GÖRSELİNDEKİ TASARIM) --- */
-        #watch-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--yt-black); z-index: 6000; display: none; overflow-y: auto; }
-        .watch-container { display: flex; max-width: 1700px; margin: 70px auto; gap: 24px; padding: 0 20px; }
-        .player-main { flex: 3; }
-        .player-side { flex: 1; min-width: 350px; display: flex; flex-direction: column; gap: 15px; }
-        
-        .side-v-card { display: flex; gap: 10px; cursor: pointer; }
-        .side-v-thumb { width: 168px; height: 94px; border-radius: 8px; object-fit: cover; background: #1a1a1a; flex-shrink: 0; }
-        .side-v-info h4 { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .side-v-info p { font-size: 12px; color: #aaa; margin-top: 5px; }
+        /* VİDEO KARTLARI */
+        .v-card { cursor: pointer; display: none; transition: 0.3s; }
+        .v-card:hover { transform: translateY(-5px); }
+        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
+        .v-title { font-size: 16px; font-weight: 500; margin: 10px 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+        .v-meta { color: #aaa; font-size: 13px; }
+
+        /* İZLEME EKRANI (ERTN TASARIMI) */
+        #watch-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 6000; display: none; overflow-y: auto; }
+        .watch-wrap { display: flex; max-width: 1700px; margin: 70px auto; gap: 24px; padding: 0 20px; }
+        .player-left { flex: 3; }
+        .side-right { flex: 1; min-width: 350px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo" onclick="location.reload()"><span>▶</span> YouTube<sup>TR</sup></div>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="YouTube'da Ara">
-        <button onclick="performSearch()">🔍</button>
-    </div>
-    <div style="font-size: 20px; display: flex; gap: 20px;">🎥 🔔 👤</div>
+    <div class="search-box"><input type="text" id="sInput" placeholder="Uzun video ara..."></div>
+    <div style="font-size: 20px;">🎥 🔔 👤</div>
 </header>
 
 <nav id="sidebar">
-    <div class="nav-item active" onclick="location.reload()">🏠 Ana Sayfa</div>
-    <div class="nav-item" onclick="performSearch('shorts')">🩳 Shorts</div>
-    <div class="nav-item">📺 Abonelikler</div>
+    <div class="nav-link" onclick="location.reload()">🏠 Ana Sayfa</div>
+    <div class="nav-link" onclick="getVids('shorts')">🩳 Shorts</div>
     <hr style="border:0.1px solid #333; margin:15px 0;">
-    <div class="nav-item">🕒 Geçmiş</div>
-    <div class="nav-item">🎬 Videolarınız</div>
+    <div class="nav-link">📚 Kitaplık</div>
 </nav>
 
 <main>
     <div class="video-grid" id="mainGrid">
-        <div class="skeleton-card"><div class="sk-thumb"></div><div class="sk-text"></div></div>
-        <div class="skeleton-card"><div class="sk-thumb"></div><div class="sk-text"></div></div>
-        <div class="skeleton-card"><div class="sk-thumb"></div><div class="sk-text"></div></div>
-        <div class="skeleton-card"><div class="sk-thumb"></div><div class="sk-text"></div></div>
+        <div class="sk-box"><div class="skeleton"></div><div style="height:15px; background:#1d1d1d; width:80%;"></div></div>
+        <div class="sk-box"><div class="skeleton"></div><div style="height:15px; background:#1d1d1d; width:80%;"></div></div>
+        <div class="sk-box"><div class="skeleton"></div><div style="height:15px; background:#1d1d1d; width:80%;"></div></div>
     </div>
 </main>
 
 <div id="watch-overlay">
-    <div onclick="closeWatch()" style="position:fixed; top:15px; left:20px; font-size:30px; cursor:pointer; color:white; z-index:7000;">←</div>
-    <div class="watch-container">
-        <div class="player-main">
-            <iframe id="videoPlayer" width="100%" style="aspect-ratio:16/9; border-radius:12px; border:none;" allowfullscreen allow="autoplay"></iframe>
-            <h1 id="playerTitle" style="margin-top:20px; font-size:22px;"></h1>
-            <div style="display:flex; align-items:center; gap:15px; margin-top:15px; padding-bottom:20px; border-bottom:1px solid #333;">
-                <div class="v-avatar"></div>
-                <div><strong id="playerChannel">Kanal</strong><br><small style="color:#aaa;">4,5 B abone</small></div>
-                <button style="background:white; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; margin-left:20px; cursor:pointer;">Abone Ol</button>
-            </div>
+    <div onclick="closeWatch()" style="position:fixed; top:15px; left:20px; font-size:35px; cursor:pointer;">←</div>
+    <div class="watch-wrap">
+        <div class="player-left">
+            <iframe id="mainPlayer" width="100%" style="aspect-ratio:16/9; border-radius:12px;" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+            <h1 id="vT" style="margin-top:20px; font-size:22px;"></h1>
+            <p id="vC" style="color:#aaa; margin-top:10px;"></p>
         </div>
-        <div class="player-side" id="sideGrid">
-            </div>
+        <div class="side-right" id="sideGrid"></div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
     
-    // Her yenilemede farklı sonuçlar getirmek için sorgu havuzu
-    const queries = ['trendler türkiye', 'oyun haberleri', 'teknoloji incelemeleri', 'yeni müzikler', 'belgesel', 'futbol özetleri'];
-    const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+    // UZUN VİDEO ODAKLI ANAHTAR KELİMELER
+    const longTerms = ['türkiye belgesel full izle', 'bölüm tek parça', 'uzun oyun videoları', 'podcast türkçe', 'canlı yayın özetleri'];
+    const randomQuery = longTerms[Math.floor(Math.random() * longTerms.length)];
 
-    async function loadContent(searchTerm = randomQuery) {
+    async function getVids(q = randomQuery) {
         const grid = document.getElementById('mainGrid');
-        
         try {
-            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=${searchTerm}&type=video&key=${API_KEY}`);
-            const data = await response.json();
+            // videoDuration=long parametresi ile sadece 20dk+ videoları filtreleyebiliriz
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${q}&videoDuration=long&type=video&key=${API_KEY}`);
+            const data = await res.json();
             
             if (data.items) {
-                grid.innerHTML = ""; // Skeletonları temizle
+                grid.innerHTML = ""; 
                 data.items.forEach(item => {
-                    renderVideoCard(grid, item);
+                    const card = document.createElement('div');
+                    card.className = 'v-card';
+                    card.style.display = 'block';
+                    card.onclick = () => openWatch(item.id.videoId, item.snippet.title, item.snippet.channelTitle);
+                    card.innerHTML = `
+                        <img src="${item.snippet.thumbnails.high.url}" class="v-thumb" onerror="this.src='https://via.placeholder.com/320x180/1a1a1a/ffffff?text=Video+Hazirlaniyor'">
+                        <div class="v-title">${item.snippet.title}</div>
+                        <div class="v-meta">${item.snippet.channelTitle}</div>
+                    `;
+                    grid.appendChild(card);
                 });
             }
-        } catch (error) {
-            console.error("API Error:", error);
-            grid.innerHTML = "<p style='padding:20px;'>Hata: API Kotası dolmuş olabilir veya anahtar geçersiz.</p>";
-        }
+        } catch (e) { console.error("Hata:", e); }
     }
 
-    function renderVideoCard(target, data) {
-        const vId = data.id.videoId;
-        const title = data.snippet.title;
-        const channel = data.snippet.channelTitle;
-        const thumb = data.snippet.thumbnails.high.url;
-
-        const card = document.createElement('div');
-        card.className = 'v-card';
-        card.style.display = 'block';
-        card.onclick = () => openWatch(vId, title, channel);
-
-        card.innerHTML = `
-            <div class="v-thumb-container">
-                <img src="${thumb}" onerror="this.src='https://via.placeholder.com/320x180/1a1a1a/ffffff?text=Video+Hazirlaniyor'">
-                <div class="v-duration">12:45</div>
-            </div>
-            <div class="v-details">
-                <div class="v-avatar"></div>
-                <div class="v-info">
-                    <h3>${title}</h3>
-                    <p>${channel}</p>
-                    <p>${Math.floor(Math.random()*500)+1} B izlenme • 1 gün önce</p>
-                </div>
-            </div>
-        `;
-        target.appendChild(card);
-    }
-
-    function openWatch(id, title, channel) {
+    function openWatch(id, title, chan) {
         document.getElementById('watch-overlay').style.display = 'block';
-        document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-        document.getElementById('playerTitle').innerHTML = title;
-        document.getElementById('playerChannel').innerText = channel;
-        document.body.style.overflow = 'hidden'; // Arka plan kaymasını engelle
-
-        // Yan listeyi doldur
-        loadSideContent();
+        document.getElementById('mainPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        document.getElementById('vT').innerHTML = title;
+        document.getElementById('vC').innerText = chan;
+        
+        // Önerilenler kısmına rastgele videolar
+        loadSideVids();
     }
 
-    async function loadSideContent() {
-        const sideGrid = document.getElementById('sideGrid');
-        sideGrid.innerHTML = "";
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=sıradaki&type=video&key=${API_KEY}`);
-        const data = await response.json();
-        
+    async function loadSideVids() {
+        const side = document.getElementById('sideGrid');
+        side.innerHTML = "<h3>Sıradaki Videolar</h3><br>";
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=popüler&type=video&key=${API_KEY}`);
+        const data = await res.json();
         data.items.forEach(item => {
-            const s = item.snippet;
-            sideGrid.innerHTML += `
-                <div class="side-v-card" onclick="openWatch('${item.id.videoId}', '${s.title.replace(/'/g, "")}', '${s.channelTitle}')">
-                    <img src="${s.thumbnails.medium.url}" class="side-v-thumb">
-                    <div class="side-v-info">
-                        <h4>${s.title}</h4>
-                        <p>${s.channelTitle}</p>
-                    </div>
-                </div>
-            `;
+            side.innerHTML += `
+                <div style="display:flex; gap:10px; margin-bottom:15px; cursor:pointer;" onclick="openWatch('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', '${item.snippet.channelTitle}')">
+                    <img src="${item.snippet.thumbnails.medium.url}" style="width:160px; border-radius:8px;">
+                    <div><h4 style="font-size:14px;">${item.snippet.title}</h4><p style="font-size:12px; color:#aaa;">${item.snippet.channelTitle}</p></div>
+                </div>`;
         });
     }
 
     function closeWatch() {
         document.getElementById('watch-overlay').style.display = 'none';
-        document.getElementById('videoPlayer').src = "";
-        document.body.style.overflow = 'auto';
+        document.getElementById('mainPlayer').src = "";
     }
 
-    function performSearch(specificQuery) {
-        const query = specificQuery || document.getElementById('searchInput').value;
-        if (query) loadContent(query);
-    }
-
-    // ENTER tuşu ile arama
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performSearch();
-    });
-
-    // BAŞLAT
-    window.onload = () => loadContent();
+    window.onload = () => getVids();
 </script>
 </body>
 </html>
