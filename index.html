@@ -2,217 +2,115 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA KOMBAT | GOLDEN TAP</title>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reels Clone</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
-        
-        body { background-color: #000; color: #fff; overflow: hidden; height: 100vh; width: 100vw; position: fixed; font-family: 'Inter', sans-serif; }
-
-        /* Coin Konteynırı ve 3D Efekt */
-        .coin-container {
-            perspective: 1000px;
-            width: 320px; height: 320px;
-            margin: 20px auto;
-            position: relative;
-            z-index: 10;
+        /* Sayfa sıfırlama */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
         }
 
-        .coin-inner {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, #333 0%, #000 100%);
-            border: 10px solid #1c1f24;
-            box-shadow: 0 0 50px rgba(245, 187, 95, 0.1);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.1s ease-out;
-            transform-style: preserve-3d;
+        /* Reels Konteynırı */
+        .reels-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Kaydırmayı videoya kilitler */
+        }
+
+        /* Her bir Reel (Video alanı) */
+        .reel {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Videoyu ekranı kaplayacak şekilde ayarlar */
+        }
+
+        /* Sağdaki butonlar (Beğen, yorum vb.) */
+        .actions {
+            position: absolute;
+            right: 15px;
+            bottom: 100px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            font-family: sans-serif;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+        }
+
+        .action-item {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .icon {
+            font-size: 28px;
+            margin-bottom: 5px;
             cursor: pointer;
         }
-
-        .coin-inner img {
-            width: 90%; height: 90%;
-            border-radius: 50%;
-            object-fit: cover;
-            pointer-events: none;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        /* Tıklama Efektleri */
-        .floating-coin {
-            position: absolute;
-            width: 35px; height: 35px;
-            pointer-events: none;
-            z-index: 100;
-            animation: coinFloat 0.8s ease-out forwards;
-        }
-
-        @keyframes coinFloat {
-            0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
-            100% { opacity: 0; transform: translateY(-200px) rotate(360deg) scale(1.5); }
-        }
-
-        .tap-value {
-            position: absolute;
-            color: #f5bb5f;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 40px;
-            font-weight: 900;
-            pointer-events: none;
-            z-index: 101;
-            animation: textFloat 0.7s ease-out forwards;
-        }
-
-        @keyframes textFloat {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-150px); }
-        }
-
-        /* Navigasyon */
-        .nav-active { color: #f5bb5f; border-top: 2px solid #f5bb5f; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 grid grid-cols-3 gap-2 text-center">
-        <div class="bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">Per Tap</p>
-            <p class="text-xs font-black text-yellow-500" id="ui-pertap">+1</p>
-        </div>
-        <div class="bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">Lvl Up</p>
-            <p class="text-xs font-black text-blue-400">100M</p>
-        </div>
-        <div class="bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800">
-            <p class="text-[8px] text-zinc-500 font-bold uppercase">Profit/H</p>
-            <p class="text-xs font-black text-green-500" id="ui-pps">+2.5K</p>
+<div class="reels-container">
+    
+    <div class="reel">
+        <video src="video oynatma.mp4" loop muted autoplay playsinline></video>
+        <div class="actions">
+            <div class="action-item"><div class="icon">❤️</div><span>1.2K</span></div>
+            <div class="action-item"><div class="icon">💬</div><span>85</span></div>
+            <div class="action-item"><div class="icon">✈️</div></div>
         </div>
     </div>
 
-    <div class="text-center mt-8">
-        <div class="flex items-center justify-center gap-3">
-            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-12 h-12">
-            <h1 id="ui-bal" class="text-6xl font-black italic tracking-tighter" style="font-family: 'Montserrat'">0</h1>
+    <div class="reel">
+        <video src="https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-light-1282-large.mp4" loop muted playsinline></video>
+        <div class="actions">
+            <div class="action-item"><div class="icon">❤️</div><span>850</span></div>
+            <div class="action-item"><div class="icon">💬</div><span>12</span></div>
+            <div class="action-item"><div class="icon">✈️</div></div>
         </div>
     </div>
 
-    <div class="coin-container" id="tap-area">
-        <div class="coin-inner" id="coin-element">
-            <img src="coinkoala.jpg" alt="Koala">
-        </div>
-    </div>
-
-    <div class="fixed bottom-24 w-full px-8">
-        <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-yellow-400 text-3xl"></i>
-                <div>
-                    <span id="ui-energy" class="text-2xl font-black">1000</span>
-                    <span class="text-zinc-500 text-xs">/1000</span>
-                </div>
-            </div>
-            <button class="bg-zinc-900 border border-zinc-800 px-6 py-2 rounded-2xl font-black text-xs">BOOST 🚀</button>
-        </div>
-        <div class="w-full h-4 bg-zinc-900 rounded-full border border-zinc-800 overflow-hidden">
-            <div id="energy-bar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-600 transition-all duration-100" style="width: 100%"></div>
-        </div>
-    </div>
-
-    <nav class="fixed bottom-0 w-full h-20 bg-black border-t border-zinc-900 flex justify-around items-center px-4 pb-4">
-        <div class="text-center nav-active pt-2"><i class="fa-solid fa-paw text-2xl"></i><p class="text-[10px] font-bold">TAP</p></div>
-        <div class="text-center text-zinc-600" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-pickaxe text-2xl"></i><p class="text-[10px] font-bold">MINE</p></div>
-        <div class="text-center text-zinc-600" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-users text-2xl"></i><p class="text-[10px] font-bold">FRIENDS</p></div>
-        <div class="text-center text-zinc-600" onclick="tg.showAlert('Yakında!')"><i class="fa-solid fa-parachute-box text-2xl"></i><p class="text-[10px] font-bold">AIRDROP</p></div>
-    </nav>
+</div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    let balance = 0;
-    let energy = 1000;
-    let maxEnergy = 1000;
-    let perTap = 1;
-    let pps = 2500; // Saatlik kazanç
-
-    const coinInner = document.getElementById('coin-element');
-    const tapArea = document.getElementById('tap-area');
-
-    // TAP TO EARN MOTORU
-    tapArea.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            
-            if (energy >= perTap) {
-                // Veri Güncelleme
-                balance += perTap;
-                energy -= perTap;
-                
-                // 3D Tilt Efekti
-                const rect = tapArea.getBoundingClientRect();
-                const x = touch.pageX - rect.left - rect.width / 2;
-                const y = touch.pageY - rect.top - rect.height / 2;
-                coinInner.style.transform = `scale(0.95) rotateX(${-y / 5}deg) rotateY(${x / 5}deg)`;
-                
-                // Efektleri Yarat
-                createPopups(touch.pageX, touch.pageY);
-                
-                updateUI();
-                tg.HapticFeedback.impactOccurred('medium');
+    // Otomatik oynatma yönetimi (Sadece ekrandaki videoyu oynatır)
+    const videos = document.querySelectorAll('video');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play();
+            } else {
+                entry.target.pause();
             }
-        }
+        });
+    }, { threshold: 0.5 });
+
+    videos.forEach(video => observer.observe(video));
+
+    // Videoya tıklandığında sesi aç/kapat
+    videos.forEach(video => {
+        video.addEventListener('click', () => {
+            video.muted = !video.muted;
+        });
     });
-
-    tapArea.addEventListener('touchend', () => {
-        coinInner.style.transform = `scale(1) rotateX(0deg) rotateY(0deg)`;
-    });
-
-    function createPopups(x, y) {
-        // Uçan Sayı
-        const val = document.createElement('div');
-        val.className = 'tap-value';
-        val.innerText = `+${perTap}`;
-        val.style.left = `${x - 20}px`;
-        val.style.top = `${y - 60}px`;
-        document.body.appendChild(val);
-        setTimeout(() => val.remove(), 700);
-
-        // Uçan Altın Coin İkonu
-        const coin = document.createElement('img');
-        coin.src = 'https://cryptologos.cc/logos/tether-usdt-logo.png';
-        coin.className = 'floating-coin';
-        coin.style.left = `${x - 15}px`;
-        coin.style.top = `${y - 40}px`;
-        document.body.appendChild(coin);
-        setTimeout(() => coin.remove(), 800);
-    }
-
-    function updateUI() {
-        document.getElementById('ui-bal').innerText = Math.floor(balance).toLocaleString();
-        document.getElementById('ui-energy').innerText = energy;
-        document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + "%";
-        document.getElementById('ui-pps').innerText = "+" + (pps/1000).toFixed(1) + "K";
-    }
-
-    // Pasif Gelir (Profit per Hour) ve Enerji Dolumu
-    setInterval(() => {
-        // Enerji +3/sn
-        if (energy < maxEnergy) energy = Math.min(maxEnergy, energy + 3);
-        
-        // Pasif Gelir Ekleme (Saniyeye bölerek)
-        balance += (pps / 3600);
-        
-        updateUI();
-    }, 1000);
-
-    window.onload = updateUI;
 </script>
+
 </body>
 </html>
