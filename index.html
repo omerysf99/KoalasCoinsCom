@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | PRO ADS</title>
+    <title>KOALA ARCADE | ULTIMATE</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,106 +14,240 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #111; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; position: fixed; width: 100%; }
+        :root { --bg: #000; --text: #fff; --card: #111; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
         
-        .page { display: none; height: 100vh; flex-direction: column; padding: 110px 24px 130px; overflow-y: auto; }
-        .page.active { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page { display: none; height: 100vh; flex-direction: column; padding: 100px 24px 130px; overflow-y: auto; }
+        .page.active { display: flex; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .k-btn { background: #fff; color: #000; font-weight: 900; border-radius: 14px; padding: 18px; text-align: center; width: 100%; cursor: pointer; border: none; }
-        .ex-option { border: 2px solid #222; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .ex-option.selected { border-color: #fcd535; background: #1a1a1a; }
-        
-        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 30px; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 700; }
+        .k-card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #222; margin-bottom: 12px; }
+        .k-btn { background: #fff; color: #000; font-weight: 900; border-radius: 14px; padding: 18px; text-align: center; font-size: 14px; text-transform: uppercase; cursor: pointer; border:none; width: 100%; transition: 0.2s; }
+        .k-btn:active { transform: scale(0.96); }
+        .k-btn.done { background: #222; color: #555; cursor: default; }
+
+        nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 30px; z-index: 1000; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-link.active { color: #fff; }
+        
+        #checking-overlay { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .ex-option { border: 2px solid #222; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer; }
+        .ex-option.selected { border-color: #fff; background: #1a1a1a; }
+        
+        /* Admin UI */
+        #admin-dash { position: fixed; inset: 0; background: #000; z-index: 15000; display: none; flex-direction: column; padding: 60px 24px; overflow-y: auto; }
+        #admin-btn { position: fixed; top: 40px; right: 20px; z-index: 11000; display: none; background: #ff3b3b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; }
     </style>
 </head>
 <body>
 
+    <div id="admin-btn" onclick="toggleAdmin()">DASHBOARD</div>
+    <div id="checking-overlay">
+        <h2 class="text-3xl font-black mb-2 uppercase italic text-center">Checking<br>Security</h2>
+        <p class="text-zinc-600 font-bold uppercase text-[10px] tracking-widest">LOADING DATABASE...</p>
+    </div>
+
+    <div id="admin-dash">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-black italic">ADMIN PANEL</h1>
+            <button onclick="toggleAdmin()" class="text-2xl">&times;</button>
+        </div>
+        <div id="admin-user-list" class="space-y-3"></div>
+    </div>
+
     <div id="p-earn" class="page active">
         <div class="text-center mb-8">
-            <h1 id="ui-bal" class="text-7xl font-black italic">0</h1>
-            <p class="text-[10px] text-zinc-600 font-black tracking-[4px] uppercase">Total Koala</p>
+            <h1 id="ui-bal" class="text-7xl font-black tracking-tighter italic">0</h1>
+            <p class="text-[10px] text-zinc-600 font-black tracking-[4px] mt-2 uppercase">Total Koala</p>
         </div>
         <div class="mx-auto w-[220px] h-[220px] bg-[#111] rounded-[50px] border-4 border-[#222] p-4 mb-10">
             <img src="coinkoala.jpg" class="w-full h-full object-cover rounded-[30px]">
         </div>
-        <button class="k-btn" onclick="watchAd()">
-            <i class="fa-solid fa-play mr-2"></i> Watch Ad & Mine
-        </button>
+        <button class="k-btn" onclick="watchAd()">Watch Ad & Mine</button>
+    </div>
+
+    <div id="p-tasks" class="page">
+        <h1 class="text-4xl font-black mb-6 uppercase italic">Tasks</h1>
+        <div class="k-card flex justify-between items-center">
+            <div>
+                <p class="font-black text-sm uppercase">Join Community</p>
+                <p class="text-xs text-green-500 font-bold">+5,000 Koala</p>
+            </div>
+            <button id="task-btn" class="bg-white text-black px-4 py-2 rounded-lg font-black text-xs" onclick="doTask()">GO</button>
+        </div>
+    </div>
+
+    <div id="p-squad" class="page">
+        <h1 class="text-4xl font-black mb-6 uppercase italic">Squad</h1>
+        <div class="k-card text-center mb-6">
+            <p class="text-[10px] text-zinc-500 font-black mb-2 uppercase italic">Your Unique Code</p>
+            <div id="ui-mycode" class="bg-white text-black px-6 py-2 rounded-xl font-mono font-black text-xl inline-block">...</div>
+        </div>
+        <div id="ref-input-area" class="mb-4">
+            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-4 rounded-xl text-center font-black mb-2 outline-none focus:border-white text-white" placeholder="ENTER CODE">
+            <button class="k-btn" onclick="submitRef()">Claim 1000 Bonus</button>
+        </div>
+        <div id="ui-ref-list" class="space-y-2"></div>
+        <button class="k-btn mt-4 bg-yellow-400" onclick="shareRef()">Invite Friends</button>
     </div>
 
     <div id="p-wallet" class="page">
         <h1 class="text-4xl font-black mb-6 uppercase italic">Borsa</h1>
-        <div id="exchange-list">
-            <div class="ex-option" id="ex-binance" onclick="setEx('Binance')">
-                <img src="binance.jpg" class="w-10 h-10 rounded-lg">
-                <p class="font-black uppercase">Binance</p>
-            </div>
-            <div class="ex-option" id="ex-okx" onclick="setEx('OKX')">
-                <img src="okx.jpg" class="w-10 h-10 rounded-lg">
-                <p class="font-black uppercase">OKX</p>
-            </div>
-            <div class="ex-option" id="ex-bitget" onclick="setEx('Bitget')">
-                <img src="bitget.jpg" class="w-10 h-10 rounded-lg">
-                <p class="font-black uppercase">Bitget</p>
-            </div>
+        <div class="ex-option" id="ex-binance" onclick="setEx('Binance')">
+            <img src="binance.jpg" class="w-10 h-10 rounded-lg">
+            <p class="font-black uppercase">Binance</p>
+        </div>
+        <div class="ex-option" id="ex-okx" onclick="setEx('OKX')">
+            <img src="okx.jpg" class="w-10 h-10 rounded-lg">
+            <p class="font-black uppercase">OKX</p>
+        </div>
+        <div class="ex-option" id="ex-bitget" onclick="setEx('Bitget')">
+            <img src="bitget.jpg" class="w-10 h-10 rounded-lg">
+            <p class="font-black uppercase">Bitget</p>
         </div>
     </div>
 
     <nav>
         <div class="nav-link active" onclick="tab('earn', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-link" onclick="tab('tasks', this)"><i class="fa-solid fa-bolt"></i><span>Tasks</span></div>
+        <div class="nav-link" onclick="tab('squad', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
         <div class="nav-link" onclick="tab('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Borsa</span></div>
     </nav>
 
 <script>
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; 
+    const ADMIN_ID = "8392479231"; // Kendi Telegram ID'ni buraya yaz!
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Firebase bilgilerini gir!
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
-    let u = { bal: 0, exchange: null };
+    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('k_uid') || 'K'+Math.floor(Math.random()*1e7));
+    if(!localStorage.getItem('k_uid')) localStorage.setItem('k_uid', myId);
+    
+    let u = {};
 
-    // REKLAM FONKSİYONU
-    function watchAd() {
-        if (window.showAdexora) {
-            window.showAdexora()
-                .then(() => {
-                    addReward(100); // Başarılı izleme ödülü
-                    tg.HapticFeedback.notificationOccurred('success');
-                })
-                .catch(e => {
-                    console.error("Ad error:", e);
-                    alert("Reklam yüklenemedi, lütfen tekrar deneyin.");
-                });
+    async function init() {
+        if(myId === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
+        
+        const doc = await db.collection("users").doc(myId).get();
+        if(doc.exists) {
+            u = doc.data();
         } else {
-            addReward(10); // Reklam servisi yoksa küçük ödül
+            u = { 
+                bal: 0, 
+                refCode: Math.floor(100+Math.random()*899) + "abc" + Math.floor(100+Math.random()*899) + "Bhg",
+                usedRef: false, referrals: [], exchange: null, taskDone: false,
+                name: tg.initDataUnsafe?.user?.first_name || "Koala",
+                nick: tg.initDataUnsafe?.user?.username || "anon"
+            };
+            await save();
+        }
+        document.getElementById('checking-overlay').style.display = 'none';
+        render();
+    }
+
+    function watchAd() {
+        if(window.showAdexora) {
+            window.showAdexora()
+                .then(() => { addReward(100); })
+                .catch(() => { addReward(10); }); // Hata olsa da teselli ödülü
+        } else {
+            addReward(5); 
         }
     }
 
-    async function addReward(amount) {
-        u.bal += amount;
-        await db.collection("users").doc(myId).set(u, { merge: true });
+    async function addReward(amt) {
+        u.bal += amt;
+        await save();
         render();
+        tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    async function doTask() {
+        if(u.taskDone) return;
+        tg.openTelegramLink("https://t.me/KoalasCommunity");
+        u.bal += 5000;
+        u.taskDone = true;
+        await save();
+        render();
+        alert("Success! +5,000 Koala");
     }
 
     async function setEx(name) {
         u.exchange = name;
-        await db.collection("users").doc(myId).set({ exchange: name }, { merge: true });
+        await save();
         render();
+        tg.HapticFeedback.impactOccurred('medium');
+    }
+
+    async function submitRef() {
+        const input = document.getElementById('ref-input').value.trim();
+        if(u.usedRef || input === u.refCode) return alert("Invalid!");
+
+        const snap = await db.collection("users").where("refCode", "==", input).get();
+        if(!snap.empty) {
+            const invId = snap.docs[0].id;
+            const invRef = db.collection("users").doc(invId);
+            await db.runTransaction(async (t) => {
+                const d = await t.get(invRef);
+                const r = d.data().referrals || [];
+                r.push({ name: u.name, nick: u.nick });
+                t.update(invRef, { bal: (d.data().bal || 0) + 5000, referrals: r });
+            });
+            u.usedRef = true; u.bal += 1000;
+            await save(); render();
+        }
     }
 
     function render() {
         document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString();
+        document.getElementById('ui-mycode').innerText = u.refCode;
+        
+        // Borsa Seçimi Görselleştirme
         document.querySelectorAll('.ex-option').forEach(el => {
             el.classList.toggle('selected', el.id === 'ex-' + u.exchange?.toLowerCase());
         });
+
+        // Görev Butonu
+        if(u.taskDone) {
+            const btn = document.getElementById('task-btn');
+            btn.innerText = "DONE";
+            btn.classList.add('done');
+            btn.onclick = null;
+        }
+
+        // Referans Listesi
+        const list = document.getElementById('ui-ref-list');
+        list.innerHTML = u.referrals.length ? '' : '<p class="text-center text-xs opacity-30 italic">No friends yet</p>';
+        u.referrals.forEach(r => {
+            list.innerHTML += `<div class="k-card py-3 flex justify-between"><span>@${r.nick}</span><span class="text-green-500">+5K</span></div>`;
+        });
     }
 
+    async function toggleAdmin() {
+        const dash = document.getElementById('admin-dash');
+        dash.style.display = dash.style.display === 'flex' ? 'none' : 'flex';
+        if(dash.style.display === 'flex') {
+            const list = document.getElementById('admin-user-list');
+            list.innerHTML = "Loading...";
+            const snap = await db.collection("users").orderBy('bal', 'desc').limit(20).get();
+            list.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                list.innerHTML += `<div class="k-card flex justify-between">
+                    <div><b>${d.name}</b><br><small>@${d.nick}</small></div>
+                    <div class="text-right"><b>${Math.floor(d.bal)}</b><br><small>${d.exchange || 'No Ex'}</small></div>
+                </div>`;
+            });
+        }
+    }
+
+    async function save() { await db.collection("users").doc(myId).set(u); }
+    
     function tab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
@@ -121,11 +255,12 @@
         el.classList.add('active');
     }
 
-    // Verileri çek
-    db.collection("users").doc(myId).get().then(doc => {
-        if(doc.exists) u = doc.data();
-        render();
-    });
+    function shareRef() {
+        const text = `Join Koala! Get 1000 bonus with code: ${u.refCode}`;
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>
