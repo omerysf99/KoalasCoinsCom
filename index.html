@@ -3,254 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | VERIFIED</title>
+    <title>KOALA ARCADE | NEXUS</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap');
         
-        :root { --accent: #00ff88; --bg: #000; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
-
-        /* --- VERIFY SCREEN (DOĞRULAMA) --- */
-        #verify-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        #koala-3d-container { position: absolute; width: 100%; height: 60%; top: 10%; }
-        .verify-content { z-index: 10; text-align: center; margin-top: 250px; }
-        .status-text { font-family: 'Syncopate'; font-size: 12px; letter-spacing: 4px; color: var(--accent); margin-bottom: 20px; }
-
-        /* --- GAME UI (OYUN EKRANI) --- */
-        #game-screen { display: none; opacity: 0; height: 100vh; padding: 60px 25px; }
+        :root { --accent: #00ff88; --bg: #000; --card: #111; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        .main-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 40px; padding: 30px; text-align: center; backdrop-filter: blur(10px);
-        }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        .tap-target {
-            width: 240px; height: 240px; margin: 40px auto;
-            background: radial-gradient(circle, rgba(0,255,136,0.15) 0%, transparent 70%);
-            display: flex; align-items: center; justify-content: center; position: relative;
+        /* Sayfa Yapısı */
+        .page { display: none; height: 100vh; padding: 80px 20px 120px; overflow-y: auto; transition: 0.3s; }
+        .page.active { display: block; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Ana Sayfa Görseli & Tıklama */
+        .hero-container { position: relative; width: 260px; height: 260px; margin: 0 auto; }
+        .baby-koala-img { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 60px; 
+            border: 4px solid #222; box-shadow: 0 0 30px rgba(0,255,136,0.1);
+            transition: transform 0.1s;
         }
-        .koala-coin {
-            width: 180px; height: 180px; border-radius: 50%; border: 6px solid #1a1a1a;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: transform 0.05s;
-        }
-        .koala-coin:active { transform: scale(0.92); }
+        .baby-koala-img:active { transform: scale(0.95); }
+
+        /* Kartlar & Görevler */
+        .k-card { background: var(--card); border-radius: 28px; border: 1px solid #222; padding: 20px; margin-bottom: 12px; }
+        .task-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; }
+        .task-row:last-child { border-bottom: none; }
 
         /* Navigasyon */
-        nav {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 90%; background: rgba(15,15,15,0.9); border-radius: 25px;
-            display: flex; padding: 15px; border: 1px solid #222; z-index: 100;
+        nav { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            width: 92%; height: 75px; background: rgba(15,15,15,0.95); 
+            backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid #222;
+            display: flex; align-items: center; z-index: 1000;
         }
-        .nav-btn { flex: 1; text-align: center; color: #555; font-size: 20px; }
-        .nav-btn.active { color: var(--accent); }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
+        .nav-link.active { color: var(--accent); }
+        .nav-link i { font-size: 22px; }
 
-        /* Floating Text */
-        .float-val { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: up 0.7s forwards; }
-        @keyframes up { to { transform: translateY(-100px); opacity: 0; } }
+        /* Efektler */
+        .float-text { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: floatUp 0.8s forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+
+        .spinner { width: 14px; height: 14px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="verify-screen">
-        <div id="koala-3d-container"></div>
-        <div class="verify-content">
-            <p class="status-text" id="status-label">BAĞLANTI KURULUYOR...</p>
-            <div class="w-48 h-1 bg-zinc-900 rounded-full overflow-hidden mx-auto">
-                <div id="progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-300"></div>
+    <div id="p-home" class="page active">
+        <div class="flex justify-between items-center mb-8">
+            <div class="bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                <i class="fa-solid fa-circle text-green-500 mr-2 text-[8px]"></i> <span id="ui-handle">@Yükleniyor</span>
+            </div>
+            <div class="text-emerald-500 font-black text-xs uppercase italic" id="ui-rank">KOALA #1</div>
+        </div>
+
+        <div class="text-center mb-10">
+            <h1 id="ui-bal" class="text-7xl font-black italic tracking-tighter">0</h1>
+            <p class="text-[10px] text-zinc-600 font-bold uppercase tracking-[5px] mt-2">Toplam Bakiyen</p>
+        </div>
+
+        <div class="hero-container mb-12">
+            <img src="babykoalas.jpg" id="tap-target" class="baby-koala-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
+        </div>
+
+        <h3 class="text-xs font-black uppercase text-zinc-500 mb-4 tracking-widest italic">Günlük Görevler</h3>
+        <div class="k-card">
+            <div class="task-row">
+                <div>
+                    <p class="text-sm font-bold uppercase">Resmi Kanala Katıl</p>
+                    <p class="text-[10px] text-emerald-500 font-black">+10,000 KOALA</p>
+                </div>
+                <button id="task-channel" onclick="doTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-5 py-2 rounded-xl text-[10px] font-black uppercase">Git</button>
+            </div>
+            <div class="task-row">
+                <div>
+                    <p class="text-sm font-bold uppercase">X (Twitter) Takip Et</p>
+                    <p class="text-[10px] text-emerald-500 font-black">+5,000 KOALA</p>
+                </div>
+                <button id="task-x" onclick="doTask('twitter', 5000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-5 py-2 rounded-xl text-[10px] font-black uppercase">Git</button>
             </div>
         </div>
+
+        <button onclick="watchAd()" class="w-full bg-zinc-900 border border-zinc-800 py-5 rounded-[30px] font-black uppercase text-xs tracking-widest mt-4">
+            <i class="fa-solid fa-play-circle mr-2 text-emerald-500"></i> Reklam İzle (1 Koala)
+        </button>
     </div>
 
-    <div id="game-screen">
-        <div class="flex justify-between items-center mb-10">
-            <div class="flex items-center gap-2 bg-zinc-900 px-4 py-2 rounded-full border border-zinc-800">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest" id="ui-handle">@USER</span>
-            </div>
-            <i class="fa-solid fa-shield-halved text-emerald-500 text-xl"></i>
-        </div>
+    <div id="p-squad" class="page">
+        <h1 class="text-4xl font-black italic mb-2 uppercase">Ekibim</h1>
+        <p class="text-zinc-500 text-xs font-bold mb-8 uppercase italic">Her davet için 5.000 Koala al</p>
 
-        <div class="main-card">
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-[4px] mb-2">TOPLAM KOALA</p>
-            <h1 id="ui-bal" class="text-6xl font-black italic">0</h1>
-        </div>
-
-        <div class="tap-target" id="tap-zone">
-            <img src="coinkoala.jpg" class="koala-coin" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-zinc-900 p-4 rounded-3xl border border-zinc-800 text-center" onclick="watchAd()">
-                <i class="fa-solid fa-rectangle-ad text-emerald-500 mb-2"></i>
-                <p class="text-[10px] font-bold uppercase">Reklam İzle</p>
-            </div>
-            <div class="bg-zinc-900 p-4 rounded-3xl border border-zinc-800 text-center">
-                <i class="fa-solid fa-rocket text-orange-500 mb-2"></i>
-                <p class="text-[10px] font-bold uppercase">Turbo Aktif</p>
+        <div class="k-card text-center py-10">
+            <p class="text-[10px] text-zinc-600 font-black mb-2 uppercase tracking-widest">Davet Ettiklerin</p>
+            <h2 id="ui-ref-count" class="text-6xl font-black italic mb-6">0</h2>
+            <div class="bg-black/40 p-4 rounded-2xl border border-white/5 inline-block cursor-pointer" onclick="copyRef()">
+                <span id="ui-mycode" class="text-emerald-400 font-bold uppercase">KOD...</span> <i class="fa-regular fa-copy ml-2"></i>
             </div>
         </div>
 
-        <nav>
-            <div class="nav-btn active"><i class="fa-solid fa-house"></i></div>
-            <div class="nav-btn"><i class="fa-solid fa-tasks"></i></div>
-            <div class="nav-btn"><i class="fa-solid fa-users"></i></div>
-            <div class="nav-btn"><i class="fa-solid fa-wallet"></i></div>
-        </nav>
+        <button onclick="shareRef()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-[30px] uppercase text-xs mt-6 mb-10">
+            Arkadaşlarını Davet Et
+        </button>
+
+        <div id="ui-ref-list" class="space-y-3">
+            </div>
     </div>
+
+    <div id="p-wallet" class="page">
+        <h1 class="text-4xl font-black italic mb-8 uppercase text-center">Borsa Seç</h1>
+        <div id="ex-list" class="space-y-4">
+            </div>
+    </div>
+
+    <nav>
+        <div class="nav-link active" onclick="tab('home', this)"><i class="fa-solid fa-house"></i><span>Giriş</span></div>
+        <div class="nav-link" onclick="tab('squad', this)"><i class="fa-solid fa-users"></i><span>Ekip</span></div>
+        <div class="nav-link" onclick="tab('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Borsa</span></div>
+    </nav>
 
 <script>
-    // --- FIREBASE VE TG AYARLARI ---
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
+    // --- TEMEL AYARLAR ---
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // Buraya kendi configini gir
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_MODE";
-    let myHandle = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : "KoalaUser";
+    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
+    let handle = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : (tg.initDataUnsafe?.user?.first_name || "Koala");
     
-    let userData = { bal: 0, handle: myHandle };
+    let userData = { 
+        bal: 0, 
+        handle: handle, 
+        referrals: [], 
+        tasks: [], 
+        exchange: "Yok", 
+        refCode: "KOA-" + Math.floor(10000 + Math.random() * 90000) 
+    };
 
-    // --- 3D KOALA RENDER (THREE.JS) ---
-    function init3D() {
-        const container = document.getElementById('koala-3d-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        // Koala yerine dönen şık bir altın küre/para simülasyonu (Placeholder)
-        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-        const material = new THREE.MeshPhongMaterial({ 
-            color: 0x00ff88, 
-            emissive: 0x004422,
-            shininess: 100, 
-            wireframe: true 
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(10, 10, 10);
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
-
-        camera.position.z = 40;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            mesh.rotation.y += 0.02;
-            mesh.rotation.x += 0.01;
-            renderer.render(scene, camera);
-        }
-        animate();
-    }
-
-    // --- DOĞRULAMA SÜRECİ ---
-    async function startVerify() {
-        init3D();
-        const bar = document.getElementById('progress-bar');
-        const label = document.getElementById('status-label');
-
-        // Adım 1: Bağlantı
-        await new Promise(r => setTimeout(r, 1500));
-        bar.style.width = "40%";
-        label.innerText = "VERİLER ÇEKİLİYOR...";
-
-        // Firebase Veri Çekme
+    // --- BAŞLATMA ---
+    async function init() {
         const doc = await db.collection("users").doc(myId).get();
         if(doc.exists) {
-            userData = doc.data();
+            userData = { ...userData, ...doc.data() };
         } else {
             await db.collection("users").doc(myId).set(userData);
         }
-
-        // Adım 2: Güvenlik
-        await new Promise(r => setTimeout(r, 1500));
-        bar.style.width = "80%";
-        label.innerText = "GÜVENLİK KONTROLÜ...";
-
-        // Adım 3: Tamamlandı
-        await new Promise(r => setTimeout(r, 1000));
-        bar.style.width = "100%";
-        label.innerText = "DOĞRULANDI!";
-
-        // Geçiş Animasyonu
-        gsap.to("#verify-screen", { 
-            opacity: 0, 
-            scale: 1.5, 
-            duration: 0.8, 
-            onComplete: () => {
-                document.getElementById('verify-screen').remove();
-                showGame();
-            }
-        });
+        render();
+        renderExchanges();
     }
 
-    function showGame() {
-        const game = document.getElementById('game-screen');
-        game.style.display = 'block';
-        gsap.to(game, { opacity: 1, duration: 1 });
-        renderUI();
+    // --- SEKME YÖNETİMİ ---
+    function tab(pageId, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + pageId).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        tg.HapticFeedback.impactOccurred('light');
     }
 
-    // --- OYUN MEKANİĞİ ---
-    const tapZone = document.getElementById('tap-zone');
-    tapZone.addEventListener('touchstart', (e) => {
+    // --- TIKLAMA MEKANİZMASI ---
+    const tapTarget = document.getElementById('tap-target');
+    tapTarget.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const touch = e.touches[0];
         
-        // Bakiye artır
-        userData.bal += 0.1;
-        renderUI();
+        userData.bal += 0.2;
+        updateBalUI();
 
-        // Sayı fırlatma efekti
+        // Sayı fırlatma
         const float = document.createElement('div');
-        float.className = 'float-val';
-        float.innerText = '+0.1';
+        float.className = 'float-text';
+        float.innerText = '+0.2';
         float.style.left = touch.pageX + 'px';
         float.style.top = touch.pageY + 'px';
         document.body.appendChild(float);
-        setTimeout(() => float.remove(), 700);
+        setTimeout(() => float.remove(), 800);
 
         tg.HapticFeedback.impactOccurred('light');
     });
 
+    // --- GÖREV SİSTEMİ ---
+    async function doTask(id, reward, link) {
+        if(userData.tasks.includes(id)) return;
+        const btn = document.getElementById('task-' + id);
+        btn.innerHTML = `<span class="spinner"></span>`;
+        
+        tg.openTelegramLink(link);
+
+        setTimeout(async () => {
+            userData.bal += reward;
+            userData.tasks.push(id);
+            await db.collection("users").doc(myId).update({ bal: userData.bal, tasks: userData.tasks });
+            render();
+            tg.HapticFeedback.notificationOccurred('success');
+        }, 5000);
+    }
+
+    // --- BORSA SİSTEMİ ---
+    const exchanges = [
+        { name: 'Binance', img: 'binance.jpg' },
+        { name: 'OKX', img: 'okx.jpg' },
+        { name: 'Bitget', img: 'bitget.jpg' }
+    ];
+
+    function renderExchanges() {
+        const list = document.getElementById('ex-list');
+        list.innerHTML = "";
+        exchanges.forEach(ex => {
+            const isSel = userData.exchange === ex.name;
+            list.innerHTML += `
+                <div class="k-card flex justify-between items-center ${isSel ? 'border-emerald-500 bg-emerald-500/5' : ''}" onclick="setEx('${ex.name}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center font-bold text-xs">IMG</div>
+                        <span class="font-bold uppercase">${ex.name}</span>
+                    </div>
+                    ${isSel ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-chevron-right text-zinc-700"></i>'}
+                </div>
+            `;
+        });
+    }
+
+    async function setEx(name) {
+        userData.exchange = name;
+        await db.collection("users").doc(myId).update({ exchange: name });
+        renderExchanges();
+        render();
+        tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    // --- REFERANS SİSTEMİ ---
+    function copyRef() {
+        navigator.clipboard.writeText(userData.refCode);
+        tg.HapticFeedback.notificationOccurred('success');
+        alert("Kod kopyalandı!");
+    }
+
+    function shareRef() {
+        const text = `🐨 Koala Arcade'e katıl! Baby Koalas ile kazanmaya başla. Kodum: ${userData.refCode}`;
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
+    }
+
+    // --- REKLAM ---
     async function watchAd() {
         userData.bal += 1;
         await db.collection("users").doc(myId).update({ bal: userData.bal });
-        renderUI();
-        alert("1 Koala Ödül Alındı!");
+        updateBalUI();
     }
 
-    function renderUI() {
-        document.getElementById('ui-bal').innerText = Math.floor(userData.bal).toLocaleString();
+    // --- ARAYÜZ GÜNCELLEME ---
+    function render() {
+        updateBalUI();
         document.getElementById('ui-handle').innerText = userData.handle;
+        document.getElementById('ui-mycode').innerText = userData.refCode;
+        document.getElementById('ui-ref-count').innerText = userData.referrals.length;
+        
+        // Görev Butonları
+        userData.tasks.forEach(tid => {
+            const b = document.getElementById('task-' + tid);
+            if(b) { b.innerText = "Tamamlandı"; b.disabled = true; b.style.opacity = 0.5; }
+        });
+
+        // Ref Listesi
+        const rList = document.getElementById('ui-ref-list');
+        rList.innerHTML = "";
+        userData.referrals.forEach(r => {
+            rList.innerHTML += `<div class="k-card !py-4 flex justify-between items-center"><span>${r}</span><span class="text-emerald-500 font-black">+5,000</span></div>`;
+        });
     }
 
-    // 10 saniyede bir otomatik kaydet
-    setInterval(() => {
-        if(myId !== "DEV_MODE") {
-            db.collection("users").doc(myId).update({ bal: userData.bal });
-        }
-    }, 10000);
+    function updateBalUI() {
+        document.getElementById('ui-bal').innerText = Math.floor(userData.bal).toLocaleString();
+    }
 
-    window.onload = startVerify;
+    window.onload = init;
 </script>
 </body>
 </html>
