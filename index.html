@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE</title>
+    <title>KOALA ARCADE PRO</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,126 +13,187 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;900&display=swap');
-        :root { --accent: #00ff88; --bg: #000; --card: #0a0a0a; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
-
-        /* Checking Overlay */
-        #boot-loader {
-            position: fixed; inset: 0; background: #000; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        .page { display: none; height: 100vh; padding: 60px 20px 120px; overflow-y: auto; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Minimal Coin Design */
-        .coin-box { width: 170px; height: 170px; margin: 0 auto; transition: 0.1s; }
-        .coin-img { 
-            width: 100%; height: 100%; object-fit: cover; border-radius: 45px; 
-            border: 2px solid #1a1a1a; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-        .coin-box:active { transform: scale(0.90); }
-
-        .k-card { background: var(--card); border-radius: 24px; border: 1px solid #111; padding: 20px; margin-bottom: 12px; }
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;500;700;900&display=swap');
         
+        :root { --accent: #00ff88; --bg: #000; --card: #0d0d0d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+
+        /* --- PRESTIGE UI --- */
+        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); }
+        .page { display: none; height: 100vh; padding: 50px 20px 120px; overflow-y: auto; scrollbar-width: none; }
+        .page.active { display: block; animation: slideUp 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- KOALA COIN CORE --- */
+        .coin-wrapper { position: relative; width: 220px; height: 220px; margin: 0 auto; z-index: 10; }
+        .coin-img { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50px; 
+            border: 4px solid #1a1a1a; box-shadow: 0 0 60px rgba(0, 255, 136, 0.15);
+            transition: transform 0.1s cubic-bezier(0.1, 0.7, 1.0, 0.1);
+        }
+        .coin-wrapper:active .coin-img { transform: scale(0.9) rotate(2deg); }
+
+        /* --- PROGRESS BARS --- */
+        .bar-bg { background: #111; border-radius: 100px; height: 8px; width: 100%; overflow: hidden; border: 1px solid #1a1a1a; }
+        .bar-fill { background: linear-gradient(90deg, #00ff88, #00bd65); height: 100%; transition: width 0.3s; }
+
+        /* --- NAVIGATION --- */
         nav { 
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            width: 80%; height: 65px; background: rgba(10, 10, 10, 0.9); 
-            backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid #1a1a1a;
-            display: flex; align-items: center; z-index: 1000;
+            width: 90%; height: 75px; border-radius: 25px; display: flex; align-items: center; z-index: 1000;
         }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #333; font-size: 10px; font-weight: 700; gap: 4px; }
-        .nav-link.active { color: var(--accent); }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #444; font-size: 9px; font-weight: 800; gap: 4px; transition: 0.3s; }
+        .nav-link.active { color: var(--accent); transform: translateY(-5px); }
+        .nav-link i { font-size: 22px; }
 
-        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* --- CHECKING SCREEN --- */
+        #checker { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .scan-line { width: 200px; height: 2px; background: var(--accent); box-shadow: 0 0 20px var(--accent); position: absolute; animation: scan 2s infinite; }
+        @keyframes scan { 0% { top: 30%; opacity: 0; } 50% { opacity: 1; } 100% { top: 70%; opacity: 0; } }
 
-        .float-val { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: floatUp 0.8s forwards; }
-        @keyframes floatUp { to { transform: translateY(-80px); opacity: 0; } }
+        /* Floating Text */
+        .pop { position: absolute; font-weight: 900; color: var(--accent); pointer-events: none; animation: popUp 0.7s forwards; font-size: 24px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+        @keyframes popUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-120px) scale(1.5); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div id="boot-loader">
-        <div class="spinner mb-4"></div>
-        <p class="text-[9px] tracking-[4px] text-zinc-600 uppercase">Verifying Wallet...</p>
+    <div id="checker">
+        <div class="scan-line"></div>
+        <h2 style="font-family: 'Syncopate'; font-size: 14px; letter-spacing: 10px;" class="mb-4">KOALA NEXUS</h2>
+        <p id="boot-status" class="text-[10px] text-zinc-600 font-bold uppercase tracking-[4px]">Initializing Web3...</p>
     </div>
 
-    <main id="main-app" style="visibility: hidden;">
+    <main id="app" style="visibility: hidden;">
+        
         <div id="p-home" class="page active">
-            <div class="flex justify-between items-center mb-10">
-                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest" id="ui-handle">@USER</span>
-                <span class="text-[10px] font-black text-emerald-500 uppercase">Online</span>
+            <div class="flex justify-between items-center mb-6">
+                <div class="glass px-4 py-2 rounded-full flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-bold" id="ui-handle">@Guest</span>
+                </div>
+                <div class="text-[10px] font-black text-zinc-500 bg-zinc-900/50 px-3 py-2 rounded-xl">
+                    LVL <span id="ui-lvl" class="text-white">1</span>
+                </div>
             </div>
 
-            <div class="text-center mb-10">
-                <h1 id="ui-bal" class="text-7xl font-black italic tracking-tighter">0</h1>
-                <p class="text-[10px] text-zinc-700 font-bold uppercase tracking-[3px] mt-1">Koala Coins</p>
+            <div class="text-center mb-6">
+                <p class="text-[10px] text-zinc-500 font-black uppercase tracking-[5px] mb-1">Available Balance</p>
+                <h1 id="ui-bal" class="text-6xl font-black italic tracking-tighter">0</h1>
             </div>
 
-            <div class="coin-box mb-12" id="tap-area">
+            <div class="grid grid-cols-2 gap-3 mb-8">
+                <div class="glass p-3 rounded-2xl text-center">
+                    <p class="text-[8px] text-zinc-500 font-bold uppercase">Profit per hour</p>
+                    <p class="text-emerald-500 font-black text-sm">+$<span id="ui-pps">0</span></p>
+                </div>
+                <div class="glass p-3 rounded-2xl text-center">
+                    <p class="text-[8px] text-zinc-500 font-bold uppercase">Tap Value</p>
+                    <p class="text-white font-black text-sm">+0.5</p>
+                </div>
+            </div>
+
+            <div class="coin-wrapper" id="tap-target">
                 <img src="coinkoala.jpg" class="coin-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
             </div>
 
-            <div class="k-card">
-                <div class="flex justify-between items-center py-2 border-b border-zinc-900 pb-4 mb-4">
-                    <p class="text-xs font-bold uppercase">Join Channel <br><span class="text-emerald-500 text-[9px]">+10,000</span></p>
-                    <button id="task-channel" onclick="handleTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-5 py-2 rounded-xl text-[10px] font-black uppercase">Go</button>
+            <div class="mt-12 px-4">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-yellow-400"></i>
+                        <span class="text-xs font-black" id="ui-energy">1000/1000</span>
+                    </div>
+                    <span class="text-[9px] font-bold text-zinc-600 uppercase">Energy Tank</span>
                 </div>
-                <div class="flex justify-between items-center">
-                    <p class="text-xs font-bold uppercase">Daily Bonus <br><span class="text-emerald-500 text-[9px]">+1,000</span></p>
-                    <button onclick="watchAd()" class="bg-zinc-800 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Claim</button>
+                <div class="bar-bg">
+                    <div id="energy-bar" class="bar-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-mining" class="page">
+            <h1 class="text-3xl font-black italic mb-6">MINING</h1>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="glass p-5 rounded-3xl flex justify-between items-center" onclick="upgrade('mining_rig', 500)">
+                    <div>
+                        <h4 class="font-black text-sm uppercase">Cloud Rig v1</h4>
+                        <p class="text-[10px] text-zinc-500">Hourly Profit: +150</p>
+                    </div>
+                    <button class="bg-white text-black text-[10px] font-black px-4 py-2 rounded-xl">500 🪙</button>
+                </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center opacity-50">
+                    <div>
+                        <h4 class="font-black text-sm uppercase">Koala Farm</h4>
+                        <p class="text-[10px] text-zinc-500">Locked: Level 5 required</p>
+                    </div>
+                    <i class="fa-solid fa-lock text-zinc-700"></i>
                 </div>
             </div>
         </div>
 
         <div id="p-squad" class="page">
-            <h1 class="text-3xl font-black uppercase mb-6 italic">My Squad</h1>
-            <div class="k-card text-center py-6 mb-6">
-                <p class="text-[10px] text-zinc-600 uppercase mb-2">Total Recruits</p>
-                <p id="ui-ref-count" class="text-5xl font-black">0</p>
+            <h1 class="text-3xl font-black italic mb-6">SQUAD</h1>
+            <div class="glass p-8 rounded-[40px] text-center mb-6">
+                <i class="fa-solid fa-users-crown text-4xl text-emerald-500 mb-4"></i>
+                <h2 id="ui-ref-count" class="text-5xl font-black mb-2">0</h2>
+                <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Recruited Koalas</p>
             </div>
-            <button onclick="shareLink()" class="w-full bg-emerald-500 text-black py-4 rounded-2xl font-black uppercase text-xs mb-8">Invite Link</button>
-            <div id="ui-ref-list" class="space-y-2"></div>
+            <button onclick="invite()" class="w-full bg-white text-black py-5 rounded-3xl font-black uppercase text-xs shadow-xl">Invite Friends (+5K)</button>
         </div>
 
-        <div id="p-wallet" class="page">
-            <h1 class="text-3xl font-black uppercase mb-8 italic text-center">Exchange</h1>
-            <div id="ex-list" class="space-y-3"></div>
-        </div>
     </main>
 
-    <nav>
-        <div class="nav-link active" onclick="nav('home', this)"><i class="fa-solid fa-bolt"></i><span>Nexus</span></div>
-        <div class="nav-link" onclick="nav('squad', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
-        <div class="nav-link" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Wallet</span></div>
+    <nav class="glass">
+        <div class="nav-link active" onclick="nav('home', this)"><i class="fa-solid fa-shapes"></i><span>Home</span></div>
+        <div class="nav-link" onclick="nav('mining', this)"><i class="fa-solid fa-pickaxe"></i><span>Mining</span></div>
+        <div class="nav-link" onclick="nav('squad', this)"><i class="fa-solid fa-user-group"></i><span>Squad</span></div>
     </nav>
 
 <script>
-    // --- FIREBASE CONFIG ---
+    // --- CORE ENGINE ---
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
 
-    let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
-    let user = { bal: 0, handle: tg.initDataUnsafe?.user?.username || "Guest", tasks: [], referrals: [], exchange: "None" };
+    let user = {
+        bal: 0,
+        pps: 0, // Profit per second (hourly/3600)
+        energy: 1000,
+        maxEnergy: 1000,
+        lvl: 1,
+        handle: tg.initDataUnsafe?.user?.username || "Koala",
+        referrals: []
+    };
 
+    // --- INITIALIZE & CHECKING ---
     async function start() {
+        const statusText = document.getElementById('boot-status');
+        const myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_USER";
+
+        statusText.innerText = "Connecting to Firebase...";
         const doc = await db.collection("users").doc(myId).get();
-        if(doc.exists) user = { ...user, ...doc.data() };
-        else await db.collection("users").doc(myId).set(user);
         
-        render();
-        gsap.to("#boot-loader", { opacity: 0, duration: 0.5, onComplete: () => {
-            document.getElementById('boot-loader').remove();
-            document.getElementById('main-app').style.visibility = 'visible';
-        }});
+        if(doc.exists) {
+            user = { ...user, ...doc.data() };
+        } else {
+            await db.collection("users").doc(myId).set(user);
+        }
+
+        statusText.innerText = "Loading Ecosystem...";
+        setTimeout(() => {
+            render();
+            gsap.to("#checker", { opacity: 0, duration: 0.5, onComplete: () => {
+                document.getElementById('checker').remove();
+                document.getElementById('app').style.visibility = 'visible';
+            }});
+            startPassiveIncome();
+        }, 1500);
     }
 
+    // --- GAME LOGIC ---
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
@@ -141,57 +202,86 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    document.getElementById('tap-area').addEventListener('touchstart', (e) => {
+    // Tıklama Motoru
+    document.getElementById('tap-target').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        user.bal += 0.2;
+        if(user.energy < 1) {
+            tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
+
+        const tapValue = 0.5;
+        user.bal += tapValue;
+        user.energy -= 1;
+        
         updateUI();
+
+        // Parçacık Efekti
         const touch = e.touches[0];
-        const f = document.createElement('div');
-        f.className = 'float-val'; f.innerText = '+0.2';
-        f.style.left = touch.pageX + 'px'; f.style.top = touch.pageY + 'px';
-        document.body.appendChild(f);
-        setTimeout(() => f.remove(), 700);
+        const p = document.createElement('div');
+        p.className = 'pop';
+        p.innerText = `+${tapValue}`;
+        p.style.left = touch.pageX + 'px';
+        p.style.top = touch.pageY + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 700);
+
         tg.HapticFeedback.impactOccurred('medium');
     });
 
-    async function handleTask(id, reward, link) {
-        if(user.tasks.includes(id)) return;
-        const btn = document.getElementById('task-' + id);
-        btn.innerHTML = `<div class="spinner"></div>`;
-        tg.openTelegramLink(link);
-        setTimeout(async () => {
-            user.bal += reward;
-            user.tasks.push(id);
-            await db.collection("users").doc(myId).update({ bal: user.bal, tasks: user.tasks });
-            render();
+    // Pasif Gelir Motoru
+    function startPassiveIncome() {
+        setInterval(() => {
+            if(user.pps > 0) {
+                user.bal += (user.pps / 3600);
+                updateUI();
+            }
+            // Enerji Dolumu
+            if(user.energy < user.maxEnergy) {
+                user.energy = Math.min(user.maxEnergy, user.energy + 1);
+                updateUI();
+            }
+        }, 1000);
+    }
+
+    async function upgrade(type, cost) {
+        if(user.bal >= cost) {
+            user.bal -= cost;
+            user.pps += 150;
             tg.HapticFeedback.notificationOccurred('success');
-        }, 5000);
+            updateUI();
+            save();
+        } else {
+            tg.showAlert("Yetersiz Koala!");
+        }
     }
 
     function render() {
         updateUI();
         document.getElementById('ui-handle').innerText = "@" + user.handle;
+        document.getElementById('ui-lvl').innerText = user.lvl;
         document.getElementById('ui-ref-count').innerText = user.referrals.length;
-        
-        user.tasks.forEach(tid => {
-            const b = document.getElementById('task-' + tid);
-            if(b) { b.innerText = "Done"; b.disabled = true; b.style.opacity = 0.5; }
-        });
-
-        const exList = document.getElementById('ex-list');
-        exList.innerHTML = "";
-        ['Binance', 'Bybit', 'OKX'].forEach(ex => {
-            const active = user.exchange === ex;
-            exList.innerHTML += `<div class="k-card flex justify-between items-center ${active?'border-emerald-500':''}" onclick="setEx('${ex}')"><span class="text-xs font-bold uppercase">${ex}</span><i class="fa-solid fa-circle-check ${active?'text-emerald-500':'text-zinc-900'}"></i></div>`;
-        });
     }
 
-    function updateUI() { document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString(); }
-    async function setEx(n) { user.exchange = n; await db.collection("users").doc(myId).update({exchange: n}); render(); }
-    function shareLink() { tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YOUR_BOT&text=Join%20me!`); }
-    async function watchAd() { user.bal += 1000; await db.collection("users").doc(myId).update({bal: user.bal}); updateUI(); }
+    function updateUI() {
+        document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
+        document.getElementById('ui-pps').innerText = user.pps.toLocaleString();
+        document.getElementById('ui-energy').innerText = `${user.energy}/${user.maxEnergy}`;
+        document.getElementById('energy-bar').style.width = (user.energy / user.maxEnergy * 100) + "%";
+    }
 
-    setInterval(() => { if(myId !== "TEST_USER") db.collection("users").doc(myId).update({ bal: user.bal }); }, 15000);
+    // --- UTILS ---
+    async function save() {
+        const myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "DEV_USER";
+        await db.collection("users").doc(myId).update(user);
+    }
+
+    function invite() {
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/Koalas_bot&text=Koala%20Arcade%20Pro'ya%20gel!`);
+    }
+
+    // 20 saniyede bir otomatik kaydet
+    setInterval(save, 20000);
     window.onload = start;
 </script>
 </body>
