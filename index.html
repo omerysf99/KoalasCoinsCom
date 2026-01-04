@@ -3,187 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Kombat Clone</title>
+    <title>Hamster Kombat Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
-            background: #000;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: white;
+            font-family: 'Roboto', sans-serif;
             overflow: hidden;
-            touch-action: manipulation;
+            margin: 0;
+            height: 100vh;
         }
 
-        .main-gradient {
-            background: radial-gradient(circle at center, #2d2d2d 0%, #000000 100%);
+        /* Arka plan ışık efekti */
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: rgba(243, 186, 47, 0.15);
+            filter: blur(100px);
+            border-radius: 50%;
+            z-index: -1;
         }
 
-        .coin-shadow {
-            box-shadow: 0 0 50px rgba(243, 186, 47, 0.15);
+        .card-dark {
+            background: #1c1f24;
+            border: 1px solid #2d333b;
         }
 
-        .progress-gradient {
-            background: linear-gradient(90deg, #f3ba2f 0%, #fdb022 100%);
+        .hamster-circle {
+            background: radial-gradient(circle, #32363c 0%, #111315 100%);
+            border: 12px solid #282b30;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.05s ease;
         }
 
-        .hamster-btn {
-            background: radial-gradient(circle, #4e4e4e 0%, #1a1a1a 100%);
-            border: 10px solid #282828;
-            transition: transform 0.05s ease-in-out;
-            position: relative;
+        .hamster-circle:active {
+            transform: scale(0.95);
         }
 
-        .hamster-btn:active {
-            transform: scale(0.92);
-        }
-
-        /* Tıklama Efekti Sayısı */
-        .click-ani {
+        /* Sayı fırlama efekti */
+        .plus-animation {
             position: absolute;
-            color: #fff;
+            color: white;
             font-size: 32px;
-            font-weight: 800;
+            font-weight: 900;
             pointer-events: none;
-            animation: fly 0.8s ease-out forwards;
-            z-index: 50;
+            animation: floatUp 0.7s ease-out forwards;
         }
 
-        @keyframes fly {
+        @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-150px); }
+            100% { opacity: 0; transform: translateY(-120px); }
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 10px;
-            color: #888;
+        .nav-icon {
+            filter: grayscale(1);
+            transition: 0.3s;
         }
 
-        .nav-item.active {
-            color: #f3ba2f;
+        .nav-item.active .nav-icon {
+            filter: grayscale(0);
         }
     </style>
 </head>
-<body class="main-gradient h-screen flex flex-col items-center justify-between pb-4">
+<body class="flex flex-col justify-between select-none">
 
-    <div class="w-full px-4 pt-4 flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center font-bold text-black">H</div>
-            <div class="flex-1">
-                <p class="text-xs font-bold">Hamster (CEO)</p>
-                <div class="w-full bg-gray-800 h-2 rounded-full mt-1">
-                    <div class="progress-gradient h-full w-1/3 rounded-full"></div>
-                </div>
+    <div class="bg-glow"></div>
+
+    <div class="px-4 pt-4">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm">G</div>
+                <span class="text-sm font-medium">Gemini (CEO)</span>
             </div>
+            <div class="text-sm text-gray-400">Seviye 1/10</div>
         </div>
 
         <div class="grid grid-cols-3 gap-2">
-            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
-                <p class="text-[10px] text-gray-400">Tık Başına</p>
-                <p class="text-xs font-bold text-yellow-500">+1</p>
+            <div class="card-dark rounded-2xl p-2 text-center border-b-2 border-b-yellow-500">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">Tık Başı</p>
+                <div class="flex justify-center items-center gap-1">
+                    <span class="text-yellow-500 text-xs">💰</span>
+                    <span class="font-bold text-sm text-white">+1</span>
+                </div>
             </div>
-            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
-                <p class="text-[10px] text-gray-400">Limit</p>
-                <p class="text-xs font-bold text-blue-400">2.0M</p>
+            <div class="card-dark rounded-2xl p-2 text-center border-b-2 border-b-blue-500">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">Limit</p>
+                <div class="flex justify-center items-center gap-1">
+                    <span class="text-blue-500 text-xs">💧</span>
+                    <span class="font-bold text-sm text-white">0</span>
+                </div>
             </div>
-            <div class="bg-[#1c1f24] p-2 rounded-xl border border-gray-800 text-center">
-                <p class="text-[10px] text-gray-400">Saatlik Kar</p>
-                <p class="text-xs font-bold text-green-500">+1.2K</p>
+            <div class="card-dark rounded-2xl p-2 text-center border-b-2 border-b-green-500">
+                <p class="text-[10px] text-gray-500 uppercase font-bold">Saatlik Kar</p>
+                <div class="flex justify-center items-center gap-1">
+                    <span class="text-green-500 text-xs">📈</span>
+                    <span class="font-bold text-sm text-white">0</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="flex flex-col items-center mt-4">
+    <div class="flex flex-col items-center mt-6">
         <div class="flex items-center gap-3">
-            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="w-12 h-12" alt="coin">
-            <span id="score" class="text-5xl font-extrabold tracking-tighter">0</span>
-        </div>
-    </div>
-
-    <div class="relative">
-        <div id="clickArea" class="hamster-btn w-72 h-72 rounded-full flex items-center justify-center coin-shadow">
-            <span class="text-[140px] select-none">🐹</span>
-        </div>
-    </div>
-
-    <div class="w-full px-6">
-        <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center gap-1">
-                <span class="text-xl">⚡</span>
-                <span id="energy" class="font-bold text-lg">1000</span>
-                <span class="text-gray-500 text-sm">/ 1000</span>
+            <div class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center shadow-[0_0_20px_rgba(243,186,47,0.5)]">
+                <span class="text-2xl">💰</span>
             </div>
-            <div class="text-sm font-bold text-yellow-500">Bronz ></div>
-        </div>
-        <div class="w-full bg-gray-800 h-3 rounded-full overflow-hidden border border-gray-700">
-            <div id="energyBar" class="progress-gradient h-full w-full transition-all duration-300"></div>
+            <h1 id="score" class="text-5xl font-black tracking-tight">0</h1>
         </div>
     </div>
 
-    <div class="w-[95%] bg-[#1c1f24] py-3 rounded-2xl flex justify-around border border-gray-800 shadow-2xl">
-        <div class="nav-item active"><span>🏠</span><span>Borsa</span></div>
-        <div class="nav-item"><span>⛏️</span><span>Madenci</span></div>
-        <div class="nav-item"><span>👥</span><span>Arkadaşlar</span></div>
-        <div class="nav-item"><span>🪙</span><span>Kazan</span></div>
-        <div class="nav-item"><span>🚀</span><span>AirDrop</span></div>
+    <div class="flex justify-center items-center relative h-80">
+        <div id="tapBtn" class="hamster-circle w-64 h-64 rounded-full flex items-center justify-center">
+            <span class="text-[120px]">🐹</span>
+        </div>
+    </div>
+
+    <div class="px-6 mb-2">
+        <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center gap-1 text-yellow-500 font-bold">
+                <span>⚡</span>
+                <span id="energyText">1000</span> / 1000
+            </div>
+            <div class="text-sm font-bold">Bronz Seviye</div>
+        </div>
+        <div class="w-full bg-[#2d333b] h-3 rounded-full p-[2px]">
+            <div id="energyFill" class="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-150" style="width: 100%"></div>
+        </div>
+    </div>
+
+    <div class="bg-[#1c1f24] mx-4 mb-4 rounded-3xl p-2 border border-[#2d333b] flex justify-around items-center">
+        <div class="nav-item active text-center">
+            <div class="text-2xl">🏠</div>
+            <div class="text-[10px] text-yellow-500 mt-1">Borsa</div>
+        </div>
+        <div class="nav-item text-center opacity-50">
+            <div class="text-2xl">⛏️</div>
+            <div class="text-[10px] mt-1">Madenci</div>
+        </div>
+        <div class="nav-item text-center opacity-50">
+            <div class="text-2xl">👥</div>
+            <div class="text-[10px] mt-1">Dostlar</div>
+        </div>
+        <div class="nav-item text-center opacity-50">
+            <div class="text-2xl">🪙</div>
+            <div class="text-[10px] mt-1">Kazan</div>
+        </div>
     </div>
 
     <script>
         let score = 0;
         let energy = 1000;
         const maxEnergy = 1000;
-        
-        const scoreEl = document.getElementById('score');
-        const energyEl = document.getElementById('energy');
-        const energyBar = document.getElementById('energyBar');
-        const clickArea = document.getElementById('clickArea');
 
-        clickArea.addEventListener('click', (e) => {
+        const scoreEl = document.getElementById('score');
+        const energyText = document.getElementById('energyText');
+        const energyFill = document.getElementById('energyFill');
+        const tapBtn = document.getElementById('tapBtn');
+
+        tapBtn.addEventListener('click', (e) => {
             if (energy > 0) {
                 // Skoru Artır
-                score += 1;
-                energy -= 1;
-                
-                // UI Güncelle
-                scoreEl.innerText = score.toLocaleString();
-                energyEl.innerText = energy;
-                energyBar.style.width = (energy / maxEnergy * 100) + '%';
+                score++;
+                energy--;
 
-                // Sayı Efekti Oluştur
-                createClickEffect(e);
-                
-                // Hafif Titreşim (Mobil cihazlarda)
-                if (navigator.vibrate) navigator.vibrate(10);
+                // UI Güncelle
+                scoreEl.textContent = score.toLocaleString();
+                energyText.textContent = energy;
+                energyFill.style.width = (energy / maxEnergy * 100) + '%';
+
+                // Animasyon
+                createPlusOne(e);
             }
         });
 
-        function createClickEffect(e) {
+        function createPlusOne(e) {
+            const rect = tapBtn.getBoundingClientRect();
             const x = e.clientX;
             const y = e.clientY;
-            
-            const num = document.createElement('div');
-            num.className = 'click-ani';
-            num.innerText = '+1';
-            num.style.left = `${x - 20}px`;
-            num.style.top = `${y - 40}px`;
-            
-            document.body.appendChild(num);
-            
-            setTimeout(() => {
-                num.remove();
-            }, 800);
+
+            const plus = document.createElement('div');
+            plus.className = 'plus-animation';
+            plus.textContent = '+1';
+            plus.style.left = `${x - 20}px`;
+            plus.style.top = `${y - 40}px`;
+
+            document.body.appendChild(plus);
+
+            setTimeout(() => plus.remove(), 700);
         }
 
-        // Enerji Yenileme (Saniyede 1)
+        // Enerji Yenileme
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy += 1;
-                energyEl.innerText = energy;
-                energyBar.style.width = (energy / maxEnergy * 100) + '%';
+                energy = Math.min(energy + 1, maxEnergy);
+                energyText.textContent = energy;
+                energyFill.style.width = (energy / maxEnergy * 100) + '%';
             }
-        }, 1000);
+        }, 1500);
     </script>
 </body>
 </html>
