@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | NEXUS V5</title>
+    <title>KOALA ARCADE</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,183 +13,133 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;900&display=swap');
         
-        :root { --accent: #00ff88; --bg: #050505; --card: #111; }
+        :root { --accent: #00ff88; --bg: #000; --card: #0a0a0a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; position: fixed; width: 100%; }
 
-        /* Loading & Checking Overlay */
+        /* Checking Overlay */
         #boot-loader {
             position: fixed; inset: 0; background: #000; z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Page Structure */
-        .page { display: none; height: 100vh; padding: 70px 20px 130px; overflow-y: auto; scrollbar-width: none; }
-        .page::-webkit-scrollbar { display: none; }
-        .page.active { display: block; animation: pageIn 0.4s ease-out; }
-        @keyframes pageIn { from { opacity: 0; filter: blur(10px); } to { opacity: 1; filter: blur(0); } }
+        .page { display: none; height: 100vh; padding: 60px 20px 120px; overflow-y: auto; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Hero Image & Click Effect */
-        .hero-box { position: relative; width: 280px; height: 280px; margin: 0 auto; transition: 0.1s; }
-        .hero-img { 
-            width: 100%; height: 100%; object-fit: cover; border-radius: 64px; 
-            border: 4px solid #1a1a1a; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        /* Küçültülmüş Ana Görsel */
+        .coin-box { position: relative; width: 180px; height: 180px; margin: 0 auto; transition: 0.1s; }
+        .coin-img { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 40px; 
+            border: 3px solid #1a1a1a; box-shadow: 0 10px 30px rgba(0,255,136,0.1);
         }
-        .hero-box:active { transform: scale(0.94); }
+        .coin-box:active { transform: scale(0.92); }
 
-        /* Cards */
-        .k-card { background: var(--card); border-radius: 32px; border: 1px solid #1a1a1a; padding: 24px; margin-bottom: 16px; }
+        .k-card { background: var(--card); border-radius: 24px; border: 1px solid #111; padding: 20px; margin-bottom: 12px; }
         
-        /* Navigation Bar */
         nav { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            width: 90%; height: 80px; background: rgba(15, 15, 15, 0.9); 
-            backdrop-filter: blur(20px); border-radius: 30px; border: 1px solid #222;
-            display: flex; align-items: center; z-index: 10000;
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            width: 85%; height: 70px; background: rgba(10, 10, 10, 0.9); 
+            backdrop-filter: blur(15px); border-radius: 20px; border: 1px solid #1a1a1a;
+            display: flex; align-items: center; z-index: 1000;
         }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; transition: 0.3s; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; color: #333; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-link.active { color: var(--accent); }
-        .nav-link i { font-size: 24px; }
 
-        /* Animations */
         .float-val { position: absolute; color: var(--accent); font-weight: 900; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
-        @keyframes floatUp { to { transform: translateY(-120px); opacity: 0; } }
+        @keyframes floatUp { to { transform: translateY(-100px); opacity: 0; } }
 
-        .spinner { 
-            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.1); 
-            border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; 
-        }
+        .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Status Tag */
-        .status-tag { background: #111; border: 1px solid #222; padding: 6px 14px; border-radius: 100px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #666; }
     </style>
 </head>
 <body>
 
     <div id="boot-loader">
-        <h1 style="letter-spacing: 8px; font-weight: 900;" class="text-2xl mb-4">KOALA</h1>
-        <div class="flex items-center gap-3">
-            <div class="spinner"></div>
-            <p id="boot-text" class="text-[10px] tracking-widest text-zinc-500 uppercase">Checking Neural Link...</p>
-        </div>
+        <div class="spinner mb-4"></div>
+        <p id="boot-text" class="text-[9px] tracking-[4px] text-zinc-600 uppercase">Checking Balance...</p>
     </div>
 
     <main id="main-app" style="visibility: hidden;">
         
         <div id="p-home" class="page active">
-            <div class="flex justify-between items-center mb-10">
-                <div class="status-tag"><i class="fa-solid fa-circle text-green-500 mr-2 text-[7px] animate-pulse"></i> <span id="ui-handle">@USER</span></div>
-                <div class="text-xs font-black italic text-emerald-500">PREMIUM #1</div>
+            <div class="flex justify-between items-center mb-6">
+                <div class="bg-zinc-900/50 px-3 py-1.5 rounded-full border border-zinc-800 text-[10px] text-zinc-500 font-bold" id="ui-handle">@USER</div>
+                <div class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Live</div>
             </div>
 
             <div class="text-center mb-8">
-                <h1 id="ui-bal" class="text-7xl font-black italic tracking-tighter">0</h1>
-                <p class="text-[10px] text-zinc-600 font-bold uppercase tracking-[4px] mt-2">KOALA BALANCE</p>
+                <h1 id="ui-bal" class="text-6xl font-black italic tracking-tighter">0</h1>
+                <p class="text-[9px] text-zinc-700 font-bold uppercase tracking-[3px] mt-1">Koala Coin</p>
             </div>
 
-            <div class="hero-box mb-12" id="tap-area">
-                <img src="babykoalas.jpg" class="hero-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
+            <div class="coin-box mb-10" id="tap-area">
+                <img src="coinkoala.jpg" class="coin-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3069/3069172.png'">
             </div>
 
-            <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-[3px] italic ml-2">Active Tasks</h3>
             <div class="k-card">
-                <div class="flex justify-between items-center py-2 border-b border-zinc-800/50 mb-4 pb-4">
-                    <div>
-                        <p class="text-sm font-bold uppercase">Join Community</p>
-                        <p class="text-[10px] text-emerald-500 font-black">+10,000 KOALAS</p>
-                    </div>
-                    <button id="task-channel" onclick="handleTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-6 py-2 rounded-2xl text-[10px] font-black uppercase transition-all">Go</button>
+                <h3 class="text-[10px] font-black uppercase text-zinc-600 mb-4 tracking-widest">Tasks</h3>
+                <div class="flex justify-between items-center py-2 border-b border-zinc-900 pb-4 mb-4">
+                    <p class="text-xs font-bold uppercase">Join Channel <br><span class="text-emerald-500 text-[9px]">+10K</span></p>
+                    <button id="task-channel" onclick="handleTask('channel', 10000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase">Go</button>
                 </div>
                 <div class="flex justify-between items-center py-2">
-                    <div>
-                        <p class="text-sm font-bold uppercase">Follow on X</p>
-                        <p class="text-[10px] text-emerald-500 font-black">+5,000 KOALAS</p>
-                    </div>
-                    <button id="task-x" onclick="handleTask('x', 5000, 'https://t.me/KoalasCommunity')" class="bg-white text-black px-6 py-2 rounded-2xl text-[10px] font-black uppercase transition-all">Go</button>
+                    <p class="text-xs font-bold uppercase">Watch Video <br><span class="text-emerald-500 text-[9px]">+1K</span></p>
+                    <button onclick="watchAd()" class="bg-zinc-800 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase">Play</button>
                 </div>
             </div>
-            
-            <button onclick="watchAd()" class="w-full bg-zinc-900/50 border border-zinc-800 py-5 rounded-[32px] font-black uppercase text-[10px] tracking-widest text-zinc-400">
-                <i class="fa-solid fa-play text-emerald-500 mr-2"></i> Watch Ad for 1 Koala
-            </button>
         </div>
 
         <div id="p-squad" class="page">
-            <h1 class="text-4xl font-black italic uppercase mb-2">Squad</h1>
-            <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mb-8">Earn 5,000 for every recruit</p>
-            
-            <div class="k-card text-center py-10">
-                <p class="text-[10px] text-zinc-600 font-black uppercase mb-2">Total Invites</p>
-                <h2 id="ui-ref-count" class="text-6xl font-black italic mb-6">0</h2>
-                <div class="bg-black/50 border border-zinc-800 px-6 py-3 rounded-2xl inline-flex items-center gap-3" onclick="copyRef()">
-                    <span id="ui-mycode" class="text-emerald-400 font-bold">---</span>
-                    <i class="fa-regular fa-copy text-zinc-500"></i>
-                </div>
+            <h1 class="text-3xl font-black uppercase mb-6">Squad</h1>
+            <div class="k-card text-center py-8">
+                <p id="ui-ref-count" class="text-5xl font-black mb-4">0</p>
+                <button onclick="copyRef()" class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest bg-zinc-900 px-4 py-2 rounded-xl border border-zinc-800">
+                    Copy My Code: <span id="ui-mycode" class="text-emerald-500">---</span>
+                </button>
             </div>
-
-            <button onclick="shareRef()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-[32px] uppercase text-xs shadow-lg shadow-emerald-500/20">Invite Friends</button>
-            <div id="ui-ref-list" class="mt-8 space-y-3"></div>
+            <div id="ui-ref-list" class="space-y-2"></div>
         </div>
 
         <div id="p-wallet" class="page">
-            <h1 class="text-4xl font-black italic uppercase mb-8 text-center">Exchange</h1>
-            <div id="ex-list" class="space-y-3"></div>
+            <h1 class="text-3xl font-black uppercase mb-6 text-center">Wallet</h1>
+            <div id="ex-list" class="space-y-2"></div>
         </div>
 
     </main>
 
     <nav>
-        <div class="nav-link active" onclick="navigate('home', this)"><i class="fa-solid fa-layer-group"></i><span>Nexus</span></div>
-        <div class="nav-link" onclick="navigate('squad', this)"><i class="fa-solid fa-users-rays"></i><span>Squad</span></div>
-        <div class="nav-link" onclick="navigate('wallet', this)"><i class="fa-solid fa-vault"></i><span>Wallet</span></div>
+        <div class="nav-link active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-link" onclick="nav('squad', this)"><i class="fa-solid fa-users"></i><span>Squad</span></div>
+        <div class="nav-link" onclick="nav('wallet', this)"><i class="fa-solid fa-wallet"></i><span>Exchange</span></div>
     </nav>
 
 <script>
-    // --- CONFIG & FIREBASE ---
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // LÜTFEN KENDİ AYARLARINI GİR
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "TEST_USER";
-    let handle = tg.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : (tg.initDataUnsafe?.user?.first_name || "Koala");
+    let user = { bal: 0, handle: tg.initDataUnsafe?.user?.username || "Koala", tasks: [], referrals: [], exchange: "None", refCode: "KOA-"+Math.floor(10000+Math.random()*90000) };
 
-    let user = { bal: 0, handle: handle, tasks: [], referrals: [], exchange: "None", refCode: "KOA-"+Math.floor(10000+Math.random()*90000) };
-
-    // --- INITIALIZATION (CHECKING) ---
     async function start() {
-        const bootText = document.getElementById('boot-text');
-        
-        // Step 1: Sync
-        bootText.innerText = "Synchronizing Data...";
         const doc = await db.collection("users").doc(myId).get();
-        if(doc.exists) {
-            user = { ...user, ...doc.data() };
-        } else {
-            await db.collection("users").doc(myId).set(user);
-        }
-
-        // Step 2: Verification
-        await new Promise(r => setTimeout(r, 800));
-        bootText.innerText = "Verifying Assets...";
+        if(doc.exists) user = { ...user, ...doc.data() };
+        else await db.collection("users").doc(myId).set(user);
         
-        // Step 3: UI Prep
-        renderAll();
-        
-        // Reveal App
+        render();
         gsap.to("#boot-loader", { opacity: 0, duration: 0.5, onComplete: () => {
             document.getElementById('boot-loader').remove();
             document.getElementById('main-app').style.visibility = 'visible';
         }});
     }
 
-    // --- CORE ENGINES ---
-    function navigate(id, el) {
+    function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
         document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
@@ -197,114 +147,60 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    // Tap Engine
     document.getElementById('tap-area').addEventListener('touchstart', (e) => {
         e.preventDefault();
         user.bal += 0.2;
         updateUI();
-        
         const touch = e.touches[0];
-        const float = document.createElement('div');
-        float.className = 'float-val';
-        float.innerText = '+0.2';
-        float.style.left = touch.pageX + 'px';
-        float.style.top = touch.pageY + 'px';
-        document.body.appendChild(float);
-        setTimeout(() => float.remove(), 800);
-        
+        const f = document.createElement('div');
+        f.className = 'float-val';
+        f.innerText = '+0.2';
+        f.style.left = touch.pageX + 'px';
+        f.style.top = touch.pageY + 'px';
+        document.body.appendChild(f);
+        setTimeout(() => f.remove(), 700);
         tg.HapticFeedback.impactOccurred('medium');
     });
 
-    // Task Engine (Checking Animation)
     async function handleTask(id, reward, link) {
         if(user.tasks.includes(id)) return;
         const btn = document.getElementById('task-' + id);
-        
-        // Button Loading State
-        btn.innerHTML = `<span class="spinner"></span>`;
-        btn.disabled = true;
-        
+        btn.innerHTML = `<div class="spinner"></div>`;
         tg.openTelegramLink(link);
-
-        // Verification Loop
         setTimeout(async () => {
             user.bal += reward;
             user.tasks.push(id);
             await db.collection("users").doc(myId).update({ bal: user.bal, tasks: user.tasks });
-            renderAll();
+            render();
             tg.HapticFeedback.notificationOccurred('success');
-        }, 6000); // 6 saniye kontrol süreci
+        }, 5000);
     }
 
-    // --- HELPERS ---
-    function renderAll() {
+    function render() {
         updateUI();
-        document.getElementById('ui-handle').innerText = user.handle;
+        document.getElementById('ui-handle').innerText = "@" + user.handle;
         document.getElementById('ui-mycode').innerText = user.refCode;
         document.getElementById('ui-ref-count').innerText = user.referrals.length;
         
-        // Tasks
         user.tasks.forEach(tid => {
             const b = document.getElementById('task-' + tid);
-            if(b) {
-                b.innerText = "Verified";
-                b.className = "bg-zinc-800 text-zinc-500 px-6 py-2 rounded-2xl text-[10px] font-black uppercase";
-                b.disabled = true;
-            }
+            if(b) { b.innerText = "Done"; b.disabled = true; b.style.opacity = 0.5; }
         });
 
-        // Exchange Render
         const exList = document.getElementById('ex-list');
         exList.innerHTML = "";
         ['Binance', 'OKX', 'Bybit'].forEach(ex => {
             const active = user.exchange === ex;
-            exList.innerHTML += `
-                <div class="k-card flex justify-between items-center ${active ? 'border-emerald-500' : ''}" onclick="selectEx('${ex}')">
-                    <span class="font-bold uppercase tracking-widest text-xs">${ex}</span>
-                    ${active ? '<i class="fa-solid fa-check-circle text-emerald-500"></i>' : '<i class="fa-solid fa-circle text-zinc-800"></i>'}
-                </div>
-            `;
-        });
-
-        // Squad Render
-        const sList = document.getElementById('ui-ref-list');
-        sList.innerHTML = user.referrals.length ? "" : "<p class='text-center text-zinc-800 text-[10px] uppercase font-bold mt-10'>No squad members yet</p>";
-        user.referrals.forEach(r => {
-            sList.innerHTML += `<div class="k-card !py-4 flex justify-between"><span>${r}</span><span class="text-emerald-500 font-bold">+5K</span></div>`;
+            exList.innerHTML += `<div class="k-card flex justify-between items-center ${active?'border-emerald-500':''}" onclick="setEx('${ex}')"><span class="text-xs font-bold">${ex}</span><i class="fa-solid fa-circle ${active?'text-emerald-500':'text-zinc-900'}"></i></div>`;
         });
     }
 
-    function updateUI() {
-        document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString();
-    }
+    function updateUI() { document.getElementById('ui-bal').innerText = Math.floor(user.bal).toLocaleString(); }
+    async function setEx(n) { user.exchange = n; await db.collection("users").doc(myId).update({exchange: n}); render(); }
+    function copyRef() { navigator.clipboard.writeText(user.refCode); tg.showAlert("Copied!"); }
+    async function watchAd() { user.bal += 1; await db.collection("users").doc(myId).update({bal: user.bal}); updateUI(); }
 
-    async function selectEx(name) {
-        user.exchange = name;
-        await db.collection("users").doc(myId).update({ exchange: name });
-        renderAll();
-        tg.HapticFeedback.notificationOccurred('success');
-    }
-
-    function copyRef() {
-        navigator.clipboard.writeText(user.refCode);
-        tg.HapticFeedback.notificationOccurred('success');
-        tg.showAlert("Referral code copied to clipboard!");
-    }
-
-    function shareRef() {
-        const text = `Join Koala Arcade and start earning! My code: ${user.refCode}`;
-        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YourBotLink&text=${encodeURIComponent(text)}`);
-    }
-
-    async function watchAd() {
-        user.bal += 1;
-        await db.collection("users").doc(myId).update({ bal: user.bal });
-        updateUI();
-    }
-
-    // Auto-Save
     setInterval(() => { if(myId !== "TEST_USER") db.collection("users").doc(myId).update({ bal: user.bal }); }, 15000);
-
     window.onload = start;
 </script>
 </body>
