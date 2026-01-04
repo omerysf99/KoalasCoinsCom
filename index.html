@@ -3,116 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Pro - Tekil Oynatma</title>
+    <title>TikTok Pro - Sonsuz Akış</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: white; }
-        
-        /* Kaydırma Alanı */
-        .tiktok-feed {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
-        .tiktok-feed::-webkit-scrollbar { display: none; }
-
-        .video-item {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000;
-        }
-
-        /* Video Bilgileri ve Butonlar */
-        .overlay { position: absolute; bottom: 100px; left: 20px; z-index: 20; pointer-events: none; }
-        .side-panel { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
-        
-        /* Iframe Kapsayıcı (Kontrol İçin) */
-        .video-container { width: 100%; height: 100%; max-width: 450px; }
-        iframe { width: 100%; height: 100%; pointer-events: all; }
+        .feed-wrapper { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .feed-wrapper::-webkit-scrollbar { display: none; }
+        .video-card { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; background: #000; display: flex; justify-content: center; align-items: center; }
+        iframe { width: 100%; height: 100%; max-width: 500px; pointer-events: all; }
+        .ui-overlay { position: absolute; bottom: 100px; left: 20px; z-index: 20; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        .tab-active { border-bottom: 3px solid white; color: white; opacity: 1; }
     </style>
 </head>
 <body>
 
-    <div class="tiktok-feed" id="feed">
-        </div>
+    <div class="fixed top-0 left-0 w-full flex justify-center gap-6 z-50 bg-gradient-to-b from-black/70 to-transparent pt-8 pb-4">
+        <button onclick="changeCategory('kesfet')" id="tab-kesfet" class="tab-active opacity-70 font-bold transition-all">Keşfet</button>
+        <button onclick="changeCategory('muzik')" id="tab-muzik" class="opacity-70 font-bold transition-all text-zinc-400">Müzik</button>
+        <button onclick="changeCategory('spor')" id="tab-spor" class="opacity-70 font-bold transition-all text-zinc-400">Spor</button>
+    </div>
+
+    <div class="feed-wrapper" id="videoFeed"></div>
+
+    <nav class="fixed bottom-0 w-full bg-black border-t border-zinc-900 flex justify-around items-center py-4 z-50">
+        <i class="fas fa-home text-xl"></i>
+        <i class="fas fa-search text-xl text-zinc-500"></i>
+        <div class="bg-white text-black px-4 py-1 rounded-lg font-bold text-xl">+</div>
+        <i class="fas fa-comment text-xl text-zinc-500"></i>
+        <i class="fas fa-user text-xl text-zinc-500"></i>
+    </nav>
 
     <script>
-        // Senin Geliştirici Kimliklerin (Görselden)
-        const CLIENT_ID = 'aw01joj8wk4rnll9';
+        const videoDB = {
+            kesfet: [
+                { id: '7591531252507789368', user: 'istek_ozel', desc: 'Senin seçtiğin video! 🚀' },
+                { id: 'kpaFYhxDFl8', user: 'yunuscanpolat', desc: 'Güncel Türkiye Trendi 😂' }
+            ],
+            muzik: [
+                { id: 'kz234YDHU-0', user: 'muzik_listesi', desc: 'Haftanın Top 10 Türkçe Şarkısı 🎵' },
+                { id: 'k8eQP7b2LDU', user: 'lyrics_tr', desc: 'Aynur Aydın - Bi Dakika 🎤' }
+            ],
+            spor: [
+                { id: 'AY4dgEwCVyU', user: 'cerenyaldiz', desc: 'Galatasaray Ruhu! 🦁 #GS' },
+                { id: 'WzxXh3UMBF0', user: 'spor_trend', desc: '2026 Futbol Akımları ⚽' }
+            ]
+        };
 
-        // GÜNCEL TÜRKÇE VİDEO VERİLERİ
-        const videoData = [
-            { id: '7591531252507789368', user: 'istek_ozel', desc: 'Senin videon yayında! 🚀' },
-            { id: 'kpaFYhxDFl8', user: 'yunuscanpolat', desc: 'Gülmek garanti! 😂 #bahar' },
-            { id: 'AY4dgEwCVyU', user: 'cerenyaldiz', desc: '🦁 Şampiyon Galatasaray! #gs' },
-            { id: 'kz234YDHU-0', user: 'freyawie', desc: '2026 Ocak - En Popüler Şarkılar 🎵' },
-            { id: 'k8eQP7b2LDU', user: 'lyrics_melodic', desc: 'Aynur Aydın - Bi Dakika 🎤' }
-        ];
+        let currentCategory = 'kesfet';
+        const feed = document.getElementById('videoFeed');
 
-        const feed = document.getElementById('feed');
+        // Sekme Değiştirme
+        function changeCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('[id^="tab-"]').forEach(btn => btn.className = 'opacity-70 font-bold transition-all text-zinc-400');
+            document.getElementById('tab-' + cat).className = 'tab-active opacity-100 font-bold transition-all text-white';
+            feed.innerHTML = '';
+            loadVideos();
+        }
 
-        // Videoları Oluştur
-        function createFeed() {
-            videoData.forEach((v, index) => {
-                const div = document.createElement('div');
-                div.className = 'video-item';
-                div.setAttribute('data-index', index);
-                
-                // YouTube videolarını "shorts" modunda ve sessiz başlatılacak şekilde ekle (autoplay politikası gereği)
-                const videoSrc = `https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&modestbranding=1&rel=0`;
-                
-                div.innerHTML = `
-                    <div class="video-container">
-                        <iframe id="player-${index}" src="${videoSrc}" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-                    </div>
-                    <div class="overlay">
+        // Videoları Yükle
+        function loadVideos() {
+            const data = videoDB[currentCategory];
+            data.forEach((v, i) => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <iframe src="https://www.youtube.com/embed/${v.id}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${v.id}" frameborder="0" allow="autoplay; encrypted-media"></iframe>
+                    <div class="ui-overlay">
                         <h3 class="font-bold">@${v.user}</h3>
                         <p class="text-sm mt-1">${v.desc}</p>
                     </div>
-                    <div class="side-panel">
-                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl mb-1"></i><span class="text-xs font-bold">12K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl mb-1"></i><span class="text-xs font-bold">450</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-share text-2xl"></i></div>
-                    </div>
                 `;
-                feed.appendChild(div);
+                feed.appendChild(card);
             });
+            setupObserver();
         }
 
-        createFeed();
+        // Akıllı İzleyici: Sadece ekrandaki video oynasın
+        function setupObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const iframe = entry.target.querySelector('iframe');
+                    if (entry.isIntersecting) {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    } else {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    }
+                });
+            }, { threshold: 0.7 });
 
-        // AKILLI DURDURMA VE OYNATMA MANTIĞI
-        // Intersection Observer ile ekrandaki videoyu takip et
-        const observerOptions = {
-            root: feed,
-            threshold: 0.8 // Videonun %80'i görünür olduğunda tetiklenir
-        };
+            document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
+        }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const iframe = entry.target.querySelector('iframe');
-                
-                if (entry.isIntersecting) {
-                    // Video ekrana girdi: Oynat
-                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                } else {
-                    // Video ekrandan çıktı: Durdur
-                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                }
-            });
-        }, observerOptions);
-
-        // Her video kartını gözlemle
-        document.querySelectorAll('.video-item').forEach(item => {
-            observer.observe(item);
+        // Sonsuz Kaydırma: Sona gelince mevcut kategoriyi tekrarla
+        feed.addEventListener('scroll', () => {
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 10) {
+                loadVideos();
+            }
         });
+
+        // Başlat
+        loadVideos();
     </script>
 </body>
 </html>
