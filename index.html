@@ -3,127 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Yerel Player</title>
+    <title>TikTok Projeleri - API & Local</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #121212; color: white; overflow: hidden; }
-        /* Video Akış Alanı */
-        #video-container {
+        body { background-color: #000; color: white; margin: 0; overflow: hidden; }
+        
+        /* Kaydırma Alanı */
+        #feed {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
         }
-        .video-section {
+
+        /* Video Bölümü - Sabit Boyutlandırma */
+        .video-wrapper {
             height: 100vh;
             scroll-snap-align: start;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
-            padding: 20px;
         }
-        video {
-            height: 85vh;
+
+        /* Video Boyutunu Sabitleyen Kap (9:16 Oranı) */
+        .video-container {
+            position: relative;
+            height: 90vh; /* Ekranın %90'ı */
+            aspect-ratio: 9 / 16;
+            background: #121212;
             border-radius: 12px;
-            background-color: black;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        .sidebar-icon {
+            overflow: hidden;
             display: flex;
-            flex-col;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 20px;
-            cursor: pointer;
+            justify-content: center;
         }
-        .sidebar-icon i { font-size: 24px; padding: 12px; background: #2f2f2f; border-radius: 50%; }
-        .sidebar-icon span { font-size: 12px; font-weight: bold; }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Videoyu kutuya sığdırır, taşanı keser */
+        }
+
+        .side-bar {
+            position: absolute;
+            right: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .info-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 80px;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-transparent flex items-center justify-between px-6 h-16 z-50">
-        <div class="flex items-center gap-2">
-            <i class="fab fa-tiktok text-3xl text-white"></i>
-            <span class="text-xl font-bold tracking-tighter">TikTok Local</span>
-        </div>
-    </nav>
-
-    <div id="video-container">
+    <div id="feed">
         </div>
 
     <script>
-        // Senin klasöründeki video listesi
+        // API Bilgilerin
+        const API_CONFIG = {
+            clientKey: "aw01joj8wk4rnll9",
+            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
+        };
+
+        // Yerel Dosyaların
         const videoFiles = [
-            'reels1.mp4',
-            'reels2.mp4',
-            'reels3.mp4',
-            'reels4.mp4',
-            'reels5.mp4'
+            { src: 'reels1.mp4', user: '@api_tester', desc: 'API Test Verisi #1' },
+            { src: 'reels2.mp4', user: '@dev_mode', desc: 'TikTok SDK Entegrasyonu' },
+            { src: 'reels3.mp4', user: '@fullstack', desc: 'Local Video Rendering' },
+            { src: 'reels4.mp4', user: '@ui_designer', desc: 'Fixed Aspect Ratio 9:16' },
+            { src: 'reels5.mp4', user: '@coding', desc: 'JavaScript Observer API' }
         ];
 
-        const container = document.getElementById('video-container');
+        const feed = document.getElementById('feed');
 
-        // Videoları HTML'e dök
-        videoFiles.forEach((file, index) => {
+        // Arayüzü oluştur
+        videoFiles.forEach(videoData => {
             const section = document.createElement('div');
-            section.className = 'video-section';
+            section.className = 'video-wrapper';
             section.innerHTML = `
-                <div class="relative flex gap-4 items-end">
-                    <video loop class="main-video" src="${file}"></video>
+                <div class="video-container">
+                    <video loop class="tiktok-video" src="${videoData.src}"></video>
                     
-                    <div class="flex flex-col text-white pb-4">
-                        <div class="sidebar-icon">
-                            <i class="fas fa-heart"></i>
-                            <span>${Math.floor(Math.random() * 50)}K</span>
+                    <div class="side-bar">
+                        <div class="flex flex-col items-center">
+                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-heart text-2xl"></i></div>
+                            <span class="text-xs font-bold">API</span>
                         </div>
-                        <div class="sidebar-icon">
-                            <i class="fas fa-comment-dots"></i>
-                            <span>${Math.floor(Math.random() * 500)}</span>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-comment-dots text-2xl"></i></div>
+                            <span class="text-xs font-bold">Live</span>
                         </div>
-                        <div class="sidebar-icon">
-                            <i class="fas fa-share"></i>
-                            <span>Paylaş</span>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mb-1"><i class="fas fa-share text-2xl"></i></div>
+                            <span class="text-xs">Paylaş</span>
                         </div>
                     </div>
 
-                    <div class="absolute bottom-6 left-4">
-                        <p class="font-bold text-lg">@user_reels_${index + 1}</p>
-                        <p class="text-sm">Yerel klasörden video oynatılıyor: ${file}</p>
+                    <div class="info-bar">
+                        <h3 class="font-bold text-lg mb-1">${videoData.user}</h3>
+                        <p class="text-sm text-gray-200">${videoData.desc}</p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <i class="fas fa-music mr-2"></i> Orijinal Ses - TikTok API (${API_CONFIG.clientKey.substring(0,6)}...)
+                        </div>
                     </div>
                 </div>
             `;
-            container.appendChild(section);
+            feed.appendChild(section);
         });
 
-        // Otomatik Oynatma Mantığı (Scroll takip eder)
-        const videos = document.querySelectorAll('.main-video');
-        
-        const observerOptions = {
-            threshold: 0.7 // Videonun %70'i göründüğünde oynat
-        };
-
+        // OTOMATİK OYNATMA VE DURDURMA (Video Boyut Farklarını Engeller)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
+                const video = entry.target;
                 if (entry.isIntersecting) {
-                    entry.target.play();
+                    video.play().catch(() => {}); // Kullanıcı etkileşimi yoksa hata vermesin
                 } else {
-                    entry.target.pause();
-                    entry.target.currentTime = 0; // Başa sar
+                    video.pause();
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.8 });
 
-        videos.forEach(video => {
-            observer.observe(video);
-            // İlk tıklamada ses açma/oynatma için (Tarayıcı politikaları gereği)
-            video.addEventListener('click', () => {
-                if (video.paused) video.play();
-                else video.pause();
-            });
-        });
+        document.querySelectorAll('.tiktok-video').forEach(vid => observer.observe(vid));
+
+        // API'den veri çekme simülasyonu (Altyapı hazır)
+        async function fetchTikTokData() {
+            console.log("Bağlanılıyor: " + API_CONFIG.clientKey);
+            // Gerçek TikTok API Endpoint'leri buraya eklenebilir
+        }
+        fetchTikTokData();
     </script>
-
 </body>
 </html>
