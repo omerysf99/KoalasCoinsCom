@@ -3,70 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reels Pro - +1 Beğeni Efektli</title>
+    <title>Reels Pro - Tek Seferlik Beğeni</title>
     <style>
-        body {
-            margin: 0; padding: 0; background-color: #0b0b0b;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; font-family: 'Segoe UI', sans-serif; color: white;
-            overflow: hidden;
-        }
-
-        .reels-wrapper {
-            width: 100%; max-width: 380px; height: 90vh;
-            position: relative; background: #000;
-            border-radius: 40px; overflow: hidden; border: 6px solid #222;
-        }
-
-        .reels-container {
-            height: 100%; overflow-y: scroll;
-            scroll-snap-type: y mandatory; scroll-behavior: smooth;
-        }
+        body { margin: 0; padding: 0; background-color: #0b0b0b; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: white; overflow: hidden; }
+        .reels-wrapper { width: 100%; max-width: 380px; height: 90vh; position: relative; background: #000; border-radius: 40px; overflow: hidden; border: 6px solid #222; }
+        .reels-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
         .reels-container::-webkit-scrollbar { display: none; }
-
         .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Yan Menü */
-        .side-bar {
-            position: absolute; right: 10px; bottom: 80px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 15px; z-index: 10;
-        }
+        .side-bar { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
         .action-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .icon { font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transition: 0.2s; }
         .count { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
-        /* Ekranda Uçan Kalp Animasyonu */
-        .heart-animation {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            font-size: 80px; color: red;
-            pointer-events: none;
-            z-index: 150;
-        }
-        .animate-heart {
-            animation: heartPop 0.6s ease-out forwards;
-        }
-        @keyframes heartPop {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-            100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; }
-        }
-
-        /* Yorum Paneli */
-        .comment-panel {
-            position: absolute; bottom: -100%; left: 0;
-            width: 100%; height: 60%; background: #1a1a1a;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-            z-index: 200; transition: bottom 0.3s ease;
-            display: flex; flex-direction: column;
-        }
-        .comment-panel.active { bottom: 0; }
-        .comment-header { padding: 15px; text-align: center; border-bottom: 1px solid #333; font-weight: bold; }
-        .comment-list { flex: 1; overflow-y: auto; padding: 15px; }
-        .comment-input-area { padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; background: #333; border: none; border-radius: 20px; padding: 8px 15px; color: white; outline: none; }
+        /* Kalp Animasyonu */
+        .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 80px; color: red; pointer-events: none; z-index: 150; }
+        .animate-heart { animation: heartPop 0.6s ease-out forwards; }
+        @keyframes heartPop { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; } }
 
         .info-overlay { position: absolute; bottom: 30px; left: 15px; width: 60%; pointer-events: none; }
     </style>
@@ -75,98 +29,85 @@
 
 <div class="reels-wrapper">
     <div id="heartPop" class="heart-animation">❤️</div>
-
-    <div class="comment-panel" id="commentPanel">
-        <div class="comment-header">Yorumlar <span style="float:right; cursor:pointer;" onclick="toggleComments()">✕</span></div>
-        <div class="comment-list" id="commentList"></div>
-        <div class="comment-input-area">
-            <input type="text" id="commentInput" placeholder="Yorum yap...">
-            <button style="color:#24a1de; background:none; border:none; font-weight:bold; cursor:pointer;" onclick="addComment()">Paylaş</button>
-        </div>
-    </div>
-
     <div class="reels-container" id="reelsContainer"></div>
 </div>
 
 <script>
     const videoList = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4'];
     const container = document.getElementById('reelsContainer');
-    let currentVideoIndex = 0;
-    const videoData = {};
 
-    // Beğeni Artırma ve Animasyon
-    function triggerLike(index) {
-        const heartIcon = document.querySelectorAll('.like-icon')[index];
-        const likeCount = document.querySelectorAll('.like-count')[index];
-        const pop = document.getElementById('heartPop');
-
-        // Sayıyı Artır (+1)
-        let current = parseInt(likeCount.innerText);
-        likeCount.innerText = current + 1;
-
-        // İkonu Kırmızı Yap
-        heartIcon.innerText = '❤️';
+    // Beğeni durumunu kontrol et ve işle
+    function toggleLike(index) {
+        const likeKey = `liked_video_${index}`;
+        const isLiked = localStorage.getItem(likeKey) === 'true';
         
-        // Ekranda Kalp Patlat
-        pop.classList.remove('animate-heart');
-        void pop.offsetWidth; // Animasyonu sıfırla
-        pop.classList.add('animate-heart');
-    }
+        const heartIcon = document.querySelectorAll('.like-icon')[index];
+        const likeCountElement = document.querySelectorAll('.like-count')[index];
+        let currentLikes = parseInt(likeCountElement.innerText);
 
-    function toggleComments() { document.getElementById('commentPanel').classList.toggle('active'); }
-
-    function addComment() {
-        const input = document.getElementById('commentInput');
-        if(!input.value) return;
-        if(!videoData[currentVideoIndex]) videoData[currentVideoIndex] = [];
-        videoData[currentVideoIndex].push(input.value);
-        updateCommentUI();
-        input.value = "";
-        document.querySelectorAll('.comment-count')[currentVideoIndex].innerText = videoData[currentVideoIndex].length;
-    }
-
-    function updateCommentUI() {
-        const list = document.getElementById('commentList');
-        list.innerHTML = (videoData[currentVideoIndex] || []).map(t => `<div style="margin-bottom:10px;"><b style="color:#8ab4f8;">Üye:</b> ${t}</div>`).join('');
+        if (!isLiked) {
+            // İLK KEZ BEĞENİYOR
+            localStorage.setItem(likeKey, 'true');
+            likeCountElement.innerText = currentLikes + 1;
+            heartIcon.innerText = '❤️';
+            
+            // Kalp Animasyonunu Tetikle
+            const pop = document.getElementById('heartPop');
+            pop.classList.remove('animate-heart');
+            void pop.offsetWidth;
+            pop.classList.add('animate-heart');
+        } else {
+            // ZATEN BEĞENMİŞ (Beğeniyi geri çekme özelliği)
+            localStorage.removeItem(likeKey);
+            likeCountElement.innerText = currentLikes - 1;
+            heartIcon.innerText = '🤍';
+        }
     }
 
     function render() {
         videoList.forEach((file, i) => {
+            // Daha önce beğenmiş mi kontrol et
+            const isLiked = localStorage.getItem(`liked_video_${i}`) === 'true';
+            const initialLikes = isLiked ? 1 : 0; // Gerçek sistemde bu sayı veritabanından gelir
+            const heartSymbol = isLiked ? '❤️' : '🤍';
+
             const card = document.createElement('div');
             card.className = 'video-card';
             card.innerHTML = `
-                <video src="${file}" loop playsinline ondblclick="triggerLike(${i})"></video>
+                <video src="${file}" loop playsinline ondblclick="toggleLike(${i})"></video>
                 <div class="side-bar">
-                    <div class="action-item" onclick="triggerLike(${i})">
-                        <span class="icon like-icon">🤍</span>
-                        <span class="count like-count">0</span>
+                    <div class="action-item" onclick="toggleLike(${i})">
+                        <span class="icon like-icon">${heartSymbol}</span>
+                        <span class="count like-count">${initialLikes}</span>
                     </div>
-                    <div class="action-item" onclick="currentVideoIndex=${i}; updateCommentUI(); toggleComments();">
+                    <div class="action-item">
                         <span class="icon">💬</span>
-                        <span class="count comment-count">0</span>
+                        <span class="count">0</span>
                     </div>
-                    <div class="action-item"><span class="icon">🔖</span><span class="count">0</span></div>
+                    <div class="action-item">
+                        <span class="icon">🔖</span>
+                        <span class="count">0</span>
+                    </div>
                 </div>
-                <div class="info-overlay"><h4>@reels_bot_user</h4><p>Videoyu beğenmek için çift tıkla!</p></div>
+                <div class="info-overlay">
+                    <h4>@reels_user</h4>
+                    <p>Bu videoyu sadece 1 kez beğenebilirsin.</p>
+                </div>
             `;
             container.appendChild(card);
         });
     }
 
     container.addEventListener('scroll', () => {
-        document.querySelectorAll('video').forEach((v, idx) => {
+        document.querySelectorAll('video').forEach((v) => {
             const pos = v.getBoundingClientRect();
-            if (pos.top >= -50 && pos.top <= 50) {
-                currentVideoIndex = idx;
-                v.play().catch(() => {});
-            } else { v.pause(); }
+            if (pos.top >= -50 && pos.top <= 50) v.play().catch(() => {});
+            else v.pause();
         });
     });
 
     render();
-    window.addEventListener('click', () => {
-        document.querySelectorAll('video').forEach(v => v.muted = false);
-    }, { once: true });
+    window.addEventListener('click', () => { document.querySelectorAll('video').forEach(v => v.muted = false); }, { once: true });
 </script>
 
 </body>
