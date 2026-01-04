@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Infinite Loop</title>
+    <title>TikTok Pro - Shuffle & Sound</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #000; margin: 0; color: white; overflow: hidden; }
-        
         #main-feed {
             height: 100vh;
             overflow-y: scroll;
@@ -16,7 +15,6 @@
             scrollbar-width: none;
         }
         #main-feed::-webkit-scrollbar { display: none; }
-
         .video-wrapper {
             height: 100vh;
             scroll-snap-align: start;
@@ -25,113 +23,151 @@
             align-items: center;
             position: relative;
         }
-
         .video-container {
-            height: 95vh;
-            width: calc(95vh * 9 / 16);
+            height: 92vh;
+            width: calc(92vh * 9 / 16);
             position: relative;
             background: #121212;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
+        video { width: 100%; height: 100%; object-fit: cover; }
         .actions {
             position: absolute;
-            right: -60px;
-            bottom: 30px;
+            right: 15px;
+            bottom: 120px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            z-index: 10;
         }
-
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .action-btn i { font-size: 28px; cursor: pointer; transition: transform 0.2s; }
+        .action-btn i:active { transform: scale(1.2); }
         .video-info {
             position: absolute;
             bottom: 25px;
             left: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            right: 70px;
+            z-index: 10;
+        }
+        /* Ses İkonu Animasyonu */
+        .mute-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.4);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div id="main-feed">
-        </div>
+    <div class="mute-btn" onclick="toggleGlobalMute()">
+        <i id="mute-icon" class="fas fa-volume-mute text-xl"></i>
+    </div>
+
+    <div id="main-feed"></div>
 
     <script>
-        const TIKTOK_CREDENTIALS = {
-            clientKey: "aw01joj8wk4rnll9",
-            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
-        };
+        const API_KEY = "aw01joj8wk4rnll9";
+        let isGlobalMuted = true;
 
-        // Mevcut yerel videoların
         const baseVideos = [
-            { file: 'reels1.mp4', user: 'yazilimci', desc: 'Sonsuz döngü aktif! #loop' },
-            { file: 'reels2.mp4', user: 'dev_ahmet', desc: 'TikTok API v2 test' },
-            { file: 'reels3.mp4', user: 'tech_bot', desc: 'Kesintisiz video akışı' },
-            { file: 'reels4.mp4', user: 'creative', desc: 'Scroll yaptıkça yenilenir' },
-            { file: 'reels5.mp4', user: 'api_master', desc: 'Key: ' + TIKTOK_CREDENTIALS.clientKey }
+            { file: 'reels1.mp4', user: 'yazilimci', desc: 'Karışık mod aktif! 🎲' },
+            { file: 'reels2.mp4', user: 'dev_ahmet', desc: 'TikTok API Ses Entegrasyonu 🔊' },
+            { file: 'reels3.mp4', user: 'tech_bot', desc: 'Sonsuz loop deneyimi' },
+            { file: 'reels4.mp4', user: 'creative', desc: 'Shuffle & Repeat #coding' },
+            { file: 'reels5.mp4', user: 'api_master', desc: 'Key: ' + API_KEY }
         ];
+
+        // Listeyi Karıştırma Fonksiyonu (Fisher-Yates Shuffle)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
 
         const feed = document.getElementById('main-feed');
 
-        // Video Elementi Oluşturma Fonksiyonu
         function createVideoElement(v) {
             const wrapper = document.createElement('div');
             wrapper.className = 'video-wrapper';
             wrapper.innerHTML = `
                 <div class="video-container">
-                    <video loop muted class="tk-video" src="${v.file}"></video>
+                    <video loop muted playsinline class="tk-video" src="${v.file}"></video>
                     <div class="actions">
-                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl"></i><span class="text-xs">Like</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl"></i><span class="text-xs">85</span></div>
+                        <div class="action-btn"><i class="fas fa-heart text-red-500"></i><span class="text-xs font-bold">1.2K</span></div>
+                        <div class="action-btn"><i class="fas fa-comment-dots"></i><span class="text-xs font-bold">45</span></div>
+                        <div class="action-btn"><i class="fas fa-share"></i><span class="text-xs font-bold">Paylaş</span></div>
                     </div>
                     <div class="video-info">
-                        <h4 class="font-bold text-lg">@${v.user}</h4>
-                        <p class="text-sm">${v.desc}</p>
+                        <h4 class="font-bold text-lg italic">@${v.user}</h4>
+                        <p class="text-sm opacity-90">${v.desc}</p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <i class="fas fa-music mr-2 animate-spin-slow"></i> API Audio - ${v.file}
+                        </div>
                     </div>
                 </div>
             `;
             feed.appendChild(wrapper);
-            
-            // Yeni eklenen videoyu izlemeye al
             videoObserver.observe(wrapper.querySelector('video'));
         }
 
-        // Başlangıçta videoları yükle
-        function loadMoreVideos() {
-            baseVideos.forEach(v => createVideoElement(v));
+        function loadRandomBatch() {
+            const shuffledBatch = shuffle([...baseVideos]);
+            shuffledBatch.forEach(v => createVideoElement(v));
         }
 
-        // Akıllı Oynatıcı ve Sonsuz Döngü Tetikleyici
+        // Ses Aç/Kapat
+        function toggleGlobalMute() {
+            isGlobalMuted = !isGlobalMuted;
+            const icon = document.getElementById('mute-icon');
+            icon.className = isGlobalMuted ? "fas fa-volume-mute text-xl" : "fas fa-volume-up text-xl";
+            
+            document.querySelectorAll('.tk-video').forEach(vid => {
+                vid.muted = isGlobalMuted;
+            });
+        }
+
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target;
                 if (entry.isIntersecting) {
-                    video.play();
+                    video.muted = isGlobalMuted;
+                    video.play().catch(() => {});
                     
-                    // Eğer son videoya gelindiyse (liste sonuna 2 kala) yeni videolar ekle
+                    // Sonsuz Döngü Tetikleyici: Son videoya gelince yeni karışık liste ekle
                     if (video === feed.lastElementChild.querySelector('video')) {
-                        loadMoreVideos();
+                        loadRandomBatch();
                     }
                 } else {
                     video.pause();
                 }
             });
-        }, { threshold: 0.7 });
+        }, { threshold: 0.8 });
 
         // İlk yükleme
-        loadMoreVideos();
+        loadRandomBatch();
 
-        // Tarayıcı sessiz oynatma kuralı için ilk tıklama desteği
+        // Tarayıcı kısıtlaması için sayfaya ilk tıklandığında sesi aktif etme opsiyonu
         window.addEventListener('click', () => {
-            const currentVid = document.querySelector('.tk-video');
-            if(currentVid) currentVid.muted = false;
+            if(isGlobalMuted) {
+                // Opsiyonel: İlk tıklamada otomatik açılmasını istiyorsan burayı tetikleyebilirsin.
+            }
         }, { once: true });
     </script>
 </body>
