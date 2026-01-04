@@ -3,149 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan v6</title>
+    <title>DOGS Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #000; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
-        .active-page { display: block; }
-        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        #reels-feed::-webkit-scrollbar { display: none; }
-        .video-wrapper { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .progress-bar { position: absolute; bottom: 90px; left: 0; height: 3px; background: #00f2ea; width: 0%; z-index: 200; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 15px 0 30px 0; z-index: 1000; }
-        .nav-item { opacity: 0.4; transition: 0.3s; text-align: center; cursor: pointer; }
-        .nav-item.active { opacity: 1; color: #ff0050; }
-        
-        /* Reklam Kartı Stili */
-        .ad-card { background: linear-gradient(45deg, #1a1a1a, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; height: 100%; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; }
+        .dogs-text { font-weight: 900; letter-spacing: -0.05em; }
+        .loader-line { height: 2px; width: 0%; background: #fff; transition: width 0.3s ease; }
+        .hidden { display: none; }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-6">
 
-    <div class="fixed top-0 w-full z-[500] p-4 flex justify-between items-center pointer-events-none">
-        <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 pointer-events-auto">
-            <p class="text-[9px] text-gray-400 font-bold uppercase">Cüzdanım</p>
-            <p class="text-xl font-black text-green-400"><span id="total-balance">12.45</span> ₺</p>
+    <div id="screen-start" class="w-full max-w-md text-center">
+        <div class="mb-10 animate-bounce">
+            <i class="fas fa-dog text-8xl text-white"></i>
+            <span class="text-9xl block">🦴</span>
         </div>
-        <div id="status-tag" class="bg-black/60 px-3 py-1 rounded-full text-[9px] border border-white/5 pointer-events-auto">
-            API: aw01...l9 AKTİF
-        </div>
+        <h1 class="text-5xl dogs-text mb-4 uppercase italic">Who are you?</h1>
+        <p class="text-gray-400 text-sm mb-10 px-10">Uygulama yaşın ve aktiviten kontrol edilerek puanın hesaplanacak.</p>
+        <button onclick="startChecking()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg active:scale-95 transition-transform uppercase">Hesabımı Kontrol Et</button>
     </div>
 
-    <div id="page-home" class="page active-page flex flex-col items-center justify-center p-6">
-        <div class="w-20 h-20 bg-[#ff0050] rounded-3xl flex items-center justify-center shadow-2xl mb-6 rotate-12">
-            <i class="fas fa-wallet text-3xl"></i>
-        </div>
-        <h1 class="text-3xl font-black mb-1">HOŞ GELDİN</h1>
-        <p class="text-gray-500 text-sm mb-10">Bugün 12.45 ₺ kazandın.</p>
-        <button onclick="navigate('reels')" class="w-full max-w-xs bg-white text-black py-4 rounded-2xl font-black uppercase tracking-wider">İzlemeye Başla</button>
-    </div>
-
-    <div id="page-reels" class="page">
-        <div id="reels-feed"></div>
-    </div>
-
-    <nav class="bottom-nav">
-        <div onclick="navigate('home')" class="nav-item active"><i class="fas fa-home text-xl"></i><p class="text-[8px] mt-1">ANA SAYFA</p></div>
-        <div onclick="navigate('reels')" class="nav-item"><i class="fas fa-play text-xl"></i><p class="text-[8px] mt-1">REELS</p></div>
-        <div onclick="location.reload()" class="nav-item"><i class="fas fa-sync text-xl"></i><p class="text-[8px] mt-1">YENİLE</p></div>
-    </nav>
-
-    <script>
-        const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4'];
-        let balance = 12.45;
-        let videoCounter = 0; // 2 videoda 1 reklam için
-
-        function navigate(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.getElementById('page-' + id).classList.add('active-page');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
-        }
-
-        function addBalance(amount, reason) {
-            balance += amount;
-            document.getElementById('total-balance').innerText = balance.toFixed(2);
-            console.log(`${reason}: +${amount}₺`);
-        }
-
-        function createContent() {
-            const feed = document.getElementById('reels-feed');
-            
-            // Her döngüde 2 Video + 1 Reklam ekle
-            for (let i = 0; i < 2; i++) {
-                const videoFile = videoFiles[Math.floor(Math.random() * videoFiles.length)];
-                const vWrap = document.createElement('div');
-                vWrap.className = 'video-wrapper';
-                vWrap.innerHTML = `
-                    <video loop muted playsinline src="${videoFile}"></video>
-                    <div class="progress-bar"></div>
-                    <div class="absolute bottom-32 left-6 right-20 pointer-events-none">
-                        <p class="font-bold">@video_creator</p>
-                        <p class="text-xs opacity-70">İzle ve 0.01 ₺ Kazan!</p>
-                    </div>
-                `;
-                feed.appendChild(vWrap);
-                observer.observe(vWrap.querySelector('video'));
-            }
-
-            // REKLAM EKLE
-            const adWrap = document.createElement('div');
-            adWrap.className = 'video-wrapper';
-            adWrap.innerHTML = `
-                <div class="ad-card">
-                    <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-yellow-500/20">
-                        <i class="fas fa-ad text-black text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-black mb-2 uppercase">Sponsorlu İçerik</h3>
-                    <p class="text-gray-400 text-sm px-10 mb-6">Reklamı geçmek için yukarı kaydır. Cüzdanın güvenle işleniyor.</p>
-                    <div class="text-[10px] text-gray-600 font-mono">ID: aw01joj8wk4rnll9</div>
-                    <button class="mt-8 bg-white/10 px-6 py-2 rounded-full text-xs font-bold">Detayları Gör</button>
+    <div id="screen-checking" class="w-full max-w-md hidden">
+        <h2 class="text-3xl dogs-text mb-12 uppercase italic">Checking your stats...</h2>
+        <div class="space-y-8">
+            <div class="check-item opacity-20 transition-opacity duration-500" id="check-1">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-bold uppercase">Hesap Yaşı Kontrol Ediliyor</span>
+                    <i class="fas fa-check text-green-500 hidden" id="icon-1"></i>
                 </div>
-            `;
-            feed.appendChild(adWrap);
-        }
+                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
+                    <div id="bar-1" class="h-full bg-white w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-                const video = e.target;
-                const pBar = video.parentElement.querySelector('.progress-bar');
+            <div class="check-item opacity-20 transition-opacity duration-500" id="check-2">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-bold uppercase">Aktivite Analiz Ediliyor</span>
+                    <i class="fas fa-check text-green-500 hidden" id="icon-2"></i>
+                </div>
+                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
+                    <div id="bar-2" class="h-full bg-white w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
 
-                if(e.isIntersecting) {
-                    video.play();
+            <div class="check-item opacity-20 transition-opacity duration-500" id="check-3">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-bold uppercase">Referanslar Taranıyor</span>
+                    <i class="fas fa-check text-green-500 hidden" id="icon-3"></i>
+                </div>
+                <div class="bg-white/10 w-full h-1 rounded-full overflow-hidden">
+                    <div id="bar-3" class="h-full bg-white w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
+        </div>
+        <p class="mt-20 text-[10px] text-gray-600 font-mono text-center uppercase tracking-widest">Client ID: aw01joj8wk4rnll9</p>
+    </div>
+
+    <div id="screen-result" class="w-full max-w-md text-center hidden animate-fade-in">
+        <p class="text-gray-400 text-sm uppercase font-bold mb-2">You are a legend!</p>
+        <h2 class="text-7xl dogs-text mb-4">6,840</h2>
+        <p class="text-xl font-bold uppercase mb-10 text-white/50">$DOGS KAZANDIN</p>
+        
+        <div class="bg-white/5 rounded-3xl p-6 mb-8 border border-white/10">
+            <div class="flex justify-between items-center py-2 border-b border-white/5">
+                <span class="text-xs text-gray-400 uppercase">Hesap Yaşı (4 yıl)</span>
+                <span class="font-bold">+4,200</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+                <span class="text-xs text-gray-400 uppercase">Premium Durumu</span>
+                <span class="font-bold text-cyan-400">+2,640</span>
+            </div>
+        </div>
+
+        <button class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg uppercase shadow-xl shadow-white/10">Arkadaşlarını Davet Et</button>
+    </div>
+
+    <script src="https://kit.fontawesome.com/your-font-awesome-key.js" crossorigin="anonymous"></script>
+    <script>
+        function startChecking() {
+            // İlk ekranı gizle, analiz ekranını aç
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-checking').classList.remove('hidden');
+
+            const steps = [1, 2, 3];
+            let delay = 0;
+
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    // Satırı aktifleştir
+                    document.getElementById(`check-${step}`).classList.replace('opacity-20', 'opacity-100');
+                    // Barı doldur
+                    document.getElementById(`bar-${step}`).style.width = '100%';
                     
-                    // KURAL 2: Her kaydırmada 0.01₺ ver
-                    addBalance(0.01, "Kaydırma Bonusu");
+                    // İşlem bitince tik ikonunu göster
+                    setTimeout(() => {
+                        document.getElementById(`icon-${step}`).classList.remove('hidden');
+                    }, 1000);
 
-                    // Video İzleme Takibi
-                    let bonusGiven = false;
-                    video.ontimeupdate = () => {
-                        const progress = (video.currentTime / video.duration) * 100;
-                        if(pBar) pBar.style.width = progress + "%";
-                        
-                        // KURAL 1: Baştan sona izleyince 0.01₺ ver
-                        if(progress > 98 && !bonusGiven) {
-                            addBalance(0.01, "Tam İzleme Bonusu");
-                            bonusGiven = true;
-                        }
-                    };
-
-                    // Sonsuz akışı tetikle
-                    if(video === document.getElementById('reels-feed').lastElementChild.previousElementSibling.querySelector('video')) {
-                        createContent();
-                    }
-                } else {
-                    video.pause();
-                }
+                }, delay);
+                delay += 1500;
             });
-        }, { threshold: 0.8 });
 
-        // Başlat
-        createContent();
+            // Tüm işlemler bitince sonuç ekranına geç
+            setTimeout(() => {
+                document.getElementById('screen-checking').classList.add('hidden');
+                document.getElementById('screen-result').classList.remove('hidden');
+            }, delay + 1000);
+        }
     </script>
 </body>
 </html>
