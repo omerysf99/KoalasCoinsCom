@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | REFERRAL PRO</title>
+    <title>KOALA ARCADE | SECURE REF</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -17,28 +17,25 @@
         :root { --bg: #000; --text: #fff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; position: fixed; width: 100%; user-select: none; }
-
         .page { display: none; height: 100vh; flex-direction: column; padding: 110px 24px 130px; overflow-y: auto; }
         .page.active { display: flex; animation: dogsIn 0.2s ease; }
         @keyframes dogsIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
         .dogs-card { background: #111; border-radius: 16px; padding: 20px; border: 1px solid #222; margin-bottom: 12px; }
         .dogs-btn { background: #fff; color: #000; font-weight: 900; border-radius: 14px; padding: 18px; text-align: center; font-size: 14px; text-transform: uppercase; cursor: pointer; border:none; width: 100%; }
         .dogs-input { background: #111; border: 2px solid #222; color: #fff; padding: 15px; border-radius: 12px; width: 100%; font-weight: 900; text-align: center; outline: none; margin-bottom: 10px; }
-        
         #checking-overlay { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 30px; z-index: 1000; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; }
         .nav-link.active { color: #fff; }
-        
-        .code-box { background: #fff; color: #000; padding: 10px 20px; border-radius: 10px; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 1px; display: inline-block; }
+        .code-box { background: #fff; color: #000; padding: 10px 20px; border-radius: 10px; font-family: monospace; font-size: 18px; font-weight: 900; display: inline-block; }
+        .ref-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #111; }
     </style>
 </head>
 <body>
 
     <div id="checking-overlay">
-        <h2 class="text-3xl font-black mb-6 uppercase italic italic">Checking<br>Account</h2>
-        <p class="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">VALIDATING SQUAD DATA...</p>
+        <h2 class="text-3xl font-black mb-6 uppercase italic">Checking<br>Account</h2>
+        <p class="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">LOADING DATABASE...</p>
     </div>
 
     <div id="p-earn" class="page active">
@@ -46,15 +43,15 @@
             <h1 id="ui-bal" class="text-7xl font-black tracking-tighter italic">0</h1>
             <p class="text-[10px] text-zinc-600 font-black tracking-[4px] mt-2 uppercase">Total Koala</p>
         </div>
-        <div class="mx-auto w-[220px] h-[220px] bg-[#111] rounded-[40px] border-4 border-[#222] p-4 mb-10" onclick="mine()">
+        <div class="mx-auto w-[200px] h-[200px] bg-[#111] rounded-[40px] border-4 border-[#222] p-4 mb-10" onclick="mine()">
             <img src="coinkoala.jpg" class="w-full h-full object-cover rounded-[20px] grayscale">
         </div>
-        <button class="dogs-btn" onclick="mine()">Watch Ad & Mine +1</button>
+        <button class="dogs-btn" onclick="mine()">Watch Ad & Mine</button>
     </div>
 
     <div id="p-squad" class="page">
         <h1 class="text-4xl font-black mb-2 uppercase italic">Squad</h1>
-        <p class="text-zinc-500 text-[10px] font-black uppercase mb-8 tracking-widest">Build your army</p>
+        <p class="text-zinc-500 text-[10px] font-black uppercase mb-8 tracking-widest">Build Your Army</p>
 
         <div class="dogs-card text-center mb-6">
             <p class="text-[10px] text-zinc-500 font-black uppercase mb-3">Your Unique Code</p>
@@ -62,24 +59,20 @@
         </div>
 
         <div id="ref-input-area" class="mb-8">
-            <p class="text-[10px] text-zinc-500 font-black uppercase mb-3">Have an invite code?</p>
             <input type="text" id="ref-input" class="dogs-input" placeholder="XXXabcXXXBhg">
-            <button class="dogs-btn" style="padding: 12px; font-size: 12px;" onclick="submitRef()">Claim Bonus</button>
+            <button class="dogs-btn" onclick="submitRef()">Claim 1000 Bonus</button>
         </div>
 
-        <div class="dogs-card flex justify-between items-center mb-6">
-            <div>
-                <p class="text-sm font-black italic">Invite Reward</p>
-                <p class="text-[10px] text-zinc-500 font-bold uppercase">+5,000 for you</p>
-            </div>
-            <i class="fa-solid fa-users text-2xl"></i>
+        <h3 class="text-[10px] text-zinc-500 font-black uppercase mb-4 tracking-widest">Invited Friends</h3>
+        <div class="dogs-card" id="ui-ref-list-container">
+            <div id="ui-ref-list" class="text-zinc-400 text-xs font-bold py-4">No friends yet.</div>
         </div>
         
-        <button class="dogs-btn" onclick="shareRef()">Invite Friends</button>
+        <button class="dogs-btn mt-4" onclick="shareRef()">Invite Friends</button>
     </div>
 
-    <div id="p-tasks" class="page">...</div>
-    <div id="p-wallet" class="page">...</div>
+    <div id="p-tasks" class="page"></div>
+    <div id="p-wallet" class="page"></div>
 
     <nav>
         <div class="nav-link active" onclick="tab('earn', this)"><i class="fa-solid fa-paw"></i><span>Home</span></div>
@@ -89,7 +82,7 @@
     </nav>
 
 <script>
-    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // BURAYI DOLDURUN
+    const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" }; // BURAYI DOLDUR
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
@@ -108,55 +101,89 @@
         const doc = await db.collection("users").doc(myId).get();
         if(doc.exists) {
             u = doc.data();
-            if(!u.refCode) u.refCode = generateRefCode(); 
-            document.getElementById('checking-overlay').style.display = 'none';
+            // Eğer Firebase'de kodu yoksa üret ve kaydet (Sadece 1 kez)
+            if(!u.refCode) {
+                u.refCode = generateRefCode();
+                await save();
+            }
         } else {
+            // Tamamen Yeni Kullanıcı
             u = { 
                 bal: 0, ads: 0, 
                 name: tg.initDataUnsafe?.user?.first_name || "Koala",
-                refCode: generateRefCode(),
+                nick: tg.initDataUnsafe?.user?.username || "",
+                refCode: generateRefCode(), // Kalıcı kod burada oluşur
                 usedRef: false,
                 inviterId: null,
+                referrals: [],
                 hasChecked: false
             };
-            runChecking();
+            await save(); // Kodun Firebase'e ilk kaydı
+            runCheck();
         }
+        document.getElementById('checking-overlay').style.display = 'none';
         render();
     }
 
-    function runChecking() {
+    function runCheck() {
         setTimeout(() => {
-            u.bal = Math.floor(Math.random() * 156) + 5000;
+            u.bal = Math.floor(Math.random() * 100) + 5000;
             u.hasChecked = true;
-            save();
-            document.getElementById('checking-overlay').style.display = 'none';
-            render();
-        }, 2500);
+            save(); render();
+        }, 2000);
     }
 
     async function submitRef() {
         const input = document.getElementById('ref-input').value.trim();
-        if(u.usedRef) return alert("Used!");
-        if(input === u.refCode) return alert("Can't use own!");
+        if(u.usedRef) return alert("Zaten bir kod kullandın!");
+        if(input === u.refCode) return alert("Kendi kodunu kullanamazsın!");
 
+        // FIREBASE ÜZERİNDEN KODU SORGULA (GÜVENLİ ONAY)
         const snap = await db.collection("users").where("refCode", "==", input).get();
         if(!snap.empty) {
             const inviterDoc = snap.docs[0];
-            const inviterRef = db.collection("users").doc(inviterDoc.id);
+            const inviterId = inviterDoc.id;
+            const inviterRef = db.collection("users").doc(inviterId);
             
-            await db.runTransaction(async (transaction) => {
-                const invSnap = await transaction.get(inviterRef);
-                transaction.update(inviterRef, { bal: (invSnap.data().bal || 0) + 5000 });
+            await db.runTransaction(async (t) => {
+                const invD = await t.get(inviterRef);
+                const currentRefs = invD.data().referrals || [];
+                currentRefs.push({ name: u.name, nick: u.nick });
+                
+                // Davet edene 5000
+                t.update(inviterRef, { 
+                    bal: (invD.data().bal || 0) + 5000,
+                    referrals: currentRefs 
+                });
             });
 
+            // Kodu girene 1000 (Sistemin Onayıyla)
             u.usedRef = true;
-            u.inviterId = inviterDoc.id;
+            u.inviterId = inviterId;
             u.bal += 1000;
-            save(); render();
+            await save(); 
+            render();
+            alert("Onaylandı! +1000 Koala kazandın.");
             tg.HapticFeedback.notificationOccurred('success');
-            alert("Success!");
         } else {
-            alert("Invalid Code!");
+            alert("Hatalı Kod!");
+        }
+    }
+
+    function render() {
+        document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString();
+        document.getElementById('ui-mycode').innerText = u.refCode;
+        if(u.usedRef) document.getElementById('ref-input-area').style.display = 'none';
+
+        const listDiv = document.getElementById('ui-ref-list');
+        if(u.referrals && u.referrals.length > 0) {
+            listDiv.innerHTML = '';
+            u.referrals.forEach(ref => {
+                const item = document.createElement('div');
+                item.className = 'ref-item';
+                item.innerHTML = `<div><span class="text-white font-black text-xs uppercase italic">${ref.name}</span><br><span class="text-zinc-600 text-[9px]">@${ref.nick || 'anon'}</span></div><span class="text-white font-black text-xs">+5K</span>`;
+                listDiv.appendChild(item);
+            });
         }
     }
 
@@ -170,36 +197,26 @@
         if(u.inviterId) {
             const invRef = db.collection("users").doc(u.inviterId);
             db.runTransaction(async (t) => {
-                const invD = await t.get(invRef);
-                if(invD.exists) t.update(invRef, { bal: (invD.data().bal || 0) + 1 });
+                const d = await t.get(invRef);
+                if(d.exists) t.update(invRef, { bal: (d.data().bal || 0) + 1 });
             });
         }
         save(); render();
         tg.HapticFeedback.impactOccurred('medium');
     }
 
-    function render() {
-        document.getElementById('ui-bal').innerText = Math.floor(u.bal).toLocaleString();
-        document.getElementById('ui-mycode').innerText = u.refCode || "...";
-        if(u.usedRef) document.getElementById('ref-input-area').style.display = 'none';
-    }
-
     async function save() { await db.collection("users").doc(myId).set(u); }
-
-    // PAYLAŞIM MESAJI GÜNCELLEMESİ
     function shareRef() {
-        const shareText = `MINE KOALA! 🐨 Join with my code: ${u.refCode} and get 5,000 bonus instantly! 🚀💎`;
-        const shareLink = `https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(shareText)}`;
-        tg.openTelegramLink(shareLink);
+        const text = `KOALA MINE! 🐨 Kodu kullan 1,000 bonus al: ${u.refCode}`;
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
     }
-
     function tab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('p-' + id).classList.add('active');
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         el.classList.add('active');
+        if(id === 'squad') render();
     }
-
     window.onload = init;
 </script>
 </body>
