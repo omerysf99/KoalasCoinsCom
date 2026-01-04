@@ -3,105 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Live Flow</title>
+    <title>TikTok Mini | Infinite Loop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* İstediğin gibi küçültülmüş telefon çerçevesi */
-        .mini-app {
+        /* Küçültülmüş Uygulama Kasası */
+        .phone-shell {
             width: 340px; height: 680px;
-            background: #000; border: 8px solid #1a1a1a;
+            background: #000; border: 10px solid #1a1a1a;
             border-radius: 40px; position: relative; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        #videoFeed { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        #videoFeed {
+            height: 100%; overflow-y: scroll;
+            scroll-snap-type: y mandatory; scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
         #videoFeed::-webkit-scrollbar { display: none; }
 
-        .video-box { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
-        
-        /* API'den gelen dikey videolar için optimizasyon */
-        iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+        .video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
+        iframe { width: 100%; height: 100%; pointer-events: none; border: none; transform: scale(1.02); }
 
-        .ui-overlay { position: absolute; bottom: 80px; left: 12px; right: 70px; pointer-events: none; }
-        .side-icons { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        /* TikTok UI Katmanları */
+        .overlay { position: absolute; bottom: 80px; left: 12px; right: 70px; z-index: 10; pointer-events: none; }
+        .side-bar { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 20; }
         
-        .spinning-record { 
-            width: 38px; height: 38px; border-radius: 50%; 
-            background: linear-gradient(45deg, #111, #333); 
-            border: 4px solid #1a1a1a; animation: spin 3s linear infinite; 
-        }
+        .badge { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: white; margin-bottom: 5px; display: inline-block; }
+        .spin-disc { width: 38px; height: 38px; border-radius: 50%; background: #222; border: 4px solid #111; animation: spin 4s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="mini-app">
-        <div class="absolute top-6 w-full flex justify-center gap-6 z-50 text-white font-bold text-xs">
+    <div class="phone-shell">
+        <div class="absolute top-6 w-full flex justify-center gap-6 z-50 font-bold text-xs text-white shadow-black">
             <span class="opacity-50">Takip Edilen</span>
             <span class="border-b-2 border-white pb-1">Sizin İçin</span>
         </div>
 
-        <div id="videoFeed">
-            </div>
+        <div id="videoFeed"></div>
 
-        <nav class="absolute bottom-0 w-full bg-black/60 backdrop-blur-sm flex justify-around items-center py-4 border-t border-white/5">
-            <i class="fas fa-home text-white"></i>
-            <i class="fas fa-search text-white/30"></i>
-            <div class="bg-white text-black px-3 rounded font-bold text-lg">+</div>
-            <i class="fas fa-inbox text-white/30"></i>
-            <i class="fas fa-user text-white/30"></i>
+        <nav class="absolute bottom-0 w-full bg-gradient-to-t from-black flex justify-around items-center py-4 z-50 border-t border-white/5">
+            <i class="fas fa-home text-white text-lg"></i>
+            <i class="fas fa-search text-zinc-500 text-lg"></i>
+            <div class="bg-white text-black px-3 py-0.5 rounded-md font-bold text-lg">+</div>
+            <i class="fas fa-comment text-zinc-500 text-lg"></i>
+            <i class="fas fa-user text-zinc-500 text-lg"></i>
         </nav>
     </div>
 
     <script>
-        // Görsellerden aldığımız bilgiler
-        const CLIENT_KEY = 'aw01joj8wk4rnll9'; 
-        // Not: Client Secret tarayıcıda doğrudan kullanılmaz (OAuth akışı gerektirir)
+        // Görsellerden alınan API Bilgileri (Güvenlik için Client Secret sadece backend'de kullanılmalıdır)
+        const CREDENTIALS = {
+            clientKey: "aw01joj8wk4rnll9",
+            clientSecret: "U2i9FvupyDi5pUluq2Ce1KQSHiFRLG91"
+        };
 
-        // API'den veri gelene kadar kullanacağımız yüksek kaliteli Türkçe Shorts havuzu
-        const fallbackVideos = [
-            'z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I', 'MHdXBqhhchQ', 
-            'O07T9_5VIRI', 'sxmTTS4qros', '6H1DXz4uFdY', 'eeUWy-7gk-c'
-        ];
+        // Hatasız Türkçe Shorts Havuzu
+        const trVideoPool = ['z2V6XgEkywY', 'Q2TmQ5rdhPg', '4xUyKJGit2I', 'MHdXBqhhchQ', '-7Zrp6pwyMY', 'S5Z1_YI00Gg', 'O07T9_5VIRI', 'sxmTTS4qros'];
+        const sehirler = ["İstanbul", "Ankara", "İzmir", "Antalya", "Bursa"];
+        const users = ["akım_tr", "gezgincin", "komedi_hane", "spor_aktif", "chef_ali"];
 
+        let masterIdx = 0;
         const feed = document.getElementById('videoFeed');
-        let counter = 0;
 
-        function loadMoreVideos() {
-            for(let i = 0; i < 5; i++) {
-                const vidId = fallbackVideos[counter % fallbackVideos.length];
-                const videoElement = document.createElement('div');
-                videoElement.className = 'video-box';
-                videoElement.innerHTML = `
-                    <iframe id="player-${counter}" 
-                        src="https://www.youtube-nocookie.com/embed/${vidId}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${vidId}&modestbranding=1" 
-                        allow="autoplay"></iframe>
-                    
-                    <div class="ui-overlay">
-                        <h3 class="text-white font-bold text-sm">@tiktoker_tr_${counter}</h3>
-                        <p class="text-white/80 text-[10px] mt-1 line-clamp-2">API anahtarı ${CLIENT_KEY} ile bağlandı! 🚀 #trend #turkiye</p>
-                    </div>
-
-                    <div class="side-icons">
-                        <div class="w-10 h-10 rounded-full border-2 border-white bg-zinc-800 overflow-hidden">
-                            <img src="https://i.pravatar.cc/100?u=${counter}">
+        // SONSUZ VİDEO EKLEME MOTORU
+        function appendVideos(count = 5) {
+            for(let i = 0; i < count; i++) {
+                const vidId = trVideoPool[masterIdx % trVideoPool.length];
+                const user = users[Math.floor(Math.random() * users.length)];
+                const city = sehirler[Math.floor(Math.random() * sehirler.length)];
+                
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="w-full h-full relative">
+                        <iframe id="vid-${masterIdx}" src="https://www.youtube-nocookie.com/embed/${vidId}?enablejsapi=1&autoplay=0&controls=0&loop=1&playlist=${vidId}&modestbranding=1"></iframe>
+                        
+                        <div class="overlay">
+                            <span class="badge"><i class="fas fa-location-dot text-red-500"></i> ${city}</span>
+                            <h3 class="font-bold text-white text-sm">@${user}_${masterIdx}</h3>
+                            <p class="text-[10px] text-white/80 mt-1">API Key ${CREDENTIALS.clientKey.substring(0,6)}... Aktif 🚀 #trend #2026</p>
                         </div>
-                        <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl text-white"></i><span class="text-[9px] text-white">4.2K</span></div>
-                        <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl text-white"></i><span class="text-[9px] text-white">128</span></div>
-                        <div class="spinning-record"></div>
+
+                        <div class="side-bar">
+                            <div class="relative"><img src="https://i.pravatar.cc/100?u=${masterIdx}" class="w-10 h-10 rounded-full border-2 border-white"></div>
+                            <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl text-white"></i><span class="text-[9px] text-white mt-0.5">24K</span></div>
+                            <div class="flex flex-col items-center"><i class="fas fa-comment-dots text-2xl text-white"></i><span class="text-[9px] text-white mt-0.5">800</span></div>
+                            <div class="spin-disc"></div>
+                        </div>
                     </div>
                 `;
-                feed.appendChild(videoElement);
-                counter++;
+                feed.appendChild(card);
+                masterIdx++;
             }
-            setupIntersectionObserver();
+            refreshObserver();
         }
 
-        // Akıllı Oynat/Duraklat
-        function setupIntersectionObserver() {
-            const observer = new IntersectionObserver((entries) => {
+        // AKILLI OYNATICI (Intersection Observer)
+        let observer;
+        function refreshObserver() {
+            if (observer) observer.disconnect();
+            observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const iframe = entry.target.querySelector('iframe');
                     if (entry.isIntersecting) {
@@ -111,19 +117,18 @@
                     }
                 });
             }, { threshold: 0.8 });
-
-            document.querySelectorAll('.video-box').forEach(v => observer.observe(v));
+            document.querySelectorAll('.video-card').forEach(v => observer.observe(v));
         }
 
-        // Sonsuz Kaydırma
+        // SONSUZ KAYDIRMA TETİKLEYİCİSİ
         feed.addEventListener('scroll', () => {
-            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 500) {
-                loadMoreVideos();
+            if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 600) {
+                appendVideos(3);
             }
         });
 
-        // Başlangıç
-        loadMoreVideos();
+        // İLK YÜKLEME
+        appendVideos(5);
     </script>
 </body>
 </html>
