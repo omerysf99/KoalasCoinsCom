@@ -3,120 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaylaşKazan Pro</title>
+    <title>PaylaşKazan Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0b0b0b; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; }
-        .active-page { display: block; }
-        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; background: #000; position: relative; }
-        .v-container { height: 100vh; width: calc(100vh * 9 / 16); position: relative; }
+        body { background-color: #000; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        .active-page { display: block; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Reels - TikTok Style Fixed */
+        #reels-feed { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; background: #000; }
+        .video-wrapper { height: 100vh; scroll-snap-align: start; display: flex; justify-content: center; position: relative; }
+        .v-container { height: 100vh; width: 100%; max-width: 500px; position: relative; background: #000; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #121212; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; cursor: pointer; transition: 0.3s; }
-        .nav-item.active { opacity: 1; color: #00f2ea; }
-        .stat-card { background: linear-gradient(145deg, #1a1a1a, #111); border: 1px solid #222; }
+
+        /* Cam Efekti */
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-active { color: #00f2ea; border-top: 2px solid #00f2ea; }
+        
+        /* Progress Bar */
+        .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00f2ea, #ff0050); width: 65%; }
     </style>
 </head>
 <body>
 
-    <div id="page-home" class="page active-page overflow-y-auto pb-24">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-8">
+    <div id="page-home" class="page active-page overflow-y-auto pb-24 px-6">
+        <header class="py-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ff0050] to-[#00f2ea] p-0.5">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" class="rounded-full bg-black">
+                </div>
                 <div>
-                    <h1 class="text-xl font-bold italic">PAYLAŞ<span class="text-[#ff0050]">KAZAN</span></h1>
-                    <p class="text-[10px] text-gray-500">API: aw01joj8wk4rnll9</p>
-                </div>
-                <div class="bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full text-[10px] text-cyan-400">
-                    <i class="fas fa-signal mr-1"></i> Bağlı
+                    <h2 class="font-bold text-lg">Yazılımcı <i class="fas fa-check-circle text-blue-400 text-xs"></i></h2>
+                    <p class="text-[10px] text-gray-500 font-mono">ID: aw01...l9</p>
                 </div>
             </div>
+            <i class="fas fa-bell text-xl text-gray-400"></i>
+        </header>
 
-            <div class="stat-card p-6 rounded-3xl mb-6 shadow-xl border-cyan-500/10">
-                <p class="text-gray-400 text-xs mb-1">Cüzdan Bakiyesi</p>
-                <h2 class="text-4xl font-black text-white">1,450.50 ₺</h2>
-                <div class="mt-4 flex gap-2">
-                    <button class="bg-white text-black text-[10px] px-4 py-2 rounded-lg font-bold">Para Çek</button>
-                    <button class="bg-white/10 text-white text-[10px] px-4 py-2 rounded-lg font-bold">Geçmiş</button>
-                </div>
+        <div class="glass p-6 rounded-[2rem] mb-6 shadow-2xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full uppercase tracking-tighter">Diamond Rank</span>
+                <i class="fab fa-tiktok text-gray-600"></i>
             </div>
+            <p class="text-gray-400 text-xs uppercase mb-1">Cüzdan Bakiyesi</p>
+            <h1 class="text-4xl font-black mb-4">2,840.00 ₺</h1>
+            <div class="flex gap-2">
+                <button class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm">Cüzdanı Yönet</button>
+                <button class="w-12 bg-white/10 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line"></i></button>
+            </div>
+        </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="navigate('reels')" class="bg-[#ff0050] p-4 rounded-2xl flex flex-col items-center gap-2 shadow-lg shadow-[#ff0050]/20">
-                    <i class="fas fa-play-circle text-2xl"></i>
-                    <span class="text-xs font-bold">Hemen İzle</span>
-                </button>
-                <button onclick="alert('Video Seçin...')" class="bg-cyan-600 p-4 rounded-2xl flex flex-col items-center gap-2 shadow-lg shadow-cyan-600/20">
-                    <i class="fas fa-cloud-upload-alt text-2xl"></i>
-                    <span class="text-xs font-bold">Video Yükle</span>
-                </button>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div onclick="navigate('reels')" class="bg-[#ff0050] p-4 rounded-2xl cursor-pointer">
+                <i class="fas fa-bolt mb-2"></i>
+                <p class="font-bold text-sm">Hemen Kazan</p>
+                <p class="text-[9px] opacity-70">İzlediğin her saniye puan!</p>
+            </div>
+            <div onclick="alert('Video Seç')" class="glass p-4 rounded-2xl cursor-pointer">
+                <i class="fas fa-upload mb-2 text-cyan-400"></i>
+                <p class="font-bold text-sm">Video Paylaş</p>
+                <p class="text-[9px] opacity-70">İşlenen her video +100 XP</p>
+            </div>
+        </div>
+
+        <h3 class="font-bold mb-4">Trendler</h3>
+        <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+            <div class="min-w-[140px] h-20 glass rounded-2xl p-3 flex flex-col justify-between">
+                <span class="text-[10px] text-pink-500">#Crypto</span>
+                <span class="text-xs font-bold">+120% Kazanç</span>
+            </div>
+            <div class="min-w-[140px] h-20 glass rounded-2xl p-3 flex flex-col justify-between">
+                <span class="text-[10px] text-cyan-500">#Dance</span>
+                <span class="text-xs font-bold">+80% Kazanç</span>
             </div>
         </div>
     </div>
 
     <div id="page-reels" class="page">
         <div id="reels-feed"></div>
+        <div id="global-mute-btn" onclick="toggleMute()" class="fixed top-6 right-6 z-[100] w-10 h-10 glass rounded-full flex items-center justify-center">
+            <i id="mute-icon" class="fas fa-volume-mute"></i>
+        </div>
     </div>
 
-    <div id="page-airdrop" class="page overflow-y-auto p-6 pb-24">
-        <h2 class="text-2xl font-bold mb-6 mt-4">Görev Merkezi</h2>
-        
-        <div class="bg-gradient-to-br from-gray-900 to-black p-6 rounded-3xl border border-yellow-500/30 mb-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-yellow-500 font-bold mb-1">Günlük Bonus</h3>
-                    <p class="text-xs text-gray-400 text-balance">Her gün giriş yaparak 100 puan topla.</p>
-                </div>
-                <button class="bg-yellow-500 text-black text-xs px-4 py-2 rounded-xl font-bold">Topla</button>
+    <div id="page-tasks" class="page overflow-y-auto pb-24 px-6">
+        <h2 class="text-2xl font-black mt-8 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500">Görev Merkezi</h2>
+        <p class="text-gray-500 text-xs mb-8">Görevleri tamamla, seviye atla ve çarpanları aç.</p>
+
+        <div class="glass p-5 rounded-2xl mb-8">
+            <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold">Seviye 12</span>
+                <span class="text-[10px] text-gray-400">840 / 1200 XP</span>
             </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
         </div>
 
         <div class="space-y-4">
-            <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold">Cüzdan Bağla</p>
-                        <p class="text-[10px] text-gray-500">+500 Puan Kazan</p>
-                    </div>
+            <div class="glass p-4 rounded-2xl flex items-center justify-between border-l-4 border-yellow-500">
+                <div>
+                    <p class="text-sm font-bold">Günlük Giriş</p>
+                    <p class="text-[10px] text-gray-500">100 Puan + 10 XP</p>
                 </div>
-                <button class="text-[10px] border border-white/20 px-3 py-1 rounded-lg">Bağla</button>
+                <button class="bg-yellow-500 text-black text-[10px] px-4 py-2 rounded-lg font-bold">Topla</button>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold">Arkadaş Davet Et</p>
-                        <p class="text-[10px] text-gray-500">Kişi başı 250 Puan</p>
-                    </div>
+            <div class="glass p-4 rounded-2xl flex items-center justify-between border-l-4 border-cyan-500">
+                <div>
+                    <p class="text-sm font-bold">5 Video Beğen</p>
+                    <p class="text-[10px] text-gray-400">Puan Çarpanı: 1.2x</p>
                 </div>
-                <button class="text-[10px] border border-white/20 px-3 py-1 rounded-lg">Davet Et</button>
+                <div class="text-cyan-400 text-xs font-bold">2 / 5</div>
+            </div>
+
+            <div class="glass p-4 rounded-2xl flex items-center justify-between opacity-50">
+                <div>
+                    <p class="text-sm font-bold text-pink-500"><i class="fas fa-lock mr-2"></i> Canlı Yayın İzle</p>
+                    <p class="text-[10px]">Seviye 15'te açılır</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="navigate('home')"><i class="fas fa-home mb-1"></i><span class="text-[10px]">Ana Sayfa</span></div>
-        <div class="nav-item" onclick="navigate('reels')"><i class="fas fa-bolt mb-1"></i><span class="text-[10px]">Hızlı İzle</span></div>
-        <div class="nav-item" onclick="navigate('airdrop')"><i class="fas fa-coins mb-1"></i><span class="text-[10px]">Görevler</span></div>
+    <nav class="fixed bottom-0 w-full glass border-t border-white/10 flex justify-around py-4 z-[1000]">
+        <div onclick="navigate('home')" class="nav-item flex flex-col items-center gap-1 active nav-active">
+            <i class="fas fa-home text-xl"></i><span class="text-[9px] font-bold">Panel</span>
+        </div>
+        <div onclick="navigate('reels')" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-play-circle text-xl"></i><span class="text-[9px] font-bold">Reels</span>
+        </div>
+        <div onclick="navigate('tasks')" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-tasks text-xl"></i><span class="text-[9px] font-bold">Görevler</span>
+        </div>
     </nav>
 
     <script>
         const videoFiles = ['reels1.mp4', 'reels2.mp4', 'reels3.mp4', 'reels4.mp4', 'reels5.mp4'];
-        
+        let isMuted = true;
+
         function navigate(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById('page-' + id).classList.add('active-page');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+            event.currentTarget.classList.add('nav-active');
             if(id !== 'reels') document.querySelectorAll('video').forEach(v => v.pause());
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('mute-icon').className = isMuted ? "fas fa-volume-mute" : "fas fa-volume-up";
+            document.querySelectorAll('video').forEach(v => v.muted = isMuted);
         }
 
         function setupReels() {
@@ -127,12 +165,17 @@
                 wrap.innerHTML = `
                     <div class="v-container">
                         <video loop muted playsinline src="${file}"></video>
-                        <div class="absolute top-10 right-5 bg-black/40 px-3 py-1 rounded-full border border-white/20 text-[10px]">
-                            <i class="fas fa-coins text-yellow-500"></i> +12 Puan Kazanılıyor
+                        <div class="absolute right-4 bottom-32 flex flex-col gap-6 items-center">
+                            <div class="flex flex-col items-center"><i class="fas fa-heart text-2xl mb-1 text-white/80"></i><span class="text-[10px]">1.2K</span></div>
+                            <div class="flex flex-col items-center"><i class="fas fa-comment text-2xl mb-1 text-white/80"></i><span class="text-[10px]">42</span></div>
+                            <div class="flex flex-col items-center"><i class="fas fa-share text-2xl mb-1 text-white/80"></i><span class="text-[10px]">Paylaş</span></div>
                         </div>
-                        <div class="absolute bottom-24 left-5">
-                            <h4 class="font-bold italic">@kazanc_merkezi</h4>
-                            <p class="text-xs opacity-70">İzle ve Paylaş!</p>
+                        <div class="absolute bottom-10 left-6">
+                            <h4 class="font-bold flex items-center gap-2">@creators <span class="bg-cyan-500 text-black text-[8px] px-1 rounded">PRO</span></h4>
+                            <p class="text-xs opacity-70 mt-1">İzle ve kazancını katla! 💸</p>
+                        </div>
+                        <div class="absolute top-10 left-6 glass px-3 py-1 rounded-full text-[10px] flex items-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> API VERIFIED: aw01...l9
                         </div>
                     </div>`;
                 feed.appendChild(wrap);
@@ -144,6 +187,7 @@
             entries.forEach(e => {
                 if(e.isIntersecting) {
                     e.target.play();
+                    e.target.muted = isMuted;
                     if(e.target === document.getElementById('reels-feed').lastElementChild.querySelector('video')) setupReels();
                 } else { e.target.pause(); }
             });
