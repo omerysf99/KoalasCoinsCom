@@ -3,175 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 2026 | Smart Video & Global Feed</title>
+    <title>YouTube 2026 Pro | Ultimate Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --header: #0f0f0f; --yt-red: #ff0000; --card: #1e1e1e; }
+        :root { --bg: #0f0f0f; --header-bg: #0f0f0f; --yt-red: #ff0000; --card-bg: #1e1e1e; --text-main: #ffffff; --text-dim: #aaa; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #000; padding-top: 1cm; color: #fff; font-family: "Roboto", sans-serif; overflow: hidden; }
+        
+        body { 
+            background: #000; 
+            padding-top: 1cm; /* Üstten 1cm boşluk */
+            color: var(--text-main); 
+            font-family: "Roboto", Arial, sans-serif; 
+            overflow: hidden; 
+        }
 
-        /* HEADER */
+        /* --- HEADER --- */
         header { 
-            height: 56px; background: var(--header); display: flex; align-items: center; 
+            height: 56px; background: var(--header-bg); display: flex; align-items: center; 
             padding: 0 16px; position: fixed; width: 100%; top: 1cm; z-index: 2000;
         }
-        .search-bar { background: #121212; border: 1px solid #333; border-radius: 40px; padding: 0 20px; width: 40%; margin-left: 10%; display: flex; align-items: center; }
-        .search-bar input { background: transparent; border: none; color: white; height: 38px; width: 100%; outline: none; }
+        .search-section { flex: 1; display: flex; justify-content: center; align-items: center; gap: 15px; }
+        .search-bar { 
+            background: #121212; border: 1px solid #333; border-radius: 40px; 
+            padding: 0 20px; width: 45%; display: flex; align-items: center; 
+        }
+        .search-bar input { background: transparent; border: none; color: white; height: 40px; width: 100%; outline: none; font-size: 16px; }
 
-        /* SOL NAVİGASYON */
-        .left-nav {
+        /* --- SOL NAVİGASYON --- */
+        .sidebar {
             position: fixed; left: 0; top: calc(56px + 1cm); width: 72px; height: 100%;
             background: var(--bg); display: flex; flex-direction: column; align-items: center;
             padding-top: 15px; border-right: 1px solid #222; z-index: 1000;
         }
-        .nav-btn { width: 100%; padding: 12px 0; cursor: pointer; color: #aaa; text-align: center; }
-        .nav-btn.active { color: #fff; background: #272727; border-radius: 8px; }
-        .nav-btn i { font-size: 22px; margin-bottom: 4px; display: block; }
+        .nav-item { width: 100%; padding: 12px 0; cursor: pointer; color: var(--text-dim); text-align: center; transition: 0.2s; }
+        .nav-item.active, .nav-item:hover { color: #fff; background: #272727; border-radius: 10px; }
+        .nav-item i { font-size: 22px; margin-bottom: 5px; display: block; }
+        .nav-item span { font-size: 10px; }
 
-        /* ANA SAYFA (Her Türlü İçerik) */
-        .main-view { margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: auto; padding: 20px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .v-card { cursor: pointer; transition: 0.3s; }
-        .v-card:hover { transform: scale(1.02); }
-        .v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; background: #1a1a1a; }
-        .v-title { font-size: 14px; font-weight: 500; margin-top: 10px; line-height: 1.3; }
-
-        /* UZUN VİDEO İZLEME EKRANI (image_1cf40d / image_1dd50a uyumlu) */
-        #watch-overlay { 
-            display: none; position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm);
-            background: var(--bg); z-index: 4000; overflow-y: auto; padding: 20px;
+        /* --- ANA SAYFA (Gelişmiş Global Akış) --- */
+        .main-scroll { 
+            margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); 
+            overflow-y: auto; padding: 24px; scroll-behavior: smooth;
         }
-        .player-wrapper { max-width: 1200px; margin: 0 auto; }
-        .video-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+        .video-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; 
+        }
+        .video-card { cursor: pointer; transition: transform 0.3s; margin-bottom: 10px; }
+        .video-card:hover { transform: scale(1.03); }
+        .thumbnail-container { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #1a1a1a; }
+        .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
+        .duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 4px; border-radius: 4px; font-size: 12px; }
+        .video-info { display: flex; gap: 12px; margin-top: 12px; }
+        .channel-avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
+        .video-details h3 { font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-details p { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
-        /* SHORTS (Intersection Observer & Görsel 1d73ac) */
-        #shorts-view { display: none; margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-        .short-slide { height: 100%; display: flex; justify-content: center; align-items: center; scroll-snap-align: start; position: relative; }
-        .short-box { width: 360px; height: 90%; background: #000; border-radius: 16px; position: relative; overflow: hidden; }
-        
-        .short-ui-right { position: absolute; right: 10px; bottom: 80px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
-        .short-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-        .short-btn i { background: #222; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        /* --- SHORTS (Akıllı Oynatma Sistemi) --- */
+        #shorts-container { 
+            display: none; margin-left: 72px; margin-top: 56px; height: calc(100vh - 56px - 1cm); 
+            overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; 
+        }
+        .short-section { 
+            height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; 
+            scroll-snap-align: start; position: relative; 
+        }
+        .short-player-box { 
+            width: 380px; height: 92%; background: #000; border-radius: 16px; 
+            position: relative; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        }
+        .short-player-box iframe { width: 100%; height: 100%; pointer-events: none; }
+
+        /* Shorts Sağ Butonlar (image_1d73ac uyumlu) */
+        .short-side-actions { 
+            position: absolute; right: 15px; bottom: 100px; display: flex; 
+            flex-direction: column; gap: 20px; align-items: center; 
+        }
+        .s-action { text-align: center; cursor: pointer; }
+        .s-circle { width: 48px; height: 48px; background: rgba(45,45,45,0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; backdrop-filter: blur(10px); }
+        .s-circle i { font-size: 20px; }
+        .s-action span { font-size: 12px; font-weight: bold; }
+
+        /* --- İZLEME EKRANI (image_1dd50a uyumlu) --- */
+        #watch-overlay { 
+            display: none; position: fixed; top: 1cm; left: 0; width: 100%; height: calc(100vh - 1cm); 
+            background: #000; z-index: 5000; overflow-y: auto; 
+        }
+        .watch-content { max-width: 1280px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+        .main-player { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 12px; overflow: hidden; }
+
+        @media (max-width: 1000px) { .watch-content { grid-template-columns: 1fr; } .sidebar { display: none; } .main-scroll, #shorts-container { margin-left: 0; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="showHome()">
-        <i class="fab fa-youtube" style="color:red; font-size:28px;"></i>
-        <span style="font-weight:bold; font-size:20px;">YouTube<sup>TR</sup></span>
+    <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="changeTab('home')">
+        <i class="fab fa-youtube" style="color:red; font-size:32px;"></i>
+        <span style="font-weight:bold; font-size:20px; letter-spacing:-1px;">YouTube<sup>TR</sup></span>
     </div>
-    <div class="search-bar"><input type="text" placeholder="Global Keşfet..."></div>
+    <div class="search-section">
+        <div class="search-bar">
+            <input type="text" placeholder="Keşfet...">
+            <i class="fas fa-search" style="color:#aaa; cursor:pointer;"></i>
+        </div>
+        <i class="fas fa-microphone" style="background:#1a1a1a; padding:12px; border-radius:50%; cursor:pointer;"></i>
+    </div>
 </header>
 
-<nav class="left-nav">
-    <div class="nav-btn active" id="tab-home" onclick="showHome()"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
-    <div class="nav-btn" id="tab-shorts" onclick="showShorts()"><i class="fas fa-bolt"></i><span>Shorts</span></div>
-    <div class="nav-btn"><i class="fas fa-layer-group"></i><span>Kitaplık</span></div>
+<nav class="sidebar">
+    <div class="nav-item active" id="nav-home" onclick="changeTab('home')"><i class="fas fa-home"></i><span>Ana Sayfa</span></div>
+    <div class="nav-item" id="nav-shorts" onclick="changeTab('shorts')"><i class="fas fa-bolt"></i><span>Shorts</span></div>
+    <div class="nav-item"><i class="fas fa-layer-group"></i><span>Abonelik</span></div>
+    <div class="nav-item" style="margin-top:auto; padding-bottom:1.5cm;"><i class="fas fa-history"></i><span>Geçmiş</span></div>
 </nav>
 
-<main class="main-view" id="home-page">
-    <div class="video-grid" id="global-grid"></div>
+<main class="main-scroll" id="home-view">
+    <div class="video-grid" id="global-video-grid">
+        </div>
 </main>
 
+<main id="shorts-container">
+    </main>
+
 <div id="watch-overlay">
-    <div class="player-wrapper">
-        <button onclick="closeWatch()" style="background:none; border:none; color:white; margin-bottom:15px; cursor:pointer;"><i class="fas fa-arrow-left"></i> Geri</button>
-        <div class="video-container" id="video-frame"></div>
-        <h2 id="video-title" style="margin-top:15px;">Video Başlığı</h2>
+    <div class="watch-content">
+        <div class="left-col">
+            <button onclick="closeWatch()" style="background:none; border:none; color:#fff; margin-bottom:15px; cursor:pointer;"><i class="fas fa-times"></i> Kapat</button>
+            <div class="main-player" id="yt-player-frame"></div>
+            <h2 id="watch-video-title" style="margin-top:15px; font-size:20px;">Video Yükleniyor...</h2>
+        </div>
+        <div class="right-col" id="related-list">
+            <p style="color:#aaa;">Sıradaki Videolar</p>
+        </div>
     </div>
 </div>
 
-<main id="shorts-view"></main>
-
 <script>
     const API_KEY = 'AIzaSyD1ie6u6qh7ef2dR64_ZICI2W20_FCs8LI';
-    const globalTopics = ['Müzik', 'Teknoloji', 'Belgesel', 'Oyun', 'Vlog', 'Haber', 'Araba', 'Uzay'];
+    const topics = ['Vlog', 'Müzik', 'Oyun', 'Haber', 'Belgesel', 'Teknoloji', 'Komedi', 'Araba'];
 
-    // ANA SAYFA: HER TÜRLÜ VİDEO
+    // --- 1. ANA SAYFA GELİŞTİRME ---
     async function loadGlobalFeed() {
-        const grid = document.getElementById('global-grid');
-        const topic = globalTopics[Math.floor(Math.random() * globalTopics.length)];
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=16&q=türkçe+${topic}&type=video&key=${API_KEY}`);
-        const data = await res.json();
+        const grid = document.getElementById('global-video-grid');
+        const randomTopic = topics[Math.floor(Math.random() * topics.length)];
         
-        grid.innerHTML = data.items.map(v => `
-            <div class="v-card" onclick="openWatch('${v.id.videoId}', '${v.snippet.title.replace(/'/g,"")}')">
-                <img src="${v.snippet.thumbnails.high.url}" class="v-thumb">
-                <div class="v-title">${v.snippet.title}</div>
-                <div style="font-size:12px; color:#aaa; margin-top:5px;">${v.snippet.channelTitle}</div>
-            </div>
-        `).join('');
-    }
-
-    function openWatch(id, title) {
-        document.getElementById('watch-overlay').style.display = 'block';
-        document.getElementById('video-frame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-        document.getElementById('video-title').innerText = title;
-    }
-
-    function closeWatch() {
-        document.getElementById('watch-overlay').style.display = 'none';
-        document.getElementById('video-frame').innerHTML = '';
-    }
-
-    // SHORTS: AKILLI OYNATMA (Aynı anda 2 video çalmaz)
-    async function loadShorts() {
-        const view = document.getElementById('shorts-view');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=türkçe+shorts&videoDuration=short&type=video&key=${API_KEY}`);
-        const data = await res.json();
-        
-        view.innerHTML = data.items.map(s => `
-            <div class="short-slide" data-id="${s.id.videoId}">
-                <div class="short-box">
-                    <div class="video-placeholder" id="player-${s.id.videoId}" style="width:100%; height:100%;"></div>
-                    <div class="short-ui-right">
-                        <div class="short-btn"><i class="fas fa-thumbs-up"></i><span>${Math.floor(Math.random()*50)+1}B</span></div>
-                        <div class="short-btn"><i class="fas fa-comment"></i><span>${Math.floor(Math.random()*400)+1}</span></div>
-                        <div class="short-btn"><i class="fas fa-share"></i><span>Paylaş</span></div>
-                        <div class="short-btn"><i class="fas fa-sync"></i><span>Remix</span></div>
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=türkçe+${randomTopic}&type=video&key=${API_KEY}`);
+            const data = await res.json();
+            
+            grid.innerHTML = data.items.map(v => `
+                <div class="video-card" onclick="openPlayer('${v.id.videoId}', '${v.snippet.title.replace(/'/g,"")}')">
+                    <div class="thumbnail-container">
+                        <img src="${v.snippet.thumbnails.high.url}">
+                        <div class="duration">12:45</div>
                     </div>
+                    <div class="video-info">
+                        <div class="channel-avatar" style="background:hsl(${Math.random()*360}, 60%, 50%)"></div>
+                        <div class="video-details">
+                            <h3>${v.snippet.title}</h3>
+                            <p>${v.snippet.channelTitle} • ${Math.floor(Math.random()*900)+1} B izlenme</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) { grid.innerHTML = "API Limitine ulaşıldı."; }
+    }
+
+    // --- 2. SHORTS GELİŞTİRME (AKILLI OYNATMA) ---
+    async function loadShorts() {
+        const container = document.getElementById('shorts-container');
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=türkçe+shorts+trend&videoDuration=short&type=video&key=${API_KEY}`);
+        const data = await res.json();
+        
+        container.innerHTML = data.items.map(s => `
+            <div class="short-section" data-vid="${s.id.videoId}">
+                <div class="short-player-box" id="player-container-${s.id.videoId}">
+                    <div style="width:100%; height:100%; background:#111; display:flex; align-items:center; justify-content:center;">
+                         <i class="fab fa-youtube" style="font-size:50px; color:#333;"></i>
+                    </div>
+                </div>
+                <div class="short-side-actions">
+                    <div class="s-action"><div class="s-circle"><i class="fas fa-thumbs-up"></i></div><span>43 B</span></div>
+                    <div class="s-action"><div class="s-circle"><i class="fas fa-comment"></i></div><span>312</span></div>
+                    <div class="s-action"><div class="s-circle"><i class="fas fa-share"></i></div><span>Paylaş</span></div>
+                    <div class="s-action"><div class="s-circle"><i class="fas fa-sync"></i></div><span>Remix</span></div>
                 </div>
             </div>
         `).join('');
 
-        setupIntersectionObserver();
+        initShortsObserver();
     }
 
-    // Kaydırınca videoyu başlat/durdur
-    function setupIntersectionObserver() {
-        const options = { threshold: 0.8 };
+    // Akıllı Oynatıcı: Sadece ekranda olan video yüklenir ve ses verir
+    function initShortsObserver() {
+        const options = { threshold: 0.7 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                const vidId = entry.target.getAttribute('data-id');
-                const container = document.getElementById(`player-${vidId}`);
+                const vidId = entry.target.getAttribute('data-vid');
+                const box = document.getElementById(`player-container-${vidId}`);
                 if (entry.isIntersecting) {
-                    container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}?autoplay=1&controls=0&loop=1&playlist=${vidId}" frameborder="0"></iframe>`;
+                    box.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1&controls=0&loop=1&playlist=${vidId}" frameborder="0"></iframe>`;
                 } else {
-                    container.innerHTML = ''; // Ekranda değilse videoyu sil (kaynak harcamaz/ses gelmez)
+                    box.innerHTML = '<div style="width:100%; height:100%; background:#111;"></div>';
                 }
             });
         }, options);
 
-        document.querySelectorAll('.short-slide').forEach(slide => observer.observe(slide));
+        document.querySelectorAll('.short-section').forEach(s => observer.observe(s));
     }
 
-    function showHome() {
-        document.getElementById('home-page').style.display = 'block';
-        document.getElementById('shorts-view').style.display = 'none';
-        document.getElementById('tab-home').classList.add('active');
-        document.getElementById('tab-shorts').classList.remove('active');
-        loadGlobalFeed();
+    // --- 3. İZLEME FONKSİYONLARI ---
+    function openPlayer(id, title) {
+        document.getElementById('watch-overlay').style.display = 'block';
+        document.getElementById('yt-player-frame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        document.getElementById('watch-video-title').innerText = title;
     }
 
-    function showShorts() {
-        document.getElementById('home-page').style.display = 'none';
-        document.getElementById('shorts-view').style.display = 'block';
-        document.getElementById('tab-home').classList.remove('active');
-        document.getElementById('tab-shorts').classList.add('active');
-        loadShorts();
+    function closeWatch() {
+        document.getElementById('watch-overlay').style.display = 'none';
+        document.getElementById('yt-player-frame').innerHTML = '';
     }
 
+    function changeTab(tab) {
+        document.getElementById('home-view').style.display = (tab === 'home' ? 'block' : 'none');
+        document.getElementById('shorts-container').style.display = (tab === 'shorts' ? 'block' : 'none');
+        document.getElementById('nav-home').classList.toggle('active', tab === 'home');
+        document.getElementById('nav-shorts').classList.toggle('active', tab === 'shorts');
+        if(tab === 'home') loadGlobalFeed();
+        if(tab === 'shorts') loadShorts();
+    }
+
+    // Başlangıç
     loadGlobalFeed();
 </script>
 </body>
