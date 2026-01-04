@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>KOALA ARCADE | ADMIN LIVE</title>
+    <title>KOALA ARCADE | LISTING 2026</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -25,35 +25,49 @@
         .k-card { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #222; margin-bottom: 12px; }
         .k-btn { background: #fff; color: #000; font-weight: 900; border-radius: 14px; padding: 18px; text-align: center; font-size: 14px; text-transform: uppercase; cursor: pointer; border:none; width: 100%; transition: 0.2s; }
         .k-btn:active { transform: scale(0.96); }
-        .k-btn.done { background: #222; color: #555; cursor: default; }
 
         nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #000; border-top: 1px solid #111; display: flex; padding-bottom: 30px; z-index: 1000; }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #444; font-size: 10px; font-weight: 700; gap: 4px; }
         .nav-link.active { color: #fff; }
         
-        #checking-overlay { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .ex-option { border: 2px solid #222; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer; }
-        .ex-option.selected { border-color: #fff; background: #1a1a1a; }
-        
+        /* Modal Style */
+        #info-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 50000; display: none; align-items: center; justify-content: center; padding: 30px; }
+        .modal-content { background: #111; border: 2px solid #333; border-radius: 30px; width: 100%; max-width: 400px; padding: 30px; text-align: center; animation: zoomIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
         #admin-dash { position: fixed; inset: 0; background: #000; z-index: 15000; display: none; flex-direction: column; padding: 60px 24px; overflow-y: auto; }
         #admin-btn { position: fixed; top: 45px; right: 20px; z-index: 11000; display: none; background: #ff3b3b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; }
         #exit-view-btn { position: fixed; top: 45px; left: 50%; transform: translateX(-50%); z-index: 16000; display: none; background: #007bff; color: #fff; padding: 10px 20px; border-radius: 30px; font-weight: 900; font-size: 12px; border: none; }
+        #checking-overlay { position: fixed; inset: 0; background: #000; z-index: 60000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
+
+    <div id="info-modal">
+        <div class="modal-content">
+            <div class="text-5xl mb-4">🚀</div>
+            <h2 class="text-2xl font-black uppercase italic mb-2 tracking-tighter">Listing Roadmap</h2>
+            <p class="text-zinc-400 text-sm font-bold mb-6">2026 Q2 (Nisan-Mayıs-Haziran)</p>
+            <div class="bg-black/50 border border-zinc-800 rounded-2xl p-4 mb-6">
+                <p class="text-[10px] text-zinc-500 uppercase font-black mb-1">Your Estimated Value</p>
+                <h3 id="modal-calc" class="text-3xl font-black text-green-500 italic">$0.00</h3>
+                <p class="text-[9px] text-zinc-600 mt-2">Based on listing price: 1 KOALA = $0.001</p>
+            </div>
+            <button class="k-btn !py-4" onclick="closeModal()">CONTINUE MINING</button>
+        </div>
+    </div>
 
     <button id="admin-btn" onclick="toggleAdmin()">DASHBOARD</button>
     <button id="exit-view-btn" onclick="exitObserve()">EXIT VIEW MODE</button>
 
     <div id="checking-overlay">
-        <h2 class="text-3xl font-black mb-2 uppercase italic text-center">Security<br>Control</h2>
-        <p class="text-zinc-600 font-bold uppercase text-[10px] tracking-widest">SYNCING DATA...</p>
+        <h2 class="text-3xl font-black mb-2 uppercase italic">Security</h2>
+        <p class="text-zinc-600 font-bold text-[10px]">SYNCING...</p>
     </div>
 
     <div id="admin-dash">
         <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-black italic uppercase">Admin Central</h1>
+            <h1 class="text-3xl font-black italic uppercase">Admin</h1>
             <button onclick="toggleAdmin()" class="text-2xl text-zinc-500">&times;</button>
         </div>
         <div id="admin-user-list" class="space-y-3"></div>
@@ -61,12 +75,12 @@
 
     <div id="p-earn" class="page active">
         <div class="flex justify-between items-center mb-6">
-            <div id="ui-ex-tag" class="bg-[#111] border border-[#222] px-3 py-1 rounded-full text-[9px] font-black uppercase text-zinc-500 italic">No Borsa</div>
+            <div id="ui-ex-tag" class="bg-[#111] border border-[#222] px-3 py-1 rounded-full text-[9px] font-black uppercase text-zinc-500">No Borsa</div>
             <div class="bg-white text-black px-3 py-1 rounded-full text-[9px] font-black italic">TOP TIER</div>
         </div>
         <div class="text-center mb-8">
             <h1 id="ui-bal" class="text-7xl font-black tracking-tighter italic">0</h1>
-            <p class="text-[10px] text-zinc-600 font-black tracking-[4px] mt-2 uppercase">Current Balance</p>
+            <p class="text-[10px] text-zinc-600 font-black uppercase mt-2">Koala Balance</p>
         </div>
         <div class="mx-auto w-[220px] h-[220px] bg-[#111] rounded-[50px] border-4 border-[#222] p-4 mb-10">
             <img src="coinkoala.jpg" class="w-full h-full object-cover rounded-[30px]">
@@ -77,43 +91,27 @@
     <div id="p-tasks" class="page">
         <h1 class="text-4xl font-black mb-6 uppercase italic">Tasks</h1>
         <div class="k-card flex justify-between items-center">
-            <div>
-                <p class="font-black text-sm uppercase">Join Community</p>
-                <p class="text-xs text-green-500 font-bold">+5,000 Koala</p>
-            </div>
+            <div><p class="font-black text-sm uppercase">Join Community</p><p class="text-xs text-green-500 font-bold">+5,000 Koala</p></div>
             <button id="task-btn" class="bg-white text-black px-6 py-2 rounded-lg font-black text-xs" onclick="doTask()">GO</button>
         </div>
     </div>
 
     <div id="p-squad" class="page">
         <h1 class="text-4xl font-black mb-6 uppercase italic">Squad</h1>
-        <div class="k-card text-center mb-6">
-            <p class="text-[10px] text-zinc-500 font-black mb-2 uppercase italic">Your Invite Code</p>
-            <div id="ui-mycode" class="bg-white text-black px-8 py-3 rounded-xl font-mono font-black text-2xl inline-block">...</div>
-        </div>
+        <div id="ui-mycode" class="k-card text-center text-2xl font-black font-mono">...</div>
         <div id="ref-input-area" class="mb-6">
-            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-4 rounded-xl text-center font-black mb-2 outline-none focus:border-white text-white" placeholder="ENTER FRIEND CODE">
-            <button class="k-btn" onclick="submitRef()">Claim 1000 Bonus</button>
+            <input type="text" id="ref-input" class="w-full bg-[#111] border-2 border-[#222] p-4 rounded-xl text-center font-black mb-2 text-white" placeholder="ENTER CODE">
+            <button class="k-btn" onclick="submitRef()">Claim Bonus</button>
         </div>
-        <h3 class="text-[10px] text-zinc-500 font-black uppercase mb-3 tracking-widest">Your Referrals</h3>
         <div id="ui-ref-list" class="space-y-2"></div>
         <button class="k-btn mt-6 bg-yellow-400" onclick="shareRef()">Invite Friends</button>
     </div>
 
     <div id="p-wallet" class="page">
         <h1 class="text-4xl font-black mb-6 uppercase italic">Borsa</h1>
-        <div class="ex-option" id="ex-binance" onclick="setEx('Binance')">
-            <img src="binance.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/12106/12106478.png'">
-            <p class="font-black uppercase">Binance</p>
-        </div>
-        <div class="ex-option" id="ex-okx" onclick="setEx('OKX')">
-            <img src="okx.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/12106/12106478.png'">
-            <p class="font-black uppercase">OKX</p>
-        </div>
-        <div class="ex-option" id="ex-bitget" onclick="setEx('Bitget')">
-            <img src="bitget.jpg" class="w-10 h-10 rounded-lg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/12106/12106478.png'">
-            <p class="font-black uppercase">Bitget</p>
-        </div>
+        <div class="ex-option" id="ex-binance" onclick="setEx('Binance')"><p class="font-black uppercase">Binance</p></div>
+        <div class="ex-option" id="ex-okx" onclick="setEx('OKX')"><p class="font-black uppercase">OKX</p></div>
+        <div class="ex-option" id="ex-bitget" onclick="setEx('Bitget')"><p class="font-black uppercase">Bitget</p></div>
     </div>
 
     <nav id="main-nav">
@@ -126,87 +124,80 @@
 <script>
     const ADMIN_ID = "8392479231";
     const firebaseConfig = { apiKey: "AIza...", projectId: "koalascombom" };
-    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     let myId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : (localStorage.getItem('k_uid') || 'K'+Math.floor(Math.random()*1e7));
-    let currentUserData = {};
+    let currentUserData = { bal: 0 };
     let isObserving = false;
+    let viewingData = null; // Admin gözlemi için
 
     async function init() {
         if(myId === ADMIN_ID) document.getElementById('admin-btn').style.display = 'block';
         const doc = await db.collection("users").doc(myId).get();
-        if(doc.exists) {
-            currentUserData = doc.data();
-        } else {
-            currentUserData = { 
-                bal: 0, refCode: "KOA-"+Math.floor(10000+Math.random()*89999),
-                exchange: null, name: tg.initDataUnsafe?.user?.first_name || "Koala",
-                nick: tg.initDataUnsafe?.user?.username || "anon",
-                usedRef: false, referrals: [], taskDone: false
-            };
-            await save();
+        if(doc.exists) currentUserData = doc.data();
+        else {
+            currentUserData = { bal: 0, refCode: "KOA-"+Math.floor(10000+Math.random()*89999), name: tg.initDataUnsafe?.user?.first_name || "Koala", nick: tg.initDataUnsafe?.user?.username || "anon", referrals: [] };
+            await db.collection("users").doc(myId).set(currentUserData);
         }
         document.getElementById('checking-overlay').style.display = 'none';
         render(currentUserData);
     }
 
+    // SEKME DEĞİŞİMİ VE MODAL TETİKLEME
+    function tab(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('p-' + id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if(el) el.classList.add('active');
+        
+        // Modal'ı göster ve hesapla
+        showListingModal();
+    }
+
+    function showListingModal() {
+        const activeData = isObserving ? viewingData : currentUserData;
+        const dollarValue = (activeData.bal * 0.001).toFixed(2);
+        document.getElementById('modal-calc').innerText = "$" + dollarValue;
+        document.getElementById('info-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('info-modal').style.display = 'none';
+    }
+
     function watchAd() {
         if(isObserving) return;
         if(window.showAdexora) {
-            window.showAdexora().then(() => { addReward(1); }).catch(() => { addReward(1); });
+            window.showAdexora().then(() => addReward(1)).catch(() => addReward(1));
         } else { addReward(1); }
     }
 
     async function addReward(amt) {
         currentUserData.bal += amt;
-        await save();
+        await db.collection("users").doc(myId).update({ bal: currentUserData.bal });
         render(currentUserData);
         tg.HapticFeedback.notificationOccurred('success');
     }
 
-    async function doTask() {
-        if(isObserving || currentUserData.taskDone) return;
-        tg.openTelegramLink("https://t.me/KoalasCommunity");
-        currentUserData.bal += 5000;
-        currentUserData.taskDone = true;
-        await save();
-        render(currentUserData);
+    function render(data) {
+        document.getElementById('ui-bal').innerText = Math.floor(data.bal).toLocaleString();
+        document.getElementById('ui-ex-tag').innerText = data.exchange || "No Borsa";
+        document.getElementById('ui-mycode').innerText = data.refCode;
     }
 
-    async function submitRef() {
-        const input = document.getElementById('ref-input').value.trim();
-        if(isObserving || currentUserData.usedRef || input === currentUserData.refCode) return alert("Hatalı işlem!");
-
-        const snap = await db.collection("users").where("refCode", "==", input).get();
-        if(!snap.empty) {
-            const invId = snap.docs[0].id;
-            const invRef = db.collection("users").doc(invId);
-            await db.runTransaction(async (t) => {
-                const d = await t.get(invRef);
-                const r = d.data().referrals || [];
-                r.push({ name: currentUserData.name, nick: currentUserData.nick });
-                t.update(invRef, { bal: (d.data().bal || 0) + 5000, referrals: r });
-            });
-            currentUserData.usedRef = true;
-            currentUserData.bal += 1000;
-            await save(); render(currentUserData);
-            alert("Referans bonusu eklendi!");
-        } else { alert("Kod bulunamadı!"); }
-    }
-
-    // GÖZLEM
+    // ADMIN FONKSİYONLARI
     async function observeUser(userId) {
         isObserving = true;
         const doc = await db.collection("users").doc(userId).get();
         if(doc.exists) {
+            viewingData = doc.data();
             toggleAdmin();
             document.getElementById('exit-view-btn').style.display = 'block';
-            tab('earn', document.querySelector('.nav-link'));
-            render(doc.data());
+            render(viewingData);
+            showListingModal();
         }
     }
 
@@ -222,63 +213,17 @@
         if(dash.style.display === 'flex') {
             const list = document.getElementById('admin-user-list');
             list.innerHTML = "Loading...";
-            const snap = await db.collection("users").orderBy('bal', 'desc').limit(30).get();
+            const snap = await db.collection("users").orderBy('bal', 'desc').limit(20).get();
             list.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
                 const item = document.createElement('div');
-                item.className = "k-card flex justify-between items-center cursor-pointer";
+                item.className = "k-card flex justify-between cursor-pointer";
                 item.onclick = () => observeUser(doc.id);
-                item.innerHTML = `<div><b>${d.name}</b><br><small>@${d.nick}</small></div><div class="text-right"><b>${Math.floor(d.bal)} K</b></div>`;
+                item.innerHTML = `<span>${d.name}</span><b>${Math.floor(d.bal)} K</b>`;
                 list.appendChild(item);
             });
         }
-    }
-
-    function render(data) {
-        document.getElementById('ui-bal').innerText = Math.floor(data.bal).toLocaleString();
-        document.getElementById('ui-ex-tag').innerText = data.exchange || "No Borsa";
-        document.getElementById('ui-mycode').innerText = data.refCode;
-        
-        // Task UI
-        const tBtn = document.getElementById('task-btn');
-        if(data.taskDone) { tBtn.innerText = "DONE"; tBtn.classList.add('done'); tBtn.onclick = null; }
-        else { tBtn.innerText = "GO"; tBtn.classList.remove('done'); tBtn.onclick = doTask; }
-
-        // Squad UI
-        if(data.usedRef) document.getElementById('ref-input-area').style.display = 'none';
-        else document.getElementById('ref-input-area').style.display = 'block';
-
-        const refList = document.getElementById('ui-ref-list');
-        refList.innerHTML = data.referrals?.length ? '' : '<p class="text-center opacity-30 text-xs">No referrals</p>';
-        data.referrals?.forEach(r => {
-            refList.innerHTML += `<div class="k-card py-3 flex justify-between"><span>@${r.nick}</span><span class="text-green-500">+5K</span></div>`;
-        });
-
-        document.querySelectorAll('.ex-option').forEach(el => {
-            el.classList.toggle('selected', el.id === 'ex-' + data.exchange?.toLowerCase());
-        });
-    }
-
-    async function setEx(name) {
-        if(isObserving) return;
-        currentUserData.exchange = name;
-        await save();
-        render(currentUserData);
-    }
-
-    async function save() { if(!isObserving) await db.collection("users").doc(myId).set(currentUserData); }
-    
-    function tab(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p-' + id).classList.add('active');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        if(el) el.classList.add('active');
-    }
-
-    function shareRef() {
-        const text = `Join Koala Arcade! Use my code for 1000 bonus: ${currentUserData.refCode}`;
-        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/KoalasUsdt_bot&text=${encodeURIComponent(text)}`);
     }
 
     window.onload = init;
