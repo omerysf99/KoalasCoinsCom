@@ -3,280 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime - Canlı Yayın & Sohbet</title>
+    <title>Sınav Prime - Pro v5</title>
     <style>
         :root {
-            --yt-black: #0f0f0f;
-            --yt-white: #ffffff;
-            --yt-gray: #272727;
-            --yt-blue: #3ea6ff;
+            --bg: #0f0f0f;
+            --primary: #3ea6ff;
+            --text: #ffffff;
             --yt-red: #ff0000;
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--yt-black);
-            color: var(--yt-white);
+            background: var(--bg);
+            color: var(--text);
             font-family: "Roboto", sans-serif;
             height: 100vh; overflow: hidden;
         }
 
-        /* Ana Konteyner */
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 414px; /* Mobil odaklı */
-            margin: 0 auto;
-            border: 1px solid #333;
-        }
-
-        /* YAYIN ALANI (ÜST / SOL) */
-        .video-section {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
+        .app-frame {
+            width: 100%; max-width: 414px;
+            height: 100vh; margin: 0 auto;
+            display: flex; flex-direction: column;
             position: relative;
         }
 
-        .video-section img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-        }
+        /* --- SAYFA YÖNETİMİ --- */
+        .page { display: none; height: calc(100vh - 65px); flex-direction: column; overflow-y: auto; }
+        .page.active { display: flex; }
 
-        .live-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.3);
-        }
+        /* --- ANA EKRAN (YAYIN LİSTESİ) --- */
+        .live-card { margin-bottom: 20px; cursor: pointer; padding: 10px; }
+        .live-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
+        .live-card h4 { margin: 8px 0 4px 0; font-size: 14px; }
+        .live-card p { margin: 0; font-size: 12px; color: #aaa; }
 
-        .countdown-timer {
-            font-size: 2.2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--yt-white);
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        /* --- SHORTS (DİKEY KAYDIRMA) --- */
+        .shorts-wrapper { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-slide { 
+            height: calc(100vh - 65px); scroll-snap-align: start; 
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, #222, #000); position: relative;
         }
+        .short-info { position: absolute; bottom: 20px; left: 15px; }
 
-        .live-label {
-            background: var(--yt-red);
-            padding: 2px 8px;
-            border-radius: 2px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
+        /* --- CANLI YAYIN & 5 MESAJLI SOHBET --- */
+        #studioView {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
+            display: none; flex-direction: column;
         }
+        .video-player { width: 100%; aspect-ratio: 16/9; position: relative; }
+        .video-player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        
+        .chat-section { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
+        .chat-msgs { flex: 1; padding: 15px; overflow-y: hidden; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
+        .msg b { color: var(--primary); font-size: 13px; }
+        .msg p { margin: 0; font-size: 14px; color: #eee; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* SOHBET ALANI (ALT / SAĞ) */
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--yt-black);
-            border-top: 1px solid #333;
-        }
+        .chat-input { padding: 10px; background: #181818; display: flex; gap: 10px; }
+        .chat-input input { flex: 1; background: #2a2a2a; border: none; padding: 10px; border-radius: 20px; color: white; outline: none; }
 
-        .chat-header {
-            padding: 12px 15px;
-            border-bottom: 1px solid #333;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Mesaj Listesi */
-        .message-list {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            scrollbar-width: thin;
-        }
-
-        .msg-entry {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--yt-gray);
-            flex-shrink: 0;
-        }
-
-        .msg-content b {
-            font-size: 12px;
-            color: #aaa;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .msg-content p {
-            margin: 0;
-            font-size: 13.5px;
-            line-height: 1.4;
-        }
-
-        /* Giriş Alanı */
-        .input-area {
-            padding: 10px 15px;
-            background: #181818;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .input-area input {
-            flex: 1;
-            background: #2a2a2a;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            color: white;
-            outline: none;
-        }
-
-        .send-btn {
-            background: none;
-            border: none;
-            color: var(--yt-blue);
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Yayın Bilgisi */
-        .stream-info {
-            padding: 15px;
-            border-bottom: 1px solid #333;
-        }
-
-        .stream-info h3 { margin: 0; font-size: 16px; }
-        .stream-info p { margin: 5px 0 0; font-size: 12px; color: #aaa; }
+        /* --- ALT NAV --- */
+        .bottom-nav { height: 65px; background: #0f0f0f; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { text-align: center; color: #888; font-size: 11px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: white; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <div class="video-section">
-        <img src="tytmatsoru.jpg" alt="Yayın Kapağı">
-        <div class="live-overlay">
-            <div class="live-label">BEKLENİYOR</div>
-            <div class="countdown-timer" id="timer">00:00:00</div>
-            <p style="font-size: 12px; color: #ccc; margin-top: 10px;">Yayın 5 Ocak 23:59'da başlayacak</p>
+<div class="app-frame">
+    
+    <div id="homePage" class="page active">
+        <div style="padding:15px; font-weight:bold; border-bottom:1px solid #333;">Canlı Yayınlar</div>
+        <div id="liveGrid"></div>
+    </div>
+
+    <div id="shortsPage" class="page">
+        <div class="shorts-wrapper">
+            <div class="short-slide">📽️ Matematik Shorts 1 <div class="short-info"><b>@HocamAnlatıyor</b><p>Pratik Türev</p></div></div>
+            <div class="short-slide">📽️ Matematik Shorts 2 <div class="short-info"><b>@SınavPrime</b><p>Soru Tahmini</p></div></div>
         </div>
     </div>
 
-    <div class="stream-info">
-        <h3>2024 TYT MATEMATİK SORULARININ ÇÖZÜMLERİ (1-30)</h3>
-        <p>1.240 kişi bekliyor • Matematik Avcısı</p>
-    </div>
-
-    <div class="chat-section">
-        <div class="chat-header">
-            <span>Canlı Sohbet</span>
-            <span style="color: #aaa;">✕</span>
-        </div>
-        
-        <div id="chatBox" class="message-list">
-            <div class="msg-entry">
-                <div class="avatar" style="background: #f00;"></div>
-                <div class="msg-content">
-                    <b>Sistem</b>
-                    <p>Hoş geldiniz! Sohbet kurallarına uymayı unutmayın.</p>
-                </div>
+    <div id="studioView">
+        <div class="video-player">
+            <button onclick="closeStudio()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); color:white; border:none; padding:8px; border-radius:50%; z-index:100;">✕</button>
+            <img src="tytmatsoru.jpg">
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+                <div id="countdown" style="font-size:2.5rem; font-weight:bold;">00:00:00</div>
+                <div style="background:red; padding:2px 8px; font-size:12px; margin-top:10px;">YAKINDA</div>
             </div>
         </div>
 
-        <form class="input-area" onsubmit="handleUserMessage(event)">
-            <div class="avatar"></div>
-            <input type="text" id="userInput" placeholder="Mesaj yazın..." autocomplete="off">
-            <button type="submit" class="send-btn">GÖNDER</button>
-        </form>
+        <div class="chat-section">
+            <div style="padding:10px; border-bottom:1px solid #333; font-size:12px; color:#aaa;">CANLI SOHBET (Maks 5 Mesaj)</div>
+            <div id="chatBox" class="chat-msgs">
+                </div>
+            <form class="chat-input" onsubmit="sendMessage(event)">
+                <input type="text" id="userInput" placeholder="Mesaj gönder..." autocomplete="off">
+                <button type="submit" style="background:none; border:none; color:var(--primary); font-weight:bold;">GÖNDER</button>
+            </form>
+        </div>
     </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="nav('homePage', this)">🏠<br>Ana Ekran</div>
+        <div class="nav-item" onclick="nav('shortsPage', this)">🎞️<br>Shorts</div>
+        <div class="nav-item" onclick="openStudio()">🔴<br>Canlı</div>
+    </nav>
 </div>
 
 <script>
-    // 1. GERÇEK ZAMANLI SOHBET FONKSİYONU
-    function handleUserMessage(e) {
+    // 1. ANA EKRAN LİSTELEME
+    const grid = document.getElementById('liveGrid');
+    for(let i=1; i<=10; i++) {
+        grid.innerHTML += `
+            <div class="live-card" onclick="openStudio()">
+                <img src="tytmatsoru.jpg">
+                <h4>TYT Matematik Soru Çözümü #${i}</h4>
+                <p>Matematik Avcısı • 1.2B İzleyici</p>
+            </div>
+        `;
+    }
+
+    // 2. NAVİGASYON
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function openStudio() { document.getElementById('studioView').style.display = 'flex'; }
+    function closeStudio() { document.getElementById('studioView').style.display = 'none'; }
+
+    // 3. 5 MESAJ SINIRLI GERÇEK SOHBET
+    function sendMessage(e) {
         e.preventDefault();
         const input = document.getElementById('userInput');
         const box = document.getElementById('chatBox');
         
-        if (input.value.trim() !== "") {
-            // Kullanıcı Mesajını Ekle
-            appendMessage("Siz", input.value, "#3ea6ff");
+        if(input.value.trim() !== "") {
+            // Mesajı oluştur
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg';
+            msgDiv.innerHTML = `<div><b>Üye</b><p>${input.value}</p></div>`;
             
-            // Temizle ve Odakla
+            box.appendChild(msgDiv);
+
+            // 5 MESAJ KURALI: 6. mesaj gelirse ilkini sil
+            if (box.children.length > 5) {
+                box.removeChild(box.firstChild);
+            }
+
             input.value = "";
-            
-            // HER ZAMAN EN SON MESAJI GÖSTER (Sabitleme)
             box.scrollTop = box.scrollHeight;
         }
     }
 
-    function appendMessage(user, text, color) {
-        const box = document.getElementById('chatBox');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg-entry';
-        msgDiv.innerHTML = `
-            <div class="avatar" style="background: ${color || '#555'}"></div>
-            <div class="msg-content">
-                <b>${user}</b>
-                <p>${text}</p>
-            </div>
-        `;
-        box.appendChild(msgDiv);
-        box.scrollTop = box.scrollHeight;
-    }
-
-    // 2. OTOMATİK SOHBET AKIŞI (Simülasyon)
-    const randomUsers = ["Ali_Yilmaz", "Merve_Sınav", "Hocam_Cozun", "Zeynep_Mat"];
-    const randomTexts = ["Hocam 5. soru çok zordu!", "PDF ne zaman gelir?", "Başlamasını heyecanla bekliyoruz.", "2024 soruları efsaneydi."];
-
-    setInterval(() => {
-        const u = randomUsers[Math.floor(Math.random() * randomUsers.length)];
-        const t = randomTexts[Math.floor(Math.random() * randomTexts.length)];
-        appendMessage(u, t);
-    }, 4000);
-
-    // 3. GERİ SAYIM SİSTEMİ (5 Ocak 2026 23:59)
-    const targetDate = new Date("Jan 5, 2026 23:59:00").getTime();
-
+    // 4. GERİ SAYIM (5 Ocak 2026 23:59)
+    const target = new Date("Jan 5, 2026 23:59:00").getTime();
     setInterval(() => {
         const now = new Date().getTime();
-        const distance = targetDate - now;
-
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("timer").innerHTML = 
-            (h < 10 ? "0" + h : h) + ":" + 
-            (m < 10 ? "0" + m : m) + ":" + 
-            (s < 10 ? "0" + s : s);
-            
-        if (distance < 0) {
-            document.getElementById("timer").innerHTML = "YAYINDA";
-        }
+        const diff = target - now;
+        const h = Math.floor((diff % (86400000)) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById("countdown").innerText = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
     }, 1000);
 </script>
 
