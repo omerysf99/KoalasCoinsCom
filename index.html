@@ -3,208 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siyah Akış | Detaylı Gündem</title>
+    <title>Haber Pro | Reklamlı Akış</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-            --accent: #ef4444;
-            --admin: #a855f7;
-            --info: #38bdf8;
-            --border: #334155;
+            --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
+            --accent: #ef4444; --admin: #a855f7; --border: #334155;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            overflow-x: hidden;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
 
-        /* Admin Paneli */
-        #admin-panel {
-            display: none; background: #1e1b4b; border: 2px solid var(--admin);
-            border-radius: 12px; padding: 15px; margin-bottom: 20px;
+        /* Reklam Katmanı */
+        #ad-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98);
+            display: none; z-index: 10000; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 20px;
+        }
+        .ad-box { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--admin); width: 80%; }
+        .ad-btn { background: var(--admin); color: white; border: none; padding: 12px 25px; border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+
+        /* Güvenlik Kodu Paneli */
+        #security-alert {
+            position: fixed; bottom: 20px; right: 20px; background: var(--admin);
+            color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;
+            display: none; z-index: 10001; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: bounce 0.5s ease;
         }
 
-        input, textarea {
-            width: 100%; background: #0f172a; border: 1px solid var(--border);
-            color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;
-            box-sizing: border-box;
-        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        .btn-add {
-            width: 100%; background: var(--admin); color: white;
-            border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-
-        /* Haber Kartı */
-        .news-card {
-            background: var(--card); border-radius: 16px; overflow: hidden;
-            margin-bottom: 20px; border: 1px solid var(--border);
-            cursor: pointer; transition: transform 0.2s;
-        }
-
-        .news-card:active { transform: scale(0.98); }
-
-        .news-img { width: 100%; height: 180px; object-fit: cover; }
+        /* Haber Kartları */
+        .news-card { background: var(--card); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
+        .news-img { width: 100%; height: 150px; object-fit: cover; }
         .news-body { padding: 15px; }
-        .tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
-        .tag.snow { background: var(--info); }
-        .tag.eco { background: #10b981; }
-        .tag.flash { background: var(--accent); }
+        .news-title { font-size: 1rem; font-weight: bold; margin: 0; }
 
-        .news-title { font-size: 1.1rem; font-weight: 700; margin: 5px 0; line-height: 1.4; }
-        
-        /* Detay Paneli (Modal) */
-        #detail-view {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); display: none; overflow-y: auto; z-index: 9999;
-            padding: 0;
-        }
-
-        .detail-header { position: relative; width: 100%; height: 250px; }
-        .detail-header img { width: 100%; height: 100%; object-fit: cover; }
-        .close-btn {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(0,0,0,0.6); color: white; border: none;
-            padding: 10px 15px; border-radius: 50%; font-size: 20px; cursor: pointer;
-        }
-
-        .detail-content { padding: 25px; line-height: 1.8; color: #cbd5e1; }
-        .detail-content h1 { color: white; line-height: 1.3; margin-top: 0; }
-        .detail-content p { margin-bottom: 20px; font-size: 1.05rem; }
+        #admin-panel { display: none; background: #1e1b4b; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--admin); }
+        input, textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
+<div id="ad-overlay">
+    <div class="ad-box">
+        <div style="color: var(--admin); font-weight: bold; margin-bottom: 10px;">SPONSORLU REKLAM</div>
+        <h2>Premium VIP Sinyal Grubu</h2>
+        <p style="color: #94a3b8;">Yapay zeka destekli borsa tahminleri için hemen katılın!</p>
+        <button class="ad-btn" onclick="closeAd()">Reklamı Kapat</button>
+    </div>
+</div>
+
+<div id="security-alert">KOD: <span id="code-val">00000</span></div>
+
 <div class="container">
-    <header style="padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 15px; text-align: center;">
-        <h1 style="margin:0; font-size: 1.3rem; letter-spacing: 1px;">2026 <span style="color:var(--accent)">GÜNDEMİ</span></h1>
+    <header style="text-align: center; padding: 10px 0;">
+        <h1 style="font-size: 1.2rem;">2026 <span style="color:var(--admin)">HABER</span> PORTALI</h1>
     </header>
 
     <div id="admin-panel">
-        <h4 style="margin:0 0 10px 0;">🛠 Admin</h4>
-        <input type="text" id="h-title" placeholder="Haber Başlığı">
-        <input type="text" id="h-img" placeholder="Görsel URL">
-        <textarea id="h-content" rows="4" placeholder="Haber Makalesi..."></textarea>
-        <button class="btn-add" onclick="manualAdd()">MAKALE OLARAK YAYINLA</button>
+        <h4 style="margin:0 0 10px 0;">Admin</h4>
+        <input type="text" id="h-title" placeholder="Başlık">
+        <textarea id="h-content" placeholder="İçerik"></textarea>
+        <button class="ad-btn" style="width:100%;" onclick="manualAdd()">Yayınla</button>
     </div>
 
-    <div id="news-container"></div>
-</div>
-
-<div id="detail-view">
-    <div class="detail-header">
-        <button class="close-btn" onclick="closeDetail()">✕</button>
-        <img id="d-img" src="">
-    </div>
-    <div class="detail-content">
-        <div id="d-tag" class="tag"></div>
-        <h1 id="d-title"></h1>
-        <div id="d-body"></div>
-    </div>
+    <div id="news-list"></div>
 </div>
 
 <script>
     const ADMIN_ID = 8392479231;
-    const container = document.getElementById('news-container');
+    const newsList = document.getElementById('news-list');
 
-    // Gerçekçi 2026 Makaleleri
-    const newsDatabase = [
-        {
-            tag: "eco", tagText: "EKONOMİ",
-            title: "Asgari Ücret Netleşti: 28.075 TL ile Yeni Dönem Başlıyor",
-            img: "https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?auto=format&fit=crop&w=500",
-            body: `<p>Türkiye'de milyonlarca çalışanın beklediği 2026 yılı asgari ücret rakamı resmi olarak açıklandı. Yapılan pazarlıklar sonucunda net asgari ücret <b>28.075 TL</b> olarak belirlendi.</p><p>Ekonomi yönetiminden yapılan açıklamada, rakamın belirlenmesinde 2025 yılı enflasyon verileri ve 2026 yılı hedeflerinin baz alındığı belirtildi. İş dünyası temsilcileri rakamın maliyetleri artıracağını savunurken, sendikalar bu rakamın geçim standartlarının altında kaldığını ifade ediyor. Yeni ücret şubat ayından itibaren hesaplara yansıyacak.</p>`
-        },
-        {
-            tag: "snow", tagText: "EĞİTİM",
-            title: "7 Ocak 2026: Yarın Okullar Tatil mi? Kar Alarmı!",
-            img: "https://images.unsplash.com/photo-1418985991508-e47386d96a71?auto=format&fit=crop&w=500",
-            body: `<p>Balkanlar üzerinden gelen soğuk hava dalgası Türkiye'nin kuzey kesimlerini etkisi altına aldı. Gümüşhane, Giresun ve Kastamonu'nun yüksek kesimlerinde kar kalınlığı 30 santimetreyi aştı.</p><p><b>Yarın okullar tatil mi?</b> sorusu üzerine Valiliklerden henüz resmi bir 'tatil' açıklaması gelmedi. Ancak Gümüşhane ve Kastamonu Valiliklerinin akşam saatlerinde meteorolojik verilere göre 'Taşımalı Eğitim' veya genel tatil kararı vermesi bekleniyor. Öğrenci ve velilerin gözü Valiliklerin sosyal medya hesaplarına çevrilmiş durumda.</p>`
-        },
-        {
-            tag: "flash", tagText: "TEKNOLOJİ",
-            title: "Elon Musk ve Grok'un 'Bikini' Krizi Büyüyor",
-            img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=500",
-            body: `<p>Yapay zeka dünyası son 48 saattir Elon Musk'ın X platformuna entegre ettiği Grok AI modelini konuşuyor. Görsel oluşturma filtresindeki 'esneklik' nedeniyle binlerce kullanıcı, ünlü isimlerin bikini giydirilmiş görsellerini paylaştı.</p><p>Avrupa Birliği yapay zeka denetleme kurulu, etik ihlaller nedeniyle soruşturma başlattığını duyurdu. Musk ise 'AI gerçeği taklit edebilmeli' diyerek duruşunu koruyor. Uzmanlar bu durumun 'Deepfake' yasalarının sertleşmesine neden olacağını öngörüyor.</p>`
+    // Reklam ve Kod Stratejisi
+    function generateSecurityCode() {
+        // STRATEJİ: 5 haneli rakamın İLK ve SON rakamının toplamı her zaman ÇİFT olmalı.
+        // Eğer toplam tek çıkarsa o kod sahtedir veya sistem hatasıdır.
+        let code;
+        while(true) {
+            code = Math.floor(10000 + Math.random() * 90000);
+            let digits = code.toString().split('').map(Number);
+            if((digits[0] + digits[4]) % 2 === 0) break; 
         }
-    ];
-
-    function renderNews() {
-        container.innerHTML = "";
-        newsDatabase.forEach((n, index) => {
-            const card = document.createElement('div');
-            card.className = 'news-card';
-            card.onclick = () => openDetail(index);
-            card.innerHTML = `
-                <img src="${n.img}" class="news-img">
-                <div class="news-body">
-                    <span class="tag ${n.tag}">${n.tagText}</span>
-                    <h2 class="news-title">${n.title}</h2>
-                    <div style="font-size:12px; color:#94a3b8;">Detayları okumak için tıklayın...</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
+        return code;
     }
 
-    function openDetail(index) {
-        const n = newsDatabase[index];
-        document.getElementById('d-img').src = n.img;
-        document.getElementById('d-title').innerText = n.title;
-        document.getElementById('d-tag').innerText = n.tagText;
-        document.getElementById('d-tag').className = `tag ${n.tag}`;
-        document.getElementById('d-body').innerHTML = n.body;
-        document.getElementById('detail-view').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+    function showAd() {
+        document.getElementById('ad-overlay').style.display = 'flex';
     }
 
-    function closeDetail() {
-        document.getElementById('detail-view').style.display = 'none';
-        document.body.style.overflow = 'auto';
+    function closeAd() {
+        document.getElementById('ad-overlay').style.display = 'none';
+        const code = generateSecurityCode();
+        const alertBox = document.getElementById('security-alert');
+        document.getElementById('code-val').innerText = code;
+        alertBox.style.display = 'block';
+        setTimeout(() => alertBox.style.display = 'none', 5000); // 5 saniye sonra kodu gizle
+    }
+
+    // Haber Ekleme Fonksiyonları
+    function addNews(title) {
+        const div = document.createElement('div');
+        div.className = 'news-card';
+        div.innerHTML = `<img src="https://picsum.photos/seed/${Math.random()}/400/200" class="news-img">
+                         <div class="news-body"><h2 class="news-title">${title}</h2></div>`;
+        newsList.prepend(div);
     }
 
     function checkAdmin() {
         try {
             const tg = window.Telegram.WebApp;
-            tg.ready();
             if (tg.initDataUnsafe?.user?.id === ADMIN_ID) {
                 document.getElementById('admin-panel').style.display = 'block';
             }
-        } catch (e) {}
+        } catch(e) {}
     }
 
-    function manualAdd() {
-        const t = document.getElementById('h-title').value;
-        const i = document.getElementById('h-img').value || "https://picsum.photos/seed/news/500/300";
-        const c = document.getElementById('h-content').value;
-        if(!t || !c) return;
-        
-        newsDatabase.unshift({
-            tag: "flash", tagText: "ÖZEL",
-            title: t, img: i, body: `<p>${c}</p>`
-        });
-        
-        document.getElementById('h-title').value = "";
-        document.getElementById('h-content').value = "";
-        renderNews();
-    }
+    // Döngüler
+    setInterval(showAd, 30000); // Her 30 saniyede bir reklam
+    setInterval(() => addNews("2026 Gündem Güncellemesi: " + (Math.random()*100).toFixed(0)), 20000); // 20 saniyede bir haber
 
     checkAdmin();
-    renderNews();
-
-    // 20 saniyede bir sahte "Yeni Haber" ekleme simülasyonu
-    setInterval(() => {
-        console.log("Akış güncelleniyor...");
-    }, 20000);
+    addNews("Asgari Ücret 28.075 TL Olarak Onaylandı.");
+    addNews("7 Ocak Kar Tatili Haberleri: Gümüşhane ve Kastamonu!");
 </script>
-
 </body>
 </html>
