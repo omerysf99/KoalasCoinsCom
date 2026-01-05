@@ -3,83 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eğitim Vadisi TYT-3 Ca - Dosya Görüntüle</title>
+    <title>Ödeme Onayı - Eğitim Vadisi</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
-        .container {
+        .checkout-card {
             background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-        .ad-box {
-            background: #fff3cd;
-            border: 2px dashed #ffeeba;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .timer {
-            font-size: 24px;
-            font-weight: bold;
-            color: #856404;
-        }
-        .content-image {
-            display: none;
             width: 100%;
-            border-radius: 8px;
-            margin-top: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-width: 450px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        h2 { color: #333; }
-        .status-text { margin-bottom: 10px; color: #666; }
+        .header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .product-name { font-weight: bold; color: #333; }
+        .product-price { color: var(--success-color); font-weight: 800; }
+
+        /* Reklam ve Sayaç Alanı */
+        .ad-overlay {
+            background: #fffbe6;
+            border: 2px solid #ffe58f;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .timer-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        /* Gizli İçerik */
+        #final-content {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .success-icon {
+            font-size: 50px;
+            color: var(--success-color);
+            margin-bottom: 10px;
+        }
+        .main-img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-disabled {
+            background: #ccc;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: not-allowed;
+            width: 100%;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Eğitim Vadisi TYT-3 Ca</h2>
-    
-    <div id="ad-container" class="ad-box">
-        <p class="status-text">Görsel hazırlanıyor, lütfen reklamı bekleyin...</p>
-        <div class="timer" id="countdown">10</div>
-        <p><small>Reklam süresi bittiğinde görsel otomatik açılacaktır.</small></p>
+<div class="checkout-card">
+    <div class="header">
+        <h3>Sipariş Özeti</h3>
     </div>
-
-    <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca" id="target-image" class="content-image">
     
-    <div id="footer-msg" style="margin-top: 15px; color: #28a745; font-weight: bold; display: none;">
-        Görsel başarıyla yüklendi!
+    <div class="content">
+        <div class="product-info">
+            <div>
+                <span class="product-name">Eğitim Vadisi TYT-3 Ca</span>
+                <br><small style="color: #888;">Dijital PDF Deneme</small>
+            </div>
+            <span class="product-price">ÜCRETSİZ</span>
+        </div>
+
+        <div id="ad-section">
+            <p style="text-align: center; font-size: 14px; color: #666;">
+                Erişim sağlamak için sponsorlu reklamı bekleyin...
+            </p>
+            <div class="ad-overlay">
+                <div style="font-size: 12px; color: #856404; margin-bottom: 5px;">SPONSORLU REKLAM</div>
+                <div style="height: 100px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999; margin-bottom: 10px; border-radius: 4px;">
+                    [REKLAM ALANI]
+                </div>
+                <div class="timer-circle" id="timer">10</div>
+            </div>
+            <button class="btn-disabled" id="status-btn">Lütfen Bekleyin...</button>
+        </div>
+
+        <div id="final-content">
+            <div class="success-icon">✓</div>
+            <h3 style="color: var(--success-color);">Erişim Onaylandı!</h3>
+            <p style="color: #666; font-size: 14px;">Görsel aşağıda görüntüleniyor.</p>
+            <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca" class="main-img">
+            <p style="margin-top: 15px;">
+                <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">[ Dosyayı İndir ]</a>
+            </p>
+        </div>
     </div>
 </div>
 
 <script>
-    let seconds = 10;
-    const countdownElement = document.getElementById('countdown');
-    const adContainer = document.getElementById('ad-container');
-    const targetImage = document.getElementById('target-image');
-    const footerMsg = document.getElementById('footer-msg');
+    let timeLeft = 10;
+    const timerDisplay = document.getElementById('timer');
+    const adSection = document.getElementById('ad-section');
+    const finalContent = document.getElementById('final-content');
 
-    const interval = setInterval(() => {
-        seconds--;
-        countdownElement.innerText = seconds;
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
 
-        if (seconds <= 0) {
-            clearInterval(interval);
-            adContainer.style.display = 'none'; // Reklamı gizle
-            targetImage.style.display = 'block'; // Görseli göster
-            footerMsg.style.display = 'block'; // Bilgi mesajını göster
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            adSection.style.display = 'none';
+            finalContent.style.display = 'block';
         }
     }, 1000);
 </script>
