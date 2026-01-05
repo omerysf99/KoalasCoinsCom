@@ -3,84 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Hazırlık PDF Botu</title>
+    <title>PDF Sınav Botu - Dark</title>
     <style>
+        /* Koyu Tema Renk Paleti */
         :root {
-            --primary: #2563eb;
-            --secondary: #64748b;
-            --accent: #ef4444;
-            --bg: #f8fafc;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #f43f5e;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        h1 { text-align: center; color: var(--primary); }
-        p.subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
             justify-content: center;
-            margin-bottom: 20px;
+            min-height: 100vh;
+        }
+
+        /* 9:16 Yakın Mobil Container */
+        .app-container {
+            width: 100%;
+            max-width: 450px; /* Mobil cihaz genişliği */
+            background: var(--card-bg);
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
+        h1 { color: var(--primary-blue); font-size: 1.5rem; margin: 0; }
+        
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
         }
 
         .tab-btn {
-            padding: 10px 20px;
+            background: #334155;
+            color: var(--text-dim);
             border: none;
-            background: #e2e8f0;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            transition: 0.2s;
         }
 
         .tab-btn.active {
-            background: var(--primary);
-            color: white;
+            background: var(--primary-blue);
+            color: #000;
         }
 
-        .pdf-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .pdf-item {
+        .pdf-card {
+            background: #334155;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            transition: transform 0.2s;
+            border: 1px solid transparent;
         }
 
-        .pdf-item:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .pdf-card:hover { border-color: var(--primary-blue); }
 
         .download-btn {
-            background: #22c55e;
-            color: white;
+            background: var(--primary-blue);
+            color: #000;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
             cursor: pointer;
-            text-decoration: none;
         }
 
         /* Reklam Modalı */
@@ -88,107 +90,105 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
         }
 
-        .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
+        .modal-box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--primary-blue);
+            width: 80%;
         }
 
         #ad-counter {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 4rem;
             color: var(--accent);
             margin: 20px 0;
+            font-weight: 900;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📚 PDF Sınav Botu</h1>
-    <p class="subtitle">KPSS, TYT ve AYT Güncel PDF Arşivi</p>
+<div class="app-container">
+    <header>
+        <h1>📚 PDF SINAV BOTU</h1>
+        <p style="color: var(--text-dim); font-size: 12px;">KPSS • TYT • AYT Arşivi</p>
+    </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="filterList('TYT')">TYT</button>
-        <button class="tab-btn" onclick="filterList('AYT')">AYT</button>
-        <button class="tab-btn" onclick="filterList('KPSS')">KPSS</button>
+        <button class="tab-btn active" onclick="loadContent('TYT')">TYT</button>
+        <button class="tab-btn" onclick="loadContent('AYT')">AYT</button>
+        <button class="tab-btn" onclick="loadContent('KPSS')">KPSS</button>
     </div>
 
-    <div id="pdf-container" class="pdf-list">
+    <div id="content-list">
         </div>
 </div>
 
 <div id="adModal" class="modal">
-    <div class="modal-content">
-        <h3>Dosya Hazırlanıyor...</h3>
-        <p>Lütfen reklamları geçmek için bekleyin.</p>
-        <div id="ad-counter">Kalan Reklam: 10</div>
-        <p style="font-size: 12px; color: gray;">Reklamları izlemek sunucu masraflarımızı karşılamaktadır.</p>
+    <div class="modal-box">
+        <h2 style="margin:0">Dosya Hazırlanıyor</h2>
+        <div id="ad-counter">10</div>
+        <p style="color: var(--text-dim)">Reklamlar geçiliyor, lütfen bekleyin...</p>
     </div>
 </div>
 
 <script>
-    // Örnek Veri Seti
-    const pdfData = [
-        { title: "TYT Matematik Soru Bankası", category: "TYT", link: "https://example.com/tyt-mat.pdf" },
-        { title: "AYT Edebiyat Özetleri", category: "AYT", link: "https://example.com/ayt-edb.pdf" },
-        { title: "KPSS Genel Kültür Notları", category: "KPSS", link: "https://example.com/kpss-gk.pdf" },
-        { title: "TYT Türkçe Deneme", category: "TYT", link: "https://example.com/tyt-tur.pdf" }
+    const data = [
+        { title: "TYT Matematik Soru Bankası", cat: "TYT", url: "#" },
+        { title: "TYT Türkçe Deneme", cat: "TYT", url: "#" },
+        { title: "AYT Fizik Formülleri", cat: "AYT", url: "#" },
+        { title: "AYT Edebiyat Özet", cat: "AYT", url: "#" },
+        { title: "KPSS Tarih Soru Bankası", cat: "KPSS", url: "#" },
+        { title: "KPSS Vatandaşlık Notları", cat: "KPSS", url: "#" }
     ];
 
-    function filterList(cat) {
-        // Tab rengini değiştir
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if(btn.innerText === cat) btn.classList.add('active');
-        });
-
-        const container = document.getElementById('pdf-container');
-        container.innerHTML = '';
-
-        const filtered = pdfData.filter(item => item.category === cat);
+    function loadContent(category) {
+        const list = document.getElementById('content-list');
+        list.innerHTML = '';
         
+        // Tab güncelleme
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const filtered = data.filter(i => i.cat === category);
         filtered.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'pdf-item';
-            div.innerHTML = `
-                <span>${item.title}</span>
-                <button class="download-btn" onclick="startAdSequence('${item.link}')">İndir</button>
+            list.innerHTML += `
+                <div class="pdf-card">
+                    <span style="font-size: 14px; max-width: 70%;">${item.title}</span>
+                    <button class="download-btn" onclick="startDownload('${item.url}')">İNDİR</button>
+                </div>
             `;
-            container.appendChild(div);
         });
     }
 
-    function startAdSequence(link) {
+    function startDownload(url) {
         const modal = document.getElementById('adModal');
-        const counterText = document.getElementById('ad-counter');
+        const counter = document.getElementById('ad-counter');
         modal.style.display = 'flex';
         
-        let count = 10;
-        
-        const interval = setInterval(() => {
-            count--;
-            counterText.innerText = `Kalan Reklam: ${count}`;
-            
-            if (count <= 0) {
-                clearInterval(interval);
+        let timeLeft = 10;
+        const timer = setInterval(() => {
+            timeLeft--;
+            counter.innerText = timeLeft;
+            if(timeLeft <= 0) {
+                clearInterval(timer);
                 modal.style.display = 'none';
-                window.open(link, '_blank'); // Dosyayı yeni sekmede açar
-                alert("Dosya indirme başlatıldı!");
+                alert("İndirme başlıyor...");
+                // window.location.href = url; // Gerçek link için burayı aç
             }
-        }, 1000); // Her reklam 1 saniye (Gerçekçi olması için artırabilirsin)
+        }, 800); // Hız için 800ms yaptım
     }
 
-    // İlk açılışta TYT'yi göster
-    filterList('TYT');
+    // Başlangıç
+    loadContent('TYT');
 </script>
 
 </body>
