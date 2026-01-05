@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Keşfet & Shorts</title>
+    <title>YouTube Keşfet Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -11,69 +11,92 @@
         body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Büyük Yatay Video Kartları */
-        .video-card img { aspect-ratio: 16 / 9; border-radius: 12px; transition: 0.2s ease-in-out; width: 100%; object-fit: cover; }
-        .video-card:hover img { border-radius: 0px; }
+        /* ANA SAYFA: Dev Yatay Kartlar */
+        .video-card img { 
+            aspect-ratio: 16 / 9; 
+            border-radius: 14px; 
+            transition: all 0.25s ease;
+            width: 100%;
+            object-fit: cover;
+            border: 1px solid #222;
+        }
+        .video-card:hover img { border-radius: 0px; border-color: #444; transform: scale(1.02); }
         
-        /* Shorts Kaydırma Alanı */
+        /* SHORTS: Sadece Dikey ve Kısa */
         #shortsContainer { height: calc(100vh - 56px); scroll-snap-type: y mandatory; overflow-y: scroll; background: #000; }
         .short-item { height: calc(100vh - 56px); scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
-        .short-frame { height: 92%; aspect-ratio: 9/16; background: #1a1a1a; border-radius: 16px; overflow: hidden; border: 1px solid #333; }
+        .short-frame { 
+            height: 88%; 
+            aspect-ratio: 9/16; 
+            background: #111; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            border: 2px solid #333;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
 
-        /* Sidebar Aktif Durumu */
-        .active-link { background: #272727; font-weight: 500; }
-        .sidebar-item:hover { background: #272727; }
+        .active-tab { background: #272727; color: white; border-left: 3px solid red; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-[100] border-b border-[#272727]">
+    <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-6 h-14 z-[100] border-b border-[#272727]">
         <div class="flex items-center gap-4">
             <button class="p-2 hover:bg-[#272727] rounded-full">☰</button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="goHome()">
                 <span class="text-red-600 text-3xl font-bold">▶</span>
-                <span class="text-xl font-bold tracking-tighter">YouTube</span>
+                <span class="text-xl font-bold tracking-tighter">YouTube<span class="text-gray-500 font-light ml-1 text-sm">TR</span></span>
             </div>
         </div>
 
-        <div class="flex items-center flex-1 max-w-[720px] ml-10">
-            <div class="flex w-full items-center bg-[#121212] border border-[#303030] rounded-full px-4 py-1.5 focus-within:border-blue-500">
-                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full outline-none text-white px-2">
+        <div class="flex items-center flex-1 max-w-[700px] mx-10">
+            <div class="flex w-full items-center bg-[#121212] border border-[#303030] rounded-l-full px-5 py-2 focus-within:border-blue-500 transition">
+                <input id="searchInput" type="text" placeholder="Göz kamaştıran videolar ara..." class="bg-transparent w-full outline-none text-white text-sm">
             </div>
-            <button onclick="executeSearch()" class="bg-[#222222] border border-[#303030] border-l-0 px-5 py-2 rounded-r-full hover:bg-[#272727]">🔍</button>
+            <button onclick="executeSearch()" class="bg-[#222222] border border-[#303030] border-l-0 px-6 py-2 rounded-r-full hover:bg-[#272727] transition">🔍</button>
         </div>
 
-        <div class="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-xs ml-4">TR</div>
+        <div class="flex items-center gap-4">
+            <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-xs font-bold">K</div>
+        </div>
     </nav>
 
     <div class="flex pt-14">
-        <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block border-r border-[#272727]">
-            <div onclick="goHome()" id="side-home" class="sidebar-item active-link p-3 rounded-xl flex items-center gap-5 cursor-pointer">🏠 <span>Ana Sayfa</span></div>
-            <div onclick="showShorts()" id="side-shorts" class="sidebar-item p-3 rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">🎞️ <span>Shorts</span></div>
-            <hr class="border-[#272727] my-3">
-            <div class="sidebar-item p-3 rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">🔥 <span>Trendler</span></div>
+        <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-3 hidden sm:block border-r border-[#272727]">
+            <div onclick="goHome()" id="side-home" class="p-3 rounded-xl flex items-center gap-5 cursor-pointer hover:bg-[#272727] transition mb-1 active-tab">🏠 <span class="text-sm font-medium">Ana Sayfa</span></div>
+            <div onclick="showShorts()" id="side-shorts" class="p-3 rounded-xl flex items-center gap-5 cursor-pointer hover:bg-[#272727] transition text-gray-300">🎞️ <span class="text-sm font-medium">Shorts</span></div>
+            <hr class="border-[#272727] my-4 mx-2">
+            <div class="p-3 rounded-xl flex items-center gap-5 cursor-pointer hover:bg-[#272727] transition text-gray-300">🔥 <span class="text-sm font-medium">Trendler</span></div>
+            <div class="p-3 rounded-xl flex items-center gap-5 cursor-pointer hover:bg-[#272727] transition text-gray-300">🎵 <span class="text-sm font-medium">Müzik</span></div>
         </aside>
 
-        <main class="flex-1 sm:ml-20 lg:ml-64">
+        <main class="flex-1 sm:ml-20 lg:ml-64 bg-[#0f0f0f] min-h-screen">
             
-            <div id="homeGrid" class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-6 gap-y-10">
+            <div id="homeGrid" class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
                 </div>
 
-            <div id="watchPage" class="hidden p-4 lg:p-8">
-                <div class="flex flex-col lg:flex-row gap-6 max-w-[1700px] mx-auto">
-                    <div class="flex-1">
-                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black shadow-2xl">
-                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/95 flex items-center justify-center text-xl animate-pulse">Reklam Yayında...</div>
+            <div id="watchPage" class="hidden p-4 lg:p-10">
+                <div class="flex flex-col lg:flex-row gap-8 max-w-[1750px] mx-auto">
+                    <div class="flex-grow">
+                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black shadow-2xl border border-[#272727]">
+                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/95 flex flex-col items-center justify-center">
+                                <span class="text-white text-xl font-bold animate-pulse">Reklam Devam Ediyor...</span>
+                            </div>
                             <iframe id="videoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </div>
-                        <h1 id="vTitle" class="text-2xl font-bold mt-5"></h1>
-                        <p id="vChannel" class="text-gray-400 mt-2 font-medium"></p>
+                        <h1 id="vTitle" class="text-2xl font-bold mt-6 leading-tight"></h1>
+                        <div class="flex items-center gap-4 mt-4 py-4 border-b border-[#272727]">
+                            <div class="w-12 h-12 bg-gray-800 rounded-full"></div>
+                            <span id="vChannel" class="font-bold text-lg"></span>
+                            <button class="ml-auto bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-gray-200 transition">Abone Ol</button>
+                        </div>
                     </div>
-                    <div id="vNext" class="w-full lg:w-[400px] flex flex-col gap-4"></div>
+                    <div id="vNext" class="w-full lg:w-[420px] flex flex-col gap-5"></div>
                 </div>
             </div>
 
-            <div id="shortsPage" class="hidden h-[calc(100vh-56px)]">
+            <div id="shortsPage" class="hidden h-[calc(100vh-56px)] overflow-hidden">
                 <div id="shortsContainer" class="no-scrollbar"></div>
             </div>
 
@@ -82,27 +105,21 @@
 
     <script>
         const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-        let adInterval, timeTracker;
-        let playedSeconds = 0;
-        let activeVideoId = "";
+        let adInterval, timeTracker, playedSeconds = 0, activeVideoId = "";
 
-        // Reklam Tetikleyici
         function runAd(callback) {
-            if(window.showAdexora) {
-                window.showAdexora().then(callback).catch(callback);
-            } else { callback(); }
+            if(window.showAdexora) window.showAdexora().then(callback).catch(callback); else callback();
         }
 
-        // Ana Sayfaya Dön / Keşfet
         function goHome() {
             resetView();
             document.getElementById('homeGrid').classList.remove('hidden');
-            document.getElementById('side-home').classList.add('active-link');
-            document.getElementById('side-shorts').classList.remove('active-link');
-            fetchVideos("Türkiye trendleri keşfet");
+            document.getElementById('side-home').classList.add('active-tab');
+            document.getElementById('side-shorts').classList.remove('active-tab');
+            // 'uzun' ve 'keşfet' anahtar kelimeleriyle yatay videoları zorluyoruz
+            fetchVideos("Türkiye popüler uzun videolar 1080p");
         }
 
-        // Arama Motoru
         function executeSearch() {
             const query = document.getElementById('searchInput').value;
             if(!query) return;
@@ -111,7 +128,6 @@
             fetchVideos(query + " uzun video");
         }
 
-        // Görünümleri Sıfırla
         function resetView() {
             document.getElementById('homeGrid').classList.add('hidden');
             document.getElementById('watchPage').classList.add('hidden');
@@ -119,27 +135,27 @@
             document.getElementById('videoPlayer').src = "";
             clearInterval(adInterval);
             clearInterval(timeTracker);
+            document.querySelectorAll('.p-3').forEach(el => el.classList.remove('active-tab'));
         }
 
-        // Video Listesi Çek (Keşfet & Arama)
         async function fetchVideos(q) {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${q}&regionCode=TR&type=video&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=21&q=${q}&regionCode=TR&relevanceLanguage=tr&type=video&key=${API_KEY}`);
             const data = await res.json();
             document.getElementById('homeGrid').innerHTML = data.items.map(v => `
                 <div class="video-card cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}')">
                     <img src="${v.snippet.thumbnails.high.url}">
-                    <div class="flex gap-3 mt-3">
-                        <div class="w-10 h-10 bg-gray-800 rounded-full flex-shrink-0"></div>
-                        <div>
-                            <h3 class="font-bold text-sm line-clamp-2 group-hover:text-red-500">${v.snippet.title}</h3>
-                            <p class="text-xs text-gray-400 mt-1">${v.snippet.channelTitle}</p>
+                    <div class="flex gap-4 mt-4">
+                        <div class="w-11 h-11 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex-shrink-0"></div>
+                        <div class="flex flex-col">
+                            <h3 class="font-bold text-base line-clamp-2 leading-tight group-hover:text-red-500 transition">${v.snippet.title}</h3>
+                            <p class="text-sm text-gray-400 mt-2 font-medium">${v.snippet.channelTitle}</p>
+                            <p class="text-xs text-gray-500">850 B izlenme • 5 saat önce</p>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Video İzleme ve Önerilenler
         async function openVideo(id, title, channel) {
             resetView();
             activeVideoId = id;
@@ -151,15 +167,15 @@
             setPlayer(0);
             startAdSystem();
 
-            // Sağ Taraf Önerileri
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${title}&type=video&key=${API_KEY}`);
+            // Sağ Taraf Öneriler (Sadece Uzun)
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${channel}&type=video&key=${API_KEY}`);
             const data = await res.json();
             document.getElementById('vNext').innerHTML = data.items.map(v => `
-                <div class="flex gap-2 cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}')">
-                    <img src="${v.snippet.thumbnails.medium.url}" class="w-40 h-24 rounded-lg object-cover">
+                <div class="flex gap-3 cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}')">
+                    <img src="${v.snippet.thumbnails.medium.url}" class="w-44 h-24 rounded-xl object-cover border border-[#222]">
                     <div class="flex-1">
-                        <h4 class="text-xs font-bold line-clamp-2">${v.snippet.title}</h4>
-                        <p class="text-[10px] text-gray-400 mt-1">${v.snippet.channelTitle}</p>
+                        <h4 class="text-sm font-bold line-clamp-2 group-hover:text-red-400 transition">${v.snippet.title}</h4>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">${v.snippet.channelTitle}</p>
                     </div>
                 </div>
             `).join('');
@@ -181,13 +197,12 @@
             }, 60000);
         }
 
-        // Shorts Sayfası
         async function showShorts() {
             resetView();
             document.getElementById('shortsPage').classList.remove('hidden');
-            document.getElementById('side-shorts').classList.add('active-link');
-            document.getElementById('side-home').classList.remove('active-link');
+            document.getElementById('side-shorts').classList.add('active-tab');
             
+            // Shorts aramasına "#shorts" ekleyerek uzun videoları eliyoruz
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=%23shorts+türkiye&type=video&videoDuration=short&key=${API_KEY}`);
             const data = await res.json();
             
@@ -213,11 +228,8 @@
             document.querySelectorAll('.short-item').forEach(i => obs.observe(i));
         }
 
-        // Input'ta Enter'a basınca ara
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') executeSearch();
-        });
-
+        document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') executeSearch(); });
+        
         goHome();
     </script>
 </body>
