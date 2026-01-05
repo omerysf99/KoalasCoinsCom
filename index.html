@@ -3,165 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube AGA v2.0 | Pro Player</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Tek Dosya Web Sayfası</title>
     <style>
-        body { background: #030303; color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        .yt-card { cursor: pointer; transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; }
-        .yt-card:hover { transform: translateY(-5px); }
-        .thumb-container { position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a; aspect-ratio: 16/9; }
-        .thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-        .duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        /* CSS Tasarım Bölümü */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 { color: #2c3e50; }
         
-        /* Oynatıcı Modal */
-        #player-overlay { display: none; background: rgba(0,0,0,0.95); position: fixed; inset: 0; z-index: 9999; }
-        .glass-nav { background: rgba(3, 3, 3, 0.8); backdrop-filter: blur(15px); }
-        
-        /* Shimmer Efekti */
-        .shimmer { background: linear-gradient(90deg, #0f0f0f 25%, #1a1a1a 50%, #0f0f0f 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #mesaj {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #27ae60;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="glass-nav sticky top-0 h-14 flex items-center justify-between px-6 z-50 border-b border-white/5">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
-            <div class="bg-red-600 p-1.5 rounded-lg text-white">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-            </div>
-            <span class="text-xl font-bold font-[Oswald] tracking-widest hidden sm:block">AGA TUBE</span>
-        </div>
-
-        <div class="flex-1 max-w-xl mx-4">
-            <div class="relative flex items-center w-full">
-                <input id="q" type="text" placeholder="Sonsuzlukta ara..." class="w-full bg-[#121212] border border-white/10 rounded-full py-2 px-5 outline-none focus:border-red-600 transition-all text-sm">
-                <button onclick="engine.search()" class="absolute right-4 text-gray-400 hover:text-white">🔍</button>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-4 text-sm font-medium">
-            <span class="text-green-500 hidden md:block">● KOTA: SINIRSIZ</span>
-            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">A</div>
-        </div>
-    </nav>
-
-    <main class="p-6">
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-            <div class="h-64 shimmer rounded-xl"></div>
-            <div class="h-64 shimmer rounded-xl"></div>
-            <div class="h-64 shimmer rounded-xl"></div>
-            <div class="h-64 shimmer rounded-xl"></div>
-        </div>
-    </main>
-
-    <div id="player-overlay" class="flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-5xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="video-title" class="text-lg font-bold truncate">Yükleniyor...</h2>
-                <button onclick="engine.close()" class="bg-white/10 p-2 rounded-full hover:bg-white/20 transition">✖</button>
-            </div>
-            <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/5">
-                <iframe id="player-frame" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            </div>
-        </div>
+    <div class="container">
+        <h1>Merhaba Dünya!</h1>
+        <p>Bu, CSS ve JavaScript içeren tek bir HTML dosyasıdır.</p>
+        <button onclick="selamVer()">Tıkla ve Gör</button>
+        <p id="mesaj"></p>
     </div>
 
     <script>
-        const engine = {
-            // Piped API Sunucuları (Birisi yavaşsa diğeri devreye girer)
-            servers: [
-                'https://pipedapi.kavin.rocks',
-                'https://pipedapi.lunar.icu',
-                'https://pipedapi.leptons.xyz'
-            ],
-            currentServerIdx: 0,
-
-            get api() { return this.servers[this.currentServerIdx]; },
-
-            async init() {
-                this.loadTrending();
-                document.getElementById('q').addEventListener('keypress', (e) => e.key === 'Enter' && this.search());
-            },
-
-            async fetchSafe(path) {
-                try {
-                    const res = await fetch(`${this.api}${path}`);
-                    if (!res.ok) throw new Error();
-                    return await res.json();
-                } catch (e) {
-                    console.warn("Sunucu değişiyor...");
-                    this.currentServerIdx = (this.currentServerIdx + 1) % this.servers.length;
-                    return this.fetchSafe(path);
-                }
-            },
-
-            async loadTrending() {
-                const data = await this.fetchSafe('/trending?region=TR');
-                this.render(data);
-            },
-
-            async search() {
-                const query = document.getElementById('q').value;
-                if (!query) return;
-                
-                document.getElementById('grid').innerHTML = Array(10).fill('<div class="h-64 shimmer rounded-xl"></div>').join('');
-                const data = await this.fetchSafe(`/search?q=${encodeURIComponent(query)}&filter=videos`);
-                this.render(data.items);
-            },
-
-            render(videos) {
-                const grid = document.getElementById('grid');
-                grid.innerHTML = videos.map(v => `
-                    <div class="yt-card group" onclick="engine.play('${v.url.split('=')[1]}', '${v.title.replace(/'/g, "")}')">
-                        <div class="thumb-container shadow-lg">
-                            <img src="${v.thumbnail}" loading="lazy">
-                            <span class="duration">${this.formatTime(v.duration)}</span>
-                        </div>
-                        <div class="flex gap-3 mt-4">
-                            <div class="w-10 h-10 rounded-full bg-[#1a1a1a] flex-shrink-0 overflow-hidden">
-                                <img src="${v.uploaderAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + v.uploaderName}" class="w-full h-full">
-                            </div>
-                            <div class="flex flex-col">
-                                <h3 class="text-sm font-bold line-clamp-2 leading-tight group-hover:text-red-500 transition">${v.title}</h3>
-                                <p class="text-xs text-gray-400 mt-2 hover:text-white">${v.uploaderName}</p>
-                                <p class="text-[11px] text-gray-500 font-medium">${v.shortDescription || (v.views ? v.views.toLocaleString() + ' izlenme' : 'Canlı')}</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            formatTime(seconds) {
-                if (!seconds) return "CANLI";
-                const h = Math.floor(seconds / 3600);
-                const m = Math.floor((seconds % 3600) / 60);
-                const s = seconds % 60;
-                return [h, m, s].filter((v, i) => v > 0 || i > 0).map(v => v.toString().padStart(2, '0')).join(':');
-            },
-
-            play(id, title) {
-                const overlay = document.getElementById('player-overlay');
-                const frame = document.getElementById('player-frame');
-                document.getElementById('video-title').innerText = title;
-                
-                // Embed URL - Reklamsız ve Hızlı
-                frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0`;
-                overlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            },
-
-            close() {
-                document.getElementById('player-overlay').style.display = 'none';
-                document.getElementById('player-frame').src = "";
-                document.body.style.overflow = 'auto';
-            }
-        };
-
-        engine.init();
+        // JavaScript Etkileşim Bölümü
+        function selamVer() {
+            const mesajKutusu = document.getElementById('mesaj');
+            mesajKutusu.innerText = "Butona tıkladın! Sistem başarıyla çalışıyor. 🚀";
+        }
     </script>
+
 </body>
 </html>
