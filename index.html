@@ -3,185 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson V17 | 9:6 UX</title>
+    <title>Sınav Hazırlık PDF Botu</title>
     <style>
         :root {
-            --bg: #000000;
-            --surface: #121212;
-            --accent: #FFD700;
-            --text: #ffffff;
-            --text-dim: #999999;
-            --db-blue: #0061ff;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #ef4444;
+            --bg: #f8fafc;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow: hidden; }
-
-        /* ANA SİTE ÇERÇEVESİ (9:6 HİSSİYATI) */
-        .app-shell { 
-            width: 100%; 
-            max-width: 450px; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            margin: 0 auto; 
-            background: var(--bg);
-            border-left: 1px solid #222;
-            border-right: 1px solid #222;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* HEADER */
-        header { padding: 25px 20px; text-align: left; border-bottom: 1px solid #222; }
-        .logo { font-size: 26px; font-weight: 900; color: var(--accent); letter-spacing: -1.5px; }
-
-        /* VIEWPORT */
-        .viewport { flex: 1; overflow-y: auto; scrollbar-width: none; }
-        .viewport::-webkit-scrollbar { display: none; }
-        .page { display: none; height: 100%; animation: slideIn 0.3s ease-out; }
-        .page.active { display: block; }
-
-        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        /* --- PDF SEKME (BÜYÜK LİSTE) --- */
-        .pdf-list { padding: 20px; }
-        .pdf-card {
+        .container {
+            max-width: 800px;
             width: 100%;
-            background: var(--surface);
-            border-radius: 24px;
-            margin-bottom: 25px;
-            overflow: hidden;
-            border: 1px solid #262626;
-        }
-        .pdf-header { padding: 25px; }
-        .pdf-title { font-size: 22px; font-weight: 800; display: block; margin-bottom: 5px; }
-        .pdf-desc { color: var(--text-dim); font-size: 14px; }
-
-        /* ONAY BUTONU (9:6 UYUMLU) */
-        .confirm-btn {
-            width: 100%; padding: 22px; background: #1a1a1a; color: var(--accent);
-            text-align: center; font-weight: 900; cursor: pointer; border: none;
-            border-top: 1px dashed var(--accent); font-size: 16px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
-        /* DROPBOX BUTONU */
-        .db-download {
-            display: none; width: 100%; padding: 22px; background: var(--db-blue);
-            color: white; text-decoration: none; text-align: center;
-            font-weight: 900; font-size: 18px;
+        h1 { text-align: center; color: var(--primary); }
+        p.subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
-        /* --- SHORTS (9:6 LOOP) --- */
-        .shorts-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-item {
-            height: 100%; width: 100%; scroll-snap-align: start;
-            display: flex; align-items: flex-end; padding: 40px 20px 110px;
-            background: linear-gradient(to top, #000 15%, transparent 50%), #0a0a0a;
-            position: relative;
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #e2e8f0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
         }
-        .short-meta b { color: var(--accent); font-size: 18px; }
 
-        /* --- 9:6 MODAL --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; justify-content: center; align-items: center; z-index: 9999; }
-        .modal-inner { width: 88%; aspect-ratio: 6 / 9; border-radius: 20px; overflow: hidden; border: 2px solid var(--accent); position: relative; }
-        .modal-inner img { width: 100%; height: 100%; object-fit: cover; }
-        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--accent); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
 
-        /* NAV BAR */
-        .nav { height: 85px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; }
-        .nav-link { color: #555; text-align: center; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .nav-link.active { color: var(--accent); }
-        .nav-link i { display: block; font-size: 26px; margin-bottom: 4px; font-style: normal; }
+        .pdf-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .pdf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .pdf-item:hover { transform: translateY(-2px); border-color: var(--primary); }
+
+        .download-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Reklam Modalı */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        #ad-counter {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
-<div class="app-shell">
-    <header><div class="logo">PDFSIMPSON</div></header>
+<div class="container">
+    <h1>📚 PDF Sınav Botu</h1>
+    <p class="subtitle">KPSS, TYT ve AYT Güncel PDF Arşivi</p>
 
-    <div class="viewport">
-        <div id="home" class="page">
-            <div style="padding: 25px;">
-                <h1 style="font-size: 32px; margin-bottom: 10px;">Arşiv<br>Burada.</h1>
-                <p style="color: var(--text-dim);">En güncel ders içerikleri ve PDF denemeleri mobil uyumlu arayüz ile cebinde.</p>
-            </div>
-        </div>
-
-        <div id="shorts" class="page">
-            <div class="shorts-container">
-                <div class="short-item">
-                    <div class="short-meta"><b>@HocamAnlatiyor</b><p>Fonksiyonlar Pratik Çözüm</p></div>
-                </div>
-                <div class="short-item" style="background: #0d0d0d;">
-                    <div class="short-meta"><b>@PDFSimpson</b><p>Bu haftanın deneme listesi!</p></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="live" class="page" style="padding: 20px;">
-            <div style="width:100%; aspect-ratio: 16/9; background:#1a1a1a; border-radius:20px; position:relative; border: 1px solid #f00;">
-                <div style="position:absolute; top:15px; left:15px; background:#f00; padding:5px 10px; border-radius:6px; font-weight:bold; font-size:11px;">CANLI</div>
-            </div>
-            <h2 style="margin: 20px 0 10px;">TYT Kampı Başladı</h2>
-        </div>
-
-        <div id="pdfs" class="page active">
-            <div class="pdf-list">
-                <div class="pdf-card">
-                    <div class="pdf-header">
-                        <span class="pdf-title">📄 Eğitim Vadisi TYT-3</span>
-                        <span class="pdf-desc">Full Paket • 5.2 MB • PDF</span>
-                    </div>
-                    
-                    <div class="confirm-btn" id="cBtn" onclick="onayla()">
-                        ONAYLA (<span id="count">0</span>/10)
-                    </div>
-
-                    <a href="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&dl=1" 
-                       class="db-download" id="dlBtn">
-                        📥 DROPBOX DİREKT İNDİR
-                    </a>
-                </div>
-            </div>
-        </div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filterList('TYT')">TYT</button>
+        <button class="tab-btn" onclick="filterList('AYT')">AYT</button>
+        <button class="tab-btn" onclick="filterList('KPSS')">KPSS</button>
     </div>
 
-    <nav class="nav">
-        <div class="nav-link" onclick="nav('home', this)"><i>🏠</i>Ev</div>
-        <div class="nav-link" onclick="nav('shorts', this)"><i>⚡</i>Shorts</div>
-        <div class="nav-link" onclick="nav('live', this)"><i>🔴</i>Canlı</div>
-        <div class="nav-link active" onclick="nav('pdfs', this)"><i>📄</i>PDF</div>
-    </nav>
+    <div id="pdf-container" class="pdf-list">
+        </div>
 </div>
 
-<div class="modal" id="adModal">
-    <div class="modal-inner">
-        <div class="close-modal" onclick="kapat()">✕</div>
-        <img src="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&raw=1" alt="9:6 Ad">
+<div id="adModal" class="modal">
+    <div class="modal-content">
+        <h3>Dosya Hazırlanıyor...</h3>
+        <p>Lütfen reklamları geçmek için bekleyin.</p>
+        <div id="ad-counter">Kalan Reklam: 10</div>
+        <p style="font-size: 12px; color: gray;">Reklamları izlemek sunucu masraflarımızı karşılamaktadır.</p>
     </div>
 </div>
 
 <script>
-    let n = 0;
-    function nav(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-link').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
+    // Örnek Veri Seti
+    const pdfData = [
+        { title: "TYT Matematik Soru Bankası", category: "TYT", link: "https://example.com/tyt-mat.pdf" },
+        { title: "AYT Edebiyat Özetleri", category: "AYT", link: "https://example.com/ayt-edb.pdf" },
+        { title: "KPSS Genel Kültür Notları", category: "KPSS", link: "https://example.com/kpss-gk.pdf" },
+        { title: "TYT Türkçe Deneme", category: "TYT", link: "https://example.com/tyt-tur.pdf" }
+    ];
+
+    function filterList(cat) {
+        // Tab rengini değiştir
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText === cat) btn.classList.add('active');
+        });
+
+        const container = document.getElementById('pdf-container');
+        container.innerHTML = '';
+
+        const filtered = pdfData.filter(item => item.category === cat);
+        
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'pdf-item';
+            div.innerHTML = `
+                <span>${item.title}</span>
+                <button class="download-btn" onclick="startAdSequence('${item.link}')">İndir</button>
+            `;
+            container.appendChild(div);
+        });
     }
 
-    function onayla() {
-        if(n < 10) {
-            n++;
-            document.getElementById('count').innerText = n;
-            if(n === 10) document.getElementById('adModal').style.display = 'flex';
-        }
+    function startAdSequence(link) {
+        const modal = document.getElementById('adModal');
+        const counterText = document.getElementById('ad-counter');
+        modal.style.display = 'flex';
+        
+        let count = 10;
+        
+        const interval = setInterval(() => {
+            count--;
+            counterText.innerText = `Kalan Reklam: ${count}`;
+            
+            if (count <= 0) {
+                clearInterval(interval);
+                modal.style.display = 'none';
+                window.open(link, '_blank'); // Dosyayı yeni sekmede açar
+                alert("Dosya indirme başlatıldı!");
+            }
+        }, 1000); // Her reklam 1 saniye (Gerçekçi olması için artırabilirsin)
     }
 
-    function kapat() {
-        document.getElementById('adModal').style.display = 'none';
-        document.getElementById('cBtn').style.display = 'none';
-        document.getElementById('dlBtn').style.display = 'block';
-    }
+    // İlk açılışta TYT'yi göster
+    filterList('TYT');
 </script>
 
 </body>
