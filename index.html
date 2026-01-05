@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Bot - Reklam Paneli</title>
+    <title>Sınav PDF Botu v3</title>
     <style>
         :root {
-            --bg: #050505;
-            --card: #121212;
-            --blue: #00d2ff;
+            --bg: #000000;
+            --card: #111111;
+            --primary: #00f2ff;
             --text: #ffffff;
-            --dim: #777;
-            --red: #ff4b2b;
+            --accent: #ff0055;
         }
 
         body {
-            background-color: var(--bg);
+            background-color: #1a1a1a;
             color: var(--text);
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
@@ -23,200 +22,228 @@
             justify-content: center;
         }
 
-        .app {
+        /* 9:16 Mobil Görünüm */
+        .app-frame {
             width: 100%;
-            max-width: 420px;
+            max-width: 414px; /* iPhone Plus genişliği */
+            height: 100vh;
             background: var(--bg);
-            min-height: 100vh;
-            padding: 15px;
-            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
         header {
+            padding: 25px;
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #222;
+            border-bottom: 2px solid var(--card);
         }
 
-        h1 { font-size: 1.2rem; color: var(--blue); margin: 0; letter-spacing: 1px; }
-
-        .tabs {
+        .category-tabs {
             display: flex;
-            gap: 5px;
-            margin: 20px 0;
+            padding: 10px;
+            gap: 10px;
         }
 
         .tab {
             flex: 1;
-            padding: 12px;
+            padding: 15px;
             background: var(--card);
             border: 1px solid #333;
-            color: var(--dim);
-            cursor: pointer;
+            color: #777;
             text-align: center;
-            border-radius: 5px;
-            font-size: 13px;
+            border-radius: 12px;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .tab.active {
-            background: var(--blue);
-            color: #000;
-            border-color: var(--blue);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 242, 255, 0.05);
         }
 
-        .item {
+        .pdf-list { padding: 15px; }
+
+        .pdf-item {
             background: var(--card);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            padding: 20px;
+            border-radius: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid var(--blue);
         }
 
-        .btn {
-            background: var(--blue);
+        .dl-btn {
+            background: var(--primary);
             color: #000;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 800;
             cursor: pointer;
         }
 
-        /* Reklam Katmanı */
-        #adLayer {
+        /* Reklam Duvarı */
+        #adWall {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg);
-            z-index: 10000;
+            z-index: 9999;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+        }
+
+        .ad-container {
+            width: 90%;
             text-align: center;
         }
 
-        .ad-box {
-            padding: 20px;
-            width: 85%;
-        }
-
-        .ad-status { color: var(--blue); font-size: 14px; margin-bottom: 10px; }
-        .timer { font-size: 5rem; font-weight: 800; color: var(--red); margin: 10px 0; }
-        .ad-info { color: var(--dim); font-size: 12px; }
-        
-        /* Simüle edilen reklam alanı */
-        .ad-placeholder {
-            width: 100%;
-            height: 250px;
-            background: #1a1a1a;
-            margin: 20px 0;
+        .counter-circle {
+            width: 120px;
+            height: 120px;
+            border: 5px solid var(--accent);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed #444;
-            color: #444;
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px auto;
+        }
+
+        #nextAdBtn {
+            display: none; /* Süre bitmeden görünmez */
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-<div class="app">
+<div class="app-frame">
     <header>
-        <h1>PREMIUM PDF BOT</h1>
-        <p style="font-size:10px; color:var(--dim)">KPSS / TYT / AYT ÖZEL ARŞİV</p>
+        <h1 style="margin:0; font-size: 1.5rem; color: var(--primary);">STUDY BOT PRO</h1>
+        <p style="color: #555; font-size: 0.8rem;">İstediğin PDF'i Seç ve İndir</p>
     </header>
 
-    <div class="tabs">
-        <div class="tab active" onclick="changeTab('TYT', this)">TYT</div>
-        <div class="tab" onclick="changeTab('AYT', this)">AYT</div>
-        <div class="tab" onclick="changeTab('KPSS', this)">KPSS</div>
+    <div class="category-tabs">
+        <div class="tab active" onclick="filter('TYT', this)">TYT</div>
+        <div class="tab" onclick="filter('AYT', this)">AYT</div>
+        <div class="tab" onclick="filter('KPSS', this)">KPSS</div>
     </div>
 
-    <div id="list"></div>
+    <div id="pdfList" class="pdf-list"></div>
 </div>
 
-<div id="adLayer">
-    <div class="ad-box">
-        <div id="current-ad-step" class="ad-status">REKLAM: 1 / 10</div>
-        <div class="ad-info">Dosya şifresi çözülüyor...</div>
+<div id="adWall">
+    <div class="ad-container">
+        <div id="stepInfo" style="color: var(--primary); font-weight: bold;">AD STEP: 1 / 10</div>
+        <h2 id="adStatus">Reklamı İzleyin...</h2>
         
-        <div class="ad-placeholder">
-            [BURAYA REKLAM KODU GELECEK]
+        <div style="height: 200px; background: #111; margin: 20px 0; display: flex; align-items: center; justify-content: center; border: 1px solid #333;">
+            <p style="color: #444;">[REKLAM ALANI]</p>
         </div>
 
-        <div id="count" class="timer">10</div>
-        <p>Lütfen bekleyin, reklam bitince otomatik geçer.</p>
+        <div id="timerDisplay" class="counter-circle">10</div>
+        
+        <button id="nextAdBtn" onclick="nextStep()">SONRAKİ REKLAM ➔</button>
+        <p id="waitMsg" style="color: #666;">Lütfen sürenin dolmasını bekleyin.</p>
     </div>
 </div>
 
 <script>
-    const data = [
-        { name: "TYT Matematik - Full Not", cat: "TYT" },
-        { name: "TYT Türkçe - 40 Soru Bankası", cat: "TYT" },
-        { name: "AYT Fizik - Deneme Seti", cat: "AYT" },
-        { name: "AYT Tarih - Padişahlar Özeti", cat: "AYT" },
-        { name: "KPSS 2026 - Genel Kültür", cat: "KPSS" },
-        { name: "KPSS Coğrafya - Haritalarla", cat: "KPSS" }
+    const pdfs = [
+        { name: "TYT Matematik Soru Bankası", cat: "TYT" },
+        { name: "TYT Türkçe Denemeleri", cat: "TYT" },
+        { name: "AYT Edebiyat Özetleri", cat: "AYT" },
+        { name: "KPSS Tarih Tüm Konular", cat: "KPSS" }
     ];
 
-    function changeTab(cat, el) {
+    let currentAdIndex = 1;
+    let timer;
+
+    function filter(cat, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        render(cat);
-    }
-
-    function render(cat) {
-        const container = document.getElementById('list');
-        container.innerHTML = '';
-        data.filter(d => d.cat === cat).forEach(item => {
-            container.innerHTML += `
-                <div class="item">
-                    <span style="font-size:14px">${item.name}</span>
-                    <button class="btn" onclick="startMegaAd()">İNDİR</button>
+        
+        const list = document.getElementById('pdfList');
+        list.innerHTML = '';
+        
+        pdfs.filter(p => p.cat === cat).forEach(item => {
+            list.innerHTML += `
+                <div class="pdf-item">
+                    <span>${item.name}</span>
+                    <button class="dl-btn" onclick="startAdFlow()">İNDİR</button>
                 </div>
             `;
         });
     }
 
-    function startMegaAd() {
-        const layer = document.getElementById('adLayer');
-        const counter = document.getElementById('count');
-        const stepText = document.getElementById('current-ad-step');
-        
-        layer.style.display = 'flex';
-        
-        let currentAd = 1;
+    function startAdFlow() {
+        currentAdIndex = 1;
+        document.getElementById('adWall').style.display = 'flex';
+        initiateTimer();
+    }
+
+    function initiateTimer() {
         let timeLeft = 10;
+        const display = document.getElementById('timerDisplay');
+        const nextBtn = document.getElementById('nextAdBtn');
+        const waitMsg = document.getElementById('waitMsg');
+        const stepInfo = document.getElementById('stepInfo');
 
-        const runTimer = setInterval(() => {
+        // Reset
+        nextBtn.style.display = 'none';
+        waitMsg.style.display = 'block';
+        display.style.display = 'flex';
+        display.innerText = timeLeft;
+        stepInfo.innerText = `AD STEP: ${currentAdIndex} / 10`;
+
+        timer = setInterval(() => {
             timeLeft--;
-            counter.innerText = timeLeft;
+            display.innerText = timeLeft;
 
-            if(timeLeft <= 0) {
-                if(currentAd < 10) {
-                    // Yeni reklama geç
-                    currentAd++;
-                    timeLeft = 10;
-                    counter.innerText = timeLeft;
-                    stepText.innerText = `REKLAM: ${currentAd} / 10`;
-                    console.log(`${currentAd}. reklam başladı`);
-                } else {
-                    // Tüm reklamlar bitti
-                    clearInterval(runTimer);
-                    layer.style.display = 'none';
-                    alert("Tebrikler! 10 reklamı başarıyla geçtiniz. İndirme başlıyor.");
-                    // window.location.href = "PDF_LINKI_BURAYA";
-                }
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                display.style.display = 'none';
+                waitMsg.style.display = 'none';
+                nextBtn.style.display = 'inline-block';
+                if(currentAdIndex === 10) nextBtn.innerText = "PDF'İ İNDİR 📥";
             }
         }, 1000);
     }
 
-    // İlk yükleme
-    render('TYT');
+    function nextStep() {
+        if (currentAdIndex < 10) {
+            currentAdIndex++;
+            initiateTimer();
+        } else {
+            document.getElementById('adWall').style.display = 'none';
+            alert("Tüm reklamlar tamamlandı! PDF indiriliyor...");
+            // window.location.href = 'LINK';
+        }
+    }
+
+    // Başlangıç
+    filter('TYT', document.querySelector('.tab'));
 </script>
 
 </body>
