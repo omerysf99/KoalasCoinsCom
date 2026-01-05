@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siyah Akış | Pozitif Gündem</title>
+    <title>Siyah Akış | Admin Panel</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -11,160 +11,177 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent: #38bdf8;
-            --hot: #fb7185;
-            --good: #2ecc71; /* Güzel haberler için yeşil */
-            --border-color: #334155;
+            --admin: #a855f7;
+            --border: #334155;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text-primary);
             margin: 0;
-            line-height: 1.6;
+            padding-bottom: 100px;
         }
 
-        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
 
-        header {
-            padding: 60px 0 40px;
-            border-bottom: 1px solid var(--border-color);
+        /* Admin Paneli Tasarımı */
+        .admin-bar {
+            background: var(--surface);
+            border-bottom: 2px solid var(--admin);
+            padding: 15px 0;
+            margin-bottom: 30px;
         }
 
-        h1 { font-size: 42px; font-weight: 800; margin: 0; letter-spacing: -2px; }
-        .date-display { color: var(--accent); font-weight: 600; font-size: 14px; text-transform: uppercase; }
+        .admin-form {
+            display: grid;
+            gap: 10px;
+            background: #111b2d;
+            padding: 20px;
+            border-radius: 12px;
+        }
 
-        .news-item {
-            padding: 24px 0;
-            border-bottom: 1px solid var(--border-color);
+        input, textarea {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button.add-btn {
+            background: var(--admin);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
-            transition: 0.2s ease;
+        }
+
+        /* Haber Kartları */
+        .news-item {
             display: flex;
             gap: 20px;
+            padding: 25px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        .news-item:hover { transform: translateX(8px); }
-        .news-item:hover h2 { color: var(--accent); }
-
+        .news-item:hover { transform: translateX(5px); }
         .news-content { flex: 1; }
-        .news-img { width: 140px; height: 100px; border-radius: 12px; object-fit: cover; background: #334155; }
+        .news-img { width: 150px; height: 100px; border-radius: 10px; object-fit: cover; }
 
-        .badge {
-            font-size: 10px; font-weight: 800; padding: 2px 8px;
-            border-radius: 4px; margin-right: 10px; text-transform: uppercase;
-        }
-        .badge.trend { background: var(--hot); color: white; }
-        .badge.good { background: var(--good); color: white; }
-        .badge.standard { background: var(--surface); color: var(--text-secondary); }
+        h2 { margin: 10px 0; font-size: 20px; }
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--admin); color: white; margin-right: 10px; }
 
-        h2 { font-size: 22px; margin: 10px 0; line-height: 1.3; }
-        .excerpt { color: var(--text-secondary); font-size: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-        /* DETAY PANELİ */
-        #detail-panel {
+        /* Modal */
+        #detail-view {
             position: fixed; inset: 0; background: var(--bg);
-            display: none; overflow-y: auto; z-index: 1000; padding: 40px 0;
+            display: none; overflow-y: auto; z-index: 2000; padding: 40px 0;
         }
 
-        .hero-img { width: 100%; height: 350px; border-radius: 20px; object-fit: cover; margin: 20px 0; }
-        .close-btn { background: var(--surface); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+        .close-btn { background: var(--surface); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div class="date-display">6 OCAK 2026 • SALI</div>
-        <h1>Akış.</h1>
-        <p style="color: var(--text-secondary)">Grok, ChatGPT ve Dünyadan İyi Haberler</p>
-    </header>
-
-    <div id="news-container"></div>
+<div class="admin-bar">
+    <div class="container">
+        <h3 style="color: var(--admin); margin-top: 0;">🛠 Admin Panel (ID: 8392479231)</h3>
+        <div class="admin-form">
+            <input type="text" id="h-title" placeholder="Haber Başlığı">
+            <input type="text" id="h-img" placeholder="Görsel URL (https://...)">
+            <textarea id="h-content" rows="3" placeholder="Haber İçeriği (Detaylar)"></textarea>
+            <button class="add-btn" onclick="haberEkle()">YAYINLA</button>
+        </div>
+    </div>
 </div>
 
-<div id="detail-panel">
+<div class="container">
+    <h1>Güncel Akış</h1>
+    <div id="news-list"></div>
+</div>
+
+<div id="detail-view">
     <div class="container">
-        <button class="close-btn" onclick="closeDetail()">← Listeye Dön</button>
-        <div id="detail-area"></div>
+        <button class="close-btn" onclick="closeDetail()">← Kapat</button>
+        <img id="d-img" style="width:100%; height:350px; object-fit:cover; border-radius:20px; margin:20px 0;">
+        <h1 id="d-title"></h1>
+        <p id="d-content" style="font-size:18px; line-height:1.8; color:#cbd5e1;"></p>
     </div>
 </div>
 
 <script>
-    const allNews = [
+    // Başlangıç Haberleri (Veritabanı yerine şimdilik dizi)
+    let newsData = [
         {
-            title: "Grok 'Bikini' Akımı: Elon Musk Sansürü Reddediyor!",
-            source: "AI Magazin",
-            badge: "trend",
-            badgeText: "FLAŞ",
-            excerpt: "Grok'un yeni nesil görsel motoru, internet dünyasında dijital kıyafet değişimleriyle viral oldu.",
-            content: "<p>Elon Musk'ın Grok AI'sı, dijital dünyada yeni bir tartışma başlattı. Sansürsüz yapısıyla bilinen model, herkese bikini giydiren görsellerle sosyal medyada trend listesine girdi. Musk, 'AI özgür olmalı' mesajını vermeye devam ediyor.</p>",
-            image: "https://picsum.photos/seed/grok/800/500"
+            title: "Grok Herkese Bikini Giydiriyor :D",
+            img: "https://picsum.photos/seed/grok/800/500",
+            content: "Elon Musk'ın Grok AI'sı sınırsız görsel üretimiyle interneti sallıyor. Herkese bikini giydiren o meşhur görseller artık admin kontrolünde!",
+            source: "Admin (8392479231)"
         },
         {
-            title: "Müjde: Bilim İnsanları Mercan Resiflerini Kurtaracak Yeni Bir Yöntem Geliştirdi!",
-            source: "Doğa Haber",
-            badge: "good",
-            badgeText: "GÜZEL HABER",
-            excerpt: "Deniz biyologları, yapay zeka ve ses dalgalarıyla balıkları ölmekte olan mercanlara geri çekmeyi başardı.",
-            content: "<p>Harika bir haber! Bilim insanları, su altı hoparlörleri kullanarak sağlıklı mercan resifi seslerini yayınladılar. Bu yöntemle, balıklar ölmekte olan resiflere geri dönmeye başladı ve ekosistem mucizevi bir şekilde kendini yeniliyor. Doğa ana için büyük bir zafer!</p>",
-            image: "https://picsum.photos/seed/nature/800/500"
-        },
-        {
-            title: "ChatGPT-5 Sızıntıları: Kişisel Asistan Devrimi",
-            source: "Tekno Sızıntı",
-            badge: "standard",
-            badgeText: "TEKNOLOJİ",
-            excerpt: "OpenAI'ın yeni modeli artık sadece metin yazmıyor, sizin yerinize bilgisayar işlemlerini yönetiyor.",
-            content: "<p>Sızan bilgilere göre ChatGPT-5, 'Agent' (Ajan) moduyla geliyor. Artık ona 'benim için tatil planla ve biletleri al' dediğinizde, tarayıcıyı açıp bu işlemleri kendi başına yapabilecek yeteneğe sahip olacak.</p>",
-            image: "https://picsum.photos/seed/ai/800/500"
-        },
-        {
-            title: "Sokak Hayvanları İçin 'Akıllı Besleme Üniteleri' Yaygınlaşıyor",
-            source: "Yerel Gündem",
-            badge: "good",
-            badgeText: "GÜZEL HABER",
-            excerpt: "Güneş enerjisiyle çalışan yeni üniteler, geri dönüştürülen her şişe için mama veriyor.",
-            content: "<p>Şehirlerde başlatılan yeni proje kapsamında, vatandaşlar plastik şişelerini makineye attığında, makine anında haznesine mama boşaltıyor. Hem geri dönüşüm teşvik ediliyor hem de dostlarımız doyuyor. İçimizi ısıtan bir gelişme!</p>",
-            image: "https://picsum.photos/seed/dog/800/500"
+            title: "ChatGPT-5 Sızıntısı: Sesli Asistan Artık Gerçek Bir İnsan Gibi",
+            img: "https://picsum.photos/seed/ai/800/500",
+            content: "OpenAI yeni modelinde gecikmeyi sıfıra indirdi. Artık ChatGPT ile konuşurken bir yapay zeka ile değil, eski bir dostunuzla konuşuyormuş gibi hissedeceksiniz.",
+            source: "Sistem"
         }
     ];
 
     function renderNews() {
-        const container = document.getElementById('news-container');
-        allNews.forEach((news, index) => {
-            container.innerHTML += `
+        const list = document.getElementById('news-list');
+        list.innerHTML = "";
+        newsData.forEach((h, index) => {
+            list.innerHTML += `
                 <div class="news-item" onclick="showDetail(${index})">
                     <div class="news-content">
-                        <div style="display:flex; align-items:center;">
-                            <span class="badge ${news.badge}">${news.badgeText}</span>
-                            <span class="time" style="color:var(--text-secondary); font-size:12px;">${news.source}</span>
-                        </div>
-                        <h2>${news.title}</h2>
-                        <div class="excerpt">${news.excerpt}</div>
+                        <span class="badge">ADMIN YAYINI</span>
+                        <h2>${h.title}</h2>
+                        <div style="color:var(--text-secondary); font-size:14px;">${h.source} • Az önce</div>
                     </div>
-                    <img src="${news.image}" class="news-img">
+                    <img src="${h.img}" class="news-img">
                 </div>
             `;
         });
     }
 
+    function haberEkle() {
+        const title = document.getElementById('h-title').value;
+        const img = document.getElementById('h-img').value;
+        const content = document.getElementById('h-content').value;
+
+        if(!title || !content) { alert("Lütfen başlık ve içerik girin!"); return; }
+
+        // Yeni haberi en başa ekle
+        newsData.unshift({
+            title: title,
+            img: img || "https://picsum.photos/seed/default/800/500",
+            content: content,
+            source: "Admin (8392479231)"
+        });
+
+        // Formu temizle ve listeyi güncelle
+        document.getElementById('h-title').value = "";
+        document.getElementById('h-img').value = "";
+        document.getElementById('h-content').value = "";
+        renderNews();
+    }
+
     function showDetail(index) {
-        const news = allNews[index];
-        const detailArea = document.getElementById('detail-area');
-        detailArea.innerHTML = `
-            <img src="${news.image}" class="hero-img">
-            <h1 style="font-size:36px; margin-top:20px;">${news.title}</h1>
-            <p style="color:var(--accent)">${news.source} • Bugün Yayınlandı</p>
-            <hr style="border:0; border-top:1px solid var(--border-color); margin:30px 0;">
-            <div style="font-size:20px; line-height:1.8; color:#cbd5e1;">${news.content}</div>
-        `;
-        document.getElementById('detail-panel').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+        const h = newsData[index];
+        document.getElementById('d-title').innerText = h.title;
+        document.getElementById('d-img').src = h.img;
+        document.getElementById('d-content').innerText = h.content;
+        document.getElementById('detail-view').style.display = "block";
+        document.body.style.overflow = "hidden";
     }
 
     function closeDetail() {
-        document.getElementById('detail-panel').style.display = 'none';
-        document.body.style.overflow = 'auto';
+        document.getElementById('detail-view').style.display = "none";
+        document.body.style.overflow = "auto";
     }
 
     window.onload = renderNews;
