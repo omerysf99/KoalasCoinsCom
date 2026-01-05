@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime - Eğitim Uygulaması</title>
+    <title>Sınav Prime - Canlı Yayın</title>
     <style>
         :root {
             --bg: #000000;
@@ -11,6 +11,7 @@
             --primary: #00f2ff;
             --text: #ffffff;
             --dim: #888;
+            --red: #ff0000;
         }
 
         body {
@@ -23,7 +24,6 @@
             overflow: hidden;
         }
 
-        /* 9:16 Ana Çerçeve */
         .app-frame {
             width: 100%;
             max-width: 414px;
@@ -34,251 +34,199 @@
             position: relative;
         }
 
-        /* Sayfalar */
-        .page {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 70px; /* Navigasyon için yer */
-        }
+        /* Sayfa Yapısı */
+        .page { display: none; flex: 1; overflow-y: auto; padding-bottom: 70px; }
+        .page.active { display: flex; flex-direction: column; }
 
-        .page.active { display: block; }
-
-        /* ALT NAVİGASYON */
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
+        /* CANLI YAYIN ÖZEL */
+        .live-container { flex: 1; display: flex; flex-direction: column; }
+        
+        .video-area {
             width: 100%;
-            height: 65px;
-            background: #080808;
-            border-top: 1px solid #222;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            text-align: center;
-            font-size: 10px;
-            color: var(--dim);
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
-
-        /* ANA SAYFA TASARIMI */
-        .hero { padding: 20px; background: linear-gradient(180deg, #111, #000); }
-        .featured-card {
-            background: var(--card);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 10px;
-            border-left: 4px solid var(--primary);
-        }
-
-        /* PDF LİSTESİ */
-        .pdf-item {
-            display: flex;
-            padding: 15px;
-            margin: 10px;
-            background: var(--card);
-            border-radius: 10px;
-            align-items: center;
-            gap: 15px;
-        }
-        .pdf-img { width: 50px; height: 70px; border-radius: 4px; object-fit: cover; }
-
-        /* SHORTS / REELS TASARIMI */
-        .shorts-container {
-            height: 100%;
-            scroll-snap-type: y mandatory;
-            overflow-y: scroll;
-        }
-        .short-video {
-            height: calc(100vh - 65px);
-            scroll-snap-align: start;
+            aspect-ratio: 16/9;
+            background: #000;
             position: relative;
+        }
+
+        .cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        .live-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #111;
-            border-bottom: 2px solid #000;
+            background: rgba(0,0,0,0.4);
         }
-        .short-info {
+
+        .countdown-box {
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            text-align: center;
+        }
+
+        #timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            font-family: monospace;
+        }
+
+        .live-badge {
             position: absolute;
-            bottom: 20px;
-            left: 15px;
-            z-index: 10;
+            top: 10px; left: 10px;
+            background: var(--red);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
         }
 
-        /* CANLI YAYIN */
-        .live-status {
-            width: 10px; height: 10px;
-            background: red;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            animation: blink 1s infinite;
+        /* SOHBET ALANI */
+        .chat-area {
+            flex: 1;
+            background: #080808;
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid #222;
         }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* REKLAM KATMANI */
-        #adOverlay {
-            display: none;
-            position: fixed;
-            top:0; left:0; width:100%; height:100%;
-            background: #000; z-index: 2000;
-            flex-direction: column; align-items: center; justify-content: center;
+        .chat-header {
+            padding: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #222;
+            color: var(--dim);
         }
+
+        .messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        .msg { margin-bottom: 8px; }
+        .msg b { color: var(--primary); margin-right: 5px; }
+
+        .chat-input {
+            padding: 10px;
+            background: #111;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: #222;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        /* ALT NAV */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0; width: 100%; height: 65px;
+            background: #080808; border-top: 1px solid #222;
+            display: flex; justify-content: space-around; align-items: center;
+        }
+        .nav-item { text-align: center; font-size: 10px; color: var(--dim); cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="app-frame">
     
-    <div id="home" class="page active">
-        <header class="hero">
-            <h2 style="color: var(--primary);">Hoş Geldin 🎓</h2>
-            <p style="color:var(--dim); font-size: 13px;">Günün öne çıkan eğitim notları.</p>
-        </header>
-        <div class="featured-card">
-            <h3>🔥 Öne Çıkan: TYT 2026</h3>
-            <p style="font-size: 14px; color: #ccc;">Sınava 150 gün kaldı! En çok indirilen Matematik notlarını kaçırma.</p>
-        </div>
-        <div class="featured-card">
-            <h3>📢 Bilgilendirme</h3>
-            <p style="font-size: 14px; color: #ccc;">KPSS başvuru tarihleri açıklandı. Profil kısmından detaylara bakabilirsin.</p>
-        </div>
-    </div>
-
-    <div id="pdfs" class="page">
-        <h3 style="padding: 15px;">Tüm PDFler</h3>
-        <div class="pdf-item">
-            <img src="egitimvadisi.jpg" class="pdf-img">
-            <div style="flex:1">
-                <span>TYT Matematik Vadi</span>
-                <button onclick="startAd()" style="display:block; margin-top:5px; background:var(--primary); border:none; padding:5px 10px; border-radius:5px; font-weight:bold;">KİLİDİ AÇ</button>
-            </div>
-        </div>
-        <div class="pdf-item">
-            <img src="egitimvadisi.jpg" class="pdf-img">
-            <div style="flex:1">
-                <span>AYT Fizik Planlı Föy</span>
-                <button onclick="startAd()" style="display:block; margin-top:5px; background:var(--primary); border:none; padding:5px 10px; border-radius:5px; font-weight:bold;">KİLİDİ AÇ</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="shorts" class="page" style="padding:0;">
-        <div class="shorts-container">
-            <div class="short-video" style="background: linear-gradient(45deg, #121, #000);">
-                <div class="short-info">
-                    <h4>@HocamAnlatıyor</h4>
-                    <p>Logaritma 1 dakikada biter!</p>
+    <div id="live" class="page active">
+        <div class="live-container">
+            <div class="video-area">
+                <div class="live-badge">YAKINDA</div>
+                <img src="tytmatsoru.jpg" class="cover-img" alt="Yayın Kapağı">
+                
+                <div class="live-overlay">
+                    <div class="countdown-box">
+                        <div style="font-size: 10px; margin-bottom: 5px; color: #aaa;">BAŞLAMASINA KALAN SÜRE</div>
+                        <div id="timer">00:00:00:00</div>
+                    </div>
+                    <p style="font-size: 12px; margin-top: 10px;">2024 TYT Matematik Çözümleri</p>
                 </div>
-                <span>📹 [VİDEO OYNATILIYOR]</span>
             </div>
-            <div class="short-video" style="background: linear-gradient(45deg, #212, #000);">
-                <div class="short-info">
-                    <h4>@VadiEgitim</h4>
-                    <p>Tarih Kodlamaları - Padişahlar</p>
-                </div>
-                <span>📹 [VİDEO OYNATILIYOR]</span>
-            </div>
-        </div>
-    </div>
 
-    <div id="live" class="page">
-        <div style="height: 250px; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid #333;">
-            <div style="text-align:center;">
-                <div class="live-status"></div> <span style="font-weight:bold; color:red;">CANLI</span>
-                <p>Gece Etüdü: Soru Çözümü</p>
-            </div>
-        </div>
-        <div style="padding: 20px;">
-            <h4>Sohbet</h4>
-            <div style="color:var(--dim); font-size:12px;">
-                <p><b>Ahmet:</b> Hocam bu soru çıkar mı?</p>
-                <p><b>Merve:</b> PDF linki nerede?</p>
+            <div class="chat-area">
+                <div class="chat-header">Canlı Sohbet</div>
+                <div id="chat-msgs" class="messages">
+                    <div class="msg"><b>Sistem:</b> Sohbete hoş geldiniz! Saygılı olmayı unutmayın.</div>
+                    <div class="msg"><b>Ali_Yılmaz:</b> Hocam 2024 soruları çok zordu ya.</div>
+                    <div class="msg"><b>SınavSever:</b> Geri sayım bitince mi başlayacak?</div>
+                    <div class="msg"><b>Zeynep:</b> PDF paylaşıldı mı?</div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" placeholder="Mesaj gönder...">
+                    <button style="background:none; border:none; color:var(--primary); font-weight:bold;">Yolla</button>
+                </div>
             </div>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="navTo('home', this)">
-            <span class="nav-icon">🏠</span>Ana Sayfa
-        </div>
-        <div class="nav-item" onclick="navTo('pdfs', this)">
-            <span class="nav-icon">📚</span>PDFler
-        </div>
-        <div class="nav-item" onclick="navTo('shorts', this)">
-            <span class="nav-icon">🎞️</span>Shorts
-        </div>
-        <div class="nav-item" onclick="navTo('live', this)">
-            <span class="nav-icon">🔴</span>Canlı
-        </div>
+        <div class="nav-item">🏠<br>Ana Sayfa</div>
+        <div class="nav-item">📚<br>PDFler</div>
+        <div class="nav-item">🎞️<br>Shorts</div>
+        <div class="nav-item active">🔴<br>Canlı</div>
     </nav>
-
-    <div id="adOverlay">
-        <h2 id="adStatus">REKLAM 1/10</h2>
-        <div id="timer" style="font-size: 4rem; color: var(--primary); margin: 20px;">10</div>
-        <button id="nextBtn" onclick="nextAd()" style="display:none; background: #22c55e; border:none; padding:15px 30px; border-radius:50px; color:white; font-weight:bold;">SONRAKİ REKLAM ➔</button>
-    </div>
-
 </div>
 
 <script>
-    // Sayfa Değiştirme
-    function navTo(pageId, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        
-        document.getElementById(pageId).classList.add('active');
-        el.classList.add('active');
-    }
+    // GERİ SAYIM SİSTEMİ (Hedef: 5 Ocak 2026 23:59)
+    const targetDate = new Date("Jan 5, 2026 23:59:00").getTime();
 
-    // Reklam Sistemi
-    let step = 1;
-    function startAd() {
-        step = 1;
-        document.getElementById('adOverlay').style.display = 'flex';
-        runAdTimer();
-    }
+    const countdown = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
 
-    function runAdTimer() {
-        let sec = 10;
-        const tEl = document.getElementById('timer');
-        const bEl = document.getElementById('nextBtn');
-        document.getElementById('adStatus').innerText = `REKLAM ${step} / 10`;
-        
-        bEl.style.display = 'none';
-        tEl.style.display = 'block';
-        tEl.innerText = sec;
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        const clock = setInterval(() => {
-            sec--;
-            tEl.innerText = sec;
-            if(sec <= 0) {
-                clearInterval(clock);
-                tEl.style.display = 'none';
-                bEl.style.display = 'block';
-                if(step === 10) bEl.innerText = "İÇERİĞİ GÖSTER";
-            }
-        }, 1000);
-    }
+        document.getElementById("timer").innerHTML = 
+            (days < 10 ? "0" + days : days) + ":" + 
+            (hours < 10 ? "0" + hours : hours) + ":" + 
+            (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+            (seconds < 10 ? "0" + seconds : seconds);
 
-    function nextAd() {
-        if(step < 10) {
-            step++;
-            runAdTimer();
-        } else {
-            document.getElementById('adOverlay').style.display = 'none';
-            alert("Kilit Açıldı! Artık PDF içeriğine bakabilirsiniz.");
+        if (distance < 0) {
+            clearInterval(countdown);
+            document.getElementById("timer").innerHTML = "YAYIN BAŞLADI!";
+            document.querySelector(".live-badge").innerHTML = "CANLI";
+            document.querySelector(".live-badge").style.background = "red";
         }
-    }
+    }, 1000);
+
+    // Otomatik Sohbet Simülasyonu
+    const randomMsgs = ["Hocam 15. soruyu tekrar çözer misiniz?", "Selamlar herkese.", "Görüntü kalitesi bende mi düşük?", "Başladı mı?"];
+    setInterval(() => {
+        const chatBox = document.getElementById('chat-msgs');
+        const newMsg = document.createElement('div');
+        newMsg.className = 'msg';
+        newMsg.innerHTML = `<b>Kullanıcı_${Math.floor(Math.random()*100)}:</b> ${randomMsgs[Math.floor(Math.random()*randomMsgs.length)]}`;
+        chatBox.appendChild(newMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 4000);
 </script>
 
 </body>
