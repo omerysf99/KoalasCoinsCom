@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Ana Sayfa</title>
+    <title>YouTube Pro - Tam Fonksiyonel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow-x: hidden; }
+        .sidebar-btn { transition: all 0.2s; cursor: pointer; }
+        .sidebar-btn:hover { background-color: #272727; }
+        .sidebar-active { background-color: #272727; font-weight: bold; }
         .video-card:hover img { border-radius: 0; transform: scale(1.02); }
-        .video-card img { transition: all 0.2s ease-in-out; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .active-chip { background-color: white !important; color: black; }
     </style>
@@ -19,146 +21,141 @@
     <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50">
         <div class="flex items-center gap-4">
             <button class="p-2 hover:bg-[#272727] rounded-full text-xl">☰</button>
-            <div class="flex items-center gap-1 cursor-pointer" onclick="window.location.reload()">
+            <div class="flex items-center gap-1 cursor-pointer" onclick="fetchHomePage()">
                 <span class="text-red-600 text-3xl">▶</span>
                 <span class="text-xl font-bold tracking-tighter">YouTube</span>
             </div>
         </div>
-        
         <div class="flex items-center w-full max-w-[600px]">
-            <div class="flex flex-grow bg-[#121212] border border-[#303030] rounded-l-full px-4 py-1.5 items-center focus-within:border-blue-500">
-                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full outline-none text-white text-base">
-            </div>
-            <button onclick="searchVideos('search')" class="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#272727]">
-                🔍
-            </button>
+            <input id="searchInput" type="text" placeholder="Ara" class="bg-[#121212] border border-[#303030] rounded-l-full px-4 py-1.5 w-full outline-none focus:border-blue-500">
+            <button onclick="searchVideos()" class="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#272727]">🔍</button>
         </div>
-
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-sm font-bold">N</div>
-        </div>
+        <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-sm font-bold">N</div>
     </nav>
 
     <div class="flex pt-14">
         <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block">
-            <div class="flex flex-col gap-1">
-                <div class="p-3 bg-[#272727] rounded-xl flex items-center gap-5 cursor-pointer">🏠 <span class="hidden lg:inline">Ana Sayfa</span></div>
-                <div class="p-3 hover:bg-[#272727] rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">🎞️ <span class="hidden lg:inline">Shorts</span></div>
-                <div class="p-3 hover:bg-[#272727] rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">📺 <span class="hidden lg:inline">Abonelikler</span></div>
+            <div id="sidebarMenu" class="flex flex-col gap-1">
+                <div onclick="fetchHomePage(this)" class="sidebar-btn sidebar-active p-3 rounded-xl flex items-center gap-5">🏠 <span>Ana Sayfa</span></div>
+                <div onclick="fetchShorts(this)" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🎞️ <span>Shorts</span></div>
+                <div onclick="fetchSubscriptions(this)" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">📺 <span>Abonelikler</span></div>
                 <hr class="border-[#272727] my-3">
-                <div class="p-3 hover:bg-[#272727] rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">📁 <span class="hidden lg:inline">Kitaplık</span></div>
-                <div class="p-3 hover:bg-[#272727] rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">🕒 <span class="hidden lg:inline">Geçmiş</span></div>
+                <div onclick="showHistory(this)" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🕒 <span>Geçmiş</span></div>
+                <div onclick="alert('Kitaplık yakında!')" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">📁 <span>Kitaplık</span></div>
             </div>
         </aside>
 
         <main class="flex-1 sm:ml-20 lg:ml-64 p-4">
-            <div class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
-                <button class="active-chip px-3 py-1.5 bg-[#272727] rounded-lg text-sm font-medium whitespace-nowrap">Tümü</button>
-                <button class="px-3 py-1.5 bg-[#272727] rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f3f]">Müzik</button>
-                <button class="px-3 py-1.5 bg-[#272727] rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f3f]">Oyun</button>
-                <button class="px-3 py-1.5 bg-[#272727] rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f3f]">Canlı</button>
-                <button class="px-3 py-1.5 bg-[#272727] rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f3f]">Yazılım</button>
-            </div>
-
+            <h2 id="sectionTitle" class="text-xl font-bold mb-4 hidden">Geçmiş</h2>
+            
             <div id="playerSection" class="hidden mb-10">
                 <div class="w-full max-w-5xl mx-auto">
                     <div class="aspect-video shadow-2xl">
                         <iframe id="videoIframe" class="w-full h-full rounded-2xl" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
                     </div>
-                    <h2 id="playingTitle" class="text-2xl font-bold mt-4 leading-tight"></h2>
-                    <p id="playingChannel" class="text-gray-400 mt-2 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-gray-700 rounded-full inline-block"></span>
-                        <span>Kanal İsmi</span>
-                    </p>
+                    <h2 id="playingTitle" class="text-2xl font-bold mt-4"></h2>
                 </div>
             </div>
 
-            <div id="homeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10">
-                </div>
+            <div id="homeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10"></div>
         </main>
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg'; // Senin anahtarın
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+        let watchHistory = JSON.parse(localStorage.getItem('yt_history')) || [];
 
-        // Ana Sayfa Yüklemesi: Popüler uzun videoları getirir
-        async function fetchHomePage() {
-            const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&maxResults=20&regionCode=TR&key=${API_KEY}`;
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                renderVideos(data.items);
-            } catch (err) {
-                console.error("Hata:", err);
-            }
+        // Yardımcı: Menü Aktiflik Ayarı
+        function setSidebarActive(el) {
+            document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('sidebar-active', 'text-white'));
+            el.classList.add('sidebar-active');
+            document.getElementById('playerSection').classList.add('hidden');
+            document.getElementById('sectionTitle').classList.add('hidden');
         }
 
-        // Arama Yapıldığında
-        async function searchVideos(mode = 'search') {
-            const query = document.getElementById('searchInput').value;
-            if(!query && mode === 'search') return;
+        // 1. ANA SAYFA: Popüler Videolar
+        async function fetchHomePage(el) {
+            if(el) setSidebarActive(el);
+            const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&maxResults=20&regionCode=TR&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            renderVideos(data.items);
+        }
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=16&q=${query}&type=video&key=${API_KEY}`;
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                renderVideos(data.items);
-                document.getElementById('playerSection').classList.add('hidden'); // Aramada oynatıcıyı kapat
-            } catch (err) {
-                console.error("Hata:", err);
+        // 2. SHORTS: Dikey Videoları Filtrele
+        async function fetchShorts(el) {
+            setSidebarActive(el);
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=shorts+trending&type=video&videoDuration=short&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            renderVideos(data.items);
+        }
+
+        // 3. ABONELİKLER: Karışık Güncel İçerik
+        async function fetchSubscriptions(el) {
+            setSidebarActive(el);
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&order=date&type=video&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            renderVideos(data.items);
+        }
+
+        // 4. GEÇMİŞ: LocalStorage'dan Oku
+        function showHistory(el) {
+            setSidebarActive(el);
+            document.getElementById('sectionTitle').innerText = "İzleme Geçmişi";
+            document.getElementById('sectionTitle').classList.remove('hidden');
+            
+            if(watchHistory.length === 0) {
+                document.getElementById('homeGrid').innerHTML = "<p class='col-span-full text-gray-500'>Henüz video izlemediniz.</p>";
+                return;
             }
+            renderVideos(watchHistory);
+        }
+
+        // Video Oynatma ve Geçmişe Kaydetme
+        function playVideo(id, title, channel, thumb) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('playerSection').classList.remove('hidden');
+            document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            document.getElementById('playingTitle').innerText = decodeURIComponent(title);
+
+            // Geçmişe Ekle (Tekrarı önle)
+            const videoObj = { id: { videoId: id }, snippet: { title: decodeURIComponent(title), channelTitle: channel, thumbnails: { high: { url: thumb } }, publishedAt: new Date() } };
+            watchHistory = [videoObj, ...watchHistory.filter(v => (v.id.videoId || v.id) !== id)].slice(0, 20);
+            localStorage.setItem('yt_history', JSON.stringify(watchHistory));
         }
 
         function renderVideos(videos) {
             const grid = document.getElementById('homeGrid');
             grid.innerHTML = '';
-
             videos.forEach(item => {
-                const videoId = item.id.videoId || item.id; // Search ve Videos API'den gelen ID farkı için
+                const id = item.id.videoId || item.id;
                 const v = item.snippet;
-                const viewCount = item.statistics ? formatViews(item.statistics.viewCount) : "";
-
-                const card = `
-                    <div class="video-card cursor-pointer flex flex-col gap-3 group" onclick="playVideo('${videoId}', '${encodeURIComponent(v.title)}', '${v.channelTitle}')">
-                        <div class="relative overflow-hidden rounded-xl">
-                            <img src="${v.thumbnails.high.url}" class="w-full aspect-video object-cover">
-                        </div>
-                        <div class="flex gap-3 px-1">
-                            <div class="w-10 h-10 bg-gradient-to-tr from-gray-700 to-gray-800 rounded-full flex-shrink-0"></div>
-                            <div class="flex flex-col">
-                                <h3 class="text-sm font-bold line-clamp-2 leading-snug">${v.title}</h3>
-                                <p class="text-gray-400 text-xs mt-1.5 hover:text-white">${v.channelTitle}</p>
-                                <p class="text-gray-400 text-xs">${viewCount ? viewCount + ' izlenme • ' : ''} ${new Date(v.publishedAt).toLocaleDateString('tr-TR')}</p>
+                grid.innerHTML += `
+                    <div class="video-card cursor-pointer flex flex-col gap-3 group" onclick="playVideo('${id}', '${encodeURIComponent(v.title)}', '${v.channelTitle}', '${v.thumbnails.high.url}')">
+                        <img src="${v.thumbnails.high.url}" class="w-full aspect-video object-cover rounded-xl transition-all">
+                        <div class="flex gap-3">
+                            <div class="w-9 h-9 bg-gray-800 rounded-full flex-shrink-0"></div>
+                            <div>
+                                <h3 class="text-sm font-bold line-clamp-2">${v.title}</h3>
+                                <p class="text-gray-400 text-xs mt-1">${v.channelTitle}</p>
                             </div>
                         </div>
-                    </div>
-                `;
-                grid.innerHTML += card;
+                    </div>`;
             });
         }
 
-        function playVideo(id, title, channel) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            const section = document.getElementById('playerSection');
-            section.classList.remove('hidden');
-            document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-            document.getElementById('playingTitle').innerText = decodeURIComponent(title);
-            document.getElementById('playingChannel').innerText = channel;
+        async function searchVideos() {
+            const query = document.getElementById('searchInput').value;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${query}&type=video&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            renderVideos(data.items);
+            document.getElementById('playerSection').classList.add('hidden');
         }
 
-        function formatViews(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + ' Mn';
-            if (num >= 1000) return (num / 1000).toFixed(0) + ' B';
-            return num;
-        }
-
-        // Sayfa açıldığında ana sayfayı getir
         fetchHomePage();
-
-        // Enter tuşu dinleyici
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchVideos('search');
-        });
     </script>
 </body>
 </html>
