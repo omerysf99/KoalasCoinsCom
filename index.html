@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TONIX - Adexora Integrated</title>
+    <title>TONIX - Auto Ad Close</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     
@@ -16,162 +16,178 @@
             --text-gray: #8e99a2;
         }
 
-        body { margin: 0; background-color: var(--bg-color); font-family: 'Segoe UI', sans-serif; color: var(--text-white); display: flex; justify-content: center; overflow: hidden; }
-        .app-container { width: 100%; max-width: 400px; height: 100vh; padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; }
+        body { margin: 0; background-color: var(--bg-color); font-family: 'Segoe UI', sans-serif; color: var(--text-white); overflow: hidden; }
 
-        .timer-badge { background: #e74c3c; color: white; padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 15px; text-align: center; align-self: center; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
-
-        .balance-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 1px solid #253441; }
-        .icon-circle { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #2193b0, #6dd5ed); display: flex; justify-content: center; align-items: center; }
-
-        .mining-section { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .fan-container { width: 220px; height: 220px; margin-bottom: 20px; position: relative; }
-        .fan-image { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(58, 150, 243, 0.4)); }
-        .spinning { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .ton-value { font-size: 34px; font-weight: 800; font-family: 'Courier New', monospace; color: var(--text-white); }
-        .hash-rate { background: rgba(58, 150, 243, 0.1); padding: 5px 15px; border-radius: 20px; color: #4facfe; font-size: 14px; margin-top: 10px; border: 1px solid rgba(58, 150, 243, 0.3); }
-
-        .bottom-nav { background: var(--card-bg); padding: 15px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; border-top: 1px solid #253441; }
-        .nav-item { text-align: center; color: var(--text-gray); font-size: 10px; }
-        .nav-item i { display: block; font-size: 22px; margin-bottom: 4px; }
-        .nav-item.active { color: var(--accent-blue); }
-
-        /* Reklam Bekleme Ekranı */
-        #ad-loading {
+        /* Reklam Kaplama Alanı (Görseldeki Arka Plan) */
+        #ad-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 20, 27, 0.98); z-index: 9999;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
+            background-color: #111e28; /* Telegram desenli koyu arka plan */
+            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); /* Desen simülasyonu */
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
+
+        /* Sağ Üst Kapatma Çarpısı */
+        .close-ad-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: none; /* Başlangıçta gizli, 15sn sonra görünecek */
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10001;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Reklam Kartı Simülasyonu */
+        .ad-box {
+            width: 85%;
+            max-width: 340px;
+            background: #1c2b39;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .devam-btn {
+            position: absolute;
+            bottom: 30px;
+            width: 90%;
+            max-width: 360px;
+            padding: 15px;
+            background: #2b5278;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Ana Uygulama Tasarımı */
+        .app-container { width: 100%; max-width: 400px; height: 100vh; margin: auto; padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; }
+        .timer-bar { background: #e74c3c; padding: 5px; border-radius: 20px; text-align: center; font-size: 14px; margin-bottom: 20px; }
+        .mining-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .fan { width: 180px; height: 180px; transition: transform 0.1s; }
+        .spin { animation: rotation 1s infinite linear; }
+        @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .counter { font-size: 36px; font-weight: bold; font-family: monospace; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div id="ad-loading">
-    <div class="icon-circle" style="width: 80px; height: 80px; margin-bottom: 20px;">
-        <i class="fa-solid fa-play" style="font-size: 30px; color: white;"></i>
+<div id="ad-container">
+    <div id="close-icon" class="close-ad-btn" onclick="closeAdManually()">
+        <i class="fa-solid fa-xmark"></i>
     </div>
-    <h2>Reklam Yükleniyor...</h2>
-    <p style="color: var(--text-gray); padding: 0 40px;">Ücretsiz 1 dakika madencilik süresi kazanmak için reklamı izleyin.</p>
+    
+    <div class="ad-box">
+        <p style="margin: 0; font-size: 14px; color: var(--text-gray);">Download is ready</p>
+        <h3 style="margin: 10px 0;">Tap to proceed</h3>
+        <div style="background: #34495e; width: 50px; height: 50px; border-radius: 50%; display: flex; margin: 15px auto; justify-content: center; align-items: center;">
+            <i class="fa-solid fa-download"></i>
+        </div>
+    </div>
+
+    <button class="devam-btn">Devam</button>
+    <p id="ad-status" style="position: absolute; bottom: 90px; color: #8e99a2; font-size: 12px;">Reklamın bitmesine <span id="sec">15</span>s</p>
 </div>
 
 <div class="app-container">
-    <div class="timer-badge" id="mining-timer">Kalan Süre: 01:00</div>
-
-    <div class="balance-card">
-        <div class="balance-info">
-            <div class="icon-circle"><i class="fa-solid fa-gem"></i></div>
-            <div class="balance-text"><span>TON Bakiye</span><br><b>0 TON</b></div>
-        </div>
-        <i class="fa-solid fa-wallet" style="color: var(--accent-blue)"></i>
-    </div>
-
-    <div class="mining-section">
-        <div class="fan-container">
-            <svg id="fan" class="fan-image spinning" viewBox="0 0 512 512" fill="#3a96f3">
-                <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192zm-192 48a48 48 0 1 1 0-96 48 48 0 0 1 0 96z"/>
-                <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
-            </svg>
-        </div>
-        <div class="ton-value" id="counter">0.000000000</div>
-        <div class="hash-rate">Hash: 1,450.50 GH/s ⚡</div>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item"><i class="fa-solid fa-wallet"></i>Wallet</div>
-        <div class="nav-item active"><i class="fa-solid fa-house"></i>Home</div>
-        <div class="nav-item"><i class="fa-solid fa-list-check"></i>Missions</div>
+    <div class="timer-bar" id="status-text">Kalan Süre: 01:00</div>
+    
+    <div class="mining-area">
+        <svg id="fan-svg" class="fan spin" viewBox="0 0 512 512" fill="#3a96f3">
+            <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192zm-192 48a48 48 0 1 1 0-96 48 48 0 0 1 0 96z"/>
+            <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
+        </svg>
+        <div class="counter" id="ton-count">0.000000000</div>
+        <p style="color: var(--accent-blue)">Mining Active</p>
     </div>
 </div>
 
 <script>
-    let miningTime = 60; 
-    const dailyGoal = 100; 
-    const increment = dailyGoal / (24 * 60 * 60 * 10); 
-    let currentBalance = 0;
-    let isMining = true;
-    let timerInterval;
+    let timeLeft = 60; // 1 dakika
+    let balance = 0;
+    let isRunning = true;
+    const increment = 100 / (24 * 3600 * 10); // Günde 100 TON hızı
 
-    const counterDisplay = document.getElementById('counter');
-    const timerDisplay = document.getElementById('mining-timer');
-    const fan = document.getElementById('fan');
-    const loadingScreen = document.getElementById('ad-loading');
-
-    // Madencilik Artış Döngüsü
+    // Madencilik Sayacı
     setInterval(() => {
-        if(isMining && miningTime > 0) {
-            currentBalance += increment;
-            counterDisplay.innerText = currentBalance.toFixed(9);
+        if(isRunning) {
+            balance += increment;
+            document.getElementById('ton-count').innerText = balance.toFixed(9);
         }
     }, 100);
 
-    // Geri Sayım Sayacı
+    // Ana Zamanlayıcı
     function startTimer() {
-        timerInterval = setInterval(() => {
-            if(isMining) {
-                miningTime--;
-                updateTimerUI();
-
-                if(miningTime <= 0) {
-                    clearInterval(timerInterval);
-                    handleAdAction();
+        const timer = setInterval(() => {
+            if(isRunning) {
+                timeLeft--;
+                document.getElementById('status-text').innerText = `Kalan Süre: 00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+                
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    showAdSequence();
                 }
             }
         }, 1000);
     }
 
-    function updateTimerUI() {
-        let mins = Math.floor(miningTime / 60);
-        let secs = miningTime % 60;
-        timerDisplay.innerText = `Kalan Süre: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // Reklam Çağırma ve Ödül Mantığı
-    function handleAdAction() {
-        isMining = false;
-        fan.classList.remove('spinning');
-        loadingScreen.style.display = 'flex';
-
-        // Adexora reklamını başlat
-        if (typeof window.showAdexora === 'function') {
-            window.showAdexora()
-                .then(() => {
-                    // ✅ Reklam Başarıyla İzlendi
-                    loadingScreen.style.display = 'none';
-                    resetMining();
-                })
-                .catch(e => {
-                    // ❌ Hata durumunda (veya reklam engellendiğinde) 5 sn sonra tekrar dene
-                    console.error("Reklam hatası:", e);
-                    setTimeout(() => { handleAdAction(); }, 5000);
-                });
+    // Reklam Başlatma
+    function showAdSequence() {
+        isRunning = false;
+        document.getElementById('fan-svg').classList.remove('spin');
+        document.getElementById('ad-container').style.display = 'flex';
+        
+        let adSeconds = 15;
+        const adCounter = setInterval(() => {
+            adSeconds--;
+            document.getElementById('sec').innerText = adSeconds;
             
-            // İsteğin: 15 saniye sonra reklamı otomatik kapatma simülasyonu
-            // Not: Adexora SDK'sı buna izin vermeyebilir, ancak biz arayüzü hazırlarız
-            setTimeout(() => {
-                console.log("15 saniye doldu, kullanıcı ödülünü almaya hazır.");
-            }, 15000);
+            if(adSeconds <= 0) {
+                clearInterval(adCounter);
+                // 15 saniye dolunca X butonu çıksın
+                document.getElementById('close-icon').style.display = 'flex';
+                
+                // OTOMATİK KAPATMA: X butonuna 1 saniye sonra kendisi basar
+                setTimeout(() => {
+                    closeAdManually();
+                }, 1000);
+            }
+        }, 1000);
 
-        } else {
-            // SDK yüklenmediyse simüle et (test için)
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                resetMining();
-            }, 3000);
+        // Gerçek Reklamı Çağır
+        if(window.showAdexora) {
+            window.showAdexora().then(() => {
+                console.log("Reklam başarıyla tamamlandı");
+            }).catch(e => console.log("Reklam hatası"));
         }
     }
 
-    function resetMining() {
-        miningTime = 60;
-        isMining = true;
-        fan.classList.add('spinning');
-        updateTimerUI();
+    // Reklamı Kapat ve Sistemi Sıfırla
+    function closeAdManually() {
+        document.getElementById('ad-container').style.display = 'none';
+        document.getElementById('close-icon').style.display = 'none';
+        timeLeft = 60;
+        isRunning = true;
+        document.getElementById('fan-svg').classList.add('spin');
         startTimer();
     }
 
-    // Uygulamayı Başlat
+    // Başlat
     startTimer();
 </script>
 
