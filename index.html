@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | Premium Download</title>
+    <title>PDFSimpson | Ultimate V12</title>
     <style>
         :root {
             --bg: #000000;
@@ -11,126 +11,161 @@
             --accent: #FFD700;
             --text: #ffffff;
             --text-dim: #888888;
+            --live: #ff0000;
             --success: #28a745;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow: hidden; }
 
-        .app-shell { width: 100%; max-width: 450px; height: 100vh; display: flex; flex-direction: column; margin: 0 auto; }
+        .app-shell { width: 100%; max-width: 450px; height: 100vh; display: flex; flex-direction: column; margin: 0 auto; border-left: 1px solid #222; border-right: 1px solid #222; }
 
-        header { padding: 20px; text-align: center; border-bottom: 1px solid #222; }
-        .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
+        /* HEADER */
+        header { padding: 15px; text-align: center; background: var(--bg); border-bottom: 1px solid #222; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
 
-        .viewport { flex: 1; overflow-y: auto; padding: 20px; }
+        /* VIEWPORT */
+        .viewport { flex: 1; overflow-y: auto; position: relative; scroll-behavior: smooth; }
+        .page { display: none; height: 100%; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- PDF KARTI --- */
-        .pdf-card {
-            background: var(--surface);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #333;
-            margin-bottom: 20px;
-        }
+        /* ANA SAYFA TANITIM */
+        .hero-box { background: linear-gradient(145deg, #1a1a1a, #000); border-radius: 20px; padding: 30px 20px; margin: 20px; border: 1px solid #333; }
 
-        /* YATAY REKLAM BUTONU */
-        .ads-btn-horizontal {
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(90deg, #1a1a1a, #252525);
-            border: 1px dashed var(--accent);
-            border-radius: 12px;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: 0.3s;
-        }
-        .ads-btn-horizontal:hover { background: #333; }
-
-        /* İNDİRME BUTONU (BAŞLANGIÇTA GİZLİ VEYA PASİF) */
-        .download-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 900;
-            margin-top: 10px;
-            display: none; /* Reklamdan sonra açılır */
-            cursor: pointer;
-            animation: slideIn 0.3s ease;
-        }
-
-        /* --- 9:6 REKLAM MODAL --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
-            display: none; justify-content: center; align-items: center; z-index: 9999;
-        }
-        .modal-9-6 {
-            width: 85%;
-            aspect-ratio: 6 / 9; /* TAM 9:6 DİKEY */
-            border: 2px solid var(--accent);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            background: #000;
-        }
-        .modal-9-6 img { width: 100%; height: 100%; object-fit: cover; }
+        /* PDF KARTI */
+        .pdf-list { padding: 20px; }
+        .pdf-card { background: var(--surface); border-radius: 20px; padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
         
+        /* YATAY REKLAM BUTONU */
+        .ads-bar {
+            width: 100%; height: 55px; background: #1a1a1a; border: 1px dashed var(--accent);
+            border-radius: 12px; color: var(--accent); display: flex; align-items: center;
+            justify-content: center; font-weight: bold; cursor: pointer; margin-top: 15px;
+        }
+
+        .dl-btn {
+            width: 100%; padding: 15px; background: var(--success); color: #fff;
+            border: none; border-radius: 12px; font-weight: 900; margin-top: 10px; display: none;
+        }
+
+        /* SHORTS (LOOP & SCROLL) */
+        #shorts { overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-slide {
+            height: 100%; width: 100%; scroll-snap-align: start;
+            display: flex; align-items: flex-end; padding: 40px 20px 100px;
+            background: linear-gradient(to top, #000, transparent 40%), #0a0a0a;
+        }
+
+        /* CANLI YAYIN */
+        .live-box { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 15px; position: relative; border: 1px solid var(--live); }
+        .live-dot { position: absolute; top: 10px; left: 10px; background: var(--live); padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        /* --- 9:6 ÖZEL REKLAM PENCERESİ --- */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+            display: none; justify-content: center; align-items: center; z-index: 10000;
+        }
+        .modal-frame {
+            width: 85%; aspect-ratio: 6 / 9; background: #000;
+            border: 2px solid var(--accent); border-radius: 20px;
+            position: relative; overflow: hidden;
+        }
+        .modal-frame img { width: 100%; height: 100%; object-fit: cover; }
         .close-ads {
             position: absolute; top: 15px; right: 15px; background: var(--accent);
             color: #000; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;
         }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* NAV */
+        .nav-bar {
+            height: 75px; background: #050505; border-top: 1px solid #222;
+            display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px;
+        }
+        .nav-item { color: var(--text-dim); font-size: 10px; text-align: center; cursor: pointer; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 5px; font-style: normal; }
     </style>
 </head>
 <body>
 
 <div class="app-shell">
-    <header><div class="logo">PDFSimpson</div></header>
+    <header><div class="logo">PDFSIMPSON</div></header>
 
     <div class="viewport">
-        <div class="pdf-card">
-            <h3 style="margin: 0;">Eğitim Vadisi TYT-3</h3>
-            <p style="color: var(--text-dim); font-size: 13px;">Dosya Boyutu: 4.2 MB</p>
-            
-            <div class="ads-btn-horizontal" onclick="reklamAc()">
-                <span>📺 REKLAMI İZLE VE İNDİR</span>
+        <div id="home" class="page active">
+            <div class="hero-box">
+                <h2 style="color:var(--accent); margin-top:0;">Dijital Kütüphane</h2>
+                <p style="font-size:14px; color:var(--text-dim);">Tüm TYT/AYT denemeleri ve konu özetleri burada. Sekmelerden içeriklere ulaşabilirsin.</p>
             </div>
+            <div style="padding:0 20px;">
+                <div style="background:#111; padding:15px; border-radius:15px; font-size:13px;">
+                    📢 <b>Duyuru:</b> Yeni denemeler her pazartesi PDF sekmesine eklenir.
+                </div>
+            </div>
+        </div>
 
-            <button class="download-btn" id="dlBtn" onclick="alert('PDF İndiriliyor...')">
-                📥 PDF DOSYASINI İNDİR
-            </button>
+        <div id="pdfs" class="page">
+            <div class="pdf-list">
+                <div class="pdf-card">
+                    <h3 style="margin:0;">Eğitim Vadisi TYT-3</h3>
+                    <p style="color:var(--text-dim); font-size:12px; margin:5px 0 15px;">Boyut: 4.5 MB | Format: PDF</p>
+                    
+                    <div class="ads-bar" onclick="openAd()">📺 REKLAMI İZLE VE İNDİR</div>
+                    <button class="dl-btn" id="dlBtn" onclick="alert('İndirme Başladı...')">📥 DOSYAYI İNDİR</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="shorts" class="page">
+            <div class="short-slide">
+                <div><b>@HocamAnlatiyor</b><p>Matematik Pratik Çözüm #1</p></div>
+            </div>
+            <div class="short-slide" style="background:#050505;">
+                <div><b>@PDFSimpson</b><p>Deneme Analizi Nasıl Yapılır?</p></div>
+            </div>
+        </div>
+
+        <div id="live" class="page" style="padding:20px;">
+            <div class="live-box"><div class="live-dot">CANLI</div></div>
+            <h3 style="margin:15px 0 5px;">Geometri Canlı Kamp</h3>
+            <p style="color:var(--text-dim); font-size:13px;">Soru Çözümü Yayında</p>
         </div>
     </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="nav('home', this)"><i>🏠</i>Ev</div>
+        <div class="nav-item" onclick="nav('pdfs', this)"><i>📄</i>PDF</div>
+        <div class="nav-item" onclick="nav('shorts', this)"><i>⚡</i>Shorts</div>
+        <div class="nav-item" onclick="nav('live', this)"><i>🔴</i>Canlı</div>
+    </nav>
 </div>
 
-<div class="modal-overlay" id="adModal">
-    <div class="modal-9-6">
-        <div class="close-ads" onclick="reklamKapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Reklam">
+<div class="modal" id="adModal">
+    <div class="modal-frame">
+        <div class="close-ads" onclick="closeAd()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Reklam Görseli">
     </div>
 </div>
 
 <script>
-    function reklamAc() {
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function openAd() {
         document.getElementById('adModal').style.display = 'flex';
     }
 
-    function reklamKapat() {
+    function closeAd() {
         document.getElementById('adModal').style.display = 'none';
-        // Reklam izlendi, indirme butonunu göster
         document.getElementById('dlBtn').style.display = 'block';
-        // Reklam butonunu gizle veya yazı değiştir
-        document.querySelector('.ads-btn-horizontal').style.display = 'none';
+        document.querySelector('.ads-bar').style.display = 'none';
     }
 </script>
 
