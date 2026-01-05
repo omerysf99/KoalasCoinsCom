@@ -2,205 +2,114 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro Max - Extreme Edition</title>
+    <title>YouTube Ultra - Auto-Switch API Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --yt-bg: #0f0f0f; --yt-surface: #1e1e1e; --yt-red: #ff0000; }
-        body { background: var(--yt-bg); color: white; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        
-        /* Video Kartı Tasarımı */
-        .v-card img { aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .v-card:hover img { border-radius: 0; transform: scale(1.03); }
-        
-        /* Shorts Tasarımı */
-        .short-card img { aspect-ratio: 9/16; border-radius: 16px; object-fit: cover; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        
-        .skeleton { background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        
-        .active-tab { border-bottom: 3px solid white; color: white !important; }
+        body { background: #0f0f0f; color: white; font-family: 'Roboto', sans-serif; }
+        .v-card:hover img { transform: scale(1.03); border-radius: 0; }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .active-key { background: #059669; color: white; }
+        .dead-key { background: #dc2626; color: white; text-decoration: line-through; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-[#0f0f0f]/95 backdrop-blur-md flex items-center justify-between px-4 h-14 z-[1000] border-b border-[#272727]">
-        <div class="flex items-center gap-4">
-            <span class="text-2xl cursor-pointer p-2 hover:bg-white/10 rounded-full">☰</span>
-            <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
-                <span class="text-red-600 text-3xl font-bold">▶</span>
-                <span class="text-xl font-bold tracking-tighter">YouTube</span>
-            </div>
-        </div>
-        
-        <div class="flex flex-1 max-w-[700px] mx-10">
-            <div class="flex w-full bg-[#121212] border border-[#303030] rounded-full px-4 items-center focus-within:border-blue-500">
-                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full py-2 outline-none">
-                <button onclick="engine.search()" class="pl-4 pr-2 border-l border-[#303030] hover:text-red-500">🔍</button>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center font-bold text-sm shadow-lg">AGA</div>
-        </div>
-    </nav>
-
-    <div class="flex pt-14">
-        <aside class="w-64 fixed left-0 h-screen bg-[#0f0f0f] p-4 border-r border-[#272727] hidden lg:block overflow-y-auto">
-            <div class="flex flex-col gap-1">
-                <div class="p-3 bg-white/10 rounded-xl font-bold flex items-center gap-4 cursor-pointer">🏠 <span>Ana Sayfa</span></div>
-                <div class="p-3 hover:bg-white/5 rounded-xl flex items-center gap-4 cursor-pointer">🎞️ <span>Shorts</span></div>
-                <div class="p-3 hover:bg-white/5 rounded-xl flex items-center gap-4 cursor-pointer">👥 <span>Abonelikler</span></div>
-                <hr class="border-[#272727] my-4">
-                <p class="text-xs text-gray-500 font-bold mb-2">KEŞFET</p>
-                <div class="p-3 hover:bg-white/5 rounded-xl flex items-center gap-4 cursor-pointer">🔥 <span>Trendler</span></div>
-                <div class="p-3 hover:bg-white/5 rounded-xl flex items-center gap-4 cursor-pointer">🎵 <span>Müzik</span></div>
-                <div class="p-3 hover:bg-white/5 rounded-xl flex items-center gap-4 cursor-pointer">🎮 <span>Oyun</span></div>
-            </div>
-        </aside>
-
-        <main class="flex-1 lg:ml-64 p-6">
-            <div class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
-                <button class="bg-white text-black px-4 py-1.5 rounded-lg font-medium text-sm">Hepsi</button>
-                <button class="bg-[#272727] hover:bg-[#3f3f3f] px-4 py-1.5 rounded-lg font-medium text-sm transition">Canlı</button>
-                <button class="bg-[#272727] hover:bg-[#3f3f3f] px-4 py-1.5 rounded-lg font-medium text-sm transition">Oyun</button>
-                <button class="bg-[#272727] hover:bg-[#3f3f3f] px-4 py-1.5 rounded-lg font-medium text-sm transition">Mixler</button>
-            </div>
-
-            <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-6 gap-y-12">
-                <div class="h-64 skeleton rounded-xl"></div>
-                <div class="h-64 skeleton rounded-xl"></div>
-                <div class="h-64 skeleton rounded-xl"></div>
-                <div class="h-64 skeleton rounded-xl"></div>
-            </div>
-
-            <hr class="border-[#272727] my-12">
-
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">🎞️ Shorts</h2>
-            <div id="shortsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                </div>
-        </main>
+    <div id="api-dashboard" class="bg-[#1a1a1a] border-b border-[#272727] p-2 flex gap-3 overflow-x-auto items-center">
+        <span class="text-xs text-gray-400 font-bold ml-2">API POOL:</span>
+        <div id="key-indicators" class="flex gap-2"></div>
     </div>
 
+    <nav class="sticky top-0 bg-[#0f0f0f] border-b border-[#272727] p-4 flex justify-between items-center z-50">
+        <h1 class="text-xl font-bold text-red-600">▶ YT_AGA_PREMIUM</h1>
+        <div class="flex w-1/2">
+            <input id="q" type="text" placeholder="Ara..." class="w-full bg-[#121212] border border-[#303030] rounded-l-full px-5 py-2 outline-none">
+            <button onclick="engine.search()" class="bg-[#222] px-6 rounded-r-full border border-[#303030]">🔍</button>
+        </div>
+        <div class="text-xs text-green-500 font-mono" id="current-key-name">Key #1 Aktif</div>
+    </nav>
+
+    <main id="grid" class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></main>
+
     <script>
-        // API KEY'ini buraya koy ağa
-        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
+        // --- API HAVUZU ---
+        // Buraya Google Cloud'dan aldığın 3-4 farklı anahtarı ekle.
+        // Biri biterse diğeri otomatik devreye girer.
+        const API_POOL = [
+            'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg', // Anahtar 1
+            'AIzaSyC123_ORNEK_ANAHTAR_456_ABC',        // Anahtar 2 (Kendi aldıklarını ekle)
+            'AIzaSyD789_ORNEK_ANAHTAR_000_XYZ'         // Anahtar 3
+        ];
 
         const engine = {
-            // Önbellekten Veri Çekme (Kota Dostu)
-            async getCachedData(key) {
-                const cache = localStorage.getItem(`yt_cache_${key}`);
-                if (cache) {
-                    const parsed = JSON.parse(cache);
-                    // 2 saatlik önbellek süresi
-                    if (Date.now() - parsed.time < 7200000) return parsed.data;
-                }
-                return null;
+            currentIndex: 0,
+            deadKeys: new Set(),
+
+            // Aktif anahtarı getir
+            get currentKey() {
+                return API_POOL[this.currentIndex];
             },
 
-            async saveDataToCache(key, data) {
-                localStorage.setItem(`yt_cache_${key}`, JSON.stringify({
-                    time: Date.now(),
-                    data: data
-                }));
+            // Arayüzü güncelle
+            updateDashboard() {
+                const container = document.getElementById('key-indicators');
+                container.innerHTML = API_POOL.map((k, i) => `
+                    <span class="status-pill ${this.currentIndex === i ? 'active-key' : (this.deadKeys.has(i) ? 'dead-key' : 'bg-gray-700')}">
+                        Key #${i + 1}
+                    </span>
+                `).join('');
+                document.getElementById('current-key-name').innerText = `Key #${this.currentIndex + 1} Aktif`;
             },
 
-            async fetchData(endpoint) {
+            // OTOMATİK API DEĞİŞTİRME MOTORU
+            async fetchSafe(endpoint) {
+                this.updateDashboard();
+                
                 try {
-                    const res = await fetch(`https://www.googleapis.com/youtube/v3/${endpoint}&key=${API_KEY}`);
-                    if (!res.ok) {
-                        if (res.status === 403) alert("KOTA DOLDU! Lütfen yeni bir API KEY alıp koda yapıştır.");
-                        return null;
+                    const res = await fetch(`https://www.googleapis.com/youtube/v3/${endpoint}&key=${this.currentKey}`);
+                    
+                    if (res.status === 403) {
+                        console.warn(`Key #${this.currentIndex + 1} patladı (Kota Doldu). Sonrakine geçiliyor...`);
+                        this.deadKeys.add(this.currentIndex);
+                        
+                        if (this.currentIndex < API_POOL.length - 1) {
+                            this.currentIndex++; // Sonraki anahtara geç
+                            return this.fetchSafe(endpoint); // İsteği yeni anahtarla tekrarla
+                        } else {
+                            throw new Error("TÜM API ANAHTARLARI TÜKENDİ! Yarın gel ağa.");
+                        }
                     }
+
+                    if (!res.ok) throw new Error("API Hatası!");
                     return await res.json();
-                } catch (e) {
-                    console.error("Hata:", e);
+
+                } catch (err) {
+                    alert(err.message);
                     return null;
                 }
             },
 
-            async loadHome() {
-                // Uzun Videolar (Popüler)
-                const cacheKey = 'home_videos';
-                let data = await this.getCachedData(cacheKey);
-
-                if (!data) {
-                    data = await this.fetchData('search?part=snippet&maxResults=20&q=türkiye+popüler+videolar&type=video&regionCode=TR');
-                    if (data) this.saveDataToCache(cacheKey, data);
-                }
-
-                this.renderVideos(data.items);
-                this.loadShorts();
-            },
-
-            async loadShorts() {
-                const cacheKey = 'home_shorts';
-                let data = await this.getCachedData(cacheKey);
-
-                if (!data) {
-                    data = await this.fetchData('search?part=snippet&maxResults=6&q=shorts+trending+türkiye&type=video&videoDuration=short');
-                    if (data) this.saveDataToCache(cacheKey, data);
-                }
-
-                this.renderShorts(data.items);
-            },
-
-            renderVideos(items) {
-                const grid = document.getElementById('videoGrid');
-                grid.innerHTML = items.map(v => `
-                    <div class="v-card group cursor-pointer" onclick="window.open('https://youtube.com/watch?v=${v.id.videoId}')">
-                        <div class="relative">
-                            <img src="${v.snippet.thumbnails.high.url}" class="w-full">
-                            <span class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-xs font-bold">12:45</span>
-                        </div>
-                        <div class="flex gap-3 mt-4">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex-shrink-0"></div>
-                            <div>
-                                <h3 class="text-sm font-bold line-clamp-2 group-hover:text-red-500 transition-colors">${v.snippet.title}</h3>
-                                <p class="text-xs text-gray-400 mt-2">${v.snippet.channelTitle}</p>
-                                <p class="text-[11px] text-gray-500">1.4 Mn izlenme • 1 gün önce</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            renderShorts(items) {
-                const grid = document.getElementById('shortsGrid');
-                grid.innerHTML = items.map(s => `
-                    <div class="short-card group cursor-pointer" onclick="window.open('https://youtube.com/shorts/${s.id.videoId}')">
-                        <img src="${s.snippet.thumbnails.high.url}" class="w-full">
-                        <div class="mt-2">
-                            <h3 class="text-sm font-bold line-clamp-2">${s.snippet.title}</h3>
-                            <p class="text-xs text-gray-400">890 B izlenme</p>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
             async search() {
-                const q = document.getElementById('searchInput').value;
-                if (!q) return;
-                
-                const grid = document.getElementById('videoGrid');
-                grid.innerHTML = '<div class="col-span-full text-center py-20"><div class="animate-spin text-4xl mb-4">🌀</div>Aranıyor...</div>';
+                const query = document.getElementById('q').value || 'türkiye trend videolar';
+                const grid = document.getElementById('grid');
+                grid.innerHTML = 'Yükleniyor...';
 
-                const data = await this.fetchData(`search?part=snippet&maxResults=20&q=${q}&type=video`);
-                if (data) this.renderVideos(data.items);
+                const data = await this.fetchSafe(`search?part=snippet&maxResults=20&q=${query}&type=video`);
+                if (!data) return;
+
+                grid.innerHTML = data.items.map(v => `
+                    <div class="v-card cursor-pointer" onclick="window.open('https://youtube.com/watch?v=${v.id.videoId}')">
+                        <div class="relative overflow-hidden rounded-xl">
+                            <img src="${v.snippet.thumbnails.high.url}" class="w-full transition duration-300">
+                        </div>
+                        <h3 class="mt-3 font-bold text-sm line-clamp-2">${v.snippet.title}</h3>
+                        <p class="text-xs text-gray-400 mt-1">${v.snippet.channelTitle}</p>
+                    </div>
+                `).join('');
             }
         };
 
         // Başlat
-        engine.loadHome();
-
-        // Enter Dinleyici
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') engine.search();
-        });
+        engine.search();
     </script>
 </body>
 </html>
