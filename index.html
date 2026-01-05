@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Gerçek Shorts Deneyimi</title>
+    <title>YouTube Pro - Desktop Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -12,86 +12,88 @@
         .sidebar-btn:hover { background-color: #272727; cursor: pointer; }
         .sidebar-active { background-color: #272727; font-weight: bold; border-left: 3px solid #ff0000; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Shorts Konfigürasyonu */
-        #shortsContainer { 
-            height: calc(100vh - 56px); 
-            scroll-snap-type: y mandatory; 
-            overflow-y: scroll; 
-            background: #000; 
-        }
-        .short-video-wrapper { 
-            height: calc(100vh - 56px); 
-            scroll-snap-align: start; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            position: relative;
-        }
-        .short-iframe-container { 
-            height: 92%; 
-            aspect-ratio: 9/16; 
-            background: #000; 
-            border-radius: 12px; 
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
-        iframe { pointer-events: auto; }
+        #shortsContainer { height: calc(100vh - 56px); scroll-snap-type: y mandatory; overflow-y: scroll; background: black; }
+        .short-video-wrapper { height: calc(100vh - 56px); scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
+        .short-iframe-container { height: 92%; aspect-ratio: 9/16; background: #000; border-radius: 12px; overflow: hidden; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body>
 
     <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50 border-b border-[#272727]">
         <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-[#272727] rounded-full text-white text-xl">☰</button>
+            <button class="p-2 hover:bg-[#272727] rounded-full text-white">☰</button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
                 <span class="text-red-600 text-3xl">▶</span>
-                <span class="text-xl font-bold tracking-tighter text-white">YouTube<sup class="text-[10px] ml-0.5 text-gray-400 font-normal">TR</sup></span>
+                <span class="text-xl font-bold tracking-tighter text-white">YouTube<sup class="text-[10px] ml-0.5 text-gray-400">TR</sup></span>
             </div>
         </div>
         <div class="flex items-center w-full max-w-[600px] gap-2">
             <input id="searchInput" type="text" placeholder="Ara" class="bg-[#121212] border border-[#303030] rounded-full px-5 py-2 w-full outline-none focus:border-blue-500 text-sm">
             <button onclick="searchVideos()" class="bg-[#222222] border border-[#303030] px-5 py-2 rounded-full hover:bg-[#272727]">🔍</button>
         </div>
-        <div class="w-8 h-8 bg-gradient-to-tr from-orange-500 to-red-600 rounded-full flex items-center justify-center text-xs font-bold">N</div>
+        <div class="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center text-xs font-bold">TR</div>
     </nav>
 
     <div class="flex pt-14">
-        <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block border-r border-[#272727]">
+        <aside id="mainSidebar" class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block border-r border-[#272727]">
             <div class="flex flex-col gap-1">
                 <div onclick="showSection('home')" id="btn-home" class="sidebar-btn sidebar-active p-3 rounded-xl flex items-center gap-5">🏠 <span>Ana Sayfa</span></div>
                 <div onclick="showSection('shorts')" id="btn-shorts" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🎞️ <span>Shorts</span></div>
+                <hr class="border-[#272727] my-3">
+                <div class="p-3 text-xs text-gray-500">KİTAPLIK</div>
+                <div class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🕒 <span>Geçmiş</span></div>
             </div>
         </aside>
 
         <main class="flex-1 sm:ml-20 lg:ml-64 relative">
             
-            <div id="longPlayerSection" class="hidden p-4 bg-black min-h-screen">
-                <div class="max-w-5xl mx-auto">
-                    <div class="aspect-video relative overflow-hidden rounded-2xl bg-[#1a1a1a]">
-                        <div id="videoOverlay" class="absolute inset-0 z-10 hidden bg-black flex flex-col items-center justify-center">
-                            <span class="text-white text-lg animate-pulse">Reklam Bittiğinde Video Devam Edecek...</span>
+            <div id="watchView" class="hidden p-4 lg:p-6 bg-[#0f0f0f]">
+                <div class="flex flex-col lg:flex-row gap-6 max-w-[1700px] mx-auto">
+                    
+                    <div class="flex-1">
+                        <div class="aspect-video relative rounded-xl overflow-hidden bg-black shadow-2xl">
+                            <div id="videoOverlay" class="absolute inset-0 z-10 hidden bg-black/90 flex items-center justify-center text-white">
+                                <div class="text-center">
+                                    <p class="text-xl animate-pulse">Reklam Yayında...</p>
+                                    <p class="text-xs text-gray-400 mt-2">Bittiğinde video kaldığı yerden devam edecek</p>
+                                </div>
+                            </div>
+                            <iframe id="mainIframe" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </div>
-                        <iframe id="mainIframe" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        <h1 id="mainVideoTitle" class="text-xl font-bold mt-4 leading-tight"></h1>
+                        <div class="flex items-center justify-between mt-4 pb-10 border-b border-[#272727]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gray-700 rounded-full"></div>
+                                <div>
+                                    <p id="mainChannelTitle" class="font-bold text-sm"></p>
+                                    <p class="text-xs text-gray-400">1.2 Mn Abone</p>
+                                </div>
+                                <button class="ml-4 bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200">Abone Ol</button>
+                            </div>
+                        </div>
                     </div>
-                    <h2 id="mainVideoTitle" class="text-xl font-bold mt-4"></h2>
-                    <button onclick="closePlayer()" class="mt-4 text-gray-400 hover:text-white flex items-center gap-2">← Geri Dön</button>
+
+                    <div class="w-full lg:w-[400px] flex flex-col gap-4">
+                        <h3 class="text-sm font-bold text-gray-300 mb-2">Sıradaki Videolar</h3>
+                        <div id="recommendationList" class="flex flex-col gap-4">
+                            </div>
+                    </div>
+
                 </div>
             </div>
 
             <div id="homeView" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
 
-            <div id="shortsView" class="hidden">
-                <div id="shortsContainer" class="no-scrollbar"></div>
-            </div>
+            <div id="shortsView" class="hidden"><div id="shortsContainer" class="no-scrollbar"></div></div>
         </main>
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg'; // API Keyinizi buraya girin
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
         let adTimer = null;
         let currentVideoId = "";
-        let currentVideoSeconds = 0;
+        let currentSeconds = 0;
         let shortsCount = 0;
 
         function triggerAd(callback) {
@@ -101,89 +103,116 @@
         }
 
         function showSection(type) {
-            stopLongVideoAd();
-            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('sidebar-active'));
-            document.getElementById('longPlayerSection').classList.add('hidden');
+            stopAdLogic();
+            document.getElementById('watchView').classList.add('hidden');
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('shortsView').classList.add('hidden');
+            document.getElementById('mainSidebar').classList.remove('hidden');
 
             if(type === 'home') {
                 document.getElementById('homeView').classList.remove('hidden');
-                document.getElementById('btn-home').classList.add('sidebar-active');
                 document.body.style.overflow = 'auto';
-                fetchVideos("Türkiye trendleri");
-            } else {
+                fetchVideos("Türkiye trendleri", "homeView");
+            } else if(type === 'shorts') {
                 document.getElementById('shortsView').classList.remove('hidden');
-                document.getElementById('btn-shorts').classList.add('sidebar-active');
                 document.body.style.overflow = 'hidden';
-                shortsCount = 0;
                 fetchShorts();
             }
         }
 
-        // --- UZUN VIDEO MANTIĞI ---
-        function playLongVideo(id, title) {
+        // --- VİDEO İZLEME VE SAĞ PANEL ---
+        async function playVideo(id, title, channel) {
             currentVideoId = id;
-            currentVideoSeconds = 0;
+            currentSeconds = 0;
+            
+            // Görünüm Ayarları
             document.getElementById('homeView').classList.add('hidden');
-            document.getElementById('longPlayerSection').classList.remove('hidden');
-            loadIframeWithTime(0);
+            document.getElementById('watchView').classList.remove('hidden');
+            document.getElementById('mainSidebar').classList.add('hidden'); // İzlerken sidebarı daraltabiliriz
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Bilgileri Bas
             document.getElementById('mainVideoTitle').innerText = decodeURIComponent(title);
-            startLongVideoAd();
+            document.getElementById('mainChannelTitle').innerText = channel;
+            loadPlayer(0);
+            
+            // Reklam ve Önerileri Başlat
+            startAdLogic();
+            fetchVideos(title, "recommendationList", true);
         }
 
-        function loadIframeWithTime(seconds) {
-            document.getElementById('mainIframe').src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&start=${seconds}&enablejsapi=1`;
+        function loadPlayer(seconds) {
+            document.getElementById('mainIframe').src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&start=${seconds}`;
         }
 
-        function startLongVideoAd() {
-            stopLongVideoAd();
-            const tracker = setInterval(() => { currentVideoSeconds++; }, 1000);
+        function startAdLogic() {
+            stopAdLogic();
+            const tracker = setInterval(() => { currentSeconds++; }, 1000);
             adTimer = setInterval(() => {
                 const overlay = document.getElementById('videoOverlay');
                 overlay.classList.remove('hidden');
                 document.getElementById('mainIframe').src = "";
                 triggerAd(() => {
                     overlay.classList.add('hidden');
-                    loadIframeWithTime(currentVideoSeconds);
+                    loadPlayer(currentSeconds);
                 });
             }, 60000);
             adTimer.tracker = tracker;
         }
 
-        function stopLongVideoAd() { if(adTimer) { clearInterval(adTimer); clearInterval(adTimer.tracker); } }
-
-        function closePlayer() { stopLongVideoAd(); showSection('home'); }
-
-        // --- ANA SAYFA ---
-        async function fetchVideos(query) {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${query}&regionCode=TR&relevanceLanguage=tr&type=video&key=${API_KEY}`);
-            const data = await res.json();
-            document.getElementById('homeView').innerHTML = data.items.map(item => `
-                <div class="flex flex-col gap-2 cursor-pointer group" onclick="playLongVideo('${item.id.videoId}', '${encodeURIComponent(item.snippet.title)}')">
-                    <img src="${item.snippet.thumbnails.high.url}" class="rounded-xl w-full aspect-video object-cover group-hover:scale-[1.02] transition-transform">
-                    <h3 class="text-sm font-bold line-clamp-2">${item.snippet.title}</h3>
-                    <p class="text-xs text-gray-400">${item.snippet.channelTitle}</p>
-                </div>
-            `).join('');
+        function stopAdLogic() {
+            if(adTimer) { clearInterval(adTimer); clearInterval(adTimer.tracker); }
         }
 
-        // --- SHORTS DÜZELTMESİ (1DK+ VİDEOLARI ELEME) ---
+        // --- VERİ ÇEKME FONKSİYONU ---
+        async function fetchVideos(query, targetId, isSidebar = false) {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${isSidebar ? 12 : 24}&q=${query}&regionCode=TR&relevanceLanguage=tr&type=video&key=${API_KEY}`);
+            const data = await res.json();
+            const container = document.getElementById(targetId);
+            
+            container.innerHTML = data.items.map(item => {
+                const title = item.snippet.title;
+                const channel = item.snippet.channelTitle;
+                const thumb = item.snippet.thumbnails.high.url;
+                const id = item.id.videoId;
+
+                if (isSidebar) {
+                    // SAĞ PANEL TASARIMI (Yatay Kartlar)
+                    return `
+                        <div class="flex gap-3 cursor-pointer group" onclick="playVideo('${id}', '${encodeURIComponent(title)}', '${channel}')">
+                            <div class="relative w-40 h-24 flex-shrink-0">
+                                <img src="${thumb}" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <h4 class="text-sm font-bold line-clamp-2 leading-tight group-hover:text-blue-400">${title}</h4>
+                                <p class="text-[11px] text-gray-400">${channel}</p>
+                            </div>
+                        </div>`;
+                } else {
+                    // ANA SAYFA TASARIMI (Grid Kartlar)
+                    return `
+                        <div class="flex flex-col gap-2 cursor-pointer group" onclick="playVideo('${id}', '${encodeURIComponent(title)}', '${channel}')">
+                            <img src="${thumb}" class="rounded-xl w-full aspect-video object-cover group-hover:rounded-none duration-200">
+                            <div class="flex gap-2 p-1">
+                                <div class="w-9 h-9 bg-gray-800 rounded-full flex-shrink-0"></div>
+                                <div>
+                                    <h3 class="text-sm font-bold line-clamp-2">${title}</h3>
+                                    <p class="text-xs text-gray-400 mt-1">${channel}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+            }).join('');
+        }
+
+        // --- SHORTS ---
         async function fetchShorts() {
             const container = document.getElementById('shortsContainer');
-            container.innerHTML = '<div class="text-center p-20 text-gray-500 italic">En iyi Türkçe Shorts içerikleri yükleniyor...</div>';
-            
-            // #Shorts etiketi ve kısa süre filtresi ile sadece dikey içerikleri hedefle
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=%23shorts+türkiye&regionCode=TR&relevanceLanguage=tr&type=video&videoDuration=short&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=%23shorts+türkiye&regionCode=TR&type=video&videoDuration=short&key=${API_KEY}`);
             const data = await res.json();
-            
             container.innerHTML = data.items.map(item => `
                 <div class="short-video-wrapper" data-id="${item.id.videoId}">
                     <div class="short-iframe-container" id="player-${item.id.videoId}"></div>
-                    <div class="absolute bottom-10 left-10 right-20 z-10 pointer-events-none">
-                        <p class="font-bold text-base shadow-sm">@${item.snippet.channelTitle}</p>
-                        <p class="text-sm mt-1 line-clamp-2 text-gray-200">${item.snippet.title}</p>
-                    </div>
                 </div>
             `).join('');
             initShortsObserver();
@@ -196,22 +225,20 @@
                     const player = document.getElementById(`player-${id}`);
                     if (entry.isIntersecting) {
                         shortsCount++;
-                        const playFunc = () => { 
-                            player.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}&modestbranding=1&rel=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>`; 
-                        };
-                        if (shortsCount % 3 === 0) { triggerAd(playFunc); } else { playFunc(); }
-                    } else { player.innerHTML = ''; }
+                        const play = () => { player.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}" frameborder="0" allow="autoplay"></iframe>`; };
+                        if (shortsCount % 3 === 0) triggerAd(play); else play();
+                    } else player.innerHTML = '';
                 });
-            }, { threshold: 0.7 });
+            }, { threshold: 0.8 });
             document.querySelectorAll('.short-video-wrapper').forEach(w => observer.observe(w));
         }
 
         async function searchVideos() {
             const q = document.getElementById('searchInput').value;
-            if(q) fetchVideos(q);
+            if(q) { showSection('home'); fetchVideos(q, "homeView"); }
         }
 
-        // İlk yükleme
+        // Başlangıç
         showSection('home');
     </script>
 </body>
