@@ -1,9 +1,9 @@
-,<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TONIX App Clone</title>
+    <title>TONIX App - 100 TON/Gün</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -18,10 +18,11 @@
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             color: var(--text-white);
             display: flex;
             justify-content: center;
+            overflow: hidden;
         }
 
         .app-container {
@@ -29,179 +30,133 @@
             max-width: 400px;
             height: 100vh;
             padding: 20px;
-            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            position: relative;
+            box-sizing: border-box;
         }
 
-        /* Üst Header */
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            font-weight: bold;
         }
 
-        /* Bakiye Kartları */
+        /* Balance Cards */
         .balance-card {
             background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px 15px;
+            border-radius: 15px;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #253441;
         }
 
-        .balance-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .balance-info { display: flex; align-items: center; gap: 12px; }
 
         .icon-circle {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #2193b0, #6dd5ed);
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 18px;
         }
 
-        .balance-text span {
-            display: block;
-            font-size: 12px;
-            color: var(--text-gray);
-        }
+        .balance-text span { display: block; font-size: 11px; color: var(--text-gray); text-transform: uppercase; }
+        .balance-text b { font-size: 17px; }
 
-        .balance-text b {
-            font-size: 16px;
-        }
-
-        /* Fan ve Mining Alanı */
+        /* Mining Section */
         .mining-section {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
         }
 
         .fan-container {
-            width: 220px;
-            height: 220px;
+            width: 240px;
+            height: 240px;
             position: relative;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .fan-image {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 20px var(--accent-blue));
-            animation: spin 3s linear infinite;
+            filter: drop-shadow(0 0 30px rgba(58, 150, 243, 0.4));
+            animation: spin 1.5s linear infinite; /* Hızlı kazım için hızlandırıldı */
         }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .ton-value {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+        .ton-value { font-size: 32px; font-weight: 800; font-family: monospace; }
+        .ton-label { font-size: 18px; color: var(--text-gray); margin-bottom: 5px; }
+        .hash-rate { background: rgba(58, 150, 243, 0.1); padding: 5px 15px; border-radius: 20px; color: #4facfe; font-size: 14px; }
 
-        .hash-rate {
-            color: var(--text-gray);
-            margin-top: 5px;
-            font-size: 14px;
-        }
-
-        /* Butonlar */
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
+        /* Buttons */
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn {
-            padding: 12px;
-            border-radius: 25px;
+            padding: 14px;
+            border-radius: 12px;
             border: none;
             font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
             font-size: 16px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.3s;
         }
+        .btn-claim { background: #3a96f3; }
+        .btn-boost { background: #253441; border: 1px solid #3a96f3; }
+        .btn:active { transform: scale(0.95); }
 
-        .btn-claim { background-color: var(--accent-blue); color: white; }
-        .btn-boost { background-color: var(--accent-blue); color: white; opacity: 0.9; }
-
-        /* Alt Menü */
+        /* Nav */
         .bottom-nav {
-            background-color: var(--card-bg);
-            border-radius: 15px;
+            background: var(--card-bg);
             padding: 15px;
+            border-radius: 20px 20px 0 0;
             display: flex;
             justify-content: space-around;
-            margin-top: 20px;
         }
-
-        .nav-item {
-            text-align: center;
-            font-size: 11px;
-            color: var(--text-gray);
-        }
-
-        .nav-item i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
+        .nav-item { text-align: center; color: var(--text-gray); font-size: 10px; }
+        .nav-item i { display: block; font-size: 22px; margin-bottom: 4px; }
         .nav-item.active { color: var(--accent-blue); }
-
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <i class="fa-solid fa-xmark"></i>
+        <i class="fa-solid fa-chevron-left"></i>
         <span>TONIX App</span>
-        <i class="fa-solid fa-ellipsis-vertical"></i>
+        <i class="fa-solid fa-ellipsis"></i>
     </div>
 
     <div class="balance-card">
         <div class="balance-info">
-            <div class="icon-circle"><i class="fa-solid fa-gem"></i></div>
-            <div class="balance-text">
-                <span>Balance</span>
-                <b>0 TON</b>
-            </div>
+            <div class="icon-circle"><i class="fa-solid fa-diamond"></i></div>
+            <div class="balance-text"><span>Balance</span><b>0 TON</b></div>
         </div>
-        <i class="fa-solid fa-wallet" style="color: var(--accent-blue);"></i>
+        <i class="fa-solid fa-wallet" style="color: var(--accent-blue)"></i>
     </div>
 
     <div class="balance-card">
         <div class="balance-info">
-            <div class="icon-circle" style="background: linear-gradient(45deg, #004e92, #000428);">
-                <i class="fa-solid fa-fan"></i>
-            </div>
-            <div class="balance-text">
-                <span>Balance</span>
-                <b>5200 TONIX</b>
-            </div>
+            <div class="icon-circle" style="background: #1e3c72"><i class="fa-solid fa-bahai"></i></div>
+            <div class="balance-text"><span>Balance</span><b>0 TONIX</b></div>
         </div>
-        <i class="fa-solid fa-briefcase" style="color: var(--accent-blue);"></i>
+        <i class="fa-solid fa-suitcase" style="color: var(--accent-blue)"></i>
     </div>
 
     <div class="mining-section">
@@ -212,49 +167,41 @@
             </svg>
         </div>
         
-        <div class="ton-value" id="counter">0.0083779826</div>
+        <div class="ton-value" id="counter">0.0000000000</div>
         <div class="ton-label">TON</div>
-        <div class="hash-rate">2.03 GH/s ⚡</div>
+        <div class="hash-rate">1,450.50 GH/s ⚡</div>
     </div>
 
     <div class="action-buttons">
-        <button class="btn btn-claim"><i class="fa-solid fa-hand-holding-dollar"></i> Claim</button>
-        <button class="btn btn-boost"><i class="fa-solid fa-rocket"></i> Boost</button>
+        <button class="btn btn-claim"><i class="fa-solid fa-download"></i> Claim</button>
+        <button class="btn btn-boost"><i class="fa-solid fa-bolt-lightning"></i> Boost</button>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item">
-            <i class="fa-solid fa-wallet"></i>
-            Wallet
-        </div>
-        <div class="nav-item">
-            <i class="fa-solid fa-users"></i>
-            Friends
-        </div>
-        <div class="nav-item active">
-            <i class="fa-solid fa-house-chimney-window"></i>
-            Home
-        </div>
-        <div class="nav-item">
-            <i class="fa-solid fa-bullseye"></i>
-            Missions
-        </div>
-        <div class="nav-item">
-            <i class="fa-solid fa-bars"></i>
-            More
-        </div>
+        <div class="nav-item"><i class="fa-solid fa-wallet"></i>Wallet</div>
+        <div class="nav-item"><i class="fa-solid fa-user-group"></i>Friends</div>
+        <div class="nav-item active"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item"><i class="fa-solid fa-list-check"></i>Missions</div>
+        <div class="nav-item"><i class="fa-solid fa-ellipsis-h"></i>More</div>
     </div>
 </div>
 
 <script>
-    // Basit Sayaç Artırma Fonksiyonu
-    let count = 0.0083779826;
+    // Matematiksel Hesap: Günde 100 TON kazanç
+    // 100 TON / 24 saat / 60 dakika / 60 saniye / 10 (çünkü 100ms'de bir güncelliyoruz)
+    const dailyGoal = 100;
+    const increment = dailyGoal / (24 * 60 * 60 * 10); 
+    
+    let currentBalance = 0.0000000000;
     const counterElement = document.getElementById('counter');
 
-    setInterval(() => {
-        count += 0.0000000142; // Madencilik hızını simüle eder
-        counterElement.innerText = count.toFixed(10);
-    }, 100);
+    function updateMining() {
+        currentBalance += increment;
+        // Rakamların kaymaması için 8 basamak fixlendi
+        counterElement.innerText = currentBalance.toFixed(9);
+    }
+
+    setInterval(updateMining, 100);
 </script>
 
 </body>
