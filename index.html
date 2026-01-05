@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Shorts Mode</title>
+    <title>YouTube Pro - Kesintisiz Shorts Deneyimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow: hidden; }
-        .sidebar-btn:hover { background-color: #272727; }
+        body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow-x: hidden; }
+        .sidebar-btn:hover { background-color: #272727; cursor: pointer; }
         .sidebar-active { background-color: #272727; font-weight: bold; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
@@ -17,6 +17,7 @@
             height: calc(100vh - 56px);
             scroll-snap-type: y mandatory;
             overflow-y: scroll;
+            background: black;
         }
         .short-video-wrapper {
             height: calc(100vh - 56px);
@@ -24,40 +25,43 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
             position: relative;
         }
-        .short-iframe {
+        .short-iframe-container {
             height: 90%;
             aspect-ratio: 9/16;
+            background: #1a1a1a;
             border-radius: 16px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
+        .short-iframe { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50">
+    <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50 border-b border-[#272727]">
         <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-[#272727] rounded-full text-xl">☰</button>
+            <button class="p-2 hover:bg-[#272727] rounded-full">☰</button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="window.location.reload()">
                 <span class="text-red-600 text-3xl">▶</span>
-                <span class="text-xl font-bold tracking-tighter">YouTube</span>
+                <span class="text-xl font-bold tracking-tighter text-white">YouTube</span>
             </div>
         </div>
         <div class="flex items-center w-full max-w-[600px]">
             <input id="searchInput" type="text" placeholder="Ara" class="bg-[#121212] border border-[#303030] rounded-l-full px-4 py-1.5 w-full outline-none focus:border-blue-500">
             <button onclick="searchVideos()" class="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#272727]">🔍</button>
         </div>
-        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">N</div>
+        <div class="w-8 h-8 bg-purple-700 rounded-full flex items-center justify-center text-sm font-bold">N</div>
     </nav>
 
     <div class="flex pt-14">
-        <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block">
+        <aside class="w-20 lg:w-64 fixed left-0 h-screen bg-[#0f0f0f] p-2 hidden sm:block border-r border-[#272727]">
             <div class="flex flex-col gap-1">
-                <div onclick="showSection('home')" id="btn-home" class="sidebar-btn sidebar-active p-3 rounded-xl flex items-center gap-5 cursor-pointer">🏠 <span>Ana Sayfa</span></div>
-                <div onclick="showSection('shorts')" id="btn-shorts" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">🎞️ <span>Shorts</span></div>
-                <div class="sidebar-btn p-3 rounded-xl flex items-center gap-5 cursor-pointer text-gray-300">📺 <span>Abonelikler</span></div>
+                <div onclick="showSection('home')" id="btn-home" class="sidebar-btn sidebar-active p-3 rounded-xl flex items-center gap-5">🏠 <span>Ana Sayfa</span></div>
+                <div onclick="showSection('shorts')" id="btn-shorts" class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🎞️ <span>Shorts</span></div>
+                <div class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">📺 <span>Abonelikler</span></div>
+                <hr class="border-[#272727] my-3">
+                <div class="sidebar-btn p-3 rounded-xl flex items-center gap-5 text-gray-300">🕒 <span>Geçmiş</span></div>
             </div>
         </aside>
 
@@ -66,7 +70,7 @@
             <div id="homeView" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 </div>
 
-            <div id="shortsView" class="hidden bg-black w-full">
+            <div id="shortsView" class="hidden">
                 <div id="shortsContainer" class="no-scrollbar">
                     </div>
             </div>
@@ -77,7 +81,7 @@
     <script>
         const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
 
-        // Bölüm Değiştirme (Home / Shorts)
+        // 1. Bölüm Yönetimi
         function showSection(type) {
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('sidebar-active'));
             if(type === 'home') {
@@ -85,66 +89,109 @@
                 document.getElementById('shortsView').classList.add('hidden');
                 document.getElementById('btn-home').classList.add('sidebar-active');
                 document.body.style.overflow = 'auto';
-                fetchVideos();
+                fetchHomeVideos();
             } else {
                 document.getElementById('homeView').classList.add('hidden');
                 document.getElementById('shortsView').classList.remove('hidden');
                 document.getElementById('btn-shorts').classList.add('sidebar-active');
-                document.body.style.overflow = 'hidden'; // Sayfa kaymasını engelle, sadece container kaysın
+                document.body.style.overflow = 'hidden'; 
                 fetchShorts();
             }
         }
 
-        // Ana Sayfa Videolarını Getir
-        async function fetchVideos() {
+        // 2. Ana Sayfa Popüler Videolar
+        async function fetchHomeVideos() {
             const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&maxResults=20&regionCode=TR&key=${API_KEY}`);
             const data = await res.json();
             const grid = document.getElementById('homeView');
             grid.innerHTML = data.items.map(item => `
                 <div class="flex flex-col gap-2 cursor-pointer group">
-                    <img src="${item.snippet.thumbnails.high.url}" class="rounded-xl w-full aspect-video object-cover">
-                    <div class="flex gap-2">
-                        <div class="w-10 h-10 bg-gray-800 rounded-full flex-shrink-0"></div>
+                    <img src="${item.snippet.thumbnails.high.url}" class="rounded-xl w-full aspect-video object-cover group-hover:rounded-none duration-200">
+                    <div class="flex gap-2 p-1">
+                        <div class="w-10 h-10 bg-gray-700 rounded-full flex-shrink-0"></div>
                         <div>
                             <h3 class="text-sm font-bold line-clamp-2">${item.snippet.title}</h3>
-                            <p class="text-gray-400 text-xs">${item.snippet.channelTitle}</p>
+                            <p class="text-gray-400 text-xs mt-1">${item.snippet.channelTitle}</p>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // SHORTS VIDEOLARINI GETIR VE DIKEY DIZ
+        // 3. Shorts Sistemi ( Intersection Observer ile Çakışma Önleyici )
         async function fetchShorts() {
             const container = document.getElementById('shortsContainer');
-            container.innerHTML = '<div class="text-center p-10">Yükleniyor...</div>';
+            container.innerHTML = '<div class="h-full flex items-center justify-center text-gray-500 italic">Shorts hazırlanıyor...</div>';
             
-            // Shorts benzeri içerik bulmak için 'short' duration filtresi kullanıyoruz
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=trending+shorts&type=video&videoDuration=short&key=${API_KEY}`);
             const data = await res.json();
             
             container.innerHTML = data.items.map(item => `
-                <div class="short-video-wrapper">
-                    <iframe class="short-iframe" 
-                            src="https://www.youtube.com/embed/${item.id.videoId}?autoplay=0&controls=0&loop=1&playlist=${item.id.videoId}" 
-                            frameborder="0" 
-                            allow="autoplay; encrypted-media">
-                    </iframe>
-                    <div class="absolute right-10 bottom-20 flex flex-col gap-6 text-center">
-                        <div class="flex flex-col items-center"><span class="text-2xl">❤️</span><span class="text-xs">Beğen</span></div>
-                        <div class="flex flex-col items-center"><span class="text-2xl">💬</span><span class="text-xs">Yorum</span></div>
-                        <div class="flex flex-col items-center"><span class="text-2xl">↪️</span><span class="text-xs">Paylaş</span></div>
+                <div class="short-video-wrapper" data-id="${item.id.videoId}">
+                    <div class="short-iframe-container" id="player-${item.id.videoId}">
+                        </div>
+                    <div class="absolute right-6 bottom-32 flex flex-col gap-6 text-center z-10">
+                        <div class="flex flex-col items-center cursor-pointer"><span>❤️</span><span class="text-[10px] mt-1">Beğen</span></div>
+                        <div class="flex flex-col items-center cursor-pointer"><span>💬</span><span class="text-[10px] mt-1">Yorum</span></div>
+                        <div class="flex flex-col items-center cursor-pointer"><span>↪️</span><span class="text-[10px] mt-1">Paylaş</span></div>
                     </div>
-                    <div class="absolute left-1/2 -translate-x-1/2 bottom-10 w-full max-w-[350px] px-4">
-                        <p class="font-bold text-sm shadow-lg">${item.snippet.channelTitle}</p>
-                        <p class="text-xs mt-1 line-clamp-2">${item.snippet.title}</p>
+                    <div class="absolute bottom-10 left-10 right-24">
+                        <p class="font-bold text-sm">@${item.snippet.channelTitle}</p>
+                        <p class="text-xs text-gray-200 mt-2 line-clamp-2">${item.snippet.title}</p>
                     </div>
+                </div>
+            `).join('');
+
+            initShortsObserver();
+        }
+
+        function initShortsObserver() {
+            const options = {
+                root: document.getElementById('shortsContainer'),
+                threshold: 0.8 // Videonun %80'i görünür olmalı
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const videoId = entry.target.getAttribute('data-id');
+                    const playerDiv = document.getElementById(`player-${videoId}`);
+
+                    if (entry.isIntersecting) {
+                        // Sadece bu video aktif: Iframe'i oluştur ve oynat
+                        playerDiv.innerHTML = `
+                            <iframe class="short-iframe" 
+                                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1" 
+                                    frameborder="0" 
+                                    allow="autoplay; encrypted-media">
+                            </iframe>`;
+                    } else {
+                        // Ekrandan çıktı: Iframe'i sil (Sesi ve kaynağı kes)
+                        playerDiv.innerHTML = '';
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.short-video-wrapper').forEach(w => observer.observe(w));
+        }
+
+        // Arama Motoru
+        async function searchVideos() {
+            const q = document.getElementById('searchInput').value;
+            if(!q) return;
+            showSection('home');
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=16&q=${q}&type=video&key=${API_KEY}`);
+            const data = await res.json();
+            const grid = document.getElementById('homeView');
+            grid.innerHTML = data.items.map(item => `
+                <div class="flex flex-col gap-2 cursor-pointer">
+                    <img src="${item.snippet.thumbnails.high.url}" class="rounded-xl w-full aspect-video object-cover">
+                    <h3 class="text-sm font-bold line-clamp-2">${item.snippet.title}</h3>
                 </div>
             `).join('');
         }
 
-        // İlk açılış
-        fetchVideos();
+        // Başlangıç
+        fetchHomeVideos();
     </script>
 </body>
 </html>
