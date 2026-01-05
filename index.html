@@ -12,10 +12,11 @@
             --accent-glow: rgba(0, 242, 255, 0.3);
             --text: #e1e1e6;
             --text-muted: #8d8d99;
+            --overlay: rgba(0, 0, 0, 0.9);
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             display: flex;
@@ -23,92 +24,61 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            overflow: hidden; /* Modal açıldığında kaydırmayı önlemek için */
         }
 
         .dashboard {
             background: var(--card);
             width: 100%;
-            max-width: 500px;
-            border-radius: 24px;
+            max-width: 450px;
             padding: 32px;
+            border-radius: 24px;
             border: 1px solid #29292e;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
         }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        
         .header h1 { 
-            font-size: 24px; 
-            margin: 10px 0; 
+            font-size: 22px; 
             background: linear-gradient(90deg, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
-        /* Paket İçeriği Listesi */
-        .content-preview {
+        /* İçerik Listesi */
+        .content-list {
             background: #1f1f23;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 25px;
+            padding: 10px 16px;
+            margin: 20px 0;
         }
 
         .item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #29292e;
         }
         .item:last-child { border: none; }
-        
-        .icon {
-            width: 32px;
-            height: 32px;
-            background: #29292e;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-size: 14px;
-        }
+        .icon { color: var(--accent); font-size: 18px; }
 
-        .item-info { flex: 1; }
-        .item-name { font-size: 14px; font-weight: 500; }
-        .item-meta { font-size: 12px; color: var(--text-muted); }
-
-        /* İlerleme ve Aksiyon */
-        .progress-section {
-            background: rgba(0, 0, 0, 0.2);
+        /* İlerleme Çubuğu */
+        .progress-box {
+            background: rgba(0,0,0,0.3);
             padding: 20px;
             border-radius: 16px;
             border: 1px solid #29292e;
         }
 
-        .status-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .count-badge {
-            background: var(--accent);
-            color: #000;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 14px;
-        }
-
-        .bar-container {
-            height: 8px;
+        .bar-bg {
+            height: 10px;
             background: #29292e;
-            border-radius: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
             overflow: hidden;
-            margin-bottom: 20px;
         }
 
         .bar-fill {
@@ -116,9 +86,17 @@
             width: 0%;
             background: var(--accent);
             box-shadow: 0 0 15px var(--accent-glow);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: width 0.3s ease-out;
         }
 
+        .counter {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Buton */
         .action-btn {
             width: 100%;
             padding: 16px;
@@ -126,32 +104,63 @@
             border: none;
             background: var(--accent);
             color: #000;
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            margin-top: 10px;
         }
 
-        .action-btn:active { transform: scale(0.98); }
-        .action-btn:hover { opacity: 0.9; box-shadow: 0 0 20px var(--accent-glow); }
-
-        .success-overlay {
+        /* MODAL (Pencere) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
             display: none;
-            color: var(--accent);
-            text-align: center;
-            font-weight: bold;
-            margin-top: 15px;
-            animation: pulse 1.5s infinite;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .modal-content {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 20px;
+            max-width: 90%;
+            max-height: 90vh;
+            border: 2px solid var(--accent);
+            text-align: center;
+            position: relative;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: var(--accent);
+            color: #000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -159,92 +168,69 @@
 
 <div class="dashboard">
     <div class="header">
-        <div style="font-size: 40px;">💎</div>
         <h1>Eğitim Vadisi TYT-3 Ca</h1>
-        <p style="color: var(--text-muted); font-size: 14px;">Tüm içeriklerin kilidini açmak için görevleri tamamlayın.</p>
+        <p style="text-align:center; color:var(--text-muted); font-size:13px;">Dijital Deneme Paketi</p>
     </div>
 
-    <div class="content-preview">
-        <div class="item">
-            <div class="icon">📄</div>
-            <div class="item-info">
-                <div class="item-name">TYT-3 Soru Kitapçığı</div>
-                <div class="item-meta">PDF • 4.2 MB</div>
-            </div>
-        </div>
-        <div class="item">
-            <div class="icon">🔑</div>
-            <div class="item-info">
-                <div class="item-name">Cevap Anahtarı (A-B Kitapçığı)</div>
-                <div class="item-meta">Görsel • 1.1 MB</div>
-            </div>
-        </div>
-        <div class="item">
-            <div class="icon">📊</div>
-            <div class="item-info">
-                <div class="item-name">Konu Analiz Çizelgesi</div>
-                <div class="item-meta">Excel • 850 KB</div>
-            </div>
-        </div>
+    <div class="content-list">
+        <div class="item"><span class="icon">📁</span> <span>TYT-3 Soru Kitapçığı</span></div>
+        <div class="item"><span class="icon">🔑</span> <span>Cevap Anahtarı</span></div>
+        <div class="item"><span class="icon">🏆</span> <span>Sıralama Listesi</span></div>
     </div>
 
-    <div class="progress-section">
-        <div class="status-header">
-            <span style="font-size: 14px; font-weight: 600;">İlerleme Durumu</span>
-            <span class="count-badge" id="counter">0 / 10</span>
+    <div class="progress-box">
+        <div class="counter">
+            <span>Görev Tamamlama</span>
+            <span id="countText" style="color:var(--accent)">0 / 10</span>
         </div>
-        
-        <div class="bar-container">
-            <div class="bar-fill" id="bar"></div>
+        <div class="bar-bg">
+            <div id="progressBar" class="bar-fill"></div>
         </div>
+        <button class="action-btn" onclick="addProgress()">⚡ REKLAMI ONAYLA</button>
+    </div>
+</div>
 
-        <button class="action-btn" id="mainBtn" onclick="fastForward()">
-            <span>⚡</span> Reklamı Atla ve Onayla
-        </button>
-
-        <div class="success-overlay" id="finish">
-            🚀 ERİŞİM SAĞLANDI! YÖNLENDİRİLİYORSUNUZ...
-        </div>
+<div class="modal-overlay" id="imageModal">
+    <div class="modal-content">
+        <div class="close-btn" onclick="closeModal()">✕</div>
+        <h2 style="margin-top:0; color:var(--accent);">Erişim Başarılı!</h2>
+        <p style="font-size:14px;">Eğitim Vadisi TYT-3 Ca Görseli:</p>
+        <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca">
+        <br>
+        <button class="action-btn" style="margin-top:20px; width:auto; padding:10px 30px;" onclick="closeModal()">Kapat</button>
     </div>
 </div>
 
 <script>
-    let current = 0;
-    const total = 10;
-    const bar = document.getElementById('bar');
-    const counter = document.getElementById('counter');
-    const btn = document.getElementById('mainBtn');
-    const finish = document.getElementById('finish');
+    let currentProgress = 0;
+    const totalSteps = 10;
 
-    function fastForward() {
-        if (current < total) {
-            current++;
-            updateDisplay();
-
-            if (current === total) {
-                completeProcess();
+    function addProgress() {
+        if (currentProgress < totalSteps) {
+            currentProgress++;
+            updateUI();
+            
+            if (currentProgress === totalSteps) {
+                showImage();
             }
         }
     }
 
-    function updateDisplay() {
-        const percent = (current / total) * 100;
-        bar.style.width = percent + '%';
-        counter.innerText = `${current} / ${total}`;
-        
-        // Rastgele bir efekt için butonu hafif salla
-        btn.style.transform = 'translateX(2px)';
-        setTimeout(() => btn.style.transform = 'translateX(0)', 50);
+    function updateUI() {
+        const percent = (currentProgress / totalSteps) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('countText').innerText = `${currentProgress} / ${totalSteps}`;
     }
 
-    function completeProcess() {
-        btn.style.display = 'none';
-        finish.style.display = 'block';
-        
-        // 1 saniye sonra görseli yeni sekmede aç
-        setTimeout(() => {
-            window.open('egitimvadisi.jpg', '_blank');
-        }, 1000);
+    function showImage() {
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+        // İstersen sıfırlayabilirsin:
+        // currentProgress = 0;
+        // updateUI();
     }
 </script>
 
