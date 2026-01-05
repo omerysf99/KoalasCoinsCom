@@ -3,180 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime - Canlı & Shorts</title>
+    <title>Sınav Prime - Canlı Stüdyo</title>
     <style>
         :root {
-            --bg: #000000;
-            --primary: #00f2ff;
+            --bg: #0f0f0f;
+            --card: #212121;
+            --primary: #3ea6ff;
             --text: #ffffff;
-            --card: #121212;
+            --yt-red: #ff0000;
         }
 
         body, html {
             margin: 0; padding: 0;
             background: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: "Roboto", Arial, sans-serif;
             height: 100vh; overflow: hidden;
         }
 
         .app-frame {
-            width: 100%; max-width: 414px;
+            width: 100%; max-width: 414px; /* Mobil görünüm */
             height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column;
-            position: relative;
+            position: relative; border: 1px solid #333;
         }
 
-        /* Sayfa Yönetimi */
-        .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-bottom: 70px; }
+        /* --- SAYFA YÖNETİMİ --- */
+        .page { display: none; height: calc(100vh - 65px); flex-direction: column; overflow-y: auto; }
         .page.active { display: flex; }
 
-        /* --- SHORTS --- */
-        .shorts-wrapper { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-item { 
-            height: calc(100vh - 65px); scroll-snap-align: start; 
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, #111, #000);
-            position: relative;
+        /* --- CANLI YAYIN LİSTESİ (10 GÖRSEL) --- */
+        .explore-header { padding: 15px; font-weight: bold; border-bottom: 1px solid #333; }
+        .live-grid { padding: 10px; }
+        .live-card {
+            margin-bottom: 20px; cursor: pointer;
+            transition: transform 0.2s;
         }
+        .live-card:active { transform: scale(0.98); }
+        .live-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
+        .live-info { display: flex; gap: 12px; padding: 10px 0; }
+        .channel-img { width: 36px; height: 36px; border-radius: 50%; background: #444; }
 
-        /* --- CANLI LİSTE --- */
-        .live-grid { padding: 15px; }
-        .live-card { 
-            background: var(--card); border-radius: 12px; margin-bottom: 15px; 
-            overflow: hidden; border: 1px solid #222; cursor: pointer;
-        }
-        .live-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; opacity: 0.8; }
-
-        /* --- YAYIN EKRANI --- */
-        #streamView {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
+        /* --- CANLI YAYIN EKRANI (SOLDA YAYIN SAĞDA SOHBET) --- */
+        #studioView {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
             display: none; flex-direction: column;
         }
-        .video-player { width: 100%; aspect-ratio: 16/9; position: relative; }
-        .overlay-timer { 
-            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+        /* Video ve Sohbet Yan Yana (Desktop mantığı mobilde alt üst olur ama biz mobil stüdyo yapıyoruz) */
+        .studio-container { display: flex; flex-direction: column; height: 100%; }
+
+        .video-area { width: 100%; aspect-ratio: 16/9; position: relative; background: #000; }
+        .video-area img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+        
+        .timer-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: rgba(0,0,0,0.4);
         }
 
-        /* --- GERÇEK SOHBET --- */
-        .chat-section { flex: 1; display: flex; flex-direction: column; background: #080808; }
-        .chat-messages { 
-            flex: 1; padding: 15px; overflow-y: auto; 
-            display: flex; flex-direction: column; gap: 8px;
+        /* EŞ ZAMANLI GERÇEK SOHBET */
+        .chat-area {
+            flex: 1; display: flex; flex-direction: column;
+            background: #0f0f0f; border-top: 1px solid #333;
         }
-        .message { font-size: 14px; line-height: 1.4; word-wrap: break-word; }
-        .message b { color: var(--primary); margin-right: 5px; }
+        .chat-header { padding: 10px; border-bottom: 1px solid #333; font-size: 14px; display: flex; justify-content: space-between; }
         
-        .chat-input-area { 
-            padding: 12px; background: #111; border-top: 1px solid #222;
-            display: flex; gap: 10px;
+        .chat-messages {
+            flex: 1; padding: 10px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .chat-input-area input { 
-            flex: 1; background: #222; border: none; padding: 10px 15px;
+        .msg { font-size: 13px; display: flex; gap: 8px; align-items: flex-start; }
+        .msg .user-icon { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+        .msg b { color: #aaa; font-size: 12px; }
+        .msg p { margin: 0; color: #fff; }
+
+        .chat-input-bar {
+            padding: 10px; background: #181818; display: flex; gap: 10px; align-items: center;
+        }
+        .chat-input-bar input {
+            flex: 1; background: #2a2a2a; border: none; padding: 10px 15px;
             border-radius: 20px; color: white; outline: none;
         }
-        .send-btn { background: var(--primary); border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .send-btn { color: var(--primary); font-weight: bold; cursor: pointer; background: none; border: none; }
 
-        /* --- NAV --- */
-        .bottom-nav { 
-            position: absolute; bottom: 0; width: 100%; height: 65px; 
-            background: #000; border-top: 1px solid #222;
+        /* --- ALT NAV --- */
+        .bottom-nav {
+            height: 65px; background: #0f0f0f; border-top: 1px solid #333;
             display: flex; justify-content: space-around; align-items: center;
         }
-        .nav-btn { color: #555; text-align: center; font-size: 11px; cursor: pointer; }
-        .nav-btn.active { color: var(--primary); }
+        .nav-item { text-align: center; color: #888; font-size: 10px; cursor: pointer; }
+        .nav-item.active { color: white; }
+
+        /* --- ANIMASYON --- */
+        .live-badge { background: var(--yt-red); padding: 2px 6px; border-radius: 2px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="app-frame">
     
-    <div id="shortsPage" class="page active">
-        <div class="shorts-wrapper">
-            <div class="short-item">📹 Shorts 1: Matematik Taktikleri</div>
-            <div class="short-item">📹 Shorts 2: Sınav Motivasyonu</div>
-        </div>
-    </div>
-
-    <div id="livePage" class="page">
-        <div class="live-grid" id="liveGrid">
+    <div id="listPage" class="page active">
+        <div class="explore-header">Canlı Yayınlar</div>
+        <div class="live-grid" id="mainGrid">
             </div>
     </div>
 
-    <div id="streamView">
-        <div class="video-player">
-            <button onclick="closeStream()" style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.6); color:white; border:none; padding:8px 12px; border-radius:5px;">✕</button>
-            <img src="tytmatsoru.jpg" style="width:100%; height:100%; object-fit:cover;">
-            <div class="overlay-timer">
-                <span style="font-size:12px; color:var(--primary);">CANLI YAYIN BAŞLIYOR</span>
-                <div id="countdown" style="font-size:2rem; font-weight:bold; font-family:monospace;">00:00:00</div>
-            </div>
-        </div>
+    <div id="shortsPage" class="page">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center;">🎞️ Shorts İçerikleri</div>
+    </div>
 
-        <div class="chat-section">
-            <div id="chatBox" class="chat-messages">
-                <div class="message"><b>Sistem:</b> Canlı sohbete hoş geldiniz!</div>
+    <div id="studioView">
+        <div class="studio-container">
+            <div class="video-area">
+                <button onclick="closeStudio()" style="position:absolute; top:10px; left:10px; z-index:100; background:none; border:none; color:white; font-size:24px;">✕</button>
+                <img src="tytmatsoru.jpg" alt="Yayın Kapağı">
+                <div class="timer-overlay">
+                    <div class="live-badge" style="margin-bottom:10px;">YAKINDA</div>
+                    <div id="countdown" style="font-size: 2rem; font-weight: bold; font-family: monospace;">02:16:44</div>
+                    <p style="font-size:12px; margin-top:10px;">5 Ocak 23:59'da Başlıyor</p>
+                </div>
             </div>
-            <form class="chat-input-area" onsubmit="sendMessage(event)">
-                <input type="text" id="userInput" placeholder="Mesajınızı yazın..." autocomplete="off">
-                <button type="submit" class="send-btn">Gönder</button>
-            </form>
+
+            <div class="chat-area">
+                <div class="chat-header">
+                    <span>Canlı Sohbet</span>
+                    <span style="color:var(--dim);">⋮</span>
+                </div>
+                <div id="chatBox" class="chat-messages">
+                    <div class="msg">
+                        <div class="user-icon" style="background:#ff8800;"></div>
+                        <div><b>Sistem</b><p>Sohbete hoş geldiniz! Kurallara uyunuz.</p></div>
+                    </div>
+                </div>
+                <form class="chat-input-bar" onsubmit="handleSend(event)">
+                    <div class="user-icon" style="width:30px; height:30px;"></div>
+                    <input type="text" id="chatInput" placeholder="Mesaj gönder..." autocomplete="off">
+                    <button type="submit" class="send-btn">GÖNDER</button>
+                </form>
+            </div>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-btn active" onclick="nav('shortsPage', this)">🎞️<br>Shorts</div>
-        <div class="nav-btn" onclick="nav('livePage', this)">🔴<br>Canlı</div>
+        <div class="nav-item active" onclick="nav('listPage', this)">🏠<br>Ana Sayfa</div>
+        <div class="nav-item" onclick="nav('shortsPage', this)">🎞️<br>Shorts</div>
+        <div class="nav-item" onclick="nav('listPage', this)">🔴<br>Canlı</div>
     </nav>
 </div>
 
 <script>
-    // 1. Canlı Liste Oluşturma
-    const grid = document.getElementById('liveGrid');
-    for(let i=1; i<=10; i++) {
+    // 1. 10 Adet Görseli Listele
+    const grid = document.getElementById('mainGrid');
+    const topics = ["Matematik Çözümleri", "Paragraf Taktikleri", "Tarih Özet", "Fizik Deneme", "Kimya Kampı", "Biyoloji Notları", "Geometri 101", "Felsefe Atölyesi", "Coğrafya Harita", "Sınav Motivasyonu"];
+    
+    for(let i=0; i<10; i++) {
         grid.innerHTML += `
-            <div class="live-card" onclick="openStream()">
-                <img src="tytmatsoru.jpg">
-                <div style="padding:10px;">
-                    <span style="font-weight:bold;">2024 TYT Çözümleri #${i}</span>
-                    <p style="margin:5px 0 0; font-size:11px; color:#666;">Başlıyor: 05.01.2026 - 23:59</p>
+            <div class="live-card" onclick="openStudio()">
+                <img src="tytmatsoru.jpg" alt="Thumbnail">
+                <div class="live-info">
+                    <div class="channel-img"></div>
+                    <div>
+                        <div style="font-size:14px; font-weight:bold;">${topics[i]} | 2026 Hazırlık</div>
+                        <div style="font-size:12px; color:#aaa; margin-top:4px;">Matematik Avcısı • 1,2B izleyici</div>
+                        <div class="live-badge" style="margin-top:5px; display:inline-block;">CANLI</div>
+                    </div>
                 </div>
             </div>
         `;
     }
 
-    // 2. Navigasyon
+    // 2. Sayfa ve Stüdyo Yönetimi
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
     }
 
-    // 3. Yayın Fonksiyonları
-    function openStream() { document.getElementById('streamView').style.display = 'flex'; }
-    function closeStream() { document.getElementById('streamView').style.display = 'none'; }
+    function openStudio() { document.getElementById('studioView').style.display = 'flex'; }
+    function closeStudio() { document.getElementById('studioView').style.display = 'none'; }
 
-    // 4. Gerçek Sohbet Sistemi (Kullanıcı etkileşimli)
-    function sendMessage(e) {
+    // 3. Eş Zamanlı Gerçek Sohbet Fonksiyonu
+    function handleSend(e) {
         e.preventDefault();
-        const input = document.getElementById('userInput');
-        const chatBox = document.getElementById('chatBox');
+        const input = document.getElementById('chatInput');
+        const box = document.getElementById('chatBox');
         
         if(input.value.trim() !== "") {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<b>Siz:</b> ${input.value}`;
-            chatBox.appendChild(msgDiv);
-            
-            // Temizle ve En Alta Kaydır
+            const newMsg = document.createElement('div');
+            newMsg.className = 'msg';
+            newMsg.innerHTML = `
+                <div class="user-icon" style="background:#3ea6ff;"></div>
+                <div><b>Sen</b><p>${input.value}</p></div>
+            `;
+            box.appendChild(newMsg);
             input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+            box.scrollTop = box.scrollHeight; // Sabit kilit: Her zaman son mesaj
         }
     }
 
-    // 5. Geri Sayım (5 Ocak 2026 23:59)
+    // 4. Geri Sayım (5 Ocak 2026 23:59)
     const target = new Date("Jan 5, 2026 23:59:00").getTime();
     setInterval(() => {
         const now = new Date().getTime();
@@ -187,7 +213,21 @@
         document.getElementById("countdown").innerText = 
             (h < 10 ? "0"+h : h) + ":" + (m < 10 ? "0"+m : m) + ":" + (s < 10 ? "0"+s : s);
     }, 1000);
+
+    // Sahte Sohbet Akışı (Gerçekçi görünmesi için)
+    setInterval(() => {
+        const box = document.getElementById('chatBox');
+        if(document.getElementById('studioView').style.display === 'flex') {
+            const users = ["Ali", "Merve", "Sınavcan", "Zeynep"];
+            const bots = ["Hocam 10. soru!", "Selamlar", "PDF linki?", "Başladık mı?"];
+            const n = document.createElement('div');
+            n.className = 'msg';
+            n.innerHTML = `<div class="user-icon" style="background:#555;"></div><div><b>${users[Math.floor(Math.random()*4)]}</b><p>${bots[Math.floor(Math.random()*4)]}</p></div>`;
+            box.appendChild(n);
+            box.scrollTop = box.scrollHeight;
+        }
+    }, 4000);
 </script>
 
 </body>
-</html>v
+</html>
