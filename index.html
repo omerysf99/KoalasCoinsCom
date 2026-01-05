@@ -3,187 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TONIX - Smart Auto-Click Ad</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
+    <title>Eğitim Vadisi TYT-3 Ca - Dosya Görüntüle</title>
     <style>
-        :root {
-            --bg-deep: #070d12;
-            --accent-blue: #3a96f3;
-            --text-gray: #8e99a2;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-
-        body { margin: 0; background-color: var(--bg-deep); color: white; font-family: sans-serif; overflow: hidden; }
-
-        /* Uygulama Konteynırı */
-        .app-container { width: 100%; max-width: 400px; height: 100vh; margin: auto; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
-
-        /* Reklam Katmanı */
-        #ad-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 99999;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
         }
-
-        /* Çarpı Butonu */
-        #ad-x-btn {
-            position: absolute; top: 30px; right: 30px;
-            width: 40px; height: 40px; background: #fff; color: #000;
-            border-radius: 50%; display: none; justify-content: center; align-items: center;
-            font-weight: bold; cursor: pointer; z-index: 100001;
+        .ad-box {
+            background: #fff3cd;
+            border: 2px dashed #ffeeba;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
         }
-
-        /* Animasyonlu İmleç (Cursor) */
-        #virtual-cursor {
-            position: absolute;
-            width: 30px; height: 30px;
-            color: white; font-size: 30px;
-            display: none; z-index: 100002;
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-            transition: all 0.8s ease-in-out;
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #856404;
         }
-
-        /* Tıklama Efekti */
-        .click-pulse {
-            animation: pulse 0.3s ease-out;
+        .content-image {
+            display: none;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.7); }
-            100% { transform: scale(1); }
-        }
-
-        /* Ana UI Parçaları */
-        .mining-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .fan-box { width: 200px; height: 200px; border: 4px solid var(--accent-blue); border-radius: 50%; padding: 10px; }
-        .spin { animation: rotate 1.5s infinite linear; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .counter { font-size: 32px; font-weight: bold; margin: 20px 0; }
-        .timer-info { background: #e74c3c; padding: 10px; border-radius: 10px; width: 100%; text-align: center; }
+        h2 { color: #333; }
+        .status-text { margin-bottom: 10px; color: #666; }
     </style>
 </head>
 <body>
 
-<div id="ad-overlay">
-    <div id="ad-x-btn"><i class="fa-solid fa-xmark"></i></div>
+<div class="container">
+    <h2>Eğitim Vadisi TYT-3 Ca</h2>
     
-    <div id="virtual-cursor">
-        <i class="fa-solid fa-arrow-pointer"></i>
+    <div id="ad-container" class="ad-box">
+        <p class="status-text">Görsel hazırlanıyor, lütfen reklamı bekleyin...</p>
+        <div class="timer" id="countdown">10</div>
+        <p><small>Reklam süresi bittiğinde görsel otomatik açılacaktır.</small></p>
     </div>
 
-    <h2 id="ad-text">Reklam Devam Ediyor...</h2>
-    <p>Kalan: <span id="ad-timer">15</span>s</p>
-</div>
-
-<div class="app-container">
-    <div class="timer-info" id="main-timer">Madencilik Süresi: 01:00</div>
+    <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca" id="target-image" class="content-image">
     
-    <div class="mining-area">
-        <div class="fan-box">
-            <svg id="fan" class="spin" viewBox="0 0 512 512" fill="#3a96f3">
-                <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192zm-192 48a48 48 0 1 1 0-96 48 48 0 0 1 0 96z"/>
-                <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
-            </svg>
-        </div>
-        <div class="counter" id="balance">0.000000000</div>
-        <p style="color: var(--text-gray)">Hız: 2.03 GH/s ⚡</p>
+    <div id="footer-msg" style="margin-top: 15px; color: #28a745; font-weight: bold; display: none;">
+        Görsel başarıyla yüklendi!
     </div>
 </div>
 
 <script>
-    let bakiye = 0;
-    let miningTime = 60;
-    let isMining = true;
+    let seconds = 10;
+    const countdownElement = document.getElementById('countdown');
+    const adContainer = document.getElementById('ad-container');
+    const targetImage = document.getElementById('target-image');
+    const footerMsg = document.getElementById('footer-msg');
 
-    // Madencilik Bakiyesi
-    setInterval(() => {
-        if(isMining) {
-            bakiye += 0.000001157; // Günde 100 TON hızı
-            document.getElementById('balance').innerText = bakiye.toFixed(9);
+    const interval = setInterval(() => {
+        seconds--;
+        countdownElement.innerText = seconds;
+
+        if (seconds <= 0) {
+            clearInterval(interval);
+            adContainer.style.display = 'none'; // Reklamı gizle
+            targetImage.style.display = 'block'; // Görseli göster
+            footerMsg.style.display = 'block'; // Bilgi mesajını göster
         }
-    }, 100);
-
-    // Ana Zamanlayıcı
-    function startTimer() {
-        const t = setInterval(() => {
-            if(isMining) {
-                miningTime--;
-                document.getElementById('main-timer').innerText = `Madencilik Süresi: 00:${miningTime < 10 ? '0'+miningTime : miningTime}`;
-                if(miningTime <= 0) {
-                    clearInterval(t);
-                    triggerAd();
-                }
-            }
-        }, 1000);
-    }
-
-    function triggerAd() {
-        isMining = false;
-        document.getElementById('fan').classList.remove('spin');
-        document.getElementById('ad-overlay').style.display = 'flex';
-        
-        // Adexora Çağrısı
-        if(window.showAdexora) window.showAdexora().catch(e => {});
-
-        let adSec = 15;
-        const adInterval = setInterval(() => {
-            adSec--;
-            document.getElementById('ad-timer').innerText = adSec;
-
-            // Son 2 saniye kala imleç animasyonu başlasın
-            if(adSec === 2) {
-                moveCursorAndClick();
-            }
-
-            if(adSec <= 0) {
-                clearInterval(adInterval);
-            }
-        }, 1000);
-    }
-
-    function moveCursorAndClick() {
-        const cursor = document.getElementById('virtual-cursor');
-        const xBtn = document.getElementById('ad-x-btn');
-        
-        // 1. İmleç ekranın ortasından başlasın
-        cursor.style.display = 'block';
-        cursor.style.top = '50%';
-        cursor.style.left = '50%';
-
-        setTimeout(() => {
-            // 2. Çarpı butonuna doğru hareket et
-            const rect = xBtn.getBoundingClientRect();
-            xBtn.style.display = 'flex'; // X butonunu göster
-            
-            cursor.style.top = (rect.top + 10) + 'px';
-            cursor.style.left = (rect.left + 10) + 'px';
-
-            setTimeout(() => {
-                // 3. Tıklama efekti (küçülüp büyüme)
-                cursor.classList.add('click-pulse');
-                
-                // 4. Reklamı kapat ve madenciliği başlat
-                setTimeout(() => {
-                    closeAd();
-                }, 400);
-            }, 800);
-        }, 100);
-    }
-
-    function closeAd() {
-        document.getElementById('ad-overlay').style.display = 'none';
-        document.getElementById('virtual-cursor').style.display = 'none';
-        document.getElementById('ad-x-btn').style.display = 'none';
-        document.getElementById('virtual-cursor').classList.remove('click-pulse');
-        
-        miningTime = 60;
-        isMining = true;
-        document.getElementById('fan').classList.add('spin');
-        startTimer();
-    }
-
-    startTimer();
+    }, 1000);
 </script>
 
 </body>
