@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TONIX - Auto Ad Close</title>
+    <title>TONIX - Tam Otomatik Reklam Döngüsü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     
@@ -18,11 +18,11 @@
 
         body { margin: 0; background-color: var(--bg-color); font-family: 'Segoe UI', sans-serif; color: var(--text-white); overflow: hidden; }
 
-        /* Reklam Kaplama Alanı (Görseldeki Arka Plan) */
+        /* Reklam Katmanı */
         #ad-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #111e28; /* Telegram desenli koyu arka plan */
-            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); /* Desen simülasyonu */
+            background-color: #111e28;
+            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
             z-index: 10000;
             display: none;
             flex-direction: column;
@@ -30,82 +30,69 @@
             align-items: center;
         }
 
-        /* Sağ Üst Kapatma Çarpısı */
+        /* Otomatik Kapanacak Çarpı */
         .close-ad-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 35px;
-            height: 35px;
-            background: rgba(255, 255, 255, 0.1);
+            position: absolute; top: 20px; right: 20px;
+            width: 35px; height: 35px;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            display: none; /* Başlangıçta gizli, 15sn sonra görünecek */
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10001;
-            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            justify-content: center; align-items: center;
+            color: white; font-size: 20px; z-index: 10001;
         }
 
-        /* Reklam Kartı Simülasyonu */
         .ad-box {
-            width: 85%;
-            max-width: 340px;
-            background: #1c2b39;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 85%; max-width: 340px;
+            background: #1c2b39; border-radius: 15px; padding: 30px 20px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(58, 150, 243, 0.2);
         }
 
         .devam-btn {
-            position: absolute;
-            bottom: 30px;
-            width: 90%;
-            max-width: 360px;
-            padding: 15px;
-            background: #2b5278;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
+            position: absolute; bottom: 40px;
+            width: 85%; max-width: 340px; padding: 15px;
+            background: #2b5278; color: white; border: none;
+            border-radius: 12px; font-size: 18px; font-weight: bold;
         }
 
-        /* Ana Uygulama Tasarımı */
+        /* Ana Uygulama */
         .app-container { width: 100%; max-width: 400px; height: 100vh; margin: auto; padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; }
-        .timer-bar { background: #e74c3c; padding: 5px; border-radius: 20px; text-align: center; font-size: 14px; margin-bottom: 20px; }
+        .timer-badge { background: #e74c3c; padding: 8px; border-radius: 20px; text-align: center; font-size: 14px; margin-bottom: 20px; font-weight: bold; }
+        
         .mining-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .fan { width: 180px; height: 180px; transition: transform 0.1s; }
+        .fan { width: 200px; height: 200px; filter: drop-shadow(0 0 20px var(--accent-blue)); }
         .spin { animation: rotation 1s infinite linear; }
         @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .counter { font-size: 36px; font-weight: bold; font-family: monospace; margin-top: 20px; }
+        
+        .counter { font-size: 38px; font-weight: bold; font-family: 'Courier New', monospace; margin: 20px 0; }
+        .hash { color: #4facfe; font-size: 14px; background: rgba(79, 172, 254, 0.1); padding: 5px 15px; border-radius: 20px; }
     </style>
 </head>
 <body>
 
 <div id="ad-container">
-    <div id="close-icon" class="close-ad-btn" onclick="closeAdManually()">
+    <div id="close-icon" class="close-ad-btn">
         <i class="fa-solid fa-xmark"></i>
     </div>
     
     <div class="ad-box">
-        <p style="margin: 0; font-size: 14px; color: var(--text-gray);">Download is ready</p>
-        <h3 style="margin: 10px 0;">Tap to proceed</h3>
-        <div style="background: #34495e; width: 50px; height: 50px; border-radius: 50%; display: flex; margin: 15px auto; justify-content: center; align-items: center;">
-            <i class="fa-solid fa-download"></i>
+        <div style="font-size: 40px; color: var(--accent-blue); margin-bottom: 15px;">
+            <i class="fa-solid fa-rectangle-ad"></i>
+        </div>
+        <h3 style="margin: 0;">Reklam İzleniyor</h3>
+        <p style="color: var(--text-gray); font-size: 14px; margin-top: 10px;">
+            Madencilik süresi kazanmak için bekleyin...
+        </p>
+        <div style="margin-top: 20px; font-size: 20px; font-weight: bold; color: var(--accent-blue);">
+            <span id="sec">15</span> saniye
         </div>
     </div>
 
-    <button class="devam-btn">Devam</button>
-    <p id="ad-status" style="position: absolute; bottom: 90px; color: #8e99a2; font-size: 12px;">Reklamın bitmesine <span id="sec">15</span>s</p>
+    <button class="devam-btn">Süre Bitince Otomatik Devam Eder</button>
 </div>
 
 <div class="app-container">
-    <div class="timer-bar" id="status-text">Kalan Süre: 01:00</div>
+    <div class="timer-badge" id="status-text">Kalan Süre: 01:00</div>
     
     <div class="mining-area">
         <svg id="fan-svg" class="fan spin" viewBox="0 0 512 512" fill="#3a96f3">
@@ -113,17 +100,17 @@
             <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
         </svg>
         <div class="counter" id="ton-count">0.000000000</div>
-        <p style="color: var(--accent-blue)">Mining Active</p>
+        <div class="hash">Hız: 1,450.50 GH/s ⚡</div>
     </div>
 </div>
 
 <script>
-    let timeLeft = 60; // 1 dakika
+    let timeLeft = 60; 
     let balance = 0;
     let isRunning = true;
-    const increment = 100 / (24 * 3600 * 10); // Günde 100 TON hızı
+    const increment = 100 / (24 * 3600 * 10); 
 
-    // Madencilik Sayacı
+    // Madencilik Sayacı (Her 100ms)
     setInterval(() => {
         if(isRunning) {
             balance += increment;
@@ -131,27 +118,32 @@
         }
     }, 100);
 
-    // Ana Zamanlayıcı
+    // Ana Zamanlayıcı (1 Dakika)
     function startTimer() {
-        const timer = setInterval(() => {
+        const mainInterval = setInterval(() => {
             if(isRunning) {
                 timeLeft--;
                 document.getElementById('status-text').innerText = `Kalan Süre: 00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
                 
                 if(timeLeft <= 0) {
-                    clearInterval(timer);
-                    showAdSequence();
+                    clearInterval(mainInterval);
+                    showAutoAd();
                 }
             }
         }, 1000);
     }
 
-    // Reklam Başlatma
-    function showAdSequence() {
-        isRunning = false;
+    // Reklam Süreci
+    function showAutoAd() {
+        isRunning = false; // Madenciliği durdur
         document.getElementById('fan-svg').classList.remove('spin');
         document.getElementById('ad-container').style.display = 'flex';
         
+        // Adexora reklamını çağır
+        if(window.showAdexora) {
+            window.showAdexora().catch(e => console.log("Adexora Yüklenemedi"));
+        }
+
         let adSeconds = 15;
         const adCounter = setInterval(() => {
             adSeconds--;
@@ -159,35 +151,31 @@
             
             if(adSeconds <= 0) {
                 clearInterval(adCounter);
-                // 15 saniye dolunca X butonu çıksın
+                
+                // İSTEĞİN: Çarpı belirsin ve tıkalamadan kapansın
                 document.getElementById('close-icon').style.display = 'flex';
                 
-                // OTOMATİK KAPATMA: X butonuna 1 saniye sonra kendisi basar
                 setTimeout(() => {
-                    closeAdManually();
-                }, 1000);
+                    autoCloseAd();
+                }, 800); // Yarım saniye çarpı görünür sonra kapanır
             }
         }, 1000);
-
-        // Gerçek Reklamı Çağır
-        if(window.showAdexora) {
-            window.showAdexora().then(() => {
-                console.log("Reklam başarıyla tamamlandı");
-            }).catch(e => console.log("Reklam hatası"));
-        }
     }
 
-    // Reklamı Kapat ve Sistemi Sıfırla
-    function closeAdManually() {
+    function autoCloseAd() {
+        // Reklam ekranını gizle
         document.getElementById('ad-container').style.display = 'none';
         document.getElementById('close-icon').style.display = 'none';
+        
+        // Değerleri sıfırla ve başlat
         timeLeft = 60;
         isRunning = true;
         document.getElementById('fan-svg').classList.add('spin');
+        document.getElementById('status-text').innerText = `Kalan Süre: 01:00`;
         startTimer();
     }
 
-    // Başlat
+    // Uygulamayı İlk Kez Başlat
     startTimer();
 </script>
 
