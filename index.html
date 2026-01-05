@@ -3,161 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canlı Haber Akışı</title>
+    <title>Haber Portalı | Güncel Akış</title>
     <style>
         :root {
-            --primary: #e74c3c;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-dim: #606770;
+            --accent: #007bff;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
             margin: 0;
-            background-color: #f8f9fa;
+            padding-bottom: 50px;
         }
 
+        /* Üst Menü */
         header {
-            background-color: var(--dark);
-            color: white;
-            padding: 1rem;
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 0;
             text-align: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
+        header h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
+        .data-source { font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
+
+        /* Haber Kartları */
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 20px auto;
             padding: 0 15px;
         }
 
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
 
         .news-card {
-            background: white;
-            border-radius: 8px;
+            background: var(--card-bg);
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
-        .news-card:hover {
-            transform: translateY(-5px);
-        }
+        .news-card:hover { transform: translateY(-5px); }
 
-        .news-card img {
+        .img-container {
             width: 100%;
-            height: 200px;
+            height: 180px;
+            background: #eee;
+            position: relative;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            background-color: #ddd;
         }
 
-        .news-content {
-            padding: 15px;
+        .source-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
 
-        .news-title {
-            font-size: 1.2rem;
+        .content {
+            padding: 18px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: 700;
             margin: 0 0 10px 0;
-            color: #333;
+            line-height: 1.4;
+            color: var(--text-main);
+            text-decoration: none;
         }
 
-        .news-desc {
-            font-size: 0.9rem;
-            color: #666;
+        .title:hover { color: var(--accent); }
+
+        .time-ago {
+            font-size: 0.8rem;
+            color: var(--text-dim);
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
-        .news-footer {
+        .time-ago::before {
+            content: "🕒";
+            margin-right: 5px;
+        }
+
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: auto;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #999;
         }
 
-        .btn-read {
-            background: var(--primary);
-            color: white;
+        .btn-go {
+            color: var(--accent);
             text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .loader {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2rem;
-            color: var(--dark);
-        }
+        /* Yükleniyor Efekti */
+        #loader { text-align: center; padding: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Haber Ekspresi</h1>
-    <p>Dünyadan Güncel Gelişmeler</p>
+    <h1>HABER AKIŞI</h1>
+    <div class="data-source">Kaynak: Google Haberler (RSS) | Gerçek zamanlı güncellenir</div>
 </header>
 
 <div class="container">
-    <div id="loader" class="loader">Haberler yükleniyor...</div>
+    <div id="loader">Haberler toplanıyor...</div>
     <div id="news-container" class="news-grid"></div>
 </div>
 
 <script>
-    // Ücretsiz bir RSS-to-JSON servisi kullanarak gerçek verileri çekiyoruz
-    // Örnek olarak Google Haberler'in teknoloji beslemesini kullanıyoruz
-    const NEWS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%3Fhl%3Dtr%26gl%3DTR%26ceid%3DTR%3Atr';
+    // Zaman hesaplama fonksiyonu
+    function timeAgo(dateString) {
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffInSeconds = Math.floor((now - past) / 1000);
 
-    async function haberleriGetir() {
+        if (diffInSeconds < 60) return 'Az önce';
+        
+        const minutes = Math.floor(diffInSeconds / 60);
+        if (minutes < 60) return `${minutes} dakika önce`;
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} saat önce`;
+        
+        const days = Math.floor(hours / 24);
+        return `${days} gün önce`;
+    }
+
+    async function fetchNews() {
+        // Google News Türkiye RSS beslemesini JSON'a çeviriyoruz
+        const rssUrl = encodeURIComponent('https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr');
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
         try {
-            const response = await fetch(NEWS_URL);
-            const data = await response.json();
-            
+            const res = await fetch(apiUrl);
+            const data = await res.json();
             const container = document.getElementById('news-container');
             const loader = document.getElementById('loader');
-            
-            loader.style.display = 'none';
 
             if (data.status === 'ok') {
+                loader.style.display = 'none';
+                
                 data.items.forEach(item => {
-                    // Bazı haberlerde görsel olmayabilir, rastgele bir görsel atayalım veya boş geçelim
-                    const thumbnail = item.enclosure.link || `https://picsum.photos/seed/${Math.random()}/400/200`;
-                    
+                    // Kaynak adını başlıktan ayıkla (Örn: "Haber Başlığı - Hürriyet" -> "Hürriyet")
+                    const titleParts = item.title.split(' - ');
+                    const sourceName = titleParts.pop();
+                    const cleanTitle = titleParts.join(' - ');
+
+                    // Rastgele görsel (RSS görseli yoksa)
+                    const img = item.enclosure.link || `https://picsum.photos/seed/${Math.random()}/400/250`;
+
                     const card = `
                         <div class="news-card">
-                            <img src="${thumbnail}" alt="Haber Görseli">
-                            <div class="news-content">
-                                <h2 class="news-title">${item.title}</h2>
-                                <p class="news-desc">${item.description.substring(0, 120)}...</p>
-                                <div class="news-footer">
-                                    <span>${new Date(item.pubDate).toLocaleDateString('tr-TR')}</span>
-                                    <a href="${item.link}" target="_blank" class="btn-read">Devamını Oku</a>
+                            <div class="img-container">
+                                <img src="${img}" alt="Haber">
+                                <span class="source-tag">${sourceName}</span>
+                            </div>
+                            <div class="content">
+                                <a href="${item.link}" target="_blank" class="title">${cleanTitle}</a>
+                                <div class="time-ago">${timeAgo(item.pubDate)}</div>
+                                <div class="footer">
+                                    <a href="${item.link}" target="_blank" class="btn-go">Habere Git →</a>
                                 </div>
                             </div>
                         </div>
                     `;
                     container.innerHTML += card;
                 });
-            } else {
-                container.innerHTML = "<p>Haberler şu an yüklenemedi.</p>";
             }
-        } catch (error) {
-            console.error("Hata:", error);
-            document.getElementById('loader').innerText = "Veri çekme hatası oluştu.";
+        } catch (err) {
+            document.getElementById('loader').innerHTML = "Veriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.";
         }
     }
 
-    // Sayfa yüklendiğinde çalıştır
-    window.onload = haberleriGetir;
+    window.onload = fetchNews;
 </script>
 
 </body>
