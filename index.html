@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | Full App V8</title>
+    <title>PDFSimpson | 9:6 Düzeltilmiş</title>
     <style>
         :root {
             --bg: #000000;
@@ -36,11 +36,9 @@
             position: relative;
         }
 
-        /* Üst Logo */
         header { padding: 20px; text-align: center; background: var(--bg); z-index: 10; }
         .logo { font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
 
-        /* Sayfa Alanları */
         .viewport { flex: 1; overflow-y: auto; position: relative; }
         .page { display: none; height: 100%; padding: 20px; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
@@ -50,7 +48,7 @@
         .pdf-grid { display: flex; flex-direction: column; gap: 20px; }
         .card-9-6 {
             width: 100%;
-            aspect-ratio: 6 / 9;
+            aspect-ratio: 6 / 9; /* Dikey Oran Kilitlendi */
             background: var(--surface);
             border-radius: 25px;
             border: 1px solid #333;
@@ -62,16 +60,15 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.95));
         }
 
-        /* --- SHORTS (SONSUZ KAYDIRMA) --- */
+        /* --- SHORTS --- */
         #shorts { padding: 0; overflow-y: scroll; scroll-snap-type: y mandatory; }
         .short-item {
             height: 100%; width: 100%; scroll-snap-align: start;
             display: flex; align-items: center; justify-content: center;
             background: linear-gradient(45deg, #050505, #111);
-            position: relative;
         }
 
-        /* --- CANLI YAYIN (16:9) --- */
+        /* --- CANLI YAYIN --- */
         .live-item {
             width: 100%; aspect-ratio: 16 / 9; background: #1a1a1a;
             border-radius: 15px; border: 1px solid var(--live);
@@ -82,33 +79,48 @@
             padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;
         }
 
-        /* --- BUTONLAR --- */
         .action-btn {
             width: 100%; background: var(--accent); color: #000;
             border: none; padding: 12px; border-radius: 12px;
             font-weight: 900; cursor: pointer;
         }
 
-        /* --- ÖZEL 9:6 GÖRSEL PENCERESİ --- */
+        /* --- 9:6 GÖRSEL PENCERESİ (DÜZELTİLDİ) --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             display: none; justify-content: center; align-items: center;
             z-index: 9999; backdrop-filter: blur(10px);
         }
+
         .modal-frame-9-6 {
-            width: 85%; aspect-ratio: 6 / 9; background: #1a1a1a;
-            border: 2px solid var(--accent); border-radius: 20px;
-            position: relative; overflow: hidden;
+            width: 85%; 
+            aspect-ratio: 6 / 9; /* PENCERE 9:6 KİLİTLİ */
+            background: #000;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .modal-frame-9-6 img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal-frame-9-6 img {
+            width: 100%;
+            height: 100%;
+            /* 'cover' ekranı tam doldurur, 'contain' görselin tamamını gösterir */
+            object-fit: cover; 
+            display: block;
+        }
+
         .close-x {
             position: absolute; top: 15px; right: 15px; background: var(--accent);
             color: #000; width: 35px; height: 35px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; z-index: 100;
+            font-weight: bold; cursor: pointer; z-index: 1000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
-        /* --- ALT NAV --- */
         .bottom-nav {
             height: 75px; background: #050505; border-top: 1px solid #222;
             display: flex; justify-content: space-around; align-items: center;
@@ -130,7 +142,7 @@
     <div class="viewport">
         <div id="home" class="page active">
             <h3>Hoş Geldin! 👋</h3>
-            <div style="background: #1a1a1a; padding: 20px; border-radius: 20px;">
+            <div style="background: #1a1a1a; padding: 20px; border-radius: 20px; border-left: 4px solid var(--accent);">
                 <p>Eğitim Vadisi TYT-3 Denemesi yayınlandı. PDF sekmesine göz at!</p>
             </div>
         </div>
@@ -138,9 +150,9 @@
         <div id="pdfs" class="page">
             <div class="pdf-grid">
                 <div class="card-9-6">
-                    <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px;">📄</div>
+                    <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px; background:#1a1a1a;">📄</div>
                     <div class="card-content">
-                        <div style="font-weight:bold; margin-bottom:10px;">Eğitim Vadisi TYT-3</div>
+                        <div style="font-weight:bold; margin-bottom:10px; text-shadow: 0 2px 4px #000;">Eğitim Vadisi TYT-3</div>
                         <button class="action-btn" onclick="onayla()">ONAYLA (<span id="c">0</span>/10)</button>
                     </div>
                 </div>
@@ -148,24 +160,13 @@
         </div>
 
         <div id="shorts" class="page">
-            <div class="short-item">
-                <div style="text-align:center;">
-                    <b>@HocamAnlatıyor</b><p>Sonsuz Scroll Video 1</p>
-                </div>
-            </div>
-            <div class="short-item" style="background:#0a0a0a;">
-                <div style="text-align:center;">
-                    <b>@PDFSimpson</b><p>Sonsuz Scroll Video 2</p>
-                </div>
-            </div>
+            <div class="short-item"><b>@HocamAnlatıyor</b></div>
+            <div class="short-item" style="background:#0a0a0a;"><b>@PDFSimpson</b></div>
         </div>
 
         <div id="yayin" class="page">
-            <div class="live-item">
-                <div class="live-tag">CANLI</div>
-            </div>
+            <div class="live-item"><div class="live-tag">CANLI</div></div>
             <b>Matematik Canlı Soru Çözümü</b>
-            <p style="color:var(--text-dim); font-size:12px;">1,2K kişi izliyor</p>
         </div>
     </div>
 
@@ -186,28 +187,22 @@
 
 <script>
     let n = 0;
-
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         el.classList.add('active');
     }
-
     function onayla() {
         if(n < 10) {
             n++;
             document.getElementById('c').innerText = n;
-            if(n === 10) {
-                document.getElementById('modal').style.display = 'flex';
-            }
+            if(n === 10) { document.getElementById('modal').style.display = 'flex'; }
         }
     }
-
     function kapat() {
         document.getElementById('modal').style.display = 'none';
-        n = 0;
-        document.getElementById('c').innerText = n;
+        n = 0; document.getElementById('c').innerText = n;
     }
 </script>
 
