@@ -3,121 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haberler.com | Pro Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    
+    <title>Tonix Mining Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --red: #d32f2f; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #ffeb3b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        .header { background: #111827; border-bottom: 3px solid var(--red); padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .header h1 { margin: 0; font-size: 1.3rem; color: var(--red); letter-spacing: 1px; }
-
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-
-        /* Haber Kartı */
-        .news-card { background: var(--card); border-radius: 12px; margin-bottom: 20px; overflow: hidden; border: 1px solid #334155; cursor: pointer; }
-        .news-img { width: 100%; height: 180px; object-fit: cover; }
-        .news-body { padding: 12px; }
-        .news-tag { color: var(--red); font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .news-title { font-size: 1.1rem; font-weight: 700; margin: 5px 0; line-height: 1.4; }
-
-        /* Detay Paneli */
-        #detail-view { position: fixed; inset: 0; background: var(--bg); display: none; overflow-y: auto; z-index: 9999; padding: 20px; }
-        .close-btn { background: var(--red); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; }
-
-        /* Güvenlik Kodu */
-        #security-alert {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #111827; color: var(--accent); padding: 15px 25px; border-radius: 12px;
-            font-weight: 900; display: none; z-index: 10001; border: 2px solid var(--accent);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); font-family: monospace;
+        /* Dönen Fan Animasyonu */
+        .fan-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 20px auto;
         }
+        .fan-blade {
+            width: 100%;
+            height: 100%;
+            background: url('https://cdn-icons-png.flaticon.com/512/936/936306.png'); /* Örnek fan görseli */
+            background-size: cover;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .mining-active .fan-blade { animation-duration: 0.5s; }
+        .mining-stopped .fan-blade { animation-play-state: paused; }
     </style>
 </head>
-<body>
+<body class="flex justify-center items-center min-h-screen">
 
-<div class="header"><h1>HABERLER<span style="color:#fff">.com</span></h1></div>
-
-<div id="security-alert">KOD: <span id="code-val">--Abc--Def</span></div>
-
-<div class="container" id="news-feed"></div>
-
-<div id="detail-view">
-    <button class="close-btn" onclick="closeDetail()">← Listeye Dön</button>
-    <div id="detail-content"></div>
-</div>
-
-<script>
-    const ADMIN_ID = 8392479231;
-    const primes = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
-
-    const localNews = [
-        { title: "2026 Asgari Ücret Netleşti: 28.075 TL!", img: "https://picsum.photos/seed/money/600/400", body: "Hükümet ve işçi temsilcileri arasındaki görüşmeler sonuçlandı. 2026 yılı asgari ücreti net 28.075 TL olarak açıklandı. Yeni ücret Şubat ayından itibaren geçerli olacak." },
-        { title: "7 Ocak Kar Tatili: Gümüşhane'de Eğitime Ara!", img: "https://picsum.photos/seed/snow/600/400", body: "Gümüşhane Valiliği, yoğun kar yağışı ve buzlanma riski nedeniyle 7 Ocak 2026 Çarşamba günü okulların il genelinde 1 gün süreyle tatil edildiğini duyurdu." },
-        { title: "Kastamonu ve Giresun'da Taşımalı Eğitim Tatil", img: "https://picsum.photos/seed/cold/600/400", body: "Kastamonu'nun yüksek kesimlerinde devam eden kar yağışı hayatı olumsuz etkiliyor. Valilik, taşımalı eğitim kapsamındaki öğrenciler için yarın tatil kararı aldı." },
-        { title: "Benzine 2026'nın İlk Zammı Geldi", img: "https://picsum.photos/seed/fuel/600/400", body: "Dolar kuru ve brent petrol fiyatlarındaki artış pompaya yansıdı. Gece yarısından itibaren benzine 2.45 TL zam yapıldı. Litre fiyatı 60 TL sınırına yaklaştı." },
-        { title: "Siyasette Erken Seçim Tartışmaları", img: "https://picsum.photos/seed/politics/600/400", body: "Ankara kulislerinde 2026 sonbaharında bir erken seçim yapılabileceği konuşuluyor. Muhalefet partileri hazırlıklara başladıklarını bildirdi." }
-    ];
-
-    // 1. ADEXIUM SDK Girişi
-    document.addEventListener('DOMContentLoaded', () => {
-        const adexiumWidget = new AdexiumWidget({wid: 'def706e3-3e7a-46b9-b07b-5c4fca45d171', adFormat: 'interstitial'});
-        adexiumWidget.autoMode();
-        renderNews();
+    <div class="w-full max-w-md p-4 space-y-4">
         
-        // Her 30 saniyede bir kod üretimi
-        setInterval(showCode, 30000);
-    });
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-500 p-2 rounded-full text-white"><i class="fas fa-gem"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">Balans</p>
+                    <p id="totalTon" class="font-bold text-gray-800">0.0000 TON</p>
+                </div>
+            </div>
+            <button class="bg-blue-100 p-2 rounded-lg text-blue-600"><i class="fas fa-wallet"></i></button>
+        </div>
 
-    // 2. KOD STRATEJİSİ (XXAbcXXDef - XX'ler ASAL)
-    function generateSmartCode() {
-        const p1 = primes[Math.floor(Math.random() * primes.length)];
-        const p2 = primes[Math.floor(Math.random() * primes.length)];
-        return `${p1}Abc${p2}Def`;
-    }
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-800 p-2 rounded-full text-white"><i class="fas fa-fan"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">Balans</p>
+                    <p id="totalTonix" class="font-bold text-gray-800">152655 TONIX</p>
+                </div>
+            </div>
+            <button class="bg-blue-100 p-2 rounded-lg text-blue-600"><i class="fas fa-wallet"></i></button>
+        </div>
 
-    function showCode() {
-        document.getElementById('code-val').innerText = generateSmartCode();
-        const box = document.getElementById('security-alert');
-        box.style.display = 'block';
-        setTimeout(() => box.style.display = 'none', 7000);
-    }
+        <div class="glass-card p-8 text-center relative overflow-hidden">
+            <div class="fan-container" id="fanBox">
+                <div class="fan-blade"></div>
+            </div>
 
-    // 3. HABER SİSTEMİ
-    function renderNews() {
-        const feed = document.getElementById('news-feed');
-        localNews.forEach((n, i) => {
-            const card = document.createElement('div');
-            card.className = 'news-card';
-            card.onclick = () => openDetail(i);
-            card.innerHTML = `
-                <img src="${n.img}" class="news-img">
-                <div class="news-body">
-                    <span class="news-tag">FLAŞ HABER</span>
-                    <div class="news-title">${n.title}</div>
-                </div>`;
-            feed.appendChild(card);
-        });
-    }
+            <div class="mt-4">
+                <h1 id="miningCounter" class="text-3xl font-bold text-gray-800">0.00000000 TON</h1>
+                <p class="text-sm text-yellow-500 font-medium">76.88 GH/s ⚡</p>
+            </div>
 
-    function openDetail(index) {
-        const n = localNews[index];
-        const content = `
-            <img src="${n.img}" style="width:100%; border-radius:15px; margin-bottom:20px;">
-            <h1 style="color:#fff; line-height:1.3;">${n.title}</h1>
-            <p style="font-size:1.1rem; line-height:1.7; color:#cbd5e1;">${n.body}</p>
-        `;
-        document.getElementById('detail-content').innerHTML = content;
-        document.getElementById('detail-view').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
+            <div id="timerDisplay" class="mt-4 text-red-500 font-bold">Kalan Süre: 01:00</div>
 
-    function closeDetail() {
-        document.getElementById('detail-view').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-</script>
+            <div class="flex space-x-2 mt-6">
+                <button onclick="collectMining()" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">
+                    <i class="fas fa-hand-holding-usd mr-2"></i> Забрать
+                </button>
+                <button onclick="showAd()" id="adBtn" class="flex-1 bg-blue-100 text-blue-600 py-3 rounded-xl font-bold hidden active:scale-95 transition">
+                    <i class="fas fa-play-circle mr-2"></i> Reklam İzle (+1dk)
+                </button>
+                <button class="flex-1 bg-blue-100 text-blue-600 py-3 rounded-xl font-bold">
+                    <i class="fas fa-rocket mr-2"></i> Улучшить
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card p-3 flex justify-around text-gray-400 text-xs">
+            <div class="text-center"><i class="fas fa-wallet block text-lg"></i><span>Cüzdan</span></div>
+            <div class="text-center"><i class="fas fa-users block text-lg"></i><span>Ekip</span></div>
+            <div class="text-center text-blue-500"><i class="fas fa-fan block text-lg"></i><span>Mining</span></div>
+            <div class="text-center"><i class="fas fa-bullseye block text-lg"></i><span>Görev</span></div>
+            <div class="text-center"><i class="fas fa-sliders-h block text-lg"></i><span>Ayar</span></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMining = 0.0;
+        let totalBalance = 0.0;
+        let timeLeft = 60; // 1 Dakika
+        let isMining = true;
+
+        const miningDisplay = document.getElementById('miningCounter');
+        const totalDisplay = document.getElementById('totalTon');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const adBtn = document.getElementById('adBtn');
+        const fanBox = document.getElementById('fanBox');
+
+        // Madencilik Döngüsü (Saniyede bir çalışır)
+        const miningInterval = setInterval(() => {
+            if (isMining && timeLeft > 0) {
+                // Her saniye 0.00005 TON ekle
+                currentMining += 0.00005;
+                miningDisplay.innerText = currentMining.toFixed(8) + " TON";
+                
+                // Zamanlayıcıyı düşür
+                timeLeft--;
+                updateTimerUI();
+            } else if (timeLeft <= 0) {
+                stopMining();
+            }
+        }, 1000);
+
+        function updateTimerUI() {
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            timerDisplay.innerText = `Kalan Süre: ${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            
+            if (timeLeft <= 0) {
+                timerDisplay.innerText = "Süre Doldu! Reklam İzle.";
+                adBtn.classList.remove('hidden');
+            }
+        }
+
+        function stopMining() {
+            isMining = false;
+            fanBox.classList.add('mining-stopped');
+        }
+
+        function startMining() {
+            isMining = true;
+            fanBox.classList.remove('mining-stopped');
+            adBtn.classList.add('hidden');
+        }
+
+        // Kazancı Topla (Забрать)
+        function collectMining() {
+            totalBalance += currentMining;
+            totalDisplay.innerText = totalBalance.toFixed(4) + " TON";
+            currentMining = 0;
+            miningDisplay.innerText = "0.00000000 TON";
+        }
+
+        // Reklam İzleme Simülasyonu
+        function showAd() {
+            alert("Reklam izleniyor... (5 saniye)");
+            setTimeout(() => {
+                timeLeft = 60; // 1 dakika ekle
+                startMining();
+                updateTimerUI();
+                alert("Tebrikler! 1 dakika ek süre kazandınız.");
+            }, 2000);
+        }
+    </script>
 </body>
 </html>
