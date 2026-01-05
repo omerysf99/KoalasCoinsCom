@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TONIX App - 100 TON/Gün</title>
+    <title>TONIX App - Auto Ads</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -14,195 +14,167 @@
             --text-gray: #8e99a2;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', sans-serif;
-            color: var(--text-white);
-            display: flex;
-            justify-content: center;
-            overflow: hidden;
-        }
+        body { margin: 0; background-color: var(--bg-color); font-family: 'Segoe UI', sans-serif; color: var(--text-white); display: flex; justify-content: center; overflow: hidden; }
 
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
+        .app-container { width: 100%; max-width: 400px; height: 100vh; padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; }
 
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            font-weight: bold;
-        }
+        /* Timer Badge */
+        .timer-badge { background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 10px; text-align: center; align-self: center; }
 
-        /* Balance Cards */
-        .balance-card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            border: 1px solid #253441;
-        }
-
-        .balance-info { display: flex; align-items: center; gap: 12px; }
-
-        .icon-circle {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2193b0, #6dd5ed);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-        }
-
-        .balance-text span { display: block; font-size: 11px; color: var(--text-gray); text-transform: uppercase; }
+        .balance-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 1px solid #253441; }
+        .icon-circle { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #2193b0, #6dd5ed); display: flex; justify-content: center; align-items: center; }
         .balance-text b { font-size: 17px; }
 
-        /* Mining Section */
-        .mining-section {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .fan-container {
-            width: 240px;
-            height: 240px;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .fan-image {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 0 30px rgba(58, 150, 243, 0.4));
-            animation: spin 1.5s linear infinite; /* Hızlı kazım için hızlandırıldı */
-        }
-
+        .mining-section { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .fan-container { width: 200px; height: 200px; margin-bottom: 20px; }
+        .fan-image { width: 100%; height: 100%; filter: drop-shadow(0 0 20px rgba(58, 150, 243, 0.4)); }
+        .spinning { animation: spin 1.5s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .ton-value { font-size: 32px; font-weight: 800; font-family: monospace; }
-        .ton-label { font-size: 18px; color: var(--text-gray); margin-bottom: 5px; }
-        .hash-rate { background: rgba(58, 150, 243, 0.1); padding: 5px 15px; border-radius: 20px; color: #4facfe; font-size: 14px; }
+        .hash-rate { background: rgba(58, 150, 243, 0.1); padding: 5px 15px; border-radius: 20px; color: #4facfe; font-size: 14px; margin-top: 10px;}
 
-        /* Buttons */
         .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn {
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: 0.3s;
-        }
+        .btn { padding: 14px; border-radius: 12px; border: none; font-weight: bold; color: white; cursor: pointer; }
         .btn-claim { background: #3a96f3; }
         .btn-boost { background: #253441; border: 1px solid #3a96f3; }
-        .btn:active { transform: scale(0.95); }
 
-        /* Nav */
-        .bottom-nav {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 20px 20px 0 0;
-            display: flex;
-            justify-content: space-around;
+        /* Reklam Katmanı (Overlay) */
+        #ad-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
         }
+        .ad-content { width: 80%; height: 60%; background: #333; border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative; border: 2px solid var(--accent-blue); }
+        .ad-close { position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; background: white; color: black; border-radius: 50%; display: none; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; }
+        .ad-timer-text { margin-top: 20px; color: var(--text-gray); }
+
+        .bottom-nav { background: var(--card-bg); padding: 15px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; }
         .nav-item { text-align: center; color: var(--text-gray); font-size: 10px; }
         .nav-item i { display: block; font-size: 22px; margin-bottom: 4px; }
-        .nav-item.active { color: var(--accent-blue); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <i class="fa-solid fa-chevron-left"></i>
-        <span>TONIX App</span>
-        <i class="fa-solid fa-ellipsis"></i>
+<div id="ad-overlay">
+    <div class="ad-content">
+        <div id="close-ad" class="ad-close">X</div>
+        <p style="text-align: center;">REKLAM İZLENİYOR...<br><span style="font-size: 12px; color: #888;">(15 Saniye)</span></p>
     </div>
+    <div class="ad-timer-text">Madencilik Devam Etmek İçin Bekleyin: <span id="ad-sec">15</span>s</div>
+</div>
+
+<div class="app-container">
+    <div class="timer-badge" id="mining-timer">Kalan Süre: 01:00</div>
 
     <div class="balance-card">
         <div class="balance-info">
             <div class="icon-circle"><i class="fa-solid fa-diamond"></i></div>
-            <div class="balance-text"><span>Balance</span><b>0 TON</b></div>
+            <div class="balance-text"><span>TON Bakiye</span><br><b id="wallet-ton">0 TON</b></div>
         </div>
         <i class="fa-solid fa-wallet" style="color: var(--accent-blue)"></i>
     </div>
 
-    <div class="balance-card">
-        <div class="balance-info">
-            <div class="icon-circle" style="background: #1e3c72"><i class="fa-solid fa-bahai"></i></div>
-            <div class="balance-text"><span>Balance</span><b>0 TONIX</b></div>
-        </div>
-        <i class="fa-solid fa-suitcase" style="color: var(--accent-blue)"></i>
-    </div>
-
     <div class="mining-section">
         <div class="fan-container">
-            <svg class="fan-image" viewBox="0 0 512 512" fill="#3a96f3">
+            <svg id="fan" class="fan-image spinning" viewBox="0 0 512 512" fill="#3a96f3">
                 <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192zm-192 48a48 48 0 1 1 0-96 48 48 0 0 1 0 96z"/>
                 <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
             </svg>
         </div>
-        
-        <div class="ton-value" id="counter">0.0000000000</div>
-        <div class="ton-label">TON</div>
-        <div class="hash-rate">1,450.50 GH/s ⚡</div>
+        <div class="ton-value" id="counter">0.000000000</div>
+        <div class="hash-rate">Hız: 1,450.50 GH/s ⚡</div>
     </div>
 
     <div class="action-buttons">
-        <button class="btn btn-claim"><i class="fa-solid fa-download"></i> Claim</button>
-        <button class="btn btn-boost"><i class="fa-solid fa-bolt-lightning"></i> Boost</button>
+        <button class="btn btn-claim" onclick="alert('Bakiye toplandı!')">Claim</button>
+        <button class="btn btn-boost">Boost</button>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item"><i class="fa-solid fa-wallet"></i>Wallet</div>
-        <div class="nav-item"><i class="fa-solid fa-user-group"></i>Friends</div>
         <div class="nav-item active"><i class="fa-solid fa-house"></i>Home</div>
         <div class="nav-item"><i class="fa-solid fa-list-check"></i>Missions</div>
-        <div class="nav-item"><i class="fa-solid fa-ellipsis-h"></i>More</div>
     </div>
 </div>
 
 <script>
-    // Matematiksel Hesap: Günde 100 TON kazanç
-    // 100 TON / 24 saat / 60 dakika / 60 saniye / 10 (çünkü 100ms'de bir güncelliyoruz)
-    const dailyGoal = 100;
+    // --- Ayarlar ---
+    let miningTime = 60; // 1 Dakika (saniye cinsinden)
+    const dailyGoal = 100; 
     const increment = dailyGoal / (24 * 60 * 60 * 10); 
-    
-    let currentBalance = 0.0000000000;
-    const counterElement = document.getElementById('counter');
+    let currentBalance = 0;
+    let isMining = true;
 
-    function updateMining() {
-        currentBalance += increment;
-        // Rakamların kaymaması için 8 basamak fixlendi
-        counterElement.innerText = currentBalance.toFixed(9);
+    const counterDisplay = document.getElementById('counter');
+    const timerDisplay = document.getElementById('mining-timer');
+    const fan = document.getElementById('fan');
+    const adOverlay = document.getElementById('ad-overlay');
+    const adSecDisplay = document.getElementById('ad-sec');
+    const closeAdBtn = document.getElementById('close-ad');
+
+    // --- Mining Döngüsü ---
+    setInterval(() => {
+        if(isMining && miningTime > 0) {
+            currentBalance += increment;
+            counterDisplay.innerText = currentBalance.toFixed(9);
+        }
+    }, 100);
+
+    // --- Timer Döngüsü ---
+    function startMainTimer() {
+        const timerInterval = setInterval(() => {
+            if(isMining) {
+                miningTime--;
+                let mins = Math.floor(miningTime / 60);
+                let secs = miningTime % 60;
+                timerDisplay.innerText = `Kalan Süre: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if(miningTime <= 0) {
+                    clearInterval(timerInterval);
+                    stopMiningAndShowAd();
+                }
+            }
+        }, 1000);
     }
 
-    setInterval(updateMining, 100);
-</script>
+    function stopMiningAndShowAd() {
+        isMining = false;
+        fan.classList.remove('spinning');
+        adOverlay.style.display = 'flex';
+        startAdFlow();
+    }
 
+    function startAdFlow() {
+        let adLeft = 15;
+        adSecDisplay.innerText = adLeft;
+        closeAdBtn.style.display = 'none';
+
+        const adInterval = setInterval(() => {
+            adLeft--;
+            adSecDisplay.innerText = adLeft;
+            if(adLeft <= 0) {
+                clearInterval(adInterval);
+                closeAdBtn.style.display = 'flex';
+                // 1 saniye sonra otomatik kapatma (isteğin üzerine)
+                setTimeout(() => {
+                    closeAdBtn.click();
+                }, 1000);
+            }
+        }, 1000);
+    }
+
+    closeAdBtn.onclick = () => {
+        adOverlay.style.display = 'none';
+        miningTime = 60; // Süreyi yenile
+        isMining = true;
+        fan.classList.add('spinning');
+        startMainTimer(); // Timer'ı baştan başlat
+    };
+
+    // Başlat
+    startMainTimer();
+
+</script>
 </body>
 </html>
