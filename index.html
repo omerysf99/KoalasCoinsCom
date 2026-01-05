@@ -3,85 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eğitim Vadisi TYT-3 Ca - Dosya Görüntüle</title>
+    <title>PDFSimpson | Ultra Premium</title>
     <style>
+        :root {
+            --bg: #030303;
+            --accent: #FFD700;
+            --accent-soft: rgba(255, 215, 0, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #FFFFFF;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, #1a1a00 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #0a0a0a 0%, transparent 50%);
+            color: var(--text-main);
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-        .ad-box {
-            background: #fff3cd;
-            border: 2px dashed #ffeeba;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .timer {
-            font-size: 24px;
-            font-weight: bold;
-            color: #856404;
-        }
-        .content-image {
-            display: none;
+
+        /* Ana Mobil Konteynır */
+        .app-shell {
             width: 100%;
-            border-radius: 8px;
-            margin-top: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-width: 450px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 50px;
         }
-        h2 { color: #333; }
-        .status-text { margin-bottom: 10px; color: #666; }
+
+        /* Header Üst Kısım */
+        header {
+            padding: 40px 25px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box .logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-soft);
+        }
+
+        /* Vurgu Paneli */
+        .hero-banner {
+            margin: 0 25px 30px;
+            padding: 25px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-banner h2 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero-banner p {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 10px 0 0;
+        }
+
+        /* Yatay Kaydırma Alanı */
+        .scroll-wrapper {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 0 25px 40px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar { display: none; }
+
+        /* 9:6 Dikey Kart */
+        .card-9-6 {
+            flex: 0 0 220px;
+            height: 330px; /* 9:6 Ratio */
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.2) 100%);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            scroll-snap-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .card-9-6:hover { border-color: var(--accent); }
+
+        .card-content { flex: 1; }
+
+        .type-tag {
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--accent);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .file-name { font-size: 18px; font-weight: 700; line-height: 1.2; }
+
+        /* Progress ve Buton */
+        .unlock-zone { margin-top: auto; }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+
+        .bar-track {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .bar-power {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-action {
+            width: 100%;
+            height: 45px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-action:active { transform: scale(0.92); }
+
+        /* Ultra Modal (Görsel Penceresi) */
+        .viewer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .viewer-box {
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .viewer-box img {
+            width: 100%;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Eğitim Vadisi TYT-3 Ca</h2>
-    
-    <div id="ad-container" class="ad-box">
-        <p class="status-text">Görsel hazırlanıyor, lütfen reklamı bekleyin...</p>
-        <div class="timer" id="countdown">10</div>
-        <p><small>Reklam süresi bittiğinde görsel otomatik açılacaktır.</small></p>
+<div class="app-shell">
+    <header>
+        <div class="brand-box">
+            <div class="logo">PDFSimpson</div>
+        </div>
+        <div class="user-badge">👤</div>
+    </header>
+
+    <div class="hero-banner">
+        <h2>Trend İçerik</h2>
+        <p>Eğitim Vadisi TYT-3 Serisi</p>
     </div>
 
-    <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca" id="target-image" class="content-image">
-    
-    <div id="footer-msg" style="margin-top: 15px; color: #28a745; font-weight: bold; display: none;">
-        Görsel başarıyla yüklendi!
+    <div class="section-header" style="padding: 0 25px 15px; font-size: 14px; color: var(--text-dim); font-weight: 700;">
+        PDF KOLEKSİYONU
+    </div>
+
+    <div class="scroll-wrapper">
+        
+        <div class="card-9-6">
+            <div class="card-content">
+                <span class="type-tag">PDF</span>
+                <div class="file-name">Eğitim Vadisi<br>TYT-3 Deneme</div>
+            </div>
+            <div class="unlock-zone">
+                <div class="status-row"><span>Onay</span><span id="t1">0 / 10</span></div>
+                <div class="bar-track"><div class="bar-power" id="b1"></div></div>
+                <button class="btn-action" onclick="onay(1)">HIZLI ONAY</button>
+            </div>
+        </div>
+
+        <div class="card-9-6">
+            <div class="card-content">
+                <span class="type-tag" style="background: #00d2ff;">ANAHTAR</span>
+                <div class="file-name">Cevap Anahtarı<br>Tüm Kitapçıklar</div>
+            </div>
+            <div class="unlock-zone">
+                <div class="status-row"><span>Onay</span><span id="t2">0 / 10</span></div>
+                <div class="bar-track"><div class="bar-power" id="b2"></div></div>
+                <button class="btn-action" onclick="onay(2)">HIZLI ONAY</button>
+            </div>
+        </div>
+
+        <div class="card-9-6">
+            <div class="card-content">
+                <span class="type-tag" style="background: #ff4b2b;">ANALİZ</span>
+                <div class="file-name">Matematik Soru<br>Dağılım Grafiği</div>
+            </div>
+            <div class="unlock-zone">
+                <div class="status-row"><span>Onay</span><span id="t3">0 / 10</span></div>
+                <div class="bar-track"><div class="bar-power" id="b3"></div></div>
+                <button class="btn-action" onclick="onay(3)">HIZLI ONAY</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align: center; color: var(--text-dim); font-size: 11px; padding: 0 40px;">
+        ⚠️ Görselleri açmak için ilgili kart üzerindeki onay butonuna 10 kez tıklayın.
+    </div>
+</div>
+
+<div class="viewer-overlay" id="vOverlay">
+    <div class="viewer-box">
+        <div class="close-btn" onclick="hide()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Premium İçerik">
     </div>
 </div>
 
 <script>
-    let seconds = 10;
-    const countdownElement = document.getElementById('countdown');
-    const adContainer = document.getElementById('ad-container');
-    const targetImage = document.getElementById('target-image');
-    const footerMsg = document.getElementById('footer-msg');
+    const counters = { 1:0, 2:0, 3:0 };
+    const target = 10;
 
-    const interval = setInterval(() => {
-        seconds--;
-        countdownElement.innerText = seconds;
+    function onay(id) {
+        if(counters[id] < target) {
+            counters[id]++;
+            const p = (counters[id] / target) * 100;
+            
+            // UI Güncelle
+            document.getElementById(`b${id}`).style.width = p + '%';
+            document.getElementById(`t${id}`).innerText = counters[id] + ' / 10';
 
-        if (seconds <= 0) {
-            clearInterval(interval);
-            adContainer.style.display = 'none'; // Reklamı gizle
-            targetImage.style.display = 'block'; // Görseli göster
-            footerMsg.style.display = 'block'; // Bilgi mesajını göster
+            // Başarı Durumu
+            if(counters[id] === target) {
+                setTimeout(() => {
+                    document.getElementById('vOverlay').style.display = 'flex';
+                }, 200);
+            }
         }
-    }, 1000);
+    }
+
+    function hide() {
+        document.getElementById('vOverlay').style.display = 'none';
+    }
 </script>
 
 </body>
