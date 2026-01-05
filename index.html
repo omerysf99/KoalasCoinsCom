@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siyah Akış | Admin Panel</title>
+    <title>AI Haber Akışı</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg: #0f172a;
@@ -11,7 +12,7 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent: #38bdf8;
-            --admin: #a855f7;
+            --admin-color: #a855f7;
             --border: #334155;
         }
 
@@ -20,116 +21,100 @@
             background-color: var(--bg);
             color: var(--text-primary);
             margin: 0;
-            padding-bottom: 100px;
+            padding-bottom: 50px;
         }
 
-        .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
 
-        /* Admin Paneli Tasarımı */
-        .admin-bar {
+        /* Admin Paneli - Başlangıçta Gizli */
+        #admin-panel {
+            display: none; 
             background: var(--surface);
-            border-bottom: 2px solid var(--admin);
-            padding: 15px 0;
-            margin-bottom: 30px;
+            border-bottom: 3px solid var(--admin-color);
+            padding: 20px 0;
+            margin-bottom: 20px;
         }
 
-        .admin-form {
-            display: grid;
-            gap: 10px;
-            background: #111b2d;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
+        .admin-form { display: grid; gap: 10px; }
         input, textarea {
-            background: #0f172a;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            outline: none;
+            background: #0f172a; border: 1px solid var(--border);
+            color: white; padding: 12px; border-radius: 8px; font-size: 14px;
         }
 
-        button.add-btn {
-            background: var(--admin);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
+        .add-btn {
+            background: var(--admin-color); color: white; border: none;
+            padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
 
         /* Haber Kartları */
         .news-item {
-            display: flex;
-            gap: 20px;
-            padding: 25px 0;
+            display: flex; gap: 15px; padding: 20px 0;
             border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: 0.2s;
         }
-
-        .news-item:hover { transform: translateX(5px); }
         .news-content { flex: 1; }
-        .news-img { width: 150px; height: 100px; border-radius: 10px; object-fit: cover; }
+        .news-img { width: 100px; height: 70px; border-radius: 8px; object-fit: cover; }
+        h2 { margin: 5px 0; font-size: 18px; line-height: 1.3; }
 
-        h2 { margin: 10px 0; font-size: 20px; }
-        .badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--admin); color: white; margin-right: 10px; }
-
-        /* Modal */
+        /* Detay Paneli */
         #detail-view {
             position: fixed; inset: 0; background: var(--bg);
-            display: none; overflow-y: auto; z-index: 2000; padding: 40px 0;
+            display: none; overflow-y: auto; z-index: 9999; padding: 20px;
         }
-
-        .close-btn { background: var(--surface); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .close-btn { background: var(--surface); color: white; border: none; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div class="admin-bar">
+<div id="admin-panel">
     <div class="container">
-        <h3 style="color: var(--admin); margin-top: 0;">🛠 Admin Panel (ID: 8392479231)</h3>
+        <h3 style="color: var(--admin-color); margin: 0 0 15px 0;">🛠 Yönetici Paneli</h3>
         <div class="admin-form">
             <input type="text" id="h-title" placeholder="Haber Başlığı">
-            <input type="text" id="h-img" placeholder="Görsel URL (https://...)">
-            <textarea id="h-content" rows="3" placeholder="Haber İçeriği (Detaylar)"></textarea>
-            <button class="add-btn" onclick="haberEkle()">YAYINLA</button>
+            <input type="text" id="h-img" placeholder="Görsel URL">
+            <textarea id="h-content" rows="3" placeholder="Haber Detayı..."></textarea>
+            <button class="add-btn" onclick="haberEkle()">HABERİ YAYINLA</button>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <h1>Güncel Akış</h1>
+    <header style="padding: 20px 0;">
+        <h1 id="welcome-msg">Haber Akışı</h1>
+        <p style="color: var(--text-secondary); font-size: 14px;">Grok, ChatGPT ve Güncel Gelişmeler</p>
+    </header>
     <div id="news-list"></div>
 </div>
 
 <div id="detail-view">
-    <div class="container">
-        <button class="close-btn" onclick="closeDetail()">← Kapat</button>
-        <img id="d-img" style="width:100%; height:350px; object-fit:cover; border-radius:20px; margin:20px 0;">
-        <h1 id="d-title"></h1>
-        <p id="d-content" style="font-size:18px; line-height:1.8; color:#cbd5e1;"></p>
-    </div>
+    <button class="close-btn" onclick="closeDetail()">← Geri Dön</button>
+    <img id="d-img" style="width:100%; border-radius:15px; margin-bottom:20px;">
+    <h1 id="d-title"></h1>
+    <p id="d-content" style="font-size:17px; line-height:1.7; color:#cbd5e1;"></p>
 </div>
 
 <script>
-    // Başlangıç Haberleri (Veritabanı yerine şimdilik dizi)
-    let newsData = [
+    const ADMIN_ID = 8392479231;
+    let newsData = JSON.parse(localStorage.getItem('my_news')) || [
         {
             title: "Grok Herkese Bikini Giydiriyor :D",
-            img: "https://picsum.photos/seed/grok/800/500",
-            content: "Elon Musk'ın Grok AI'sı sınırsız görsel üretimiyle interneti sallıyor. Herkese bikini giydiren o meşhur görseller artık admin kontrolünde!",
-            source: "Admin (8392479231)"
-        },
-        {
-            title: "ChatGPT-5 Sızıntısı: Sesli Asistan Artık Gerçek Bir İnsan Gibi",
-            img: "https://picsum.photos/seed/ai/800/500",
-            content: "OpenAI yeni modelinde gecikmeyi sıfıra indirdi. Artık ChatGPT ile konuşurken bir yapay zeka ile değil, eski bir dostunuzla konuşuyormuş gibi hissedeceksiniz.",
-            source: "Sistem"
+            img: "https://picsum.photos/seed/grok/400/250",
+            content: "Elon Musk'ın yapay zekası Grok, sansürsüz görsel üretimiyle sosyal medyayı sallıyor."
         }
     ];
+
+    // Telegram Bot ID Kontrolü
+    function checkAdmin() {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); // Uygulamayı tam ekran yap
+
+        const user = tg.initDataUnsafe?.user;
+        
+        if (user && user.id === ADMIN_ID) {
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('welcome-msg').innerText = `Hoş geldin, Admin!`;
+        }
+    }
 
     function renderNews() {
         const list = document.getElementById('news-list');
@@ -138,9 +123,8 @@
             list.innerHTML += `
                 <div class="news-item" onclick="showDetail(${index})">
                     <div class="news-content">
-                        <span class="badge">ADMIN YAYINI</span>
                         <h2>${h.title}</h2>
-                        <div style="color:var(--text-secondary); font-size:14px;">${h.source} • Az önce</div>
+                        <span style="color:var(--text-secondary); font-size:12px;">Yeni Haber</span>
                     </div>
                     <img src="${h.img}" class="news-img">
                 </div>
@@ -150,22 +134,15 @@
 
     function haberEkle() {
         const title = document.getElementById('h-title').value;
-        const img = document.getElementById('h-img').value;
+        const img = document.getElementById('h-img').value || "https://picsum.photos/seed/news/400/250";
         const content = document.getElementById('h-content').value;
 
-        if(!title || !content) { alert("Lütfen başlık ve içerik girin!"); return; }
+        if(!title || !content) return;
 
-        // Yeni haberi en başa ekle
-        newsData.unshift({
-            title: title,
-            img: img || "https://picsum.photos/seed/default/800/500",
-            content: content,
-            source: "Admin (8392479231)"
-        });
-
-        // Formu temizle ve listeyi güncelle
+        newsData.unshift({ title, img, content });
+        localStorage.setItem('my_news', JSON.stringify(newsData)); // Veriyi kaydet
+        
         document.getElementById('h-title').value = "";
-        document.getElementById('h-img').value = "";
         document.getElementById('h-content').value = "";
         renderNews();
     }
@@ -176,15 +153,15 @@
         document.getElementById('d-img').src = h.img;
         document.getElementById('d-content').innerText = h.content;
         document.getElementById('detail-view').style.display = "block";
-        document.body.style.overflow = "hidden";
     }
 
     function closeDetail() {
         document.getElementById('detail-view').style.display = "none";
-        document.body.style.overflow = "auto";
     }
 
-    window.onload = renderNews;
+    // Başlat
+    checkAdmin();
+    renderNews();
 </script>
 
 </body>
