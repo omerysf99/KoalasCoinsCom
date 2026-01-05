@@ -3,147 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube AGA - Pro Edition</title>
+    <title>YouTube AGA v2.0 | Pro Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --yt-bg: #0f0f0f; --yt-card: #1e1e1e; }
-        body { background: var(--yt-bg); color: white; font-family: 'Roboto', sans-serif; }
-        .v-card img { aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .v-card:hover img { border-radius: 0; transform: scale(1.05); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        #loader { display: none; }
-        .shimmer { background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        #video-modal { display: none; backdrop-filter: blur(10px); }
+        body { background: #030303; color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        .yt-card { cursor: pointer; transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; }
+        .yt-card:hover { transform: translateY(-5px); }
+        .thumb-container { position: relative; border-radius: 12px; overflow: hidden; background: #1a1a1a; aspect-ratio: 16/9; }
+        .thumb-container img { width: 100%; height: 100%; object-fit: cover; }
+        .duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        
+        /* Oynatıcı Modal */
+        #player-overlay { display: none; background: rgba(0,0,0,0.95); position: fixed; inset: 0; z-index: 9999; }
+        .glass-nav { background: rgba(3, 3, 3, 0.8); backdrop-filter: blur(15px); }
+        
+        /* Shimmer Efekti */
+        .shimmer { background: linear-gradient(90deg, #0f0f0f 25%, #1a1a1a 50%, #0f0f0f 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <nav class="fixed top-0 w-full bg-[#0f0f0f]/95 border-b border-[#272727] h-16 flex items-center justify-between px-6 z-50">
+    <nav class="glass-nav sticky top-0 h-14 flex items-center justify-between px-6 z-50 border-b border-white/5">
         <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
-            <i class="fab fa-youtube text-red-600 text-3xl"></i>
-            <span class="text-xl font-bold tracking-tighter">YouTube Pro</span>
+            <div class="bg-red-600 p-1.5 rounded-lg text-white">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+            </div>
+            <span class="text-xl font-bold font-[Oswald] tracking-widest hidden sm:block">AGA TUBE</span>
         </div>
-        
-        <div class="flex flex-1 max-w-[700px] mx-8">
-            <div class="flex w-full bg-[#121212] border border-[#303030] rounded-full px-4 items-center focus-within:border-blue-500 transition">
-                <input id="search" type="text" placeholder="Arat bakalım..." class="bg-transparent w-full py-2 outline-none text-sm">
-                <button onclick="app.runSearch()" class="pl-4 hover:text-red-500"><i class="fas fa-search"></i></button>
+
+        <div class="flex-1 max-w-xl mx-4">
+            <div class="relative flex items-center w-full">
+                <input id="q" type="text" placeholder="Sonsuzlukta ara..." class="w-full bg-[#121212] border border-white/10 rounded-full py-2 px-5 outline-none focus:border-red-600 transition-all text-sm">
+                <button onclick="engine.search()" class="absolute right-4 text-gray-400 hover:text-white">🔍</button>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <i class="fas fa-video text-xl cursor-pointer hover:text-gray-400"></i>
-            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xs">A</div>
+        <div class="flex items-center gap-4 text-sm font-medium">
+            <span class="text-green-500 hidden md:block">● KOTA: SINIRSIZ</span>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">A</div>
         </div>
     </nav>
 
-    <main class="pt-24 px-6">
-        <div id="skeleton-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <main class="p-6">
+        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             <div class="h-64 shimmer rounded-xl"></div>
             <div class="h-64 shimmer rounded-xl"></div>
             <div class="h-64 shimmer rounded-xl"></div>
             <div class="h-64 shimmer rounded-xl"></div>
         </div>
-
-        <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10"></div>
     </main>
 
-    <div id="video-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="bg-black w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl">
-            <div class="flex justify-between items-center p-4 bg-[#1a1a1a]">
-                <h3 id="m-title" class="text-sm font-bold truncate pr-4">Video Oynatılıyor</h3>
-                <button onclick="app.closePlayer()" class="text-white hover:text-red-500 text-2xl">&times;</button>
+    <div id="player-overlay" class="flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-5xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="video-title" class="text-lg font-bold truncate">Yükleniyor...</h2>
+                <button onclick="engine.close()" class="bg-white/10 p-2 rounded-full hover:bg-white/20 transition">✖</button>
             </div>
-            <div class="aspect-video bg-black">
-                <iframe id="m-frame" class="w-full h-full" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+            <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+                <iframe id="player-frame" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
         </div>
     </div>
 
     <script>
-        const app = {
-            // Piped API Global Instance (En hızlı sunucu)
-            api: 'https://pipedapi.kavin.rocks',
+        const engine = {
+            // Piped API Sunucuları (Birisi yavaşsa diğeri devreye girer)
+            servers: [
+                'https://pipedapi.kavin.rocks',
+                'https://pipedapi.lunar.icu',
+                'https://pipedapi.leptons.xyz'
+            ],
+            currentServerIdx: 0,
+
+            get api() { return this.servers[this.currentServerIdx]; },
 
             async init() {
-                this.fetchTrending();
-                document.getElementById('search').addEventListener('keypress', (e) => e.key === 'Enter' && this.runSearch());
+                this.loadTrending();
+                document.getElementById('q').addEventListener('keypress', (e) => e.key === 'Enter' && this.search());
             },
 
-            async fetchTrending() {
+            async fetchSafe(path) {
                 try {
-                    const res = await fetch(`${this.api}/trending?region=TR`);
-                    const data = await res.json();
-                    this.render(data);
-                } catch (err) {
-                    console.error("Hata:", err);
-                    this.api = 'https://pipedapi.lunar.icu'; // Sunucu patlarsa yedeğe geç
-                    this.fetchTrending();
+                    const res = await fetch(`${this.api}${path}`);
+                    if (!res.ok) throw new Error();
+                    return await res.json();
+                } catch (e) {
+                    console.warn("Sunucu değişiyor...");
+                    this.currentServerIdx = (this.currentServerIdx + 1) % this.servers.length;
+                    return this.fetchSafe(path);
                 }
             },
 
-            async runSearch() {
-                const q = document.getElementById('search').value;
-                if (!q) return;
+            async loadTrending() {
+                const data = await this.fetchSafe('/trending?region=TR');
+                this.render(data);
+            },
+
+            async search() {
+                const query = document.getElementById('q').value;
+                if (!query) return;
                 
-                document.getElementById('videoGrid').innerHTML = '';
-                document.getElementById('skeleton-grid').style.display = 'grid';
-
-                try {
-                    const res = await fetch(`${this.api}/search?q=${encodeURIComponent(q)}&filter=videos`);
-                    const data = await res.json();
-                    this.render(data.items);
-                } catch (err) {
-                    alert("Arama motoru meşgul, tekrar dene!");
-                }
+                document.getElementById('grid').innerHTML = Array(10).fill('<div class="h-64 shimmer rounded-xl"></div>').join('');
+                const data = await this.fetchSafe(`/search?q=${encodeURIComponent(query)}&filter=videos`);
+                this.render(data.items);
             },
 
             render(videos) {
-                document.getElementById('skeleton-grid').style.display = 'none';
-                const grid = document.getElementById('videoGrid');
-                
+                const grid = document.getElementById('grid');
                 grid.innerHTML = videos.map(v => `
-                    <div class="v-card group cursor-pointer" onclick="app.play('${v.url.split('=')[1]}', '${v.title.replace(/'/g, "")}')">
-                        <div class="relative overflow-hidden rounded-xl">
-                            <img src="${v.thumbnail}" class="w-full" loading="lazy">
-                            <span class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs font-bold">
-                                ${v.duration ? Math.floor(v.duration / 60) + ":" + (v.duration % 60).toString().padStart(2, '0') : 'LIVE'}
-                            </span>
+                    <div class="yt-card group" onclick="engine.play('${v.url.split('=')[1]}', '${v.title.replace(/'/g, "")}')">
+                        <div class="thumb-container shadow-lg">
+                            <img src="${v.thumbnail}" loading="lazy">
+                            <span class="duration">${this.formatTime(v.duration)}</span>
                         </div>
                         <div class="flex gap-3 mt-4">
-                            <img src="${v.uploaderAvatar || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full flex-shrink-0">
-                            <div>
-                                <h3 class="text-sm font-bold line-clamp-2 group-hover:text-red-500 transition">${v.title}</h3>
-                                <p class="text-xs text-gray-400 mt-1">${v.uploaderName}</p>
-                                <p class="text-[11px] text-gray-500 mt-0.5">${(v.views / 1000).toFixed(1)}B izlenme • ${v.uploadedDate || 'Yeni'}</p>
+                            <div class="w-10 h-10 rounded-full bg-[#1a1a1a] flex-shrink-0 overflow-hidden">
+                                <img src="${v.uploaderAvatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + v.uploaderName}" class="w-full h-full">
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="text-sm font-bold line-clamp-2 leading-tight group-hover:text-red-500 transition">${v.title}</h3>
+                                <p class="text-xs text-gray-400 mt-2 hover:text-white">${v.uploaderName}</p>
+                                <p class="text-[11px] text-gray-500 font-medium">${v.shortDescription || (v.views ? v.views.toLocaleString() + ' izlenme' : 'Canlı')}</p>
                             </div>
                         </div>
                     </div>
                 `).join('');
             },
 
+            formatTime(seconds) {
+                if (!seconds) return "CANLI";
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                return [h, m, s].filter((v, i) => v > 0 || i > 0).map(v => v.toString().padStart(2, '0')).join(':');
+            },
+
             play(id, title) {
-                const modal = document.getElementById('video-modal');
-                const frame = document.getElementById('m-frame');
-                document.getElementById('m-title').innerText = title;
+                const overlay = document.getElementById('player-overlay');
+                const frame = document.getElementById('player-frame');
+                document.getElementById('video-title').innerText = title;
                 
-                // YouTube'un kendi embed'ini kullanıyoruz ama API anahtarı istemez
-                frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-                modal.style.display = 'flex';
+                // Embed URL - Reklamsız ve Hızlı
+                frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0`;
+                overlay.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             },
 
-            closePlayer() {
-                const modal = document.getElementById('video-modal');
-                document.getElementById('m-frame').src = "";
-                modal.style.display = 'none';
+            close() {
+                document.getElementById('player-overlay').style.display = 'none';
+                document.getElementById('player-frame').src = "";
                 document.body.style.overflow = 'auto';
             }
         };
 
-        app.init();
+        engine.init();
     </script>
 </body>
 </html>
