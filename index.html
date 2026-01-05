@@ -3,140 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Dual Engine</title>
+    <title>OpenTube - No API Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f0f0f; color: white; font-family: 'Roboto', sans-serif; }
         .v-card img { aspect-ratio: 16/9; border-radius: 12px; object-fit: cover; transition: 0.3s; }
-        .v-card:hover img { border-radius: 0; transform: scale(1.02); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .active-engine { background-color: #22c55e; box-shadow: 0 0 10px #22c55e; }
-        .dead-engine { background-color: #ef4444; text-decoration: line-through; opacity: 0.5; }
+        .v-card:hover img { border-radius: 0; }
+        .video-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        #player-modal { display: none; background: rgba(0,0,0,0.9); position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div class="bg-[#1a1a1a] p-2 flex items-center justify-center gap-6 border-b border-[#272727] text-[11px] font-bold">
-        <div id="engine1" class="flex items-center"><span class="status-dot active-engine"></span> MOTOR 1 (Aktif)</div>
-        <div id="engine2" class="flex items-center"><span class="status-dot bg-gray-600"></span> MOTOR 2 (Beklemede)</div>
-    </div>
-
     <nav class="sticky top-0 bg-[#0f0f0f] z-50 p-4 flex items-center justify-between border-b border-[#272727]">
         <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
             <span class="text-red-600 text-3xl font-bold">▶</span>
-            <span class="text-xl font-bold tracking-tighter">YouTube</span>
+            <span class="text-xl font-bold tracking-tighter">OpenTube</span>
         </div>
         <div class="flex w-1/2 max-w-[600px]">
-            <input id="searchInput" type="text" placeholder="Ara..." class="w-full bg-[#121212] border border-[#303030] rounded-l-full px-5 py-2 outline-none focus:border-blue-500">
+            <input id="searchInput" type="text" placeholder="Kota sınırı olmadan ara..." class="w-full bg-[#121212] border border-[#303030] rounded-l-full px-5 py-2 outline-none focus:border-red-600">
             <button onclick="app.search()" class="bg-[#222] border border-[#303030] border-l-0 px-6 rounded-r-full hover:bg-[#333]">🔍</button>
         </div>
-        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xs">TR</div>
     </nav>
 
     <main class="p-6">
-        <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+        <div id="videoGrid" class="video-container">
             </div>
     </main>
 
+    <div id="player-modal">
+        <div class="w-full max-w-4xl p-4">
+            <button onclick="app.closePlayer()" class="mb-2 bg-red-600 px-4 py-1 rounded font-bold">KAPAT</button>
+            <div class="aspect-video bg-black">
+                <iframe id="main-frame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <h2 id="video-title" class="text-xl font-bold mt-4"></h2>
+        </div>
+    </div>
+
     <script>
-        // VERDİĞİN 2 ANAHTAR BURADA
-        const API_POOL = [
-            'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg',
-            'AIzaSyDtKNweE8UM8kmuyVkIZgv9FjpS0kHB_04'
-        ];
-
         const app = {
-            currentKeyIdx: 0,
-            
-            // API Durumunu Görselleştir
-            updateUI() {
-                const e1 = document.getElementById('engine1');
-                const e2 = document.getElementById('engine2');
-                
-                if(this.currentKeyIdx === 0) {
-                    e1.innerHTML = '<span class="status-dot active-engine"></span> MOTOR 1 (Aktif)';
-                } else {
-                    e1.classList.add('dead-engine');
-                    e1.innerHTML = '<span class="status-dot dead-engine"></span> MOTOR 1 (BİTTİ)';
-                    e2.innerHTML = '<span class="status-dot active-engine"></span> MOTOR 2 (Aktif)';
-                }
-            },
+            // Açık kaynaklı Invidious sunucusu (Eğer yavaşlarsa invidious.io adresinden başka sunucu seçebilirsin)
+            apiBase: 'https://invidious.sethforprivacy.com/api/v1',
 
-            async fetchData(query) {
-                // Önce tarayıcı hafızasına (Cache) bak
-                const cacheKey = `yt_cache_${query.toLowerCase()}`;
-                const cached = localStorage.getItem(cacheKey);
-                if (cached) {
-                    const parsed = JSON.parse(cached);
-                    if (Date.now() - parsed.time < 86400000) { // 24 saat sakla
-                        console.log("Hafızadan getirildi.");
-                        return parsed.data;
-                    }
-                }
-
-                return await this.tryFetch(query);
-            },
-
-            async tryFetch(query) {
-                const key = API_POOL[this.currentKeyIdx];
-                this.updateUI();
+            async fetchVideos(query) {
+                const grid = document.getElementById('videoGrid');
+                grid.innerHTML = '<p class="col-span-full text-center">Yükleniyor...</p>';
 
                 try {
-                    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${query}&type=video&regionCode=TR&key=${key}`);
-                    
-                    if (res.status === 403) { // KOTA DOLDU
-                        if (this.currentKeyIdx < API_POOL.length - 1) {
-                            console.warn("Motor 1 bitti, Motor 2'ye geçiliyor...");
-                            this.currentKeyIdx++;
-                            return await this.tryFetch(query); // Diğer key ile tekrar dene
-                        } else {
-                            alert("Tüm API kotaları doldu! Yarın tekrar gel.");
-                            return null;
-                        }
-                    }
-
-                    const data = await res.json();
-                    // Hafızaya kaydet
-                    localStorage.setItem(`yt_cache_${query.toLowerCase()}`, JSON.stringify({
-                        time: Date.now(),
-                        data: data
-                    }));
-                    return data;
-
-                } catch (err) {
-                    console.error("Hata:", err);
-                    return null;
+                    // API anahtarı yok! Doğrudan arama yapıyoruz.
+                    const response = await fetch(`${this.apiBase}/search?q=${encodeURIComponent(query)}`);
+                    const results = await response.json();
+                    this.render(results);
+                } catch (error) {
+                    console.error("Veri çekilemedi:", error);
+                    grid.innerHTML = '<p class="text-red-500">Sunucu meşgul, lütfen az sonra tekrar dene.</p>';
                 }
             },
 
-            async search() {
-                const q = document.getElementById('searchInput').value || 'trend videolar türkiye';
+            render(videos) {
                 const grid = document.getElementById('videoGrid');
-                grid.innerHTML = '<p class="text-center col-span-full">Yükleniyor...</p>';
-
-                const data = await this.fetchData(q);
-                if (!data || !data.items) return;
-
-                grid.innerHTML = data.items.map(v => `
-                    <div class="v-card cursor-pointer" onclick="window.open('https://youtube.com/watch?v=${v.id.videoId}')">
-                        <img src="${v.snippet.thumbnails.high.url}" class="w-full">
-                        <div class="flex gap-3 mt-3">
-                            <div class="w-9 h-9 bg-gray-700 rounded-full flex-shrink-0"></div>
-                            <div>
-                                <h3 class="text-sm font-bold line-clamp-2">${v.snippet.title}</h3>
-                                <p class="text-xs text-gray-400 mt-1">${v.snippet.channelTitle}</p>
-                            </div>
+                grid.innerHTML = videos.map(v => `
+                    <div class="v-card cursor-pointer group" onclick="app.play('${v.videoId}', '${v.title.replace(/'/g, "")}')">
+                        <div class="relative">
+                            <img src="${v.videoThumbnails[0].url}" class="w-full">
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-xs px-2 py-1 rounded">${v.lengthSeconds} sn</span>
+                        </div>
+                        <div class="mt-3">
+                            <h3 class="font-bold text-sm line-clamp-2">${v.title}</h3>
+                            <p class="text-xs text-gray-400 mt-1">${v.author} • ${v.viewCountText}</p>
                         </div>
                     </div>
                 `).join('');
+            },
+
+            play(id, title) {
+                const modal = document.getElementById('player-modal');
+                const frame = document.getElementById('main-frame');
+                const titleEl = document.getElementById('video-title');
+                
+                // YouTube'un kendi player'ı yerine reklamsız embed kullanıyoruz
+                frame.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                titleEl.innerText = title;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            },
+
+            closePlayer() {
+                const modal = document.getElementById('player-modal');
+                document.getElementById('main-frame').src = "";
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            },
+
+            search() {
+                const q = document.getElementById('searchInput').value;
+                if (q) this.fetchVideos(q);
             }
         };
 
-        // Klavye ile arama
-        document.getElementById('searchInput').addEventListener('keypress', (e) => e.key === 'Enter' && app.search());
+        // İlk açılış
+        app.fetchVideos("popüler müzik türkiye");
 
-        // Başlat
-        app.search();
+        // Enter tuşu dinle
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') app.search();
+        });
     </script>
 </body>
 </html>
