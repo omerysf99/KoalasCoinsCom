@@ -3,165 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Haber Akışı</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Haber Portalı | Güncel Akış</title>
     <style>
         :root {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent: #38bdf8;
-            --admin-color: #a855f7;
-            --border: #334155;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1c1e21;
+            --text-dim: #606770;
+            --accent: #007bff;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
-            color: var(--text-primary);
+            color: var(--text-main);
             margin: 0;
             padding-bottom: 50px;
         }
 
-        .container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
-
-        /* Admin Paneli - Başlangıçta Gizli */
-        #admin-panel {
-            display: none; 
-            background: var(--surface);
-            border-bottom: 3px solid var(--admin-color);
-            padding: 20px 0;
-            margin-bottom: 20px;
+        /* Üst Menü */
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .admin-form { display: grid; gap: 10px; }
-        input, textarea {
-            background: #0f172a; border: 1px solid var(--border);
-            color: white; padding: 12px; border-radius: 8px; font-size: 14px;
-        }
-
-        .add-btn {
-            background: var(--admin-color); color: white; border: none;
-            padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
+        header h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
+        .data-source { font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
 
         /* Haber Kartları */
-        .news-item {
-            display: flex; gap: 15px; padding: 20px 0;
-            border-bottom: 1px solid var(--border);
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
-        .news-content { flex: 1; }
-        .news-img { width: 100px; height: 70px; border-radius: 8px; object-fit: cover; }
-        h2 { margin: 5px 0; font-size: 18px; line-height: 1.3; }
 
-        /* Detay Paneli */
-        #detail-view {
-            position: fixed; inset: 0; background: var(--bg);
-            display: none; overflow-y: auto; z-index: 9999; padding: 20px;
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
-        .close-btn { background: var(--surface); color: white; border: none; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+
+        .news-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card:hover { transform: translateY(-5px); }
+
+        .img-container {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            position: relative;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .source-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 18px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .title:hover { color: var(--accent); }
+
+        .time-ago {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .time-ago::before {
+            content: "🕒";
+            margin-right: 5px;
+        }
+
+        .footer {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-go {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Yükleniyor Efekti */
+        #loader { text-align: center; padding: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="admin-panel">
-    <div class="container">
-        <h3 style="color: var(--admin-color); margin: 0 0 15px 0;">🛠 Yönetici Paneli</h3>
-        <div class="admin-form">
-            <input type="text" id="h-title" placeholder="Haber Başlığı">
-            <input type="text" id="h-img" placeholder="Görsel URL">
-            <textarea id="h-content" rows="3" placeholder="Haber Detayı..."></textarea>
-            <button class="add-btn" onclick="haberEkle()">HABERİ YAYINLA</button>
-        </div>
-    </div>
-</div>
+<header>
+    <h1>HABER AKIŞI</h1>
+    <div class="data-source">Kaynak: Google Haberler (RSS) | Gerçek zamanlı güncellenir</div>
+</header>
 
 <div class="container">
-    <header style="padding: 20px 0;">
-        <h1 id="welcome-msg">Haber Akışı</h1>
-        <p style="color: var(--text-secondary); font-size: 14px;">Grok, ChatGPT ve Güncel Gelişmeler</p>
-    </header>
-    <div id="news-list"></div>
-</div>
-
-<div id="detail-view">
-    <button class="close-btn" onclick="closeDetail()">← Geri Dön</button>
-    <img id="d-img" style="width:100%; border-radius:15px; margin-bottom:20px;">
-    <h1 id="d-title"></h1>
-    <p id="d-content" style="font-size:17px; line-height:1.7; color:#cbd5e1;"></p>
+    <div id="loader">Haberler toplanıyor...</div>
+    <div id="news-container" class="news-grid"></div>
 </div>
 
 <script>
-    const ADMIN_ID = 8392479231;
-    let newsData = JSON.parse(localStorage.getItem('my_news')) || [
-        {
-            title: "Grok Herkese Bikini Giydiriyor :D",
-            img: "https://picsum.photos/seed/grok/400/250",
-            content: "Elon Musk'ın yapay zekası Grok, sansürsüz görsel üretimiyle sosyal medyayı sallıyor."
-        }
-    ];
+    // Zaman hesaplama fonksiyonu
+    function timeAgo(dateString) {
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffInSeconds = Math.floor((now - past) / 1000);
 
-    // Telegram Bot ID Kontrolü
-    function checkAdmin() {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand(); // Uygulamayı tam ekran yap
-
-        const user = tg.initDataUnsafe?.user;
+        if (diffInSeconds < 60) return 'Az önce';
         
-        if (user && user.id === ADMIN_ID) {
-            document.getElementById('admin-panel').style.display = 'block';
-            document.getElementById('welcome-msg').innerText = `Hoş geldin, Admin!`;
+        const minutes = Math.floor(diffInSeconds / 60);
+        if (minutes < 60) return `${minutes} dakika önce`;
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} saat önce`;
+        
+        const days = Math.floor(hours / 24);
+        return `${days} gün önce`;
+    }
+
+    async function fetchNews() {
+        // Google News Türkiye RSS beslemesini JSON'a çeviriyoruz
+        const rssUrl = encodeURIComponent('https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr');
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+        try {
+            const res = await fetch(apiUrl);
+            const data = await res.json();
+            const container = document.getElementById('news-container');
+            const loader = document.getElementById('loader');
+
+            if (data.status === 'ok') {
+                loader.style.display = 'none';
+                
+                data.items.forEach(item => {
+                    // Kaynak adını başlıktan ayıkla (Örn: "Haber Başlığı - Hürriyet" -> "Hürriyet")
+                    const titleParts = item.title.split(' - ');
+                    const sourceName = titleParts.pop();
+                    const cleanTitle = titleParts.join(' - ');
+
+                    // Rastgele görsel (RSS görseli yoksa)
+                    const img = item.enclosure.link || `https://picsum.photos/seed/${Math.random()}/400/250`;
+
+                    const card = `
+                        <div class="news-card">
+                            <div class="img-container">
+                                <img src="${img}" alt="Haber">
+                                <span class="source-tag">${sourceName}</span>
+                            </div>
+                            <div class="content">
+                                <a href="${item.link}" target="_blank" class="title">${cleanTitle}</a>
+                                <div class="time-ago">${timeAgo(item.pubDate)}</div>
+                                <div class="footer">
+                                    <a href="${item.link}" target="_blank" class="btn-go">Habere Git →</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            }
+        } catch (err) {
+            document.getElementById('loader').innerHTML = "Veriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.";
         }
     }
 
-    function renderNews() {
-        const list = document.getElementById('news-list');
-        list.innerHTML = "";
-        newsData.forEach((h, index) => {
-            list.innerHTML += `
-                <div class="news-item" onclick="showDetail(${index})">
-                    <div class="news-content">
-                        <h2>${h.title}</h2>
-                        <span style="color:var(--text-secondary); font-size:12px;">Yeni Haber</span>
-                    </div>
-                    <img src="${h.img}" class="news-img">
-                </div>
-            `;
-        });
-    }
-
-    function haberEkle() {
-        const title = document.getElementById('h-title').value;
-        const img = document.getElementById('h-img').value || "https://picsum.photos/seed/news/400/250";
-        const content = document.getElementById('h-content').value;
-
-        if(!title || !content) return;
-
-        newsData.unshift({ title, img, content });
-        localStorage.setItem('my_news', JSON.stringify(newsData)); // Veriyi kaydet
-        
-        document.getElementById('h-title').value = "";
-        document.getElementById('h-content').value = "";
-        renderNews();
-    }
-
-    function showDetail(index) {
-        const h = newsData[index];
-        document.getElementById('d-title').innerText = h.title;
-        document.getElementById('d-img').src = h.img;
-        document.getElementById('d-content').innerText = h.content;
-        document.getElementById('detail-view').style.display = "block";
-    }
-
-    function closeDetail() {
-        document.getElementById('detail-view').style.display = "none";
-    }
-
-    // Başlat
-    checkAdmin();
-    renderNews();
+    window.onload = fetchNews;
 </script>
 
 </body>
