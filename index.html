@@ -1,259 +1,261 @@
-<!DOCTYPE html>
+,<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Kombat Clone Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TONIX App Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #f3ba2f; --bg: #000; --card: #1c1f24; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .font-game { font-family: 'Orbitron', sans-serif; }
-        
-        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        :root {
+            --bg-color: #0b141b;
+            --card-bg: #1a2632;
+            --accent-blue: #3a96f3;
+            --text-white: #ffffff;
+            --text-gray: #8e99a2;
+        }
 
-        /* TAP TO EARN BUTON TASARIMI */
-        .hamster-btn {
-            background: radial-gradient(circle, #32363c 0%, #0c0d0f 100%);
-            border: 10px solid #282b30;
-            box-shadow: 0 0 50px rgba(243, 186, 47, 0.1);
-            transition: transform 0.05s;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Üst Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Bakiye Kartları */
+        .balance-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .balance-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .balance-text span {
+            display: block;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .balance-text b {
+            font-size: 16px;
+        }
+
+        /* Fan ve Mining Alanı */
+        .mining-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .fan-container {
+            width: 220px;
+            height: 220px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .fan-image {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px var(--accent-blue));
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ton-value {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .hash-rate {
+            color: var(--text-gray);
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* Butonlar */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
             cursor: pointer;
-            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
         }
-        .hamster-btn:active { transform: scale(0.92) rotate(2deg); }
 
-        /* YÜZEN SAYI EFEKTİ */
-        .floating-text {
-            position: absolute; color: #fff; font-size: 32px; font-weight: 900;
-            pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 100;
-            text-shadow: 0 0 10px rgba(243, 186, 47, 0.8);
+        .btn-claim { background-color: var(--accent-blue); color: white; }
+        .btn-boost { background-color: var(--accent-blue); color: white; opacity: 0.9; }
+
+        /* Alt Menü */
+        .bottom-nav {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-140px); } }
 
-        .nav-item { opacity: 0.5; transition: 0.3s; cursor: pointer; }
-        .nav-item.active { opacity: 1; color: var(--primary); }
-        
-        .card-mine { background: #15161a; border: 1px solid #2d333b; border-radius: 1.5rem; transition: 0.2s; }
-        .card-mine:active { transform: scale(0.98); }
+        .nav-item {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-gray);
+        }
+
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active { color: var(--accent-blue); }
+
     </style>
 </head>
-<body class="flex flex-col justify-between">
+<body>
 
-    <header class="px-6 pt-4 shrink-0">
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-600 flex items-center justify-center font-bold text-black text-xl">H</div>
-                <div>
-                    <h2 class="text-xs font-black uppercase tracking-widest">Hamster CEO</h2>
-                    <div class="flex items-center gap-1">
-                        <div class="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                            <div class="bg-yellow-500 h-full w-1/3"></div>
-                        </div>
-                        <span class="text-[10px] text-gray-500">Lv 1/10</span>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-900 border border-gray-800 px-3 py-1 rounded-full text-[10px] font-bold text-yellow-500">BRONZ LİG ></div>
-        </div>
+<div class="app-container">
+    <div class="header">
+        <i class="fa-solid fa-xmark"></i>
+        <span>TONIX App</span>
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </div>
 
-        <div class="grid grid-cols-3 gap-2">
-            <div class="card-mine p-2 text-center border-b-2 border-yellow-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Tık Başı</p>
-                <p class="text-xs font-bold text-white">+<span id="tpcText">1</span></p>
-            </div>
-            <div class="card-mine p-2 text-center border-b-2 border-blue-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Limit</p>
-                <p class="text-xs font-bold text-white">1000</p>
-            </div>
-            <div class="card-mine p-2 text-center border-b-2 border-green-500">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Srk. Kar</p>
-                <p class="text-xs font-bold text-green-500">+<span id="tphText">0</span></p>
+    <div class="balance-card">
+        <div class="balance-info">
+            <div class="icon-circle"><i class="fa-solid fa-gem"></i></div>
+            <div class="balance-text">
+                <span>Balance</span>
+                <b>0 TON</b>
             </div>
         </div>
-    </header>
+        <i class="fa-solid fa-wallet" style="color: var(--accent-blue);"></i>
+    </div>
 
-    <main class="flex-grow overflow-y-auto px-6 py-4">
+    <div class="balance-card">
+        <div class="balance-info">
+            <div class="icon-circle" style="background: linear-gradient(45deg, #004e92, #000428);">
+                <i class="fa-solid fa-fan"></i>
+            </div>
+            <div class="balance-text">
+                <span>Balance</span>
+                <b>5200 TONIX</b>
+            </div>
+        </div>
+        <i class="fa-solid fa-briefcase" style="color: var(--accent-blue);"></i>
+    </div>
+
+    <div class="mining-section">
+        <div class="fan-container">
+            <svg class="fan-image" viewBox="0 0 512 512" fill="#3a96f3">
+                <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192zm-192 48a48 48 0 1 1 0-96 48 48 0 0 1 0 96z"/>
+                <path d="M256 208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm-24.3 118.5c-20.7 34.2-12.7 79 19.3 103s78 12.7 101.9-19.3c14.2-19 19.2-42.5 14.5-64.4l-111.4-19.3zM187.5 280.3l-111.4-19.3c-4.7 21.9 .3 45.4 14.5 64.4 23.9 32 69.9 43.3 101.9 19.3s40-68.8 19.3-103zM256 128c-32.3 0-62.4 12.3-85.3 32.5L256 208l85.3-47.5C318.4 140.3 288.3 128 256 128z"/>
+            </svg>
+        </div>
         
-        <div id="exchange" class="tab-content active items-center justify-around">
-            <div class="flex flex-col items-center">
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="text-4xl">💰</span>
-                    <h1 id="score" class="text-5xl font-black font-game">0</h1>
-                </div>
-            </div>
+        <div class="ton-value" id="counter">0.0083779826</div>
+        <div class="ton-label">TON</div>
+        <div class="hash-rate">2.03 GH/s ⚡</div>
+    </div>
 
-            <div id="tapBtn" class="hamster-btn w-72 h-72 rounded-full flex items-center justify-center relative">
-                <span class="text-[140px] select-none">🐹</span>
-            </div>
+    <div class="action-buttons">
+        <button class="btn btn-claim"><i class="fa-solid fa-hand-holding-dollar"></i> Claim</button>
+        <button class="btn btn-boost"><i class="fa-solid fa-rocket"></i> Boost</button>
+    </div>
 
-            <div class="w-full max-w-sm">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-yellow-500 font-bold flex items-center gap-1">⚡ <span id="energy">1000</span> / 1000</span>
-                    <span class="text-gray-500 text-xs font-bold">Boost 🔥</span>
-                </div>
-                <div class="w-full bg-gray-900 h-3 rounded-full p-0.5 border border-white/5">
-                    <div id="energyFill" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full w-full rounded-full transition-all"></div>
-                </div>
-            </div>
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <i class="fa-solid fa-wallet"></i>
+            Wallet
         </div>
-
-        <div id="mine" class="tab-content space-y-4">
-            <h2 class="text-xl font-black text-center mb-2">Pasif Gelir Kartları</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div onclick="buyItem('fan', 150, 20)" class="card-mine p-4 flex flex-col justify-between h-40">
-                    <span class="text-4xl">❄️</span>
-                    <h3 class="font-bold text-sm">Fan Sistemi</h3>
-                    <p class="text-[10px] text-green-500">+20/saat</p>
-                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 150</div>
-                </div>
-                <div onclick="buyItem('gpu', 1000, 150)" class="card-mine p-4 flex flex-col justify-between h-40">
-                    <span class="text-4xl">🖥️</span>
-                    <h3 class="font-bold text-sm">GPU Ünitesi</h3>
-                    <p class="text-[10px] text-green-500">+150/saat</p>
-                    <div class="mt-2 text-yellow-500 font-bold text-xs pt-2 border-t border-white/5">💰 1,000</div>
-                </div>
-            </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-users"></i>
+            Friends
         </div>
-
-        <div id="friends" class="tab-content items-center pt-10 text-center">
-            <span class="text-7xl mb-6">🤝</span>
-            <h2 class="text-2xl font-black">Arkadaşlarını Davet Et</h2>
-            <p class="text-gray-400 mt-2 text-sm px-10">Her davet için <span class="text-yellow-500 font-bold">5,000</span> coin kazanın!</p>
-            <button onclick="alert('Referans linki kopyalandı!')" class="mt-8 bg-blue-600 w-full py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-600/30">Arkadaşlarını Çağır</button>
+        <div class="nav-item active">
+            <i class="fa-solid fa-house-chimney-window"></i>
+            Home
         </div>
-
-        <div id="earn" class="tab-content space-y-3">
-            <h2 class="text-xl font-black mb-4">Görevler</h2>
-            <div onclick="completeTask(this, 2000)" class="card-mine p-5 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <span class="text-3xl">📺</span>
-                    <div><p class="font-bold text-sm">YouTube İzle</p><p class="text-xs text-yellow-500">+2,000 💰</p></div>
-                </div>
-                <span class="text-gray-500 font-bold">>></span>
-            </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-bullseye"></i>
+            Missions
         </div>
-
-    </main>
-
-    <nav class="shrink-0 bg-[#15161a] border-t border-white/5 px-2 py-4 flex justify-around items-center rounded-t-[35px]">
-        <div onclick="switchTab('exchange')" class="nav-item active flex flex-col items-center">
-            <span class="text-2xl">🏠</span><span class="text-[10px] font-bold mt-1">Borsa</span>
+        <div class="nav-item">
+            <i class="fa-solid fa-bars"></i>
+            More
         </div>
-        <div onclick="switchTab('mine')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">⛏️</span><span class="text-[10px] font-bold mt-1">Maden</span>
-        </div>
-        <div onclick="switchTab('friends')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">👥</span><span class="text-[10px] font-bold mt-1">Dostlar</span>
-        </div>
-        <div onclick="switchTab('earn')" class="nav-item flex flex-col items-center">
-            <span class="text-2xl">🪙</span><span class="text-[10px] font-bold mt-1">Kazan</span>
-        </div>
-    </nav>
+    </div>
+</div>
 
-    <script>
-        // DURUM YÖNETİMİ
-        let state = JSON.parse(localStorage.getItem('hamster_pro_data')) || {
-            score: 0,
-            energy: 1000,
-            tpc: 1,
-            tph: 0
-        };
+<script>
+    // Basit Sayaç Artırma Fonksiyonu
+    let count = 0.0083779826;
+    const counterElement = document.getElementById('counter');
 
-        const maxEnergy = 1000;
-        const tapBtn = document.getElementById('tapBtn');
+    setInterval(() => {
+        count += 0.0000000142; // Madencilik hızını simüle eder
+        counterElement.innerText = count.toFixed(10);
+    }, 100);
+</script>
 
-        function save() { localStorage.setItem('hamster_pro_data', JSON.stringify(state)); }
-
-        function updateUI() {
-            document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
-            document.getElementById('energy').innerText = Math.floor(state.energy);
-            document.getElementById('energyFill').style.width = (state.energy / maxEnergy * 100) + '%';
-            document.getElementById('tpcText').innerText = state.tpc;
-            document.getElementById('tphText').innerText = state.tph.toLocaleString();
-            save();
-        }
-
-        // SEKME YÖNETİMİ
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        // TAP TO EARN MEKANİZMASI (DOKUN KAZAN)
-        function handleTap(x, y) {
-            if (state.energy >= state.tpc) {
-                state.score += state.tpc;
-                state.energy -= state.tpc;
-                showEffect(x, y);
-                updateUI();
-                
-                // Mobil cihazlarda hafif titreşim (isteğe bağlı)
-                if (navigator.vibrate) navigator.vibrate(10);
-            }
-        }
-
-        // Çoklu Dokunuş (Mobil)
-        tapBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            for (let i = 0; i < e.touches.length; i++) {
-                handleTap(e.touches[i].clientX, e.touches[i].clientY);
-            }
-        });
-
-        // Fare Tıklaması (Masaüstü)
-        tapBtn.addEventListener('mousedown', (e) => {
-            handleTap(e.clientX, e.clientY);
-        });
-
-        // GÖRSEL EFEKT (+1 Yazısı)
-        function showEffect(x, y) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = `+${state.tpc}`;
-            el.style.left = `${x - 20}px`;
-            el.style.top = `${y - 40}px`;
-            document.body.appendChild(el);
-            
-            setTimeout(() => el.remove(), 700);
-        }
-
-        // SATIN ALMA
-        function buyItem(id, cost, profit) {
-            if (state.score >= cost) {
-                state.score -= cost;
-                state.tph += profit;
-                alert('Başarıyla satın alındı!');
-                updateUI();
-            } else {
-                alert('Yetersiz bakiye!');
-            }
-        }
-
-        // GÖREVLER
-        function completeTask(el, reward) {
-            state.score += reward;
-            el.style.opacity = '0.4';
-            el.onclick = null;
-            el.innerHTML += " ✅";
-            updateUI();
-        }
-
-        // DÖNGÜ (PASİF GELİR VE ENERJİ)
-        setInterval(() => {
-            // Saniyelik pasif gelir ekleme
-            state.score += (state.tph / 3600);
-            // Saniyede +2 enerji dolumu
-            if (state.energy < maxEnergy) state.energy = Math.min(maxEnergy, state.energy + 2);
-            updateUI();
-        }, 1000);
-
-        updateUI();
-    </script>
 </body>
 </html>
