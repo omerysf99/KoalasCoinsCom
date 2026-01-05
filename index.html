@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | 9:6 Özel Pencere</title>
+    <title>PDFSimpson | Giriş & Arşiv</title>
     <style>
         :root {
             --bg: #000000;
             --surface: #111111;
             --accent: #FFD700;
-            --live: #FF0000;
             --text: #ffffff;
-            --text-dim: #777777;
+            --text-dim: #888888;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
@@ -36,75 +35,97 @@
             position: relative;
         }
 
-        header { padding: 20px; text-align: center; background: var(--bg); }
-        .logo { font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+        /* --- HEADER --- */
+        header { 
+            padding: 25px 20px; 
+            text-align: center; 
+            background: linear-gradient(to bottom, #000, transparent);
+            z-index: 10;
+        }
+        .logo { font-size: 28px; font-weight: 900; color: var(--accent); letter-spacing: -1.5px; }
 
+        /* --- VIEWPORT --- */
         .viewport { flex: 1; overflow-y: auto; position: relative; }
-        .page { display: none; height: 100%; padding: 20px; }
+        .page { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
         .page.active { display: block; }
 
-        /* PDF KARTI */
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- ANA SAYFA (TANITIM) --- */
+        .hero {
+            background: linear-gradient(145deg, #1a1a1a, #000);
+            border-radius: 30px;
+            padding: 40px 25px;
+            text-align: center;
+            border: 1px solid #222;
+            margin-bottom: 20px;
+        }
+        .hero h2 { color: var(--accent); font-size: 24px; margin-top: 0; }
+        .feature-list { text-align: left; color: var(--text-dim); font-size: 14px; line-height: 1.8; }
+        .feature-list b { color: #fff; }
+
+        /* --- PDF'LER (DOSYA LİSTESİ) --- */
+        .pdf-grid { display: flex; flex-direction: column; gap: 25px; padding-bottom: 100px; }
         .card-9-6 {
             width: 100%;
             aspect-ratio: 6 / 9;
             background: var(--surface);
             border-radius: 25px;
             border: 1px solid #333;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .card-content {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.95));
+        .card-img-placeholder {
+            height: 100%; width: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 80px; background: radial-gradient(#222, #000);
+        }
+        .card-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 25px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.95) 80%);
         }
 
         .action-btn {
             width: 100%; background: var(--accent); color: #000;
-            border: none; padding: 12px; border-radius: 12px;
-            font-weight: 900; cursor: pointer;
+            border: none; padding: 15px; border-radius: 15px;
+            font-weight: 900; cursor: pointer; text-transform: uppercase;
+            transition: 0.2s;
         }
+        .action-btn:active { transform: scale(0.95); }
 
-        /* --- ÖZEL 9:6 GÖRSEL PENCERESİ (MODAL) --- */
+        /* --- 9:6 ÖZEL PENCERE --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             display: none; justify-content: center; align-items: center;
             z-index: 9999; backdrop-filter: blur(15px);
         }
-
         .modal-frame-9-6 {
-            width: 85%; 
-            max-width: 350px;
-            aspect-ratio: 6 / 9; /* PENCERE TAM 9:6 */
-            background: #1a1a1a;
-            border: 2px solid var(--accent);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden; /* Dışarı taşan görseli keser */
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            width: 85%; aspect-ratio: 6 / 9; background: #000;
+            border: 2px solid var(--accent); border-radius: 20px;
+            position: relative; overflow: hidden;
         }
-
-        .modal-frame-9-6 img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Görselin tamamını 9:6 oranına sığdırır */
-            background-color: #000;
-            display: block;
-        }
-
-        .close-x {
+        .modal-frame-9-6 img { width: 100%; height: 100%; object-fit: cover; }
+        .close-btn {
             position: absolute; top: 15px; right: 15px; background: var(--accent);
             color: #000; width: 35px; height: 35px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; z-index: 10000;
+            font-weight: bold; cursor: pointer; z-index: 100;
         }
 
+        /* --- BOTTOM NAV --- */
         .bottom-nav {
-            height: 75px; background: #050505; border-top: 1px solid #222;
+            height: 80px; background: rgba(10,10,10,0.9);
+            border-top: 1px solid #222;
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 10px; cursor: pointer; }
-        .nav-link.active { color: var(--accent); }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-dim); font-size: 11px; cursor: pointer; font-weight: 600;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item span { font-size: 24px; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -114,53 +135,74 @@
 
     <div class="viewport">
         <div id="home" class="page active">
-            <div class="card-9-6">
-                <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px;">📄</div>
-                <div class="card-content">
-                    <div style="font-weight:bold; margin-bottom:10px;">Eğitim Vadisi TYT-3</div>
-                    <button class="action-btn" onclick="onayla()">AÇMAK İÇİN ONAYLA (<span id="c">0</span>/10)</button>
+            <div class="hero">
+                <h2>Dijital Kütüphanen</h2>
+                <p style="font-size: 14px; opacity: 0.8;">Tüm deneme sınavları ve PDF içerikleri tek tıkla cebinde.</p>
+            </div>
+            
+            <div class="feature-list">
+                <p>✅ <b>Güncel İçerik:</b> Eğitim Vadisi ve dahası.</p>
+                <p>✅ <b>Hızlı Onay:</b> Sadece 10 tıkla görsele erişim.</p>
+                <p>✅ <b>9:6 Görünüm:</b> Dikey ekranlar için özel tasarım.</p>
+            </div>
+
+            <button class="action-btn" style="margin-top: 20px;" onclick="document.getElementById('nav-pdf').click()">PDF'LERE GÖZ AT</button>
+        </div>
+
+        <div id="pdfs" class="page">
+            <div class="pdf-grid">
+                <div class="card-9-6">
+                    <div class="card-img-placeholder">📄</div>
+                    <div class="card-overlay">
+                        <div style="font-weight: 800; margin-bottom: 10px; font-size: 18px;">Eğitim Vadisi TYT-3</div>
+                        <button class="action-btn" onclick="hit()">AÇMAK İÇİN ONAYLA (<span id="count">0</span>/10)</button>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div id="pdfs" class="page"><h3>PDF Arşivi</h3></div>
-        <div id="shorts" class="page"><h3>Shorts</h3></div>
-        <div id="yayin" class="page"><h3>Canlı Yayın</h3></div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-link active" onclick="nav('home', this)">🏠<br>Ev</div>
-        <div class="nav-link" onclick="nav('pdfs', this)">📄<br>PDF</div>
-        <div class="nav-link" onclick="nav('shorts', this)">⚡<br>Shorts</div>
-        <div class="nav-link" onclick="nav('yayin', this)">🔴<br>Canlı</div>
+        <div class="nav-item active" onclick="nav('home', this)">
+            <span>🏠</span>Ana Sayfa
+        </div>
+        <div id="nav-pdf" class="nav-item" onclick="nav('pdfs', this)">
+            <span>📄</span>PDF'ler
+        </div>
     </div>
 </div>
 
 <div class="modal-overlay" id="modal">
     <div class="modal-frame-9-6">
-        <div class="close-x" onclick="kapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Özel 9:6 Görsel">
+        <div class="close-btn" onclick="closeM()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Özel 9:6 Dosya">
     </div>
 </div>
 
 <script>
     let n = 0;
+
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
     }
-    function onayla() {
+
+    function hit() {
         if(n < 10) {
             n++;
-            document.getElementById('c').innerText = n;
-            if(n === 10) { document.getElementById('modal').style.display = 'flex'; }
+            document.getElementById('count').innerText = n;
+            if(n === 10) {
+                document.getElementById('modal').style.display = 'flex';
+            }
         }
     }
-    function kapat() {
+
+    function closeM() {
         document.getElementById('modal').style.display = 'none';
-        n = 0; document.getElementById('c').innerText = n;
+        n = 0;
+        document.getElementById('count').innerText = n;
     }
 </script>
 
