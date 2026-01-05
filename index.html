@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | 10 Onay Sistemi</title>
+    <title>PDFSimpson | Direkt İndir</title>
     <style>
         :root {
             --bg: #000000;
@@ -11,7 +11,7 @@
             --accent: #FFD700;
             --text: #ffffff;
             --text-dim: #888888;
-            --live: #ff0000;
+            --success: #28a745;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -19,63 +19,70 @@
 
         .app-shell { width: 100%; max-width: 450px; height: 100vh; display: flex; flex-direction: column; margin: 0 auto; border: 1px solid #222; }
 
-        /* HEADER */
-        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; background: var(--bg); }
-        .logo { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
 
-        /* VIEWPORT */
-        .viewport { flex: 1; overflow-y: auto; position: relative; }
+        .viewport { flex: 1; overflow-y: auto; padding: 20px; }
         .page { display: none; height: 100%; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* PDF KARTI (9:6 GÖRÜNÜM) */
-        .pdf-list { padding: 20px; }
-        .card-9-6 {
-            width: 100%; aspect-ratio: 6 / 9; background: var(--surface);
-            border-radius: 25px; border: 1px solid #333; position: relative; overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .card-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 25px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.95) 80%);
+        /* PDF LİSTE YAPISI */
+        .pdf-item {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
         }
 
-        /* REKLAM ONAY BUTONU */
-        .confirm-btn {
-            width: 100%; background: var(--accent); color: #000;
-            border: none; padding: 15px; border-radius: 12px;
-            font-weight: 900; cursor: pointer; text-transform: uppercase;
+        .confirm-bar {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px dashed var(--accent);
+            color: var(--accent);
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
-        /* SHORTS & LIVE */
-        .short-slide { height: 100%; display: flex; align-items: flex-end; padding: 40px 20px 100px; background: #0a0a0a; border-bottom: 2px solid #111; }
-        .live-box { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 15px; border: 1px solid var(--live); position: relative; }
+        /* DİREKT İNDİRME LİNKİ */
+        .download-link {
+            display: none; /* Onaydan sonra açılır */
+            margin-top: 15px;
+            text-align: center;
+        }
 
-        /* --- ÖZEL 9:6 REKLAM PENCERESİ --- */
+        .download-link a {
+            color: var(--success);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            border: 2px solid var(--success);
+            border-radius: 10px;
+        }
+
+        /* REKLAM MODAL (9:6) */
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.98);
             display: none; justify-content: center; align-items: center; z-index: 10000;
         }
-        .modal-frame {
-            width: 85%; aspect-ratio: 6 / 9; background: #000;
-            border: 2px solid var(--accent); border-radius: 20px;
-            position: relative; overflow: hidden;
-        }
+        .modal-frame { width: 80%; aspect-ratio: 6 / 9; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; position: relative; }
         .modal-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .close-ads {
-            position: absolute; top: 15px; right: 15px; background: var(--accent);
-            color: #000; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;
-        }
 
-        /* NAV BAR */
-        .nav-bar {
-            height: 75px; background: #050505; border-top: 1px solid #222;
-            display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px;
-        }
+        /* NAV */
+        .nav-bar { height: 75px; background: #050505; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px; }
         .nav-item { color: var(--text-dim); font-size: 10px; text-align: center; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -84,35 +91,30 @@
     <header><div class="logo">PDFSIMPSON</div></header>
 
     <div class="viewport">
-        <div id="home" class="page active" style="padding:20px;">
-            <div style="background:#1a1a1a; padding:25px; border-radius:20px;">
-                <h2 style="margin:0; color:var(--accent);">Hoş Geldin!</h2>
-                <p>Eğitim Vadisi TYT-3 Denemesi yayında. Almak için PDF sekmesine git ve reklamları onayla.</p>
-            </div>
+        <div id="home" class="page active">
+            <h3 style="color:var(--accent)">Hoş Geldin!</h3>
+            <p style="color:var(--text-dim)">Hızlı indirme linkleri PDF sekmesine eklendi.</p>
         </div>
 
         <div id="pdfs" class="page">
-            <div class="pdf-list">
-                <div class="card-9-6">
-                    <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:80px;">📄</div>
-                    <div class="card-overlay">
-                        <h3 style="margin:0 0 10px;">Eğitim Vadisi TYT-3</h3>
-                        <p style="font-size:12px; color:var(--text-dim); margin-bottom:15px;">Bu dosyayı almak için 10 reklam onaylamalısın.</p>
-                        <button class="confirm-btn" onclick="onayle()">REKLAM ONAYLA (<span id="count">0</span>/10)</button>
-                    </div>
+            <div class="pdf-item">
+                <h4 style="margin:0;">Eğitim Vadisi TYT-3 Denemesi</h4>
+                <p style="font-size:12px; color:var(--text-dim);">Format: PDF | Boyut: 4.8 MB</p>
+                
+                <div class="confirm-bar" id="cBar" onclick="onayla()">
+                    REKLAM ONAYLA (<span id="count">0</span>/10)
+                </div>
+
+                <div class="download-link" id="dLink">
+                    <a href="egitimvadisi.jpg" download="Egitim_Vadisi_Deneme.jpg">
+                        <span>📥</span> DİREKT İNDİR (LİNK)
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div id="shorts" class="page" style="overflow-y: scroll; scroll-snap-type: y mandatory;">
-            <div class="short-slide" style="scroll-snap-align: start;"><b>@HocamAnlatiyor</b></div>
-            <div class="short-slide" style="scroll-snap-align: start; background:#050505;"><b>@PDFSimpson</b></div>
-        </div>
-
-        <div id="live" class="page" style="padding:20px;">
-            <div class="live-box"><div style="position:absolute; top:10px; left:10px; background:var(--live); padding:4px 8px; font-size:10px; font-weight:bold; border-radius:5px;">CANLI</div></div>
-            <h3>Matematik Soru Çözümü</h3>
-        </div>
+        <div id="shorts" class="page"><p style="text-align:center; padding-top:50px;">Shorts İçeriği...</p></div>
+        <div id="live" class="page"><p style="text-align:center; padding-top:50px;">Canlı Yayın...</p></div>
     </div>
 
     <nav class="nav-bar">
@@ -123,10 +125,10 @@
     </nav>
 </div>
 
-<div class="modal" id="modalAd">
+<div class="modal" id="adModal">
     <div class="modal-frame">
-        <div class="close-ads" onclick="kapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Eğitim Vadisi PDF Görsel">
+        <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:24px;" onclick="kapat()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Reklam">
     </div>
 </div>
 
@@ -140,21 +142,20 @@
         el.classList.add('active');
     }
 
-    function onayle() {
+    function onayla() {
         if(n < 10) {
             n++;
             document.getElementById('count').innerText = n;
             if(n === 10) {
-                // 10 tık dolunca 9:6 pencereyi aç
-                document.getElementById('modalAd').style.display = 'flex';
+                document.getElementById('adModal').style.display = 'flex';
             }
         }
     }
 
     function kapat() {
-        document.getElementById('modalAd').style.display = 'none';
-        // İstersen burada sayacı sıfırlayabilir veya indirme başlatabilirsin
-        alert("Tebrikler! PDF Erişimi Sağlandı.");
+        document.getElementById('adModal').style.display = 'none';
+        document.getElementById('cBar').style.display = 'none';
+        document.getElementById('dLink').style.display = 'block';
     }
 </script>
 
