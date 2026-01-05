@@ -3,97 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini YouTube Klonu</title>
+    <title>YouTube Pro Klon</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f0f0f; color: white; }
-        .video-card:hover { cursor: pointer; opacity: 0.8; }
+        body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; }
+        .sidebar-item:hover { background-color: #272727; }
+        .chip:hover { background-color: #3f3f3f; cursor: pointer; }
+        .active-chip { background-color: white !important; color: black; }
+        iframe { border-radius: 12px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="overflow-x-hidden">
 
-    <nav class="sticky top-0 bg-[#0f0f0f] p-4 flex items-center justify-between z-50">
-        <div class="flex items-center gap-2 text-xl font-bold">
-            <span class="text-red-600 text-3xl">▶</span> YouTube Mini
-        </div>
-        <div class="flex w-1/2">
-            <input id="searchInput" type="text" placeholder="Ara..." class="w-full p-2 rounded-l-full bg-[#121212] border border-gray-700 focus:outline-none focus:border-blue-500 px-4">
-            <button onclick="searchVideos()" class="bg-[#222222] px-6 rounded-r-full border border-l-0 border-gray-700 hover:bg-[#333333]">🔍</button>
-        </div>
-        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">G</div>
-    </nav>
-
-    <div class="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
-        
-        <div class="flex-1">
-            <div id="playerContainer" class="hidden">
-                <div class="aspect-video w-full">
-                    <iframe id="mainPlayer" class="w-full h-full rounded-xl" src="" frameborder="0" allowfullscreen></iframe>
-                </div>
-                <h1 id="videoTitle" class="text-xl font-bold mt-4"></h1>
-                <p id="videoDesc" class="text-gray-400 text-sm mt-2 line-clamp-2"></p>
-                <hr class="border-gray-800 my-4">
+    <header class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50">
+        <div class="flex items-center gap-4">
+            <button class="p-2 hover:bg-[#272727] rounded-full">☰</button>
+            <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
+                <span class="text-red-600 text-3xl">▶</span>
+                <span class="text-xl font-bold tracking-tighter">YouTube</span>
             </div>
-            
-            <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                </div>
         </div>
+        
+        <div class="flex items-center w-full max-w-[720px] ml-10">
+            <div class="flex flex-grow bg-[#121212] border border-[#303030] rounded-l-full px-4 py-1 items-center focus-within:border-blue-500">
+                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full outline-none text-white h-8">
+            </div>
+            <button onclick="searchVideos()" class="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#272727]">
+                🔍
+            </button>
+            <button class="ml-4 p-2 bg-[#181818] rounded-full hover:bg-[#272727]">🎤</button>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="p-2 hover:bg-[#272727] rounded-full text-xl">⊕</button>
+            <button class="p-2 hover:bg-[#272727] rounded-full text-xl">🔔</button>
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold ml-2">G</div>
+        </div>
+    </header>
+
+    <div class="flex pt-14">
+        <aside class="w-64 fixed left-0 h-screen hidden lg:block p-3 space-y-2 overflow-y-auto bg-[#0f0f0f]">
+            <div class="sidebar-item p-2 rounded-lg bg-[#272727]">🏠 Ana Sayfa</div>
+            <div class="sidebar-item p-2 rounded-lg">🎞️ Shorts</div>
+            <div class="sidebar-item p-2 rounded-lg">📺 Abonelikler</div>
+            <hr class="border-[#272727] my-2">
+            <div class="sidebar-item p-2 rounded-lg">📁 Kitaplık</div>
+            <div class="sidebar-item p-2 rounded-lg">🕒 Geçmiş</div>
+            <div class="sidebar-item p-2 rounded-lg">🎵 Müzik</div>
+            <div class="sidebar-item p-2 rounded-lg">🎮 Oyun</div>
+        </aside>
+
+        <main class="flex-1 lg:ml-64 p-4">
+            <div id="chips" class="flex gap-3 mb-6 overflow-x-auto whitespace-nowrap pb-2 no-scrollbar">
+                <span class="chip active-chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Tümü', this)">Tümü</span>
+                <span class="chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Müzik', this)">Müzik</span>
+                <span class="chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Oyun', this)">Oyun</span>
+                <span class="chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Haberler', this)">Haberler</span>
+                <span class="chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Yazılım', this)">Yazılım</span>
+                <span class="chip px-3 py-1 bg-[#272727] rounded-lg text-sm font-medium" onclick="filterCategory('Canlı', this)">Canlı</span>
+            </div>
+
+            <div id="playerContainer" class="hidden mb-8">
+                <div class="w-full max-w-[1000px] mx-auto">
+                    <div class="aspect-video">
+                        <iframe id="mainPlayer" class="w-full h-full" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+                    </div>
+                    <h1 id="videoTitle" class="text-xl font-bold mt-4 leading-tight"></h1>
+                    <div class="flex items-center gap-4 mt-4 bg-[#181818] p-3 rounded-xl border border-[#272727]">
+                        <div class="w-10 h-10 bg-gray-600 rounded-full"></div>
+                        <div class="flex-1">
+                            <p id="channelName" class="font-bold"></p>
+                            <p class="text-gray-400 text-xs">1.2 Mn Abone</p>
+                        </div>
+                        <button class="bg-white text-black px-4 py-2 rounded-full font-medium hover:bg-gray-200">Abone Ol</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
+                </div>
+
+            <div class="flex justify-center mt-10 mb-20">
+                <button onclick="searchVideos(currentQuery, true)" id="loadMore" class="bg-[#272727] hover:bg-[#3f3f3f] px-6 py-2 rounded-full text-sm font-medium border border-[#3f3f3f]">Daha fazla yükle</button>
+            </div>
+        </main>
     </div>
 
     <script>
-        // API Anahtarın buraya gelecek
-        const API_KEY = 'SİZİN_API_ANAHTARINIZ'; // Buraya paylaştığın anahtarı ekle
+        const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg'; // Burayı kendi anahtarınla güncelle
+        let nextPageToken = '';
+        let currentQuery = 'popüler videolar';
 
-        async function searchVideos(query = 'popüler müzik') {
-            const searchTerm = document.getElementById('searchInput').value || query;
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${searchTerm}&type=video&key=${API_KEY}`;
+        async function searchVideos(query = 'popüler videolar', isLoadMore = false) {
+            currentQuery = query;
+            const searchInput = document.getElementById('searchInput').value;
+            const searchTerm = searchInput || query;
+            
+            let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${searchTerm}&type=video&key=${API_KEY}`;
+            if (isLoadMore && nextPageToken) {
+                url += `&pageToken=${nextPageToken}`;
+            }
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                displayVideos(data.items);
+                nextPageToken = data.nextPageToken;
+                displayVideos(data.items, isLoadMore);
             } catch (error) {
-                console.error("Hata oluştu:", error);
-                alert("Video yüklenirken bir hata oluştu. API anahtarını kontrol et.");
+                console.error("API Hatası:", error);
             }
         }
 
-        function displayVideos(videos) {
+        function displayVideos(videos, isLoadMore) {
             const grid = document.getElementById('videoGrid');
-            grid.innerHTML = '';
+            if (!isLoadMore) grid.innerHTML = '';
 
             videos.forEach(video => {
+                const v = video.snippet;
                 const videoId = video.id.videoId;
-                const title = video.snippet.title;
-                const thumbnail = video.snippet.thumbnails.high.url;
-                const channel = video.snippet.channelTitle;
+                const date = new Date(v.publishedAt).toLocaleDateString('tr-TR');
 
                 const card = `
-                    <div class="video-card" onclick="playVideo('${videoId}', '${encodeURIComponent(title)}', '${encodeURIComponent(video.snippet.description)}')">
-                        <img src="${thumbnail}" class="w-full rounded-xl mb-2">
-                        <h3 class="font-semibold text-sm line-clamp-2">${title}</h3>
-                        <p class="text-gray-400 text-xs mt-1">${channel}</p>
+                    <div class="flex flex-col gap-3 cursor-pointer group" onclick="playVideo('${videoId}', '${encodeURIComponent(v.title)}', '${v.channelTitle}')">
+                        <div class="relative">
+                            <img src="${v.thumbnails.high.url}" class="w-full aspect-video object-cover rounded-xl group-hover:rounded-none transition-all duration-300">
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex-shrink-0"></div>
+                            <div class="flex flex-col">
+                                <h3 class="text-sm font-bold line-clamp-2 leading-snug">${v.title}</h3>
+                                <p class="text-[#aaaaaa] text-xs mt-1 hover:text-white">${v.channelTitle}</p>
+                                <p class="text-[#aaaaaa] text-xs">${date}</p>
+                            </div>
+                        </div>
                     </div>
                 `;
                 grid.innerHTML += card;
             });
         }
 
-        function playVideo(id, title, desc) {
+        function playVideo(id, title, channel) {
             document.getElementById('playerContainer').classList.remove('hidden');
             document.getElementById('mainPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
             document.getElementById('videoTitle').innerText = decodeURIComponent(title);
-            document.getElementById('videoDesc').innerText = decodeURIComponent(desc);
+            document.getElementById('channelName').innerText = channel;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // İlk açılışta videoları getir
-        searchVideos();
+        function filterCategory(cat, element) {
+            // Aktif chip stilini güncelle
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
+            element.classList.add('active-chip');
+            
+            document.getElementById('searchInput').value = '';
+            searchVideos(cat);
+        }
 
-        // Enter tuşu ile arama yapma
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+        // Enter ile arama
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchVideos();
         });
+
+        // Başlangıç yüklemesi
+        searchVideos();
     </script>
 </body>
 </html>
