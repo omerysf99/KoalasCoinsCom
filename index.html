@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Ad Integrated</title>
+    <title>YouTube Pro - Kesintisiz Reklam Deneyimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -15,14 +15,13 @@
         #shortsContainer { height: calc(100vh - 56px); scroll-snap-type: y mandatory; overflow-y: scroll; background: black; }
         .short-video-wrapper { height: calc(100vh - 56px); scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
         .short-iframe-container { height: 90%; aspect-ratio: 9/16; background: #1a1a1a; border-radius: 16px; overflow: hidden; }
-        .short-iframe { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
     <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-50 border-b border-[#272727]">
         <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-[#272727] rounded-full">☰</button>
+            <button class="p-2 hover:bg-[#272727] rounded-full text-white">☰</button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="window.location.reload()">
                 <span class="text-red-600 text-3xl">▶</span>
                 <span class="text-xl font-bold tracking-tighter text-white">YouTube</span>
@@ -44,54 +43,44 @@
         </aside>
 
         <main class="flex-1 sm:ml-20 lg:ml-64 relative">
-            <div id="longPlayerSection" class="hidden p-4 bg-black">
+            <div id="longPlayerSection" class="hidden p-4 bg-black min-h-screen">
                 <div class="max-w-5xl mx-auto">
                     <div class="aspect-video relative">
-                        <div id="videoOverlay" class="absolute inset-0 z-10 hidden bg-black flex items-center justify-center text-xl">Reklam Hazırlanıyor...</div>
+                        <div id="videoOverlay" class="absolute inset-0 z-10 hidden bg-black flex flex-col items-center justify-center text-xl">
+                            <span class="mb-4">Reklam İzleniyor...</span>
+                            <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-white"></div>
+                        </div>
                         <iframe id="mainIframe" class="w-full h-full rounded-xl" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                     </div>
-                    <h2 id="mainVideoTitle" class="text-2xl font-bold mt-4 px-2"></h2>
-                    <button onclick="closePlayer()" class="mt-4 text-gray-400 hover:text-white px-2">← Geri Dön</button>
+                    <h2 id="mainVideoTitle" class="text-2xl font-bold mt-4"></h2>
+                    <button onclick="closePlayer()" class="mt-4 text-gray-400 hover:text-white">← Geri Dön</button>
                 </div>
             </div>
 
             <div id="homeView" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-
-            <div id="shortsView" class="hidden">
-                <div id="shortsContainer" class="no-scrollbar"></div>
-            </div>
+            <div id="shortsView" class="hidden"><div id="shortsContainer" class="no-scrollbar"></div></div>
         </main>
     </div>
 
     <script>
         const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
         let adTimer = null;
+        let currentVideoId = "";
+        let currentVideoSeconds = 0; // Videonun hangi saniyede kaldığını tutar
         let shortsCount = 0;
 
-        // --- REKLAM MANTIĞI ---
         function triggerAd(callback) {
-            console.log("Reklam tetiklendi...");
             if (window.showAdexora) {
-                window.showAdexora()
-                    .then(() => {
-                        console.log("Reklam tamamlandı.");
-                        if(callback) callback();
-                    })
-                    .catch(e => {
-                        console.error("Reklam hatası:", e);
-                        if(callback) callback(); // Hata olsa da devam etmesi için
-                    });
+                window.showAdexora().then(() => callback()).catch(() => callback());
             } else {
-                if(callback) callback();
+                callback();
             }
         }
 
-        // --- BÖLÜM YÖNETİMİ ---
         function showSection(type) {
             stopLongVideoAd();
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('sidebar-active'));
             document.getElementById('longPlayerSection').classList.add('hidden');
-            
             if(type === 'home') {
                 document.getElementById('homeView').classList.remove('hidden');
                 document.getElementById('shortsView').classList.add('hidden');
@@ -103,41 +92,57 @@
                 document.getElementById('shortsView').classList.remove('hidden');
                 document.getElementById('btn-shorts').classList.add('sidebar-active');
                 document.body.style.overflow = 'hidden';
-                shortsCount = 0; // Shorts sayacını sıfırla
+                shortsCount = 0;
                 fetchShorts();
             }
         }
 
-        // --- UZUN VİDEO OYNATMA VE 60S REKLAM ---
         function playLongVideo(id, title) {
+            currentVideoId = id;
+            currentVideoSeconds = 0; // Yeni video başladığında sıfırla
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('longPlayerSection').classList.remove('hidden');
-            document.getElementById('mainIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            loadIframeWithTime(0);
             document.getElementById('mainVideoTitle').innerText = decodeURIComponent(title);
-            
             startLongVideoAd();
+        }
+
+        // Iframe'i belirli bir saniyeden başlatan yardımcı fonksiyon
+        function loadIframeWithTime(seconds) {
+            const iframe = document.getElementById('mainIframe');
+            iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&start=${seconds}`;
         }
 
         function startLongVideoAd() {
             stopLongVideoAd();
+            // Her saniye videonun süresini takip et (basit simülasyon)
+            const secondTracker = setInterval(() => {
+                currentVideoSeconds++;
+            }, 1000);
+
             adTimer = setInterval(() => {
                 const iframe = document.getElementById('mainIframe');
                 const overlay = document.getElementById('videoOverlay');
-                const currentSrc = iframe.src;
                 
-                // Videoyu durdurmak için src'yi geçici olarak boşaltıyoruz veya overlay koyuyoruz
                 overlay.classList.remove('hidden');
-                iframe.src = ""; 
+                iframe.src = ""; // Videoyu durdur
 
                 triggerAd(() => {
                     overlay.classList.add('hidden');
-                    iframe.src = currentSrc; // Reklam bitince videoyu geri yükle
+                    // Reklam bitince KALDIĞI saniyeden başlat
+                    loadIframeWithTime(currentVideoSeconds);
                 });
-            }, 60000); // 60 saniye
+            }, 60000); // 60 saniyede bir reklam
+
+            // Tracker'ı da temizlemek için adTimer'ın yanına ekliyoruz
+            adTimer.tracker = secondTracker;
         }
 
         function stopLongVideoAd() {
-            if(adTimer) clearInterval(adTimer);
+            if(adTimer) {
+                clearInterval(adTimer);
+                clearInterval(adTimer.tracker);
+            }
         }
 
         function closePlayer() {
@@ -146,7 +151,6 @@
             showSection('home');
         }
 
-        // --- ANA SAYFA VERİSİ ---
         async function fetchHomeVideos() {
             const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&maxResults=20&regionCode=TR&key=${API_KEY}`);
             const data = await res.json();
@@ -158,18 +162,15 @@
             `).join('');
         }
 
-        // --- SHORTS VE 3 VİDEODA BİR REKLAM ---
         async function fetchShorts() {
             const container = document.getElementById('shortsContainer');
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=shorts&type=video&videoDuration=short&key=${API_KEY}`);
             const data = await res.json();
-            
             container.innerHTML = data.items.map(item => `
                 <div class="short-video-wrapper" data-id="${item.id.videoId}">
                     <div class="short-iframe-container" id="player-${item.id.videoId}"></div>
                 </div>
             `).join('');
-
             initShortsObserver();
         }
 
@@ -178,24 +179,20 @@
                 entries.forEach(entry => {
                     const videoId = entry.target.getAttribute('data-id');
                     const playerDiv = document.getElementById(`player-${videoId}`);
-
                     if (entry.isIntersecting) {
                         shortsCount++;
-                        
-                        // Her 3 videoda bir reklam tetikle
                         if (shortsCount % 3 === 0) {
                             triggerAd(() => {
-                                playerDiv.innerHTML = `<iframe class="short-iframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay"></iframe>`;
+                                playerDiv.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay"></iframe>`;
                             });
                         } else {
-                            playerDiv.innerHTML = `<iframe class="short-iframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay"></iframe>`;
+                            playerDiv.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay"></iframe>`;
                         }
                     } else {
                         playerDiv.innerHTML = '';
                     }
                 });
             }, { threshold: 0.8 });
-
             document.querySelectorAll('.short-video-wrapper').forEach(w => observer.observe(w));
         }
 
