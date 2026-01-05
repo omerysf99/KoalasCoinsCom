@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | 9:6 Düzeltilmiş</title>
+    <title>PDFSimpson | 9:6 Özel Pencere</title>
     <style>
         :root {
             --bg: #000000;
@@ -36,19 +36,17 @@
             position: relative;
         }
 
-        header { padding: 20px; text-align: center; background: var(--bg); z-index: 10; }
+        header { padding: 20px; text-align: center; background: var(--bg); }
         .logo { font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
 
         .viewport { flex: 1; overflow-y: auto; position: relative; }
-        .page { display: none; height: 100%; padding: 20px; animation: fadeIn 0.3s ease; }
+        .page { display: none; height: 100%; padding: 20px; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- PDF KARTI (9:6) --- */
-        .pdf-grid { display: flex; flex-direction: column; gap: 20px; }
+        /* PDF KARTI */
         .card-9-6 {
             width: 100%;
-            aspect-ratio: 6 / 9; /* Dikey Oran Kilitlendi */
+            aspect-ratio: 6 / 9;
             background: var(--surface);
             border-radius: 25px;
             border: 1px solid #333;
@@ -60,56 +58,36 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.95));
         }
 
-        /* --- SHORTS --- */
-        #shorts { padding: 0; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-item {
-            height: 100%; width: 100%; scroll-snap-align: start;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(45deg, #050505, #111);
-        }
-
-        /* --- CANLI YAYIN --- */
-        .live-item {
-            width: 100%; aspect-ratio: 16 / 9; background: #1a1a1a;
-            border-radius: 15px; border: 1px solid var(--live);
-            position: relative; margin-bottom: 15px;
-        }
-        .live-tag {
-            position: absolute; top: 10px; left: 10px; background: var(--live);
-            padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;
-        }
-
         .action-btn {
             width: 100%; background: var(--accent); color: #000;
             border: none; padding: 12px; border-radius: 12px;
             font-weight: 900; cursor: pointer;
         }
 
-        /* --- 9:6 GÖRSEL PENCERESİ (DÜZELTİLDİ) --- */
+        /* --- ÖZEL 9:6 GÖRSEL PENCERESİ (MODAL) --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             display: none; justify-content: center; align-items: center;
-            z-index: 9999; backdrop-filter: blur(10px);
+            z-index: 9999; backdrop-filter: blur(15px);
         }
 
         .modal-frame-9-6 {
             width: 85%; 
-            aspect-ratio: 6 / 9; /* PENCERE 9:6 KİLİTLİ */
-            background: #000;
+            max-width: 350px;
+            aspect-ratio: 6 / 9; /* PENCERE TAM 9:6 */
+            background: #1a1a1a;
             border: 2px solid var(--accent);
             border-radius: 20px;
             position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden; /* Dışarı taşan görseli keser */
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
 
         .modal-frame-9-6 img {
             width: 100%;
             height: 100%;
-            /* 'cover' ekranı tam doldurur, 'contain' görselin tamamını gösterir */
-            object-fit: cover; 
+            object-fit: contain; /* Görselin tamamını 9:6 oranına sığdırır */
+            background-color: #000;
             display: block;
         }
 
@@ -117,8 +95,7 @@
             position: absolute; top: 15px; right: 15px; background: var(--accent);
             color: #000; width: 35px; height: 35px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; z-index: 1000;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-weight: bold; cursor: pointer; z-index: 10000;
         }
 
         .bottom-nav {
@@ -126,12 +103,8 @@
             display: flex; justify-content: space-around; align-items: center;
             padding-bottom: 10px;
         }
-        .nav-link {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--text-dim); font-size: 10px; cursor: pointer;
-        }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 10px; cursor: pointer; }
         .nav-link.active { color: var(--accent); }
-        .nav-link i { font-size: 20px; margin-bottom: 4px; font-style: normal; }
     </style>
 </head>
 <body>
@@ -141,47 +114,32 @@
 
     <div class="viewport">
         <div id="home" class="page active">
-            <h3>Hoş Geldin! 👋</h3>
-            <div style="background: #1a1a1a; padding: 20px; border-radius: 20px; border-left: 4px solid var(--accent);">
-                <p>Eğitim Vadisi TYT-3 Denemesi yayınlandı. PDF sekmesine göz at!</p>
-            </div>
-        </div>
-
-        <div id="pdfs" class="page">
-            <div class="pdf-grid">
-                <div class="card-9-6">
-                    <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px; background:#1a1a1a;">📄</div>
-                    <div class="card-content">
-                        <div style="font-weight:bold; margin-bottom:10px; text-shadow: 0 2px 4px #000;">Eğitim Vadisi TYT-3</div>
-                        <button class="action-btn" onclick="onayla()">ONAYLA (<span id="c">0</span>/10)</button>
-                    </div>
+            <div class="card-9-6">
+                <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px;">📄</div>
+                <div class="card-content">
+                    <div style="font-weight:bold; margin-bottom:10px;">Eğitim Vadisi TYT-3</div>
+                    <button class="action-btn" onclick="onayla()">AÇMAK İÇİN ONAYLA (<span id="c">0</span>/10)</button>
                 </div>
             </div>
         </div>
-
-        <div id="shorts" class="page">
-            <div class="short-item"><b>@HocamAnlatıyor</b></div>
-            <div class="short-item" style="background:#0a0a0a;"><b>@PDFSimpson</b></div>
-        </div>
-
-        <div id="yayin" class="page">
-            <div class="live-item"><div class="live-tag">CANLI</div></div>
-            <b>Matematik Canlı Soru Çözümü</b>
-        </div>
+        
+        <div id="pdfs" class="page"><h3>PDF Arşivi</h3></div>
+        <div id="shorts" class="page"><h3>Shorts</h3></div>
+        <div id="yayin" class="page"><h3>Canlı Yayın</h3></div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-link active" onclick="nav('home', this)"><i>🏠</i>Ev</div>
-        <div class="nav-link" onclick="nav('pdfs', this)"><i>📄</i>PDF</div>
-        <div class="nav-link" onclick="nav('shorts', this)"><i>⚡</i>Shorts</div>
-        <div class="nav-link" onclick="nav('yayin', this)"><i>🔴</i>Canlı</div>
+        <div class="nav-link active" onclick="nav('home', this)">🏠<br>Ev</div>
+        <div class="nav-link" onclick="nav('pdfs', this)">📄<br>PDF</div>
+        <div class="nav-link" onclick="nav('shorts', this)">⚡<br>Shorts</div>
+        <div class="nav-link" onclick="nav('yayin', this)">🔴<br>Canlı</div>
     </div>
 </div>
 
 <div class="modal-overlay" id="modal">
     <div class="modal-frame-9-6">
         <div class="close-x" onclick="kapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Açılan PDF Görseli">
+        <img src="egitimvadisi.jpg" alt="Özel 9:6 Görsel">
     </div>
 </div>
 
