@@ -3,79 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eğitim Vadisi PDF Botu</title>
+    <title>Eğitim Vadisi Özel Arşiv</title>
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card: #1a1a1a;
-            --primary: #00d2ff;
+            --bg: #000000;
+            --card: #121212;
+            --primary: #00e5ff;
             --text: #ffffff;
-            --accent: #ff0055;
-            --border: #333;
+            --accent: #ff0044;
         }
 
         body {
-            background-color: #111;
+            background-color: #1a1a1a;
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
         }
 
-        /* 9:16 Oranı Mobil Tasarım */
-        .app-container {
+        .app-frame {
             width: 100%;
             max-width: 414px;
             height: 100vh;
             background: var(--bg);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 30px rgba(0,0,0,1);
             position: relative;
+            overflow: hidden;
         }
 
         header {
             padding: 20px;
             text-align: center;
-            background: var(--card);
-            border-bottom: 2px solid var(--primary);
+            border-bottom: 1px solid #333;
+            background: #080808;
         }
 
         .tabs {
             display: flex;
+            gap: 10px;
             padding: 10px;
-            gap: 8px;
-            background: #000;
         }
 
         .tab {
             flex: 1;
-            padding: 12px 5px;
+            padding: 12px;
             background: var(--card);
-            border: 1px solid var(--border);
-            color: #888;
-            border-radius: 8px;
             text-align: center;
-            font-size: 12px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 13px;
             cursor: pointer;
+            border: 1px solid #222;
         }
 
         .tab.active {
             border-color: var(--primary);
             color: var(--primary);
-            background: rgba(0, 210, 255, 0.1);
         }
 
-        .content {
+        .list {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
         }
 
-        /* PDF Kart Tasarımı */
-        .pdf-card {
+        .item {
             background: var(--card);
             border-radius: 12px;
             padding: 12px;
@@ -83,177 +76,195 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid var(--border);
+            border: 1px solid #222;
         }
 
-        .pdf-thumb {
-            width: 60px;
-            height: 80px;
+        .thumb {
+            width: 50px;
+            height: 65px;
+            background: #222;
+            border-radius: 4px;
             object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid #444;
         }
 
-        .pdf-info { flex: 1; }
-        .pdf-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
-
-        .dl-btn {
+        .view-btn {
             background: var(--primary);
             color: #000;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 15px;
             border-radius: 6px;
             font-weight: bold;
             font-size: 12px;
             cursor: pointer;
         }
 
-        /* Reklam Paneli */
-        #adOverlay {
+        /* Reklam ve Görüntüleme Katmanı */
+        .overlay {
             display: none;
-            position: fixed;
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 9999;
+            z-index: 100;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
         }
 
-        .timer-box {
-            width: 100px;
-            height: 100px;
-            line-height: 100px;
-            border-radius: 50%;
+        .timer-ring {
+            width: 80px; height: 80px;
             border: 4px solid var(--accent);
-            font-size: 3rem;
-            font-weight: 900;
-            margin: 20px 0;
-            color: var(--accent);
+            border-radius: 50%;
+            line-height: 80px;
+            font-size: 2rem;
+            margin: 20px;
         }
 
-        #nextBtn {
+        #next-btn {
             display: none;
             background: #22c55e;
-            color: white;
+            color: #fff;
             border: none;
-            padding: 18px 40px;
+            padding: 15px 30px;
             border-radius: 50px;
-            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Kilitli İçerik Ekranı */
+        #finalContent {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 200;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .unlocked-img {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-frame">
     <header>
-        <h2 style="margin:0; font-size: 1.2rem;">EĞİTİM VADİSİ PDF</h2>
+        <h2 style="margin:0; font-size: 1.1rem; color: var(--primary);">VADİ PDF GÖRÜNTÜLEYİCİ</h2>
     </header>
 
     <div class="tabs">
-        <div class="tab active" onclick="show('TYT', this)">TYT</div>
-        <div class="tab" onclick="show('AYT', this)">AYT</div>
-        <div class="tab" onclick="show('KPSS', this)">KPSS</div>
+        <div class="tab active" onclick="load('TYT', this)">TYT</div>
+        <div class="tab" onclick="load('AYT', this)">AYT</div>
+        <div class="tab" onclick="load('KPSS', this)">KPSS</div>
     </div>
 
-    <div id="main-list" class="content">
-        </div>
-</div>
+    <div id="list" class="list"></div>
 
-<div id="adOverlay">
-    <div id="adCounterText" style="color:var(--primary)">REKLAM 1 / 10</div>
-    <div style="margin: 20px; font-size: 1.1rem;">Lütfen Bekleyin...</div>
-    
-    <div style="width: 300px; height: 250px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #444;">
-        [SPONSOR REKLAM ALANI]
+    <div id="adLayer" class="overlay">
+        <div id="stepTag" style="color: var(--primary);">REKLAM 1/10</div>
+        <div class="timer-ring" id="timer">10</div>
+        <p style="color: #666; font-size: 0.9rem;">Süre dolunca "Sonraki" butonu açılır.</p>
+        <button id="next-btn" onclick="nextAd()">SONRAKİ REKLAM ➔</button>
     </div>
 
-    <div id="timer" class="timer-box">10</div>
-    
-    <button id="nextBtn" onclick="handleNext()">SONRAKİ REKLAM ➔</button>
-    <p id="msg" style="font-size: 0.8rem; color: #666;">Buton sürenin sonunda aktif olur.</p>
+    <div id="finalContent" class="overlay">
+        <h3 style="color: var(--primary);">🔓 KİLİT AÇILDI</h3>
+        <p style="font-size: 0.8rem;">Eğitim Vadisi Özel İçeriği</p>
+        <img src="egitimvadisi.jpg" class="unlocked-img" alt="Eğitim Vadisi İçerik">
+        <button class="close-btn" onclick="closeAll()">✕ Kapat ve Listeye Dön</button>
+    </div>
 </div>
 
 <script>
-    const items = [
-        { name: "TYT Matematik Modüler Soru Bankası", cat: "TYT" },
-        { name: "TYT Türkçe Planlı Ders Föyü", cat: "TYT" },
-        { name: "AYT Fizik Konu Anlatımı", cat: "AYT" },
-        { name: "AYT Biyoloji Denemeleri", cat: "AYT" },
-        { name: "KPSS Genel Yetenek Çıkmış Sorular", cat: "KPSS" }
+    const db = [
+        { title: "TYT Matematik Modüler", cat: "TYT" },
+        { title: "TYT Türkçe Kampı", cat: "TYT" },
+        { title: "AYT Fizik Deneme", cat: "AYT" },
+        { title: "KPSS Tarih Özet", cat: "KPSS" }
     ];
 
-    let currentStep = 1;
-    let clock;
+    let step = 1;
+    let timerId;
 
-    function show(cat, el) {
+    function load(cat, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
+        const listEl = document.getElementById('list');
+        listEl.innerHTML = '';
         
-        const list = document.getElementById('main-list');
-        list.innerHTML = '';
-        
-        items.filter(i => i.cat === cat).forEach(pdf => {
-            list.innerHTML += `
-                <div class="pdf-card">
-                    <img src="egitimvadisi.jpg" class="pdf-thumb" alt="PDF">
-                    <div class="pdf-info">
-                        <span class="pdf-title">${pdf.name}</span>
-                        <button class="dl-btn" onclick="openAds()">DOSYAYI İNDİR</button>
+        db.filter(x => x.cat === cat).forEach(item => {
+            listEl.innerHTML += `
+                <div class="item">
+                    <img src="egitimvadisi.jpg" class="thumb">
+                    <div style="flex:1">
+                        <span style="font-size:14px; display:block; margin-bottom:5px;">${item.title}</span>
+                        <button class="view-btn" onclick="startFlow()">İÇERİĞİ GÖR</button>
                     </div>
                 </div>
             `;
         });
     }
 
-    function openAds() {
-        currentStep = 1;
-        document.getElementById('adOverlay').style.display = 'flex';
-        startTimer();
+    function startFlow() {
+        step = 1;
+        document.getElementById('adLayer').style.display = 'flex';
+        runTimer();
     }
 
-    function startTimer() {
-        let sec = 10;
-        const timerEl = document.getElementById('timer');
-        const btn = document.getElementById('nextBtn');
-        const msg = document.getElementById('msg');
-        const counterText = document.getElementById('adCounterText');
+    function runTimer() {
+        let count = 10;
+        const tEl = document.getElementById('timer');
+        const bEl = document.getElementById('next-btn');
+        const sEl = document.getElementById('stepTag');
 
-        btn.style.display = 'none';
-        msg.style.display = 'block';
-        timerEl.style.display = 'block';
-        timerEl.innerText = sec;
-        counterText.innerText = `REKLAM ${currentStep} / 10`;
+        bEl.style.display = 'none';
+        tEl.style.display = 'block';
+        tEl.innerText = count;
+        sEl.innerText = `REKLAM ${step} / 10`;
 
-        clock = setInterval(() => {
-            sec--;
-            timerEl.innerText = sec;
-            if(sec <= 0) {
-                clearInterval(clock);
-                timerEl.style.display = 'none';
-                msg.style.display = 'none';
-                btn.style.display = 'block';
-                if(currentStep === 10) btn.innerText = "PDF'İ CİHAZA İNDİR";
+        timerId = setInterval(() => {
+            count--;
+            tEl.innerText = count;
+            if(count <= 0) {
+                clearInterval(timerId);
+                tEl.style.display = 'none';
+                bEl.style.display = 'block';
+                if(step === 10) bEl.innerText = "KİLİDİ AÇ VE GÖR";
             }
         }, 1000);
     }
 
-    function handleNext() {
-        if(currentStep < 10) {
-            currentStep++;
-            startTimer();
+    function nextAd() {
+        if(step < 10) {
+            step++;
+            runTimer();
         } else {
-            document.getElementById('adOverlay').style.display = 'none';
-            alert("İşlem Başarılı! Dosya indiriliyor.");
+            document.getElementById('adLayer').style.display = 'none';
+            document.getElementById('finalContent').style.display = 'flex';
         }
     }
 
-    // İlk açılış
-    show('TYT', document.querySelector('.tab'));
+    function closeAll() {
+        document.getElementById('adLayer').style.display = 'none';
+        document.getElementById('finalContent').style.display = 'none';
+    }
+
+    load('TYT', document.querySelector('.tab'));
 </script>
 
 </body>
