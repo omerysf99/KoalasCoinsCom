@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime - Pro v5</title>
+    <title>Sınav Prime - Final Pro</title>
     <style>
         :root {
             --bg: #0f0f0f;
+            --surface: #272727;
             --primary: #3ea6ff;
             --text: #ffffff;
             --yt-red: #ff0000;
@@ -20,141 +21,167 @@
             height: 100vh; overflow: hidden;
         }
 
-        .app-frame {
+        .app-container {
             width: 100%; max-width: 414px;
             height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column;
             position: relative;
         }
 
-        /* --- SAYFA YÖNETİMİ --- */
-        .page { display: none; height: calc(100vh - 65px); flex-direction: column; overflow-y: auto; }
-        .page.active { display: flex; }
-
-        /* --- ANA EKRAN (YAYIN LİSTESİ) --- */
-        .live-card { margin-bottom: 20px; cursor: pointer; padding: 10px; }
-        .live-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
-        .live-card h4 { margin: 8px 0 4px 0; font-size: 14px; }
-        .live-card p { margin: 0; font-size: 12px; color: #aaa; }
-
-        /* --- SHORTS (DİKEY KAYDIRMA) --- */
-        .shorts-wrapper { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-slide { 
-            height: calc(100vh - 65px); scroll-snap-align: start; 
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, #222, #000); position: relative;
+        /* --- ÜST SEKME MENÜSÜ --- */
+        .tabs {
+            display: flex; background: var(--bg);
+            border-bottom: 1px solid #333; height: 48px;
+            align-items: center; justify-content: space-around;
         }
-        .short-info { position: absolute; bottom: 20px; left: 15px; }
+        .tab-item { 
+            flex: 1; text-align: center; font-size: 14px; 
+            font-weight: 500; color: #aaa; cursor: pointer;
+            line-height: 48px; border-bottom: 2px solid transparent;
+        }
+        .tab-item.active { color: white; border-bottom: 2px solid white; }
 
-        /* --- CANLI YAYIN & 5 MESAJLI SOHBET --- */
-        #studioView {
-            position: fixed; inset: 0; background: #000; z-index: 2000;
+        /* --- SAYFA YÖNETİMİ --- */
+        .page { display: none; height: calc(100vh - 113px); overflow-y: auto; padding-bottom: 20px; }
+        .page.active { display: flex; flex-direction: column; }
+
+        /* --- ANA EKRAN & CANLI LİSTESİ --- */
+        .video-card { padding: 10px; margin-bottom: 10px; cursor: pointer; }
+        .video-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
+        .video-meta { display: flex; gap: 12px; margin-top: 10px; }
+        .avatar-circle { width: 36px; height: 36px; border-radius: 50%; background: #444; }
+
+        /* --- SHORTS --- */
+        .shorts-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-frame { 
+            height: calc(100vh - 113px); scroll-snap-align: start; 
+            background: linear-gradient(180deg, #333, #000); 
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .short-ui { position: absolute; bottom: 20px; left: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        /* --- CANLI YAYIN MODALI (SOLDA VİDEO SAĞDA SOHBET MANTIĞI) --- */
+        #liveOverlay {
+            position: fixed; inset: 0; background: #000; z-index: 5000;
             display: none; flex-direction: column;
         }
-        .video-player { width: 100%; aspect-ratio: 16/9; position: relative; }
-        .video-player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        .player { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
+        .player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
         
-        .chat-section { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
-        .chat-msgs { flex: 1; padding: 15px; overflow-y: hidden; display: flex; flex-direction: column; gap: 10px; }
-        
-        .msg { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
-        .msg b { color: var(--primary); font-size: 13px; }
-        .msg p { margin: 0; font-size: 14px; color: #eee; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
-
-        .chat-input { padding: 10px; background: #181818; display: flex; gap: 10px; }
-        .chat-input input { flex: 1; background: #2a2a2a; border: none; padding: 10px; border-radius: 20px; color: white; outline: none; }
+        /* 5 MESAJ SINIRLI SOHBET */
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
+        .chat-scroll { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+        .message { display: flex; gap: 10px; font-size: 14px; animation: pop 0.2s ease-out; }
+        @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .chat-input-bar { padding: 10px; background: #181818; display: flex; gap: 10px; }
+        .chat-input-bar input { flex: 1; background: #2a2a2a; border: none; padding: 10px 15px; border-radius: 20px; color: white; outline: none; }
 
         /* --- ALT NAV --- */
-        .bottom-nav { height: 65px; background: #0f0f0f; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { text-align: center; color: #888; font-size: 11px; cursor: pointer; flex: 1; }
-        .nav-item.active { color: white; }
+        .bottom-nav { height: 65px; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; }
+        .nav-icon { text-align: center; font-size: 10px; color: #888; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
-    
-    <div id="homePage" class="page active">
-        <div style="padding:15px; font-weight:bold; border-bottom:1px solid #333;">Canlı Yayınlar</div>
+<div class="app-container">
+    <div class="tabs">
+        <div class="tab-item active" onclick="switchTab('home', this)">Ana Ekran</div>
+        <div class="tab-item" onclick="switchTab('shorts', this)">Shorts</div>
+        <div class="tab-item" onclick="switchTab('live', this)">Canlı Yayın</div>
+    </div>
+
+    <div id="home" class="page active">
+        <div id="homeList"></div>
+    </div>
+
+    <div id="shorts" class="page">
+        <div class="shorts-container">
+            <div class="short-frame">🎬 Shorts 1 <div class="short-ui"><b>@HocamAnlatıyor</b><p>Hızlı Limit Çözümü</p></div></div>
+            <div class="short-frame">🎬 Shorts 2 <div class="short-ui"><b>@SınavPrime</b><p>Biyoloji Şifreleri</p></div></div>
+        </div>
+    </div>
+
+    <div id="live" class="page">
         <div id="liveGrid"></div>
     </div>
 
-    <div id="shortsPage" class="page">
-        <div class="shorts-wrapper">
-            <div class="short-slide">📽️ Matematik Shorts 1 <div class="short-info"><b>@HocamAnlatıyor</b><p>Pratik Türev</p></div></div>
-            <div class="short-slide">📽️ Matematik Shorts 2 <div class="short-info"><b>@SınavPrime</b><p>Soru Tahmini</p></div></div>
-        </div>
-    </div>
-
-    <div id="studioView">
-        <div class="video-player">
-            <button onclick="closeStudio()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); color:white; border:none; padding:8px; border-radius:50%; z-index:100;">✕</button>
+    <div id="liveOverlay">
+        <div class="player">
+            <button onclick="closeLive()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); border:none; color:white; padding:8px; border-radius:50%; z-index:10;">✕</button>
             <img src="tytmatsoru.jpg">
-            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;">
-                <div id="countdown" style="font-size:2.5rem; font-weight:bold;">00:00:00</div>
-                <div style="background:red; padding:2px 8px; font-size:12px; margin-top:10px;">YAKINDA</div>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <div id="clock" style="font-size: 2.5rem; font-weight: bold;">00:00:00</div>
+                <div style="background:red; padding:2px 8px; font-size:12px; margin-top:5px;">CANLI BEKLENİYOR</div>
             </div>
         </div>
-
-        <div class="chat-section">
-            <div style="padding:10px; border-bottom:1px solid #333; font-size:12px; color:#aaa;">CANLI SOHBET (Maks 5 Mesaj)</div>
-            <div id="chatBox" class="chat-msgs">
-                </div>
-            <form class="chat-input" onsubmit="sendMessage(event)">
-                <input type="text" id="userInput" placeholder="Mesaj gönder..." autocomplete="off">
-                <button type="submit" style="background:none; border:none; color:var(--primary); font-weight:bold;">GÖNDER</button>
+        
+        <div class="chat-container">
+            <div style="padding:10px; border-bottom:1px solid #333; font-size:12px; color:#aaa;">ÜYE SOHBETİ (5 MESAJ LİMİTİ)</div>
+            <div id="chatBox" class="chat-scroll"></div>
+            <form class="chat-input-bar" onsubmit="postMessage(event)">
+                <input type="text" id="msgInput" placeholder="Bir şeyler yaz..." autocomplete="off">
+                <button type="submit" style="background:none; border:none; color:var(--primary); font-weight:bold;">YAZ</button>
             </form>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="nav('homePage', this)">🏠<br>Ana Ekran</div>
-        <div class="nav-item" onclick="nav('shortsPage', this)">🎞️<br>Shorts</div>
-        <div class="nav-item" onclick="openStudio()">🔴<br>Canlı</div>
+        <div class="nav-icon">🏠<br>Ana Sayfa</div>
+        <div class="nav-icon" onclick="switchTab('shorts')">🎞️<br>Shorts</div>
+        <div class="nav-icon" onclick="switchTab('live')">🔴<br>Canlı</div>
     </nav>
 </div>
 
 <script>
-    // 1. ANA EKRAN LİSTELEME
-    const grid = document.getElementById('liveGrid');
+    // 1. İÇERİK OLUŞTURMA (10 ADET)
+    const container = document.getElementById('homeList');
+    const liveGrid = document.getElementById('liveGrid');
+    
     for(let i=1; i<=10; i++) {
-        grid.innerHTML += `
-            <div class="live-card" onclick="openStudio()">
+        const cardHTML = `
+            <div class="video-card" onclick="openLive()">
                 <img src="tytmatsoru.jpg">
-                <h4>TYT Matematik Soru Çözümü #${i}</h4>
-                <p>Matematik Avcısı • 1.2B İzleyici</p>
-            </div>
-        `;
+                <div class="video-meta">
+                    <div class="avatar-circle"></div>
+                    <div>
+                        <div style="font-weight:bold; font-size:14px;">2024 TYT Matematik Çözümleri #${i}</div>
+                        <div style="font-size:12px; color:#aaa; margin-top:4px;">Matematik Avcısı • 1B izleyici • CANLI</div>
+                    </div>
+                </div>
+            </div>`;
+        container.innerHTML += cardHTML;
+        liveGrid.innerHTML += cardHTML;
     }
 
-    // 2. NAVİGASYON
-    function nav(id, el) {
+    // 2. SEKME YÖNETİMİ
+    function switchTab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
+        if(el) {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
     }
 
-    function openStudio() { document.getElementById('studioView').style.display = 'flex'; }
-    function closeStudio() { document.getElementById('studioView').style.display = 'none'; }
+    // 3. CANLI YAYIN AÇ/KAPAT
+    function openLive() { document.getElementById('liveOverlay').style.display = 'flex'; }
+    function closeLive() { document.getElementById('liveOverlay').style.display = 'none'; }
 
-    // 3. 5 MESAJ SINIRLI GERÇEK SOHBET
-    function sendMessage(e) {
+    // 4. 5 MESAJ SINIRLI SOHBET (BOT YOK)
+    function postMessage(e) {
         e.preventDefault();
-        const input = document.getElementById('userInput');
+        const input = document.getElementById('msgInput');
         const box = document.getElementById('chatBox');
         
         if(input.value.trim() !== "") {
-            // Mesajı oluştur
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg';
-            msgDiv.innerHTML = `<div><b>Üye</b><p>${input.value}</p></div>`;
+            const m = document.createElement('div');
+            m.className = 'message';
+            m.innerHTML = `<div class="avatar-circle" style="width:24px; height:24px;"></div><div><b>Üye</b><p style="margin:2px 0 0 0;">${input.value}</p></div>`;
             
-            box.appendChild(msgDiv);
+            box.appendChild(m);
 
-            // 5 MESAJ KURALI: 6. mesaj gelirse ilkini sil
-            if (box.children.length > 5) {
+            // Eğer mesaj sayısı 5'i geçerse ilkini sil
+            if(box.children.length > 5) {
                 box.removeChild(box.firstChild);
             }
 
@@ -163,15 +190,14 @@
         }
     }
 
-    // 4. GERİ SAYIM (5 Ocak 2026 23:59)
+    // 5. GERİ SAYIM (5 Ocak 2026 23:59)
     const target = new Date("Jan 5, 2026 23:59:00").getTime();
     setInterval(() => {
-        const now = new Date().getTime();
-        const diff = target - now;
-        const h = Math.floor((diff % (86400000)) / 3600000);
+        const diff = target - new Date().getTime();
+        const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById("countdown").innerText = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+        document.getElementById("clock").innerText = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
     }, 1000);
 </script>
 
