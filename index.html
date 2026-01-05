@@ -3,69 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson V15 | Full Pro</title>
+    <title>PDFSimpson V17 | 9:6 UX</title>
     <style>
         :root {
             --bg: #000000;
             --surface: #121212;
             --accent: #FFD700;
             --text: #ffffff;
-            --text-dim: #888888;
-            --live: #ff0000;
+            --text-dim: #999999;
             --db-blue: #0061ff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow: hidden; }
 
-        .app-shell { width: 100%; max-width: 450px; height: 100vh; display: flex; flex-direction: column; margin: 0 auto; background: var(--bg); }
+        /* ANA SİTE ÇERÇEVESİ (9:6 HİSSİYATI) */
+        .app-shell { 
+            width: 100%; 
+            max-width: 450px; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            margin: 0 auto; 
+            background: var(--bg);
+            border-left: 1px solid #222;
+            border-right: 1px solid #222;
+        }
 
         /* HEADER */
-        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; }
-        .logo { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+        header { padding: 25px 20px; text-align: left; border-bottom: 1px solid #222; }
+        .logo { font-size: 26px; font-weight: 900; color: var(--accent); letter-spacing: -1.5px; }
 
         /* VIEWPORT */
-        .viewport { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
+        .viewport { flex: 1; overflow-y: auto; scrollbar-width: none; }
         .viewport::-webkit-scrollbar { display: none; }
-        .page { display: none; height: 100%; animation: fadeIn 0.3s ease; }
+        .page { display: none; height: 100%; animation: slideIn 0.3s ease-out; }
         .page.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* --- ANA SAYFA --- */
-        .home-content { padding: 20px; }
-        .hero-card { background: linear-gradient(135deg, #1a1a1a, #000); padding: 30px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; }
-
-        /* --- SHORTS (SCROLL LOOP) --- */
-        #shorts { overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-video {
-            height: 100%; width: 100%; scroll-snap-align: start;
-            background: #050505; display: flex; align-items: flex-end;
-            padding: 40px 20px 100px; position: relative; border-bottom: 1px solid #111;
+        /* --- PDF SEKME (BÜYÜK LİSTE) --- */
+        .pdf-list { padding: 20px; }
+        .pdf-card {
+            width: 100%;
+            background: var(--surface);
+            border-radius: 24px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid #262626;
         }
-        .short-info b { color: var(--accent); display: block; margin-bottom: 5px; }
+        .pdf-header { padding: 25px; }
+        .pdf-title { font-size: 22px; font-weight: 800; display: block; margin-bottom: 5px; }
+        .pdf-desc { color: var(--text-dim); font-size: 14px; }
 
-        /* --- CANLI YAYIN --- */
-        .live-preview { width: 100%; aspect-ratio: 16/9; background: #222; border-radius: 15px; border: 1px solid var(--live); position: relative; }
-        .live-badge { position: absolute; top: 10px; left: 10px; background: var(--live); padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; animation: pulse 1s infinite; }
-        @keyframes pulse { 50% { opacity: 0.5; } }
+        /* ONAY BUTONU (9:6 UYUMLU) */
+        .confirm-btn {
+            width: 100%; padding: 22px; background: #1a1a1a; color: var(--accent);
+            text-align: center; font-weight: 900; cursor: pointer; border: none;
+            border-top: 1px dashed var(--accent); font-size: 16px;
+        }
 
-        /* --- PDF SEKME & ONAY --- */
-        .pdf-item { background: var(--surface); padding: 20px; border-radius: 20px; border: 1px solid #333; text-align: center; margin: 20px; }
-        .confirm-bar { width: 100%; padding: 15px; background: #1a1a1a; border: 1px dashed var(--accent); color: var(--accent); border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 15px; }
-        .dl-link { display: none; margin-top: 20px; }
-        .dl-link a { background: var(--db-blue); color: white; text-decoration: none; font-weight: bold; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* DROPBOX BUTONU */
+        .db-download {
+            display: none; width: 100%; padding: 22px; background: var(--db-blue);
+            color: white; text-decoration: none; text-align: center;
+            font-weight: 900; font-size: 18px;
+        }
 
-        /* --- 9:6 REKLAM MODAL --- */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; justify-content: center; align-items: center; z-index: 10000; }
-        .modal-9-6 { width: 85%; aspect-ratio: 6 / 9; border: 2px solid var(--accent); border-radius: 20px; position: relative; overflow: hidden; }
-        .modal-9-6 img { width: 100%; height: 100%; object-fit: cover; }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: var(--accent); color: #000; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; z-index: 101; }
+        /* --- SHORTS (9:6 LOOP) --- */
+        .shorts-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-item {
+            height: 100%; width: 100%; scroll-snap-align: start;
+            display: flex; align-items: flex-end; padding: 40px 20px 110px;
+            background: linear-gradient(to top, #000 15%, transparent 50%), #0a0a0a;
+            position: relative;
+        }
+        .short-meta b { color: var(--accent); font-size: 18px; }
+
+        /* --- 9:6 MODAL --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-inner { width: 88%; aspect-ratio: 6 / 9; border-radius: 20px; overflow: hidden; border: 2px solid var(--accent); position: relative; }
+        .modal-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--accent); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
 
         /* NAV BAR */
-        .nav { height: 75px; background: #050505; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px; }
-        .nav-item { color: var(--text-dim); font-size: 10px; text-align: center; cursor: pointer; }
-        .nav-item.active { color: var(--accent); }
+        .nav { height: 85px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; }
+        .nav-link { color: #555; text-align: center; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .nav-link.active { color: var(--accent); }
+        .nav-link i { display: block; font-size: 26px; margin-bottom: 4px; font-style: normal; }
     </style>
 </head>
 <body>
@@ -74,45 +99,46 @@
     <header><div class="logo">PDFSIMPSON</div></header>
 
     <div class="viewport">
-        <div id="home" class="page active">
-            <div class="home-content">
-                <div class="hero-card">
-                    <h2 style="margin:0;">Hoş Geldin! 👋</h2>
-                    <p style="color:var(--text-dim); font-size:14px;">Güncel PDF ve Denemeler için sekmeleri kullanabilirsin.</p>
-                </div>
-                <div style="background:#111; padding:15px; border-radius:15px; font-size:13px;">
-                    📢 <b>Yeni:</b> Eğitim Vadisi TYT-3 Denemesi PDF sekmesine eklendi.
-                </div>
+        <div id="home" class="page">
+            <div style="padding: 25px;">
+                <h1 style="font-size: 32px; margin-bottom: 10px;">Arşiv<br>Burada.</h1>
+                <p style="color: var(--text-dim);">En güncel ders içerikleri ve PDF denemeleri mobil uyumlu arayüz ile cebinde.</p>
             </div>
         </div>
 
         <div id="shorts" class="page">
-            <div class="short-video">
-                <div class="short-info"><b>@HocamAnlatiyor</b><p>Matematik Soru Çözümü #shorts</p></div>
-            </div>
-            <div class="short-video" style="background:#0a0a0a;">
-                <div class="short-info"><b>@PDFSimpson</b><p>Yeni Denemeler Yayında!</p></div>
-            </div>
-        </div>
-
-        <div id="live" class="page" style="padding:20px;">
-            <div class="live-preview"><div class="live-badge">CANLI</div></div>
-            <h3 style="margin:15px 0 5px;">Geometri Canlı Kampı</h3>
-            <p style="color:var(--text-dim); font-size:14px;">2.4K Kişi İzliyor</p>
-        </div>
-
-        <div id="pdfs" class="page">
-            <div class="pdf-item">
-                <h3 style="margin:0;">Eğitim Vadisi TYT-3</h3>
-                <p style="color:var(--text-dim); font-size:12px;">Dosyayı indirmek için 10 onay tamamla.</p>
-                
-                <div class="confirm-bar" id="cBar" onclick="onayla()">
-                    REKLAM ONAYLA (<span id="count">0</span>/10)
+            <div class="shorts-container">
+                <div class="short-item">
+                    <div class="short-meta"><b>@HocamAnlatiyor</b><p>Fonksiyonlar Pratik Çözüm</p></div>
                 </div>
+                <div class="short-item" style="background: #0d0d0d;">
+                    <div class="short-meta"><b>@PDFSimpson</b><p>Bu haftanın deneme listesi!</p></div>
+                </div>
+            </div>
+        </div>
 
-                <div class="dl-link" id="dLink">
-                    <a href="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&dl=1">
-                        📥 DİREKT İNDİR (DROPBOX)
+        <div id="live" class="page" style="padding: 20px;">
+            <div style="width:100%; aspect-ratio: 16/9; background:#1a1a1a; border-radius:20px; position:relative; border: 1px solid #f00;">
+                <div style="position:absolute; top:15px; left:15px; background:#f00; padding:5px 10px; border-radius:6px; font-weight:bold; font-size:11px;">CANLI</div>
+            </div>
+            <h2 style="margin: 20px 0 10px;">TYT Kampı Başladı</h2>
+        </div>
+
+        <div id="pdfs" class="page active">
+            <div class="pdf-list">
+                <div class="pdf-card">
+                    <div class="pdf-header">
+                        <span class="pdf-title">📄 Eğitim Vadisi TYT-3</span>
+                        <span class="pdf-desc">Full Paket • 5.2 MB • PDF</span>
+                    </div>
+                    
+                    <div class="confirm-btn" id="cBtn" onclick="onayla()">
+                        ONAYLA (<span id="count">0</span>/10)
+                    </div>
+
+                    <a href="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&dl=1" 
+                       class="db-download" id="dlBtn">
+                        📥 DROPBOX DİREKT İNDİR
                     </a>
                 </div>
             </div>
@@ -120,17 +146,17 @@
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="nav('home', this)">🏠<br>Ev</div>
-        <div class="nav-item" onclick="nav('shorts', this)">⚡<br>Shorts</div>
-        <div class="nav-item" onclick="nav('live', this)">🔴<br>Canlı</div>
-        <div class="nav-item" onclick="nav('pdfs', this)">📄<br>PDF</div>
+        <div class="nav-link" onclick="nav('home', this)"><i>🏠</i>Ev</div>
+        <div class="nav-link" onclick="nav('shorts', this)"><i>⚡</i>Shorts</div>
+        <div class="nav-link" onclick="nav('live', this)"><i>🔴</i>Canlı</div>
+        <div class="nav-link active" onclick="nav('pdfs', this)"><i>📄</i>PDF</div>
     </nav>
 </div>
 
 <div class="modal" id="adModal">
-    <div class="modal-9-6">
-        <div class="close-btn" onclick="kapat()">✕</div>
-        <img src="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&raw=1" alt="Ad">
+    <div class="modal-inner">
+        <div class="close-modal" onclick="kapat()">✕</div>
+        <img src="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&raw=1" alt="9:6 Ad">
     </div>
 </div>
 
@@ -139,7 +165,7 @@
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
     }
 
@@ -153,8 +179,8 @@
 
     function kapat() {
         document.getElementById('adModal').style.display = 'none';
-        document.getElementById('cBar').style.display = 'none';
-        document.getElementById('dLink').style.display = 'block';
+        document.getElementById('cBtn').style.display = 'none';
+        document.getElementById('dlBtn').style.display = 'block';
     }
 </script>
 
