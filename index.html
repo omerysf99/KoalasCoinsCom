@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime - Final Pro</title>
+    <title>Sınav Prime Pro - 2026</title>
     <style>
         :root {
             --bg: #0f0f0f;
-            --surface: #272727;
+            --card: #1e1e1e;
             --primary: #3ea6ff;
             --text: #ffffff;
-            --yt-red: #ff0000;
+            --accent: #2ba640;
         }
 
         body, html {
             margin: 0; padding: 0;
             background: var(--bg);
             color: var(--text);
-            font-family: "Roboto", sans-serif;
+            font-family: 'Roboto', sans-serif;
             height: 100vh; overflow: hidden;
         }
 
@@ -25,179 +25,211 @@
             width: 100%; max-width: 414px;
             height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column;
-            position: relative;
+            border: 1px solid #333;
         }
 
-        /* --- ÜST SEKME MENÜSÜ --- */
-        .tabs {
+        /* SEKME MENÜSÜ */
+        .top-nav {
             display: flex; background: var(--bg);
-            border-bottom: 1px solid #333; height: 48px;
-            align-items: center; justify-content: space-around;
+            border-bottom: 1px solid #333;
+            height: 50px; align-items: center;
         }
-        .tab-item { 
-            flex: 1; text-align: center; font-size: 14px; 
-            font-weight: 500; color: #aaa; cursor: pointer;
-            line-height: 48px; border-bottom: 2px solid transparent;
+        .tab {
+            flex: 1; text-align: center; font-size: 13px; font-weight: bold;
+            color: #aaa; cursor: pointer; transition: 0.3s;
+            height: 100%; line-height: 50px;
         }
-        .tab-item.active { color: white; border-bottom: 2px solid white; }
+        .tab.active { color: #fff; border-bottom: 3px solid #fff; }
 
-        /* --- SAYFA YÖNETİMİ --- */
-        .page { display: none; height: calc(100vh - 113px); overflow-y: auto; padding-bottom: 20px; }
-        .page.active { display: flex; flex-direction: column; }
+        .content-area { flex: 1; overflow-y: auto; padding-bottom: 70px; }
+        .page { display: none; animation: fadeIn 0.4s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- ANA EKRAN & CANLI LİSTESİ --- */
-        .video-card { padding: 10px; margin-bottom: 10px; cursor: pointer; }
-        .video-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
-        .video-meta { display: flex; gap: 12px; margin-top: 10px; }
-        .avatar-circle { width: 36px; height: 36px; border-radius: 50%; background: #444; }
-
-        /* --- SHORTS --- */
-        .shorts-container { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .short-frame { 
-            height: calc(100vh - 113px); scroll-snap-align: start; 
-            background: linear-gradient(180deg, #333, #000); 
-            display: flex; align-items: center; justify-content: center; position: relative;
+        /* --- ANA SAYFA: BİLGİLENDİRME --- */
+        .hero-news {
+            background: linear-gradient(45deg, #1e1e1e, #2c2c2c);
+            margin: 15px; padding: 20px; border-radius: 15px;
+            border-left: 5px solid var(--primary);
         }
-        .short-ui { position: absolute; bottom: 20px; left: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .status-badge {
+            background: var(--accent); color: white;
+            padding: 3px 8px; border-radius: 5px; font-size: 10px;
+        }
 
-        /* --- CANLI YAYIN MODALI (SOLDA VİDEO SAĞDA SOHBET MANTIĞI) --- */
-        #liveOverlay {
-            position: fixed; inset: 0; background: #000; z-index: 5000;
+        /* --- CANLI YAYIN GELİŞTİRME --- */
+        .live-item {
+            position: relative; margin: 15px; border-radius: 12px;
+            overflow: hidden; cursor: pointer; border: 1px solid #333;
+        }
+        .live-item img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+        .live-overlay-info {
+            position: absolute; bottom: 0; width: 100%;
+            background: rgba(0,0,0,0.8); padding: 10px;
+        }
+
+        /* --- STUDIO EKRANI (FULL SCREEN) --- */
+        #studio {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
             display: none; flex-direction: column;
         }
-        .player { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
-        .player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+        .video-player { width: 100%; aspect-ratio: 16/9; position: relative; }
+        .video-player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
         
-        /* 5 MESAJ SINIRLI SOHBET */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: #0f0f0f; }
-        .chat-scroll { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
-        .message { display: flex; gap: 10px; font-size: 14px; animation: pop 0.2s ease-out; }
-        @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .chat-input-bar { padding: 10px; background: #181818; display: flex; gap: 10px; }
-        .chat-input-bar input { flex: 1; background: #2a2a2a; border: none; padding: 10px 15px; border-radius: 20px; color: white; outline: none; }
+        .chat-container {
+            flex: 1; background: #0f0f0f; display: flex; flex-direction: column;
+        }
+        .chat-messages {
+            flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+            justify-content: flex-end; /* Mesajları altta tutar */
+        }
+        .msg-bubble {
+            background: #272727; padding: 10px; border-radius: 10px;
+            font-size: 14px; animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } }
 
-        /* --- ALT NAV --- */
-        .bottom-nav { height: 65px; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; }
-        .nav-icon { text-align: center; font-size: 10px; color: #888; cursor: pointer; }
+        .chat-input {
+            padding: 15px; background: #181818; display: flex; gap: 10px;
+        }
+        .chat-input input {
+            flex: 1; background: #2a2a2a; border: none; padding: 12px;
+            border-radius: 25px; color: white; outline: none;
+        }
+
+        /* ALT NAV */
+        .bottom-nav {
+            position: absolute; bottom: 0; width: 100%; height: 60px;
+            background: #0f0f0f; border-top: 1px solid #333;
+            display: flex; justify-content: space-around; align-items: center;
+        }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="tabs">
-        <div class="tab-item active" onclick="switchTab('home', this)">Ana Ekran</div>
-        <div class="tab-item" onclick="switchTab('shorts', this)">Shorts</div>
-        <div class="tab-item" onclick="switchTab('live', this)">Canlı Yayın</div>
+    <div class="top-nav">
+        <div class="tab active" onclick="showPage('home', this)">ANA SAYFA</div>
+        <div class="tab" onclick="showPage('shorts', this)">SHORTS</div>
+        <div class="tab" onclick="showPage('live', this)">CANLI YAYIN</div>
     </div>
 
-    <div id="home" class="page active">
-        <div id="homeList"></div>
-    </div>
-
-    <div id="shorts" class="page">
-        <div class="shorts-container">
-            <div class="short-frame">🎬 Shorts 1 <div class="short-ui"><b>@HocamAnlatıyor</b><p>Hızlı Limit Çözümü</p></div></div>
-            <div class="short-frame">🎬 Shorts 2 <div class="short-ui"><b>@SınavPrime</b><p>Biyoloji Şifreleri</p></div></div>
-        </div>
-    </div>
-
-    <div id="live" class="page">
-        <div id="liveGrid"></div>
-    </div>
-
-    <div id="liveOverlay">
-        <div class="player">
-            <button onclick="closeLive()" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); border:none; color:white; padding:8px; border-radius:50%; z-index:10;">✕</button>
-            <img src="tytmatsoru.jpg">
-            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                <div id="clock" style="font-size: 2.5rem; font-weight: bold;">00:00:00</div>
-                <div style="background:red; padding:2px 8px; font-size:12px; margin-top:5px;">CANLI BEKLENİYOR</div>
+    <div class="content-area">
+        <div id="home" class="page active">
+            <div class="hero-news">
+                <span class="status-badge">DUYURU</span>
+                <h3 style="margin: 10px 0;">Sınav Prime 2026 Yayında!</h3>
+                <p style="font-size: 13px; color: #ccc;">Yeni nesil soru çözümleri ve interaktif PDF sistemi ile artık tüm dersler elinizin altında.</p>
+            </div>
+            <div style="padding: 15px;">
+                <h4>Hızlı Başlangıç</h4>
+                <div style="background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                    <p style="margin:0; font-size: 14px;">📖 <b>Günün Sorusu:</b> Matematik - Logaritma</p>
+                </div>
+                <div style="background: #1e1e1e; padding: 15px; border-radius: 10px;">
+                    <p style="margin:0; font-size: 14px;">📊 <b>Hedef:</b> TYT %85 Başarı Oranı</p>
+                </div>
             </div>
         </div>
-        
+
+        <div id="shorts" class="page">
+            <div style="height: 500px; display: flex; align-items:center; justify-content:center; color: #555;">
+                [ Kaydırılabilir Shorts Alanı ]
+            </div>
+        </div>
+
+        <div id="live" class="page">
+            <div id="liveItems"></div>
+        </div>
+    </div>
+
+    <div id="studio">
+        <div class="video-player">
+            <button onclick="closeStudio()" style="position:absolute; top:15px; right:15px; z-index:10; background:rgba(0,0,0,0.5); color:white; border:none; padding:10px; border-radius:50%;">✕</button>
+            <img src="tytmatsoru.jpg">
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.4);">
+                <div id="timer" style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">00:00:00</div>
+                <p style="font-size: 12px; color: var(--primary);">CANLI YAYIN BAŞLAMAK ÜZERE</p>
+            </div>
+        </div>
         <div class="chat-container">
-            <div style="padding:10px; border-bottom:1px solid #333; font-size:12px; color:#aaa;">ÜYE SOHBETİ (5 MESAJ LİMİTİ)</div>
-            <div id="chatBox" class="chat-scroll"></div>
-            <form class="chat-input-bar" onsubmit="postMessage(event)">
-                <input type="text" id="msgInput" placeholder="Bir şeyler yaz..." autocomplete="off">
+            <div style="padding: 10px; font-size: 11px; color: #777; text-align: center; border-bottom: 1px solid #222;">CANLI SOHBET (Maks 5 Mesaj)</div>
+            <div id="chatBox" class="chat-messages">
+                </div>
+            <form class="chat-input" onsubmit="sendChat(event)">
+                <input type="text" id="chatInp" placeholder="Sohbete katıl..." autocomplete="off">
                 <button type="submit" style="background:none; border:none; color:var(--primary); font-weight:bold;">YAZ</button>
             </form>
         </div>
     </div>
 
-    <nav class="bottom-nav">
-        <div class="nav-icon">🏠<br>Ana Sayfa</div>
-        <div class="nav-icon" onclick="switchTab('shorts')">🎞️<br>Shorts</div>
-        <div class="nav-icon" onclick="switchTab('live')">🔴<br>Canlı</div>
-    </nav>
+    <div class="bottom-nav">
+        <span>🏠</span>
+        <span>🔍</span>
+        <span>🔔</span>
+        <span>👤</span>
+    </div>
 </div>
 
 <script>
-    // 1. İÇERİK OLUŞTURMA (10 ADET)
-    const container = document.getElementById('homeList');
-    const liveGrid = document.getElementById('liveGrid');
-    
+    // 1. Canlı Yayın Listesini Oluştur (10 Adet)
+    const liveBox = document.getElementById('liveItems');
     for(let i=1; i<=10; i++) {
-        const cardHTML = `
-            <div class="video-card" onclick="openLive()">
+        liveBox.innerHTML += `
+            <div class="live-item" onclick="openStudio()">
                 <img src="tytmatsoru.jpg">
-                <div class="video-meta">
-                    <div class="avatar-circle"></div>
-                    <div>
-                        <div style="font-weight:bold; font-size:14px;">2024 TYT Matematik Çözümleri #${i}</div>
-                        <div style="font-size:12px; color:#aaa; margin-top:4px;">Matematik Avcısı • 1B izleyici • CANLI</div>
-                    </div>
+                <div class="live-overlay-info">
+                    <div style="font-size: 14px; font-weight: bold;">TYT Matematik Kampı #${i}</div>
+                    <div style="font-size: 11px; color: var(--primary);">Bugün 23:59'da Başlıyor</div>
                 </div>
-            </div>`;
-        container.innerHTML += cardHTML;
-        liveGrid.innerHTML += cardHTML;
+            </div>
+        `;
     }
 
-    // 2. SEKME YÖNETİMİ
-    function switchTab(id, el) {
+    // 2. Sayfa Değiştirme
+    function showPage(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
     }
 
-    // 3. CANLI YAYIN AÇ/KAPAT
-    function openLive() { document.getElementById('liveOverlay').style.display = 'flex'; }
-    function closeLive() { document.getElementById('liveOverlay').style.display = 'none'; }
+    // 3. Studio Kontrol
+    function openStudio() { document.getElementById('studio').style.display = 'flex'; }
+    function closeStudio() { document.getElementById('studio').style.display = 'none'; }
 
-    // 4. 5 MESAJ SINIRLI SOHBET (BOT YOK)
-    function postMessage(e) {
+    // 4. GELİŞTİRİLMİŞ SOHBET (5 Mesaj Sınırı)
+    function sendChat(e) {
         e.preventDefault();
-        const input = document.getElementById('msgInput');
+        const inp = document.getElementById('chatInp');
         const box = document.getElementById('chatBox');
         
-        if(input.value.trim() !== "") {
+        if(inp.value.trim() !== "") {
             const m = document.createElement('div');
-            m.className = 'message';
-            m.innerHTML = `<div class="avatar-circle" style="width:24px; height:24px;"></div><div><b>Üye</b><p style="margin:2px 0 0 0;">${input.value}</p></div>`;
+            m.className = 'msg-bubble';
+            m.innerHTML = `<b>Üye:</b> ${inp.value}`;
             
             box.appendChild(m);
 
-            // Eğer mesaj sayısı 5'i geçerse ilkini sil
+            // 5 Mesajdan fazlaysa en üsttekini sil
             if(box.children.length > 5) {
                 box.removeChild(box.firstChild);
             }
 
-            input.value = "";
+            inp.value = "";
             box.scrollTop = box.scrollHeight;
         }
     }
 
-    // 5. GERİ SAYIM (5 Ocak 2026 23:59)
+    // 5. Geri Sayım
     const target = new Date("Jan 5, 2026 23:59:00").getTime();
     setInterval(() => {
         const diff = target - new Date().getTime();
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById("clock").innerText = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+        document.getElementById("timer").innerText = 
+            `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
     }, 1000);
 </script>
 
