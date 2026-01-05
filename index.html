@@ -3,171 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haber Portalı | Güncel Akış</title>
+    <title>Haber Vizyon | Anlık Detay</title>
     <style>
         :root {
-            --bg: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-main: #1c1e21;
-            --text-dim: #606770;
-            --accent: #007bff;
+            --primary: #d63031;
+            --accent: #0984e3;
+            --bg: #f7f9fc;
+            --surface: #ffffff;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
-            color: var(--text-main);
             margin: 0;
-            padding-bottom: 50px;
+            color: #2d3436;
         }
 
-        /* Üst Menü */
-        header {
-            background: #ffffff;
-            border-bottom: 1px solid #ddd;
-            padding: 1rem 0;
+        /* Flaş Haber Bandı */
+        .ticker {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
             text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
         }
 
-        header h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
-        .data-source { font-size: 0.8rem; color: var(--text-dim); margin-top: 5px; }
+        header {
+            background: var(--surface);
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
 
-        /* Haber Kartları */
         .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 15px;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
         }
 
-        .news-card {
-            background: var(--card-bg);
-            border-radius: 12px;
+        .card {
+            background: var(--surface);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .news-card:hover { transform: translateY(-5px); }
-
-        .img-container {
-            width: 100%;
-            height: 180px;
-            background: #eee;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            cursor: pointer;
             position: relative;
         }
 
-        .img-container img {
+        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+        .card-img {
             width: 100%;
-            height: 100%;
+            height: 200px;
             object-fit: cover;
         }
 
-        .source-tag {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.7);
+        .card-body { padding: 20px; }
+
+        .source-badge {
+            background: var(--accent);
             color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 0.7rem;
             font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
-        .content {
-            padding: 18px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .title {
+        .card-title {
             font-size: 1.1rem;
             font-weight: 700;
             margin: 0 0 10px 0;
             line-height: 1.4;
-            color: var(--text-main);
-            text-decoration: none;
         }
 
-        .title:hover { color: var(--accent); }
-
-        .time-ago {
+        .card-time {
             font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-bottom: 15px;
+            color: #636e72;
             display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* MODAL (Açılır Pencere) Tasarımı */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none; /* JS ile açılacak */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalAnim 0.4s ease;
+        }
+
+        @keyframes modalAnim {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .time-ago::before {
-            content: "🕒";
-            margin-right: 5px;
+        .close-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
-        .footer {
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
+        iframe {
+            width: 100%;
+            flex-grow: 1;
+            border: none;
         }
 
-        .btn-go {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        /* Yükleniyor Efekti */
-        #loader { text-align: center; padding: 50px; font-weight: bold; }
+        #loader { text-align: center; padding: 100px; font-size: 1.5rem; color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
+<div class="ticker">🔥 Son Dakika: Haber Akışı Aktif Edildi - Gerçek Zamanlı Veriler</div>
+
 <header>
-    <h1>HABER AKIŞI</h1>
-    <div class="data-source">Kaynak: Google Haberler (RSS) | Gerçek zamanlı güncellenir</div>
+    <h1>HABER <span style="color:var(--primary)">VİZYON</span></h1>
+    <p style="color:#636e72; font-size: 0.9rem;">Veri Kaynağı: Google News RSS | 2026 Güncel</p>
 </header>
 
 <div class="container">
-    <div id="loader">Haberler toplanıyor...</div>
+    <div id="loader">Haberler Yükleniyor...</div>
     <div id="news-container" class="news-grid"></div>
 </div>
 
-<script>
-    // Zaman hesaplama fonksiyonu
-    function timeAgo(dateString) {
-        const now = new Date();
-        const past = new Date(dateString);
-        const diffInSeconds = Math.floor((now - past) / 1000);
+<div id="newsModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle" style="margin:0; font-size:1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">Haber Detayı</h3>
+            <button class="close-btn" onclick="closeModal()">Kapat ✕</button>
+        </div>
+        <iframe id="newsFrame" src=""></iframe>
+    </div>
+</div>
 
-        if (diffInSeconds < 60) return 'Az önce';
-        
-        const minutes = Math.floor(diffInSeconds / 60);
-        if (minutes < 60) return `${minutes} dakika önce`;
-        
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} saat önce`;
-        
-        const days = Math.floor(hours / 24);
-        return `${days} gün önce`;
+<script>
+    // Zaman hesaplama
+    function timeAgo(dateString) {
+        const diff = Math.floor((new Date() - new Date(dateString)) / 1000);
+        if (diff < 60) return 'Az önce';
+        if (diff < 3600) return Math.floor(diff / 60) + ' dakika önce';
+        if (diff < 86400) return Math.floor(diff / 3600) + ' saat önce';
+        return Math.floor(diff / 86400) + ' gün önce';
     }
 
-    async function fetchNews() {
-        // Google News Türkiye RSS beslemesini JSON'a çeviriyoruz
+    // Modal açma
+    function openNews(url, title) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('newsFrame').src = url;
+        document.getElementById('newsModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Arka plan kaymasını engelle
+    }
+
+    // Modal kapatma
+    function closeModal() {
+        document.getElementById('newsModal').style.display = 'none';
+        document.getElementById('newsFrame').src = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    async function getNews() {
         const rssUrl = encodeURIComponent('https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr');
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
@@ -175,44 +216,37 @@
             const res = await fetch(apiUrl);
             const data = await res.json();
             const container = document.getElementById('news-container');
-            const loader = document.getElementById('loader');
+            document.getElementById('loader').style.display = 'none';
 
-            if (data.status === 'ok') {
-                loader.style.display = 'none';
-                
-                data.items.forEach(item => {
-                    // Kaynak adını başlıktan ayıkla (Örn: "Haber Başlığı - Hürriyet" -> "Hürriyet")
-                    const titleParts = item.title.split(' - ');
-                    const sourceName = titleParts.pop();
-                    const cleanTitle = titleParts.join(' - ');
+            data.items.forEach(item => {
+                const parts = item.title.split(' - ');
+                const source = parts.pop();
+                const title = parts.join(' - ');
+                const img = item.enclosure.link || `https://picsum.photos/seed/${Math.random()}/400/220`;
 
-                    // Rastgele görsel (RSS görseli yoksa)
-                    const img = item.enclosure.link || `https://picsum.photos/seed/${Math.random()}/400/250`;
-
-                    const card = `
-                        <div class="news-card">
-                            <div class="img-container">
-                                <img src="${img}" alt="Haber">
-                                <span class="source-tag">${sourceName}</span>
-                            </div>
-                            <div class="content">
-                                <a href="${item.link}" target="_blank" class="title">${cleanTitle}</a>
-                                <div class="time-ago">${timeAgo(item.pubDate)}</div>
-                                <div class="footer">
-                                    <a href="${item.link}" target="_blank" class="btn-go">Habere Git →</a>
-                                </div>
-                            </div>
+                const card = `
+                    <div class="card" onclick="openNews('${item.link}', '${title}')">
+                        <img src="${img}" class="card-img" alt="Haber">
+                        <div class="card-body">
+                            <span class="source-badge">${source}</span>
+                            <h2 class="card-title">${title}</h2>
+                            <div class="card-time">🕒 ${timeAgo(item.pubDate)}</div>
                         </div>
-                    `;
-                    container.innerHTML += card;
-                });
-            }
-        } catch (err) {
-            document.getElementById('loader').innerHTML = "Veriler yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.";
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        } catch (e) {
+            document.getElementById('loader').innerText = "Haberler şu an çekilemiyor.";
         }
     }
 
-    window.onload = fetchNews;
+    // Dışarı tıklayınca kapatma
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('newsModal')) closeModal();
+    }
+
+    window.onload = getNews;
 </script>
 
 </body>
