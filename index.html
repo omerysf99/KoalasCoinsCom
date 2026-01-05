@@ -3,192 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ders Çalışma Paneli</title>
+    <title>Mini YouTube Klonu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-            color: var(--text);
-        }
-
-        /* 9:16 Oranı İçin Kapsayıcı */
-        .phone-container {
-            width: 100vw;
-            height: calc(100vw * 16 / 9);
-            max-width: 450px;
-            max-height: 800px;
-            background-color: var(--bg);
-            border-radius: 30px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            border: 4px solid #334155;
-        }
-
-        /* Header */
-        header {
-            padding: 20px;
-            text-align: center;
-            background: var(--card);
-            border-bottom: 1px solid #334155;
-        }
-
-        /* Sayaç Alanı */
-        .timer-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-        }
-
-        #timer {
-            font-size: 4rem;
-            font-weight: bold;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* Görev Listesi */
-        .todo-section {
-            height: 40%;
-            background: var(--card);
-            padding: 20px;
-            border-radius: 25px 25px 0 0;
-            overflow-y: auto;
-        }
-
-        .todo-item {
-            background: #334155;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            animation: fadeIn 0.3s ease;
-        }
-
-        /* Butonlar */
-        .controls button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .controls button:active { transform: scale(0.95); }
-
-        input {
-            width: 70%;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 15px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { background-color: #0f0f0f; color: white; }
+        .video-card:hover { cursor: pointer; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-<div class="phone-container">
-    <header>
-        <h2>Çalışma Paneli</h2>
-    </header>
+    <nav class="sticky top-0 bg-[#0f0f0f] p-4 flex items-center justify-between z-50">
+        <div class="flex items-center gap-2 text-xl font-bold">
+            <span class="text-red-600 text-3xl">▶</span> YouTube Mini
+        </div>
+        <div class="flex w-1/2">
+            <input id="searchInput" type="text" placeholder="Ara..." class="w-full p-2 rounded-l-full bg-[#121212] border border-gray-700 focus:outline-none focus:border-blue-500 px-4">
+            <button onclick="searchVideos()" class="bg-[#222222] px-6 rounded-r-full border border-l-0 border-gray-700 hover:bg-[#333333]">🔍</button>
+        </div>
+        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">G</div>
+    </nav>
 
-    <div class="timer-section">
-        <div id="timer">25:00</div>
-        <div class="controls">
-            <button onclick="toggleTimer()" id="startBtn">Başlat</button>
-            <button onclick="resetTimer()" style="background: #ef4444;">Sıfırla</button>
+    <div class="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
+        
+        <div class="flex-1">
+            <div id="playerContainer" class="hidden">
+                <div class="aspect-video w-full">
+                    <iframe id="mainPlayer" class="w-full h-full rounded-xl" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <h1 id="videoTitle" class="text-xl font-bold mt-4"></h1>
+                <p id="videoDesc" class="text-gray-400 text-sm mt-2 line-clamp-2"></p>
+                <hr class="border-gray-800 my-4">
+            </div>
+            
+            <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
         </div>
     </div>
 
-    <div class="todo-section">
-        <h3>Hedefler</h3>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="taskInput" placeholder="Yeni görev ekle...">
-            <button onclick="addTask()" style="height:40px; border-radius:8px; border:none; background:var(--primary); color:white; padding:0 15px;">+</button>
-        </div>
-        <div id="taskList"></div>
-    </div>
-</div>
+    <script>
+        // API Anahtarın buraya gelecek
+        const API_KEY = 'SİZİN_API_ANAHTARINIZ'; // Buraya paylaştığın anahtarı ekle
 
-<script>
-    // Pomodoro Sayacı
-    let timeLeft = 25 * 60;
-    let timerId = null;
+        async function searchVideos(query = 'popüler müzik') {
+            const searchTerm = document.getElementById('searchInput').value || query;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${searchTerm}&type=video&key=${API_KEY}`;
 
-    function updateTimer() {
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        document.getElementById('timer').textContent = 
-            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function toggleTimer() {
-        if (timerId) {
-            clearInterval(timerId);
-            timerId = null;
-            document.getElementById('startBtn').textContent = 'Devam Et';
-        } else {
-            timerId = setInterval(() => {
-                timeLeft--;
-                updateTimer();
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    alert("Süre doldu! Mola zamanı.");
-                }
-            }, 1000);
-            document.getElementById('startBtn').textContent = 'Durdur';
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayVideos(data.items);
+            } catch (error) {
+                console.error("Hata oluştu:", error);
+                alert("Video yüklenirken bir hata oluştu. API anahtarını kontrol et.");
+            }
         }
-    }
 
-    function resetTimer() {
-        clearInterval(timerId);
-        timerId = null;
-        timeLeft = 25 * 60;
-        updateTimer();
-        document.getElementById('startBtn').textContent = 'Başlat';
-    }
+        function displayVideos(videos) {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = '';
 
-    // Görev Listesi
-    function addTask() {
-        const input = document.getElementById('taskInput');
-        if (input.value === '') return;
+            videos.forEach(video => {
+                const videoId = video.id.videoId;
+                const title = video.snippet.title;
+                const thumbnail = video.snippet.thumbnails.high.url;
+                const channel = video.snippet.channelTitle;
 
-        const div = document.createElement('div');
-        div.className = 'todo-item';
-        div.innerHTML = `
-            <span>${input.value}</span>
-            <span onclick="this.parentElement.remove()" style="cursor:pointer; color:#ef4444;">✕</span>
-        `;
-        document.getElementById('taskList').appendChild(div);
-        input.value = '';
-    }
-</script>
+                const card = `
+                    <div class="video-card" onclick="playVideo('${videoId}', '${encodeURIComponent(title)}', '${encodeURIComponent(video.snippet.description)}')">
+                        <img src="${thumbnail}" class="w-full rounded-xl mb-2">
+                        <h3 class="font-semibold text-sm line-clamp-2">${title}</h3>
+                        <p class="text-gray-400 text-xs mt-1">${channel}</p>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
 
+        function playVideo(id, title, desc) {
+            document.getElementById('playerContainer').classList.remove('hidden');
+            document.getElementById('mainPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            document.getElementById('videoTitle').innerText = decodeURIComponent(title);
+            document.getElementById('videoDesc').innerText = decodeURIComponent(desc);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // İlk açılışta videoları getir
+        searchVideos();
+
+        // Enter tuşu ile arama yapma
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') searchVideos();
+        });
+    </script>
 </body>
 </html>
