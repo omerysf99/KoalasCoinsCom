@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Görsel Akış | Haber</title>
+    <title>Siyah Akış | Pozitif Gündem</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -12,6 +12,7 @@
             --text-secondary: #94a3b8;
             --accent: #38bdf8;
             --hot: #fb7185;
+            --good: #2ecc71; /* Güzel haberler için yeşil */
             --border-color: #334155;
         }
 
@@ -28,249 +29,145 @@
         header {
             padding: 60px 0 40px;
             border-bottom: 1px solid var(--border-color);
-            text-align: left;
-            position: relative; /* Tarih için */
         }
 
         h1 { font-size: 42px; font-weight: 800; margin: 0; letter-spacing: -2px; }
-        .date-display { 
-            color: var(--text-secondary); 
-            font-weight: 600; 
-            font-size: 14px; 
-            text-transform: uppercase; 
-            margin-bottom: 10px;
-        }
-        .header-title-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-        .header-title-group h1 { flex-grow: 1; }
-        .back-to-list-btn {
-            background-color: var(--surface);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        .back-to-list-btn:hover { background-color: #334155; color: white; }
-
-
-        .news-list { margin-top: 40px; }
+        .date-display { color: var(--accent); font-weight: 600; font-size: 14px; text-transform: uppercase; }
 
         .news-item {
             padding: 24px 0;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: 0.2s ease;
             display: flex;
             gap: 20px;
-            align-items: center;
         }
 
-        .news-item:hover { transform: translateX(10px); }
+        .news-item:hover { transform: translateX(8px); }
         .news-item:hover h2 { color: var(--accent); }
 
-        .news-content { flex-grow: 1; }
-        .news-thumbnail {
-            width: 150px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            flex-shrink: 0; /* Küçülmesini engelle */
-            background-color: #334155; /* Görsel yüklenirken arkaplan */
-        }
+        .news-content { flex: 1; }
+        .news-img { width: 140px; height: 100px; border-radius: 12px; object-fit: cover; background: #334155; }
 
-        .meta-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
         .badge {
             font-size: 10px; font-weight: 800; padding: 2px 8px;
-            border-radius: 4px; background: var(--surface); color: var(--text-secondary);
-            text-transform: uppercase;
+            border-radius: 4px; margin-right: 10px; text-transform: uppercase;
         }
         .badge.trend { background: var(--hot); color: white; }
+        .badge.good { background: var(--good); color: white; }
+        .badge.standard { background: var(--surface); color: var(--text-secondary); }
 
-        h2 { font-size: 20px; margin: 0 0 10px; font-weight: 600; color: var(--text-primary); }
-        .excerpt { color: var(--text-secondary); font-size: 15px; margin-bottom: 10px; }
-        .time { font-size: 13px; color: #475569; }
+        h2 { font-size: 22px; margin: 10px 0; line-height: 1.3; }
+        .excerpt { color: var(--text-secondary); font-size: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* DETAY PANELİ */
         #detail-panel {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); display: none; overflow-y: auto; z-index: 100;
-            padding: 40px 0;
+            position: fixed; inset: 0; background: var(--bg);
+            display: none; overflow-y: auto; z-index: 1000; padding: 40px 0;
         }
 
-        .detail-header { 
-            border-bottom: 1px solid var(--border-color); 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-            text-align: left;
-        }
-        .detail-thumbnail {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            background-color: #334155;
-        }
-        .close-btn {
-            background: none; border: 1px solid var(--border-color); color: var(--text-secondary);
-            padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 30px;
-        }
-        .close-btn:hover { background: var(--surface); color: white; }
-
-        #detail-content { font-size: 19px; line-height: 1.8; color: #cbd5e1; }
-        #detail-content p { margin-bottom: 25px; }
-
-        .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+        .hero-img { width: 100%; height: 350px; border-radius: 20px; object-fit: cover; margin: 20px 0; }
+        .close-btn { background: var(--surface); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="date-display"></div>
-        <div class="header-title-group">
-            <h1>Görsel Akış.</h1>
-            <button class="back-to-list-btn" onclick="document.body.style.overflow = 'auto';">Kapat & Döngü</button>
-        </div>
-        <p style="color: var(--text-secondary)">AI Gündemi & Teknolojiler</p>
+        <div class="date-display">6 OCAK 2026 • SALI</div>
+        <h1>Akış.</h1>
+        <p style="color: var(--text-secondary)">Grok, ChatGPT ve Dünyadan İyi Haberler</p>
     </header>
 
-    <div id="loader" class="loading">Akış güncelleniyor...</div>
-    <div id="news-container" class="news-list"></div>
+    <div id="news-container"></div>
 </div>
 
 <div id="detail-panel">
     <div class="container">
         <button class="close-btn" onclick="closeDetail()">← Listeye Dön</button>
-        <div class="detail-header">
-            <img id="detail-thumbnail" class="detail-thumbnail" src="" alt="Haber Görseli">
-            <div id="detail-badge" class="badge"></div>
-            <h1 id="detail-title" style="font-size: 36px; margin-top: 15px;"></h1>
-            <div id="detail-meta" class="time" style="margin-top: 15px;"></div>
-        </div>
-        <div id="detail-content"></div>
+        <div id="detail-area"></div>
     </div>
 </div>
 
 <script>
-    // Özel ve Manuel Haberler (Senin istediğin tarzda)
-    const customStories = [
+    const allNews = [
         {
-            title: "Grok Herkese Bikini Giydiriyor: Elon Musk'ın 'Özgür AI' Örnekleri Artıyor",
+            title: "Grok 'Bikini' Akımı: Elon Musk Sansürü Reddediyor!",
             source: "AI Magazin",
-            time: "12 dakika önce",
-            excerpt: "Grok'un yeni görsel motoru, internetin en karanlık mizahıyla birleşti. Sosyal medya sallanıyor!",
-            content: "<p>Elon Musk'ın yapay zekası Grok, görsel oluşturma filtrelerini neredeyse tamamen kaldırdı. Kullanıcılar, dünyanın en ünlü siyasetçilerinden teknoloji liderlerine kadar herkese dijital ortamda bikini giydiren görsellerle sosyal medyayı birbirine kattı.</p><p>Musk konuyla ilgili yaptığı açıklamada, 'Yapay zeka gerçeği yansıtmalı ya da en azından eğlenceli olmalı, sıkıcı ve sansürlü değil' dedi. Ancak bu durum dijital etik ve telif hakları konusunda büyük bir tartışmanın fitilini ateşledi. Grok'un bu özgür yaklaşımı hem hayranlık uyandırıyor hem de endişeleri beraberinde getiriyor. Görsellerin gerçeklik algısını nasıl değiştireceği merak konusu.</p>",
-            isTrend: true,
-            image: "https://picsum.photos/seed/grok_bikini/700/400" // Grok için özel görsel
+            badge: "trend",
+            badgeText: "FLAŞ",
+            excerpt: "Grok'un yeni nesil görsel motoru, internet dünyasında dijital kıyafet değişimleriyle viral oldu.",
+            content: "<p>Elon Musk'ın Grok AI'sı, dijital dünyada yeni bir tartışma başlattı. Sansürsüz yapısıyla bilinen model, herkese bikini giydiren görsellerle sosyal medyada trend listesine girdi. Musk, 'AI özgür olmalı' mesajını vermeye devam ediyor.</p>",
+            image: "https://picsum.photos/seed/grok/800/500"
         },
         {
-            title: "ChatGPT-5 Sızıntıları: 'Artık İnsan Gibi Düşünüyor' ve Karar Verebiliyor",
-            source: "Sızıntı Haber",
-            time: "45 dakika önce",
-            excerpt: "OpenAI'ın yeni modeli Q* projesinden ilk veriler gelmeye başladı. İnsan benzeri akıl yürütme yetenekleri!",
-            content: "<p>OpenAI içinden sızan bilgilere göre ChatGPT-5, artık sadece bir metin tahminleyici değil. Yeni sistem 'akıl yürütme' (reasoning) yeteneğiyle karmaşık matematik problemlerini ve yazılım hatalarını bir insan mühendisi gibi çözebiliyor. Uzmanlar, bu yeteneğin yapay zeka alanında yeni bir çığır açacağını belirtiyor.</p><p>Sızıntıya göre modelin en büyük farkı, cevap vermeden önce kendi içinde 'düşünme' süresi geçirmesi. Bu, yapay zekanın hata payını %90 oranında azaltıyor ve onu gerçek dünya problemlerini çözme konusunda çok daha yetkin kılıyor. ChatGPT-5'in yakın zamanda çıkış yapması bekleniyor.</p>",
-            isTrend: false,
-            image: "https://picsum.photos/seed/chatgpt_5/700/400" // ChatGPT için özel görsel
+            title: "Müjde: Bilim İnsanları Mercan Resiflerini Kurtaracak Yeni Bir Yöntem Geliştirdi!",
+            source: "Doğa Haber",
+            badge: "good",
+            badgeText: "GÜZEL HABER",
+            excerpt: "Deniz biyologları, yapay zeka ve ses dalgalarıyla balıkları ölmekte olan mercanlara geri çekmeyi başardı.",
+            content: "<p>Harika bir haber! Bilim insanları, su altı hoparlörleri kullanarak sağlıklı mercan resifi seslerini yayınladılar. Bu yöntemle, balıklar ölmekte olan resiflere geri dönmeye başladı ve ekosistem mucizevi bir şekilde kendini yeniliyor. Doğa ana için büyük bir zafer!</p>",
+            image: "https://picsum.photos/seed/nature/800/500"
+        },
+        {
+            title: "ChatGPT-5 Sızıntıları: Kişisel Asistan Devrimi",
+            source: "Tekno Sızıntı",
+            badge: "standard",
+            badgeText: "TEKNOLOJİ",
+            excerpt: "OpenAI'ın yeni modeli artık sadece metin yazmıyor, sizin yerinize bilgisayar işlemlerini yönetiyor.",
+            content: "<p>Sızan bilgilere göre ChatGPT-5, 'Agent' (Ajan) moduyla geliyor. Artık ona 'benim için tatil planla ve biletleri al' dediğinizde, tarayıcıyı açıp bu işlemleri kendi başına yapabilecek yeteneğe sahip olacak.</p>",
+            image: "https://picsum.photos/seed/ai/800/500"
+        },
+        {
+            title: "Sokak Hayvanları İçin 'Akıllı Besleme Üniteleri' Yaygınlaşıyor",
+            source: "Yerel Gündem",
+            badge: "good",
+            badgeText: "GÜZEL HABER",
+            excerpt: "Güneş enerjisiyle çalışan yeni üniteler, geri dönüştürülen her şişe için mama veriyor.",
+            content: "<p>Şehirlerde başlatılan yeni proje kapsamında, vatandaşlar plastik şişelerini makineye attığında, makine anında haznesine mama boşaltıyor. Hem geri dönüşüm teşvik ediliyor hem de dostlarımız doyuyor. İçimizi ısıtan bir gelişme!</p>",
+            image: "https://picsum.photos/seed/dog/800/500"
         }
     ];
 
-    async function fetchLatest() {
-        const today = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
-        document.querySelector('.date-display').innerText = today;
-
-        const rssUrl = encodeURIComponent('https://news.google.com/rss/search?q=yapay+zeka+son+dakika&hl=tr&gl=TR&ceid=TR:tr');
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
-
-        try {
-            const res = await fetch(apiUrl);
-            const data = await res.json();
-            renderAll(data.items);
-        } catch (e) {
-            renderAll([]); // Hata durumunda sadece manuel haberleri göster
-            console.error("API'den haber çekilemedi:", e);
-        }
-    }
-
-    function renderAll(apiItems) {
+    function renderNews() {
         const container = document.getElementById('news-container');
-        document.getElementById('loader').style.display = 'none';
-
-        // 1. Önce senin istediğin özel haberler
-        customStories.forEach(story => {
-            container.innerHTML += createHTML(story);
-        });
-
-        // 2. Sonra Google'dan gelen güncel haberler
-        apiItems.slice(0, 8).forEach(item => {
-            const cleanTitle = item.title.split(' - ')[0];
-            const source = item.title.split(' - ').pop();
-            const newsObj = {
-                title: cleanTitle,
-                source: source,
-                time: timeAgo(item.pubDate),
-                excerpt: item.description.replace(/<[^>]*>?/gm, '').substring(0, 100) + "...",
-                content: `<p>${item.description}</p><br><a href="${item.link}" target="_blank" style="color:var(--accent)">Kaynak siteye gitmek için tıklayın.</a>`,
-                isTrend: false,
-                image: `https://picsum.photos/seed/${Math.random()}/150/100` // Her API haberi için rastgele görsel
-            };
-            container.innerHTML += createHTML(newsObj);
-        });
-    }
-
-    function createHTML(obj) {
-        const badgeClass = obj.isTrend ? 'badge trend' : 'badge';
-        const badgeText = obj.isTrend ? 'Trend' : 'AI Gündem';
-        
-        return `
-            <div class="news-item" onclick='showDetail(${JSON.stringify(obj).replace(/'/g, "&apos;")})'>
-                <div class="news-content">
-                    <div class="meta-row">
-                        <span class="${badgeClass}">${badgeText}</span>
-                        <span class="time">${obj.source}</span>
+        allNews.forEach((news, index) => {
+            container.innerHTML += `
+                <div class="news-item" onclick="showDetail(${index})">
+                    <div class="news-content">
+                        <div style="display:flex; align-items:center;">
+                            <span class="badge ${news.badge}">${news.badgeText}</span>
+                            <span class="time" style="color:var(--text-secondary); font-size:12px;">${news.source}</span>
+                        </div>
+                        <h2>${news.title}</h2>
+                        <div class="excerpt">${news.excerpt}</div>
                     </div>
-                    <h2>${obj.title}</h2>
-                    <div class="excerpt">${obj.excerpt}</div>
-                    <div class="time">🕒 ${obj.time}</div>
+                    <img src="${news.image}" class="news-img">
                 </div>
-                <img src="${obj.image}" class="news-thumbnail" alt="Haber Görseli">
-            </div>
-        `;
+            `;
+        });
     }
 
-    function showDetail(obj) {
-        document.getElementById('detail-title').innerText = obj.title;
-        document.getElementById('detail-meta').innerText = `${obj.source} • ${obj.time}`;
-        document.getElementById('detail-content').innerHTML = obj.content;
-        document.getElementById('detail-thumbnail').src = obj.image;
-        document.getElementById('detail-badge').className = obj.isTrend ? 'badge trend' : 'badge';
-        document.getElementById('detail-badge').innerText = obj.isTrend ? 'Trend' : 'AI Gündem';
-
+    function showDetail(index) {
+        const news = allNews[index];
+        const detailArea = document.getElementById('detail-area');
+        detailArea.innerHTML = `
+            <img src="${news.image}" class="hero-img">
+            <h1 style="font-size:36px; margin-top:20px;">${news.title}</h1>
+            <p style="color:var(--accent)">${news.source} • Bugün Yayınlandı</p>
+            <hr style="border:0; border-top:1px solid var(--border-color); margin:30px 0;">
+            <div style="font-size:20px; line-height:1.8; color:#cbd5e1;">${news.content}</div>
+        `;
         document.getElementById('detail-panel').style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Ana sayfayı kaydırmayı engelle
+        document.body.style.overflow = 'hidden';
     }
 
     function closeDetail() {
         document.getElementById('detail-panel').style.display = 'none';
-        document.body.style.overflow = 'auto'; // Ana sayfayı tekrar kaydırılabilir yap
+        document.body.style.overflow = 'auto';
     }
 
-    function timeAgo(date) {
-        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-        let interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + " saat önce";
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + " dakika önce";
-        return "Az önce";
-    }
-
-    window.onload = fetchLatest;
+    window.onload = renderNews;
 </script>
 
 </body>
