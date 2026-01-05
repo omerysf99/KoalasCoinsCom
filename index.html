@@ -3,192 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Sınav Botu - Dark</title>
+    <title>PDF Bot - Reklam Paneli</title>
     <style>
-        /* Koyu Tema Renk Paleti */
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --primary-blue: #38bdf8;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --accent: #f43f5e;
+            --bg: #050505;
+            --card: #121212;
+            --blue: #00d2ff;
+            --text: #ffffff;
+            --dim: #777;
+            --red: #ff4b2b;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
         }
 
-        /* 9:16 Yakın Mobil Container */
-        .app-container {
+        .app {
             width: 100%;
-            max-width: 450px; /* Mobil cihaz genişliği */
-            background: var(--card-bg);
+            max-width: 420px;
+            background: var(--bg);
             min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
-
-        header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
-        h1 { color: var(--primary-blue); font-size: 1.5rem; margin: 0; }
-        
-        .tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .tab-btn {
-            background: #334155;
-            color: var(--text-dim);
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--primary-blue);
-            color: #000;
-        }
-
-        .pdf-card {
-            background: #334155;
             padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        h1 { font-size: 1.2rem; color: var(--blue); margin: 0; letter-spacing: 1px; }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin: 20px 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: var(--card);
+            border: 1px solid #333;
+            color: var(--dim);
+            cursor: pointer;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: var(--blue);
+            color: #000;
+            border-color: var(--blue);
+        }
+
+        .item {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid transparent;
+            border-left: 4px solid var(--blue);
         }
 
-        .pdf-card:hover { border-color: var(--primary-blue); }
-
-        .download-btn {
-            background: var(--primary-blue);
+        .btn {
+            background: var(--blue);
             color: #000;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 700;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        /* Reklam Modalı */
-        .modal {
+        /* Reklam Katmanı */
+        #adLayer {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 9999;
+            background: var(--bg);
+            z-index: 10000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
         }
 
-        .modal-box {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            border: 2px solid var(--primary-blue);
-            width: 80%;
+        .ad-box {
+            padding: 20px;
+            width: 85%;
         }
 
-        #ad-counter {
-            font-size: 4rem;
-            color: var(--accent);
+        .ad-status { color: var(--blue); font-size: 14px; margin-bottom: 10px; }
+        .timer { font-size: 5rem; font-weight: 800; color: var(--red); margin: 10px 0; }
+        .ad-info { color: var(--dim); font-size: 12px; }
+        
+        /* Simüle edilen reklam alanı */
+        .ad-placeholder {
+            width: 100%;
+            height: 250px;
+            background: #1a1a1a;
             margin: 20px 0;
-            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #444;
+            color: #444;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app">
     <header>
-        <h1>📚 PDF SINAV BOTU</h1>
-        <p style="color: var(--text-dim); font-size: 12px;">KPSS • TYT • AYT Arşivi</p>
+        <h1>PREMIUM PDF BOT</h1>
+        <p style="font-size:10px; color:var(--dim)">KPSS / TYT / AYT ÖZEL ARŞİV</p>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="loadContent('TYT')">TYT</button>
-        <button class="tab-btn" onclick="loadContent('AYT')">AYT</button>
-        <button class="tab-btn" onclick="loadContent('KPSS')">KPSS</button>
+        <div class="tab active" onclick="changeTab('TYT', this)">TYT</div>
+        <div class="tab" onclick="changeTab('AYT', this)">AYT</div>
+        <div class="tab" onclick="changeTab('KPSS', this)">KPSS</div>
     </div>
 
-    <div id="content-list">
-        </div>
+    <div id="list"></div>
 </div>
 
-<div id="adModal" class="modal">
-    <div class="modal-box">
-        <h2 style="margin:0">Dosya Hazırlanıyor</h2>
-        <div id="ad-counter">10</div>
-        <p style="color: var(--text-dim)">Reklamlar geçiliyor, lütfen bekleyin...</p>
+<div id="adLayer">
+    <div class="ad-box">
+        <div id="current-ad-step" class="ad-status">REKLAM: 1 / 10</div>
+        <div class="ad-info">Dosya şifresi çözülüyor...</div>
+        
+        <div class="ad-placeholder">
+            [BURAYA REKLAM KODU GELECEK]
+        </div>
+
+        <div id="count" class="timer">10</div>
+        <p>Lütfen bekleyin, reklam bitince otomatik geçer.</p>
     </div>
 </div>
 
 <script>
     const data = [
-        { title: "TYT Matematik Soru Bankası", cat: "TYT", url: "#" },
-        { title: "TYT Türkçe Deneme", cat: "TYT", url: "#" },
-        { title: "AYT Fizik Formülleri", cat: "AYT", url: "#" },
-        { title: "AYT Edebiyat Özet", cat: "AYT", url: "#" },
-        { title: "KPSS Tarih Soru Bankası", cat: "KPSS", url: "#" },
-        { title: "KPSS Vatandaşlık Notları", cat: "KPSS", url: "#" }
+        { name: "TYT Matematik - Full Not", cat: "TYT" },
+        { name: "TYT Türkçe - 40 Soru Bankası", cat: "TYT" },
+        { name: "AYT Fizik - Deneme Seti", cat: "AYT" },
+        { name: "AYT Tarih - Padişahlar Özeti", cat: "AYT" },
+        { name: "KPSS 2026 - Genel Kültür", cat: "KPSS" },
+        { name: "KPSS Coğrafya - Haritalarla", cat: "KPSS" }
     ];
 
-    function loadContent(category) {
-        const list = document.getElementById('content-list');
-        list.innerHTML = '';
-        
-        // Tab güncelleme
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+    function changeTab(cat, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        render(cat);
+    }
 
-        const filtered = data.filter(i => i.cat === category);
-        filtered.forEach(item => {
-            list.innerHTML += `
-                <div class="pdf-card">
-                    <span style="font-size: 14px; max-width: 70%;">${item.title}</span>
-                    <button class="download-btn" onclick="startDownload('${item.url}')">İNDİR</button>
+    function render(cat) {
+        const container = document.getElementById('list');
+        container.innerHTML = '';
+        data.filter(d => d.cat === cat).forEach(item => {
+            container.innerHTML += `
+                <div class="item">
+                    <span style="font-size:14px">${item.name}</span>
+                    <button class="btn" onclick="startMegaAd()">İNDİR</button>
                 </div>
             `;
         });
     }
 
-    function startDownload(url) {
-        const modal = document.getElementById('adModal');
-        const counter = document.getElementById('ad-counter');
-        modal.style.display = 'flex';
+    function startMegaAd() {
+        const layer = document.getElementById('adLayer');
+        const counter = document.getElementById('count');
+        const stepText = document.getElementById('current-ad-step');
         
+        layer.style.display = 'flex';
+        
+        let currentAd = 1;
         let timeLeft = 10;
-        const timer = setInterval(() => {
+
+        const runTimer = setInterval(() => {
             timeLeft--;
             counter.innerText = timeLeft;
+
             if(timeLeft <= 0) {
-                clearInterval(timer);
-                modal.style.display = 'none';
-                alert("İndirme başlıyor...");
-                // window.location.href = url; // Gerçek link için burayı aç
+                if(currentAd < 10) {
+                    // Yeni reklama geç
+                    currentAd++;
+                    timeLeft = 10;
+                    counter.innerText = timeLeft;
+                    stepText.innerText = `REKLAM: ${currentAd} / 10`;
+                    console.log(`${currentAd}. reklam başladı`);
+                } else {
+                    // Tüm reklamlar bitti
+                    clearInterval(runTimer);
+                    layer.style.display = 'none';
+                    alert("Tebrikler! 10 reklamı başarıyla geçtiniz. İndirme başlıyor.");
+                    // window.location.href = "PDF_LINKI_BURAYA";
+                }
             }
-        }, 800); // Hız için 800ms yaptım
+        }, 1000);
     }
 
-    // Başlangıç
-    loadContent('TYT');
+    // İlk yükleme
+    render('TYT');
 </script>
 
 </body>
