@@ -3,235 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav Prime Pro - 2026</title>
-    <style>
-        :root {
-            --bg: #0f0f0f;
-            --card: #1e1e1e;
-            --primary: #3ea6ff;
-            --text: #ffffff;
-            --accent: #2ba640;
-        }
-
-        body, html {
-            margin: 0; padding: 0;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Roboto', sans-serif;
-            height: 100vh; overflow: hidden;
-        }
-
-        .app-container {
-            width: 100%; max-width: 414px;
-            height: 100vh; margin: 0 auto;
-            display: flex; flex-direction: column;
-            border: 1px solid #333;
-        }
-
-        /* SEKME MENÜSÜ */
-        .top-nav {
-            display: flex; background: var(--bg);
-            border-bottom: 1px solid #333;
-            height: 50px; align-items: center;
-        }
-        .tab {
-            flex: 1; text-align: center; font-size: 13px; font-weight: bold;
-            color: #aaa; cursor: pointer; transition: 0.3s;
-            height: 100%; line-height: 50px;
-        }
-        .tab.active { color: #fff; border-bottom: 3px solid #fff; }
-
-        .content-area { flex: 1; overflow-y: auto; padding-bottom: 70px; }
-        .page { display: none; animation: fadeIn 0.4s; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* --- ANA SAYFA: BİLGİLENDİRME --- */
-        .hero-news {
-            background: linear-gradient(45deg, #1e1e1e, #2c2c2c);
-            margin: 15px; padding: 20px; border-radius: 15px;
-            border-left: 5px solid var(--primary);
-        }
-        .status-badge {
-            background: var(--accent); color: white;
-            padding: 3px 8px; border-radius: 5px; font-size: 10px;
-        }
-
-        /* --- CANLI YAYIN GELİŞTİRME --- */
-        .live-item {
-            position: relative; margin: 15px; border-radius: 12px;
-            overflow: hidden; cursor: pointer; border: 1px solid #333;
-        }
-        .live-item img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-        .live-overlay-info {
-            position: absolute; bottom: 0; width: 100%;
-            background: rgba(0,0,0,0.8); padding: 10px;
-        }
-
-        /* --- STUDIO EKRANI (FULL SCREEN) --- */
-        #studio {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: none; flex-direction: column;
-        }
-        .video-player { width: 100%; aspect-ratio: 16/9; position: relative; }
-        .video-player img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-        
-        .chat-container {
-            flex: 1; background: #0f0f0f; display: flex; flex-direction: column;
-        }
-        .chat-messages {
-            flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-            justify-content: flex-end; /* Mesajları altta tutar */
-        }
-        .msg-bubble {
-            background: #272727; padding: 10px; border-radius: 10px;
-            font-size: 14px; animation: slideIn 0.2s ease;
-        }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } }
-
-        .chat-input {
-            padding: 15px; background: #181818; display: flex; gap: 10px;
-        }
-        .chat-input input {
-            flex: 1; background: #2a2a2a; border: none; padding: 12px;
-            border-radius: 25px; color: white; outline: none;
-        }
-
-        /* ALT NAV */
-        .bottom-nav {
-            position: absolute; bottom: 0; width: 100%; height: 60px;
-            background: #0f0f0f; border-top: 1px solid #333;
-            display: flex; justify-content: space-around; align-items: center;
-        }
-    </style>
+    <title>Sınav Prime - Ana Sayfa</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="app-container">
+        <div class="top-tabs">
+            <a href="index.html" class="tab active">Ana Sayfa</a>
+            <a href="shorts.html" class="tab">Shorts</a>
+            <a href="live.html" class="tab">Canlı Yayın</a>
+        </div>
 
-<div class="app-container">
-    <div class="top-nav">
-        <div class="tab active" onclick="showPage('home', this)">ANA SAYFA</div>
-        <div class="tab" onclick="showPage('shorts', this)">SHORTS</div>
-        <div class="tab" onclick="showPage('live', this)">CANLI YAYIN</div>
+        <div class="content">
+            <div class="info-card">
+                <span class="badge">YENİ</span>
+                <h2>Ocak Ayı Kampı Başladı!</h2>
+                <p>Matematik ve Fen bilimlerinde eksik konu bırakmıyoruz. Programı PDF olarak indirmeyi unutma.</p>
+                <button class="btn-main">Programı Gör</button>
+            </div>
+
+            <div class="stats-section">
+                <h3>Günün Bilgileri</h3>
+                <div class="stat-item">📅 <b>Tarih:</b> 5 Ocak 2026</div>
+                <div class="stat-item">✍️ <b>Günün Sorusu:</b> Paragrafta Yapı</div>
+                <div class="stat-item">🔥 <b>Aktif Öğrenci:</b> 1,240 Kişi</div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <span>🏠</span><span>🔍</span><span>🔔</span><span>👤</span>
+        </nav>
     </div>
-
-    <div class="content-area">
-        <div id="home" class="page active">
-            <div class="hero-news">
-                <span class="status-badge">DUYURU</span>
-                <h3 style="margin: 10px 0;">Sınav Prime 2026 Yayında!</h3>
-                <p style="font-size: 13px; color: #ccc;">Yeni nesil soru çözümleri ve interaktif PDF sistemi ile artık tüm dersler elinizin altında.</p>
-            </div>
-            <div style="padding: 15px;">
-                <h4>Hızlı Başlangıç</h4>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
-                    <p style="margin:0; font-size: 14px;">📖 <b>Günün Sorusu:</b> Matematik - Logaritma</p>
-                </div>
-                <div style="background: #1e1e1e; padding: 15px; border-radius: 10px;">
-                    <p style="margin:0; font-size: 14px;">📊 <b>Hedef:</b> TYT %85 Başarı Oranı</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="shorts" class="page">
-            <div style="height: 500px; display: flex; align-items:center; justify-content:center; color: #555;">
-                [ Kaydırılabilir Shorts Alanı ]
-            </div>
-        </div>
-
-        <div id="live" class="page">
-            <div id="liveItems"></div>
-        </div>
-    </div>
-
-    <div id="studio">
-        <div class="video-player">
-            <button onclick="closeStudio()" style="position:absolute; top:15px; right:15px; z-index:10; background:rgba(0,0,0,0.5); color:white; border:none; padding:10px; border-radius:50%;">✕</button>
-            <img src="tytmatsoru.jpg">
-            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.4);">
-                <div id="timer" style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">00:00:00</div>
-                <p style="font-size: 12px; color: var(--primary);">CANLI YAYIN BAŞLAMAK ÜZERE</p>
-            </div>
-        </div>
-        <div class="chat-container">
-            <div style="padding: 10px; font-size: 11px; color: #777; text-align: center; border-bottom: 1px solid #222;">CANLI SOHBET (Maks 5 Mesaj)</div>
-            <div id="chatBox" class="chat-messages">
-                </div>
-            <form class="chat-input" onsubmit="sendChat(event)">
-                <input type="text" id="chatInp" placeholder="Sohbete katıl..." autocomplete="off">
-                <button type="submit" style="background:none; border:none; color:var(--primary); font-weight:bold;">YAZ</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="bottom-nav">
-        <span>🏠</span>
-        <span>🔍</span>
-        <span>🔔</span>
-        <span>👤</span>
-    </div>
-</div>
-
-<script>
-    // 1. Canlı Yayın Listesini Oluştur (10 Adet)
-    const liveBox = document.getElementById('liveItems');
-    for(let i=1; i<=10; i++) {
-        liveBox.innerHTML += `
-            <div class="live-item" onclick="openStudio()">
-                <img src="tytmatsoru.jpg">
-                <div class="live-overlay-info">
-                    <div style="font-size: 14px; font-weight: bold;">TYT Matematik Kampı #${i}</div>
-                    <div style="font-size: 11px; color: var(--primary);">Bugün 23:59'da Başlıyor</div>
-                </div>
-            </div>
-        `;
-    }
-
-    // 2. Sayfa Değiştirme
-    function showPage(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    // 3. Studio Kontrol
-    function openStudio() { document.getElementById('studio').style.display = 'flex'; }
-    function closeStudio() { document.getElementById('studio').style.display = 'none'; }
-
-    // 4. GELİŞTİRİLMİŞ SOHBET (5 Mesaj Sınırı)
-    function sendChat(e) {
-        e.preventDefault();
-        const inp = document.getElementById('chatInp');
-        const box = document.getElementById('chatBox');
-        
-        if(inp.value.trim() !== "") {
-            const m = document.createElement('div');
-            m.className = 'msg-bubble';
-            m.innerHTML = `<b>Üye:</b> ${inp.value}`;
-            
-            box.appendChild(m);
-
-            // 5 Mesajdan fazlaysa en üsttekini sil
-            if(box.children.length > 5) {
-                box.removeChild(box.firstChild);
-            }
-
-            inp.value = "";
-            box.scrollTop = box.scrollHeight;
-        }
-    }
-
-    // 5. Geri Sayım
-    const target = new Date("Jan 5, 2026 23:59:00").getTime();
-    setInterval(() => {
-        const diff = target - new Date().getTime();
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById("timer").innerText = 
-            `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-    }, 1000);
-</script>
-
 </body>
 </html>
