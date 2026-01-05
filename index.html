@@ -3,57 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınav PDF Botu v3</title>
+    <title>Eğitim Vadisi PDF Botu</title>
     <style>
         :root {
-            --bg: #000000;
-            --card: #111111;
-            --primary: #00f2ff;
+            --bg: #0a0a0a;
+            --card: #1a1a1a;
+            --primary: #00d2ff;
             --text: #ffffff;
             --accent: #ff0055;
+            --border: #333;
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: #111;
             color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
         }
 
-        /* 9:16 Mobil Görünüm */
-        .app-frame {
+        /* 9:16 Oranı Mobil Tasarım */
+        .app-container {
             width: 100%;
-            max-width: 414px; /* iPhone Plus genişliği */
+            max-width: 414px;
             height: 100vh;
             background: var(--bg);
-            position: relative;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+            position: relative;
         }
 
         header {
-            padding: 25px;
+            padding: 20px;
             text-align: center;
-            border-bottom: 2px solid var(--card);
+            background: var(--card);
+            border-bottom: 2px solid var(--primary);
         }
 
-        .category-tabs {
+        .tabs {
             display: flex;
             padding: 10px;
-            gap: 10px;
+            gap: 8px;
+            background: #000;
         }
 
         .tab {
             flex: 1;
-            padding: 15px;
+            padding: 12px 5px;
             background: var(--card);
-            border: 1px solid #333;
-            color: #777;
+            border: 1px solid var(--border);
+            color: #888;
+            border-radius: 8px;
             text-align: center;
-            border-radius: 12px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
         }
@@ -61,189 +65,195 @@
         .tab.active {
             border-color: var(--primary);
             color: var(--primary);
-            background: rgba(0, 242, 255, 0.05);
+            background: rgba(0, 210, 255, 0.1);
         }
 
-        .pdf-list { padding: 15px; }
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
 
-        .pdf-item {
+        /* PDF Kart Tasarımı */
+        .pdf-card {
             background: var(--card);
-            margin-bottom: 12px;
-            padding: 20px;
-            border-radius: 15px;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
         }
+
+        .pdf-thumb {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+
+        .pdf-info { flex: 1; }
+        .pdf-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
 
         .dl-btn {
             background: var(--primary);
             color: #000;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 800;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
             cursor: pointer;
         }
 
-        /* Reklam Duvarı */
-        #adWall {
+        /* Reklam Paneli */
+        #adOverlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
+            background: #000;
             z-index: 9999;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .ad-container {
-            width: 90%;
             text-align: center;
         }
 
-        .counter-circle {
-            width: 120px;
-            height: 120px;
-            border: 5px solid var(--accent);
+        .timer-box {
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 4px solid var(--accent);
             font-size: 3rem;
-            font-weight: bold;
-            margin: 20px auto;
+            font-weight: 900;
+            margin: 20px 0;
+            color: var(--accent);
         }
 
-        #nextAdBtn {
-            display: none; /* Süre bitmeden görünmez */
-            background: var(--primary);
-            color: #000;
+        #nextBtn {
+            display: none;
+            background: #22c55e;
+            color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1.1rem;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
         }
     </style>
 </head>
 <body>
 
-<div class="app-frame">
+<div class="app-container">
     <header>
-        <h1 style="margin:0; font-size: 1.5rem; color: var(--primary);">STUDY BOT PRO</h1>
-        <p style="color: #555; font-size: 0.8rem;">İstediğin PDF'i Seç ve İndir</p>
+        <h2 style="margin:0; font-size: 1.2rem;">EĞİTİM VADİSİ PDF</h2>
     </header>
 
-    <div class="category-tabs">
-        <div class="tab active" onclick="filter('TYT', this)">TYT</div>
-        <div class="tab" onclick="filter('AYT', this)">AYT</div>
-        <div class="tab" onclick="filter('KPSS', this)">KPSS</div>
+    <div class="tabs">
+        <div class="tab active" onclick="show('TYT', this)">TYT</div>
+        <div class="tab" onclick="show('AYT', this)">AYT</div>
+        <div class="tab" onclick="show('KPSS', this)">KPSS</div>
     </div>
 
-    <div id="pdfList" class="pdf-list"></div>
+    <div id="main-list" class="content">
+        </div>
 </div>
 
-<div id="adWall">
-    <div class="ad-container">
-        <div id="stepInfo" style="color: var(--primary); font-weight: bold;">AD STEP: 1 / 10</div>
-        <h2 id="adStatus">Reklamı İzleyin...</h2>
-        
-        <div style="height: 200px; background: #111; margin: 20px 0; display: flex; align-items: center; justify-content: center; border: 1px solid #333;">
-            <p style="color: #444;">[REKLAM ALANI]</p>
-        </div>
-
-        <div id="timerDisplay" class="counter-circle">10</div>
-        
-        <button id="nextAdBtn" onclick="nextStep()">SONRAKİ REKLAM ➔</button>
-        <p id="waitMsg" style="color: #666;">Lütfen sürenin dolmasını bekleyin.</p>
+<div id="adOverlay">
+    <div id="adCounterText" style="color:var(--primary)">REKLAM 1 / 10</div>
+    <div style="margin: 20px; font-size: 1.1rem;">Lütfen Bekleyin...</div>
+    
+    <div style="width: 300px; height: 250px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #444;">
+        [SPONSOR REKLAM ALANI]
     </div>
+
+    <div id="timer" class="timer-box">10</div>
+    
+    <button id="nextBtn" onclick="handleNext()">SONRAKİ REKLAM ➔</button>
+    <p id="msg" style="font-size: 0.8rem; color: #666;">Buton sürenin sonunda aktif olur.</p>
 </div>
 
 <script>
-    const pdfs = [
-        { name: "TYT Matematik Soru Bankası", cat: "TYT" },
-        { name: "TYT Türkçe Denemeleri", cat: "TYT" },
-        { name: "AYT Edebiyat Özetleri", cat: "AYT" },
-        { name: "KPSS Tarih Tüm Konular", cat: "KPSS" }
+    const items = [
+        { name: "TYT Matematik Modüler Soru Bankası", cat: "TYT" },
+        { name: "TYT Türkçe Planlı Ders Föyü", cat: "TYT" },
+        { name: "AYT Fizik Konu Anlatımı", cat: "AYT" },
+        { name: "AYT Biyoloji Denemeleri", cat: "AYT" },
+        { name: "KPSS Genel Yetenek Çıkmış Sorular", cat: "KPSS" }
     ];
 
-    let currentAdIndex = 1;
-    let timer;
+    let currentStep = 1;
+    let clock;
 
-    function filter(cat, el) {
+    function show(cat, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
         
-        const list = document.getElementById('pdfList');
+        const list = document.getElementById('main-list');
         list.innerHTML = '';
         
-        pdfs.filter(p => p.cat === cat).forEach(item => {
+        items.filter(i => i.cat === cat).forEach(pdf => {
             list.innerHTML += `
-                <div class="pdf-item">
-                    <span>${item.name}</span>
-                    <button class="dl-btn" onclick="startAdFlow()">İNDİR</button>
+                <div class="pdf-card">
+                    <img src="egitimvadisi.jpg" class="pdf-thumb" alt="PDF">
+                    <div class="pdf-info">
+                        <span class="pdf-title">${pdf.name}</span>
+                        <button class="dl-btn" onclick="openAds()">DOSYAYI İNDİR</button>
+                    </div>
                 </div>
             `;
         });
     }
 
-    function startAdFlow() {
-        currentAdIndex = 1;
-        document.getElementById('adWall').style.display = 'flex';
-        initiateTimer();
+    function openAds() {
+        currentStep = 1;
+        document.getElementById('adOverlay').style.display = 'flex';
+        startTimer();
     }
 
-    function initiateTimer() {
-        let timeLeft = 10;
-        const display = document.getElementById('timerDisplay');
-        const nextBtn = document.getElementById('nextAdBtn');
-        const waitMsg = document.getElementById('waitMsg');
-        const stepInfo = document.getElementById('stepInfo');
+    function startTimer() {
+        let sec = 10;
+        const timerEl = document.getElementById('timer');
+        const btn = document.getElementById('nextBtn');
+        const msg = document.getElementById('msg');
+        const counterText = document.getElementById('adCounterText');
 
-        // Reset
-        nextBtn.style.display = 'none';
-        waitMsg.style.display = 'block';
-        display.style.display = 'flex';
-        display.innerText = timeLeft;
-        stepInfo.innerText = `AD STEP: ${currentAdIndex} / 10`;
+        btn.style.display = 'none';
+        msg.style.display = 'block';
+        timerEl.style.display = 'block';
+        timerEl.innerText = sec;
+        counterText.innerText = `REKLAM ${currentStep} / 10`;
 
-        timer = setInterval(() => {
-            timeLeft--;
-            display.innerText = timeLeft;
-
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                display.style.display = 'none';
-                waitMsg.style.display = 'none';
-                nextBtn.style.display = 'inline-block';
-                if(currentAdIndex === 10) nextBtn.innerText = "PDF'İ İNDİR 📥";
+        clock = setInterval(() => {
+            sec--;
+            timerEl.innerText = sec;
+            if(sec <= 0) {
+                clearInterval(clock);
+                timerEl.style.display = 'none';
+                msg.style.display = 'none';
+                btn.style.display = 'block';
+                if(currentStep === 10) btn.innerText = "PDF'İ CİHAZA İNDİR";
             }
         }, 1000);
     }
 
-    function nextStep() {
-        if (currentAdIndex < 10) {
-            currentAdIndex++;
-            initiateTimer();
+    function handleNext() {
+        if(currentStep < 10) {
+            currentStep++;
+            startTimer();
         } else {
-            document.getElementById('adWall').style.display = 'none';
-            alert("Tüm reklamlar tamamlandı! PDF indiriliyor...");
-            // window.location.href = 'LINK';
+            document.getElementById('adOverlay').style.display = 'none';
+            alert("İşlem Başarılı! Dosya indiriliyor.");
         }
     }
 
-    // Başlangıç
-    filter('TYT', document.querySelector('.tab'));
+    // İlk açılış
+    show('TYT', document.querySelector('.tab'));
 </script>
 
 </body>
