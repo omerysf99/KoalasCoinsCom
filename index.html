@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson Premium V5</title>
+    <title>PDFSimpson | Live & Shorts</title>
     <style>
         :root {
             --bg: #000000;
-            --surface: #111111;
+            --surface: #121212;
             --accent: #FFD700;
+            --live: #ff0000;
             --text: #ffffff;
             --text-dim: #888888;
-            --nav-bg: rgba(18, 18, 18, 0.95);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
@@ -23,58 +22,104 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             overflow: hidden;
         }
 
-        /* Ana Mobil Shell */
-        .app-container {
+        .app-shell {
             width: 100%;
             max-width: 450px;
             height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            background: var(--bg);
         }
-
-        /* Üst Header */
-        header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid #222;
-        }
-        .logo { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
 
         /* İçerik Alanı */
-        .content-area {
+        .main-view {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px; /* Navigasyon boşluğu */
+            position: relative;
         }
 
-        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page { display: none; height: 100%; }
         .page.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Yatay PDF Listesi */
-        .horizontal-list {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding: 10px 0 20px;
+        /* --- SHORTS (SONSUZ KAYDIRMA) --- */
+        #shorts {
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            height: 100%;
             scrollbar-width: none;
         }
-        .horizontal-list::-webkit-scrollbar { display: none; }
+        #shorts::-webkit-scrollbar { display: none; }
 
-        /* 9:6 Dikey Kart */
+        .short-video {
+            height: 100%;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            background: linear-gradient(to bottom, #222, #000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .short-ui {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .short-actions {
+            position: absolute;
+            bottom: 100px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* --- YAYINLAR (YATAY VİDEOLAR) --- */
+        .live-card {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #1a1a1a;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--live);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.5;} 100% {opacity: 1;} }
+
+        /* --- PDF KARTLARI (9:6) --- */
+        .pdf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+        }
+
         .card-9-6 {
-            flex: 0 0 160px;
-            height: 240px; /* 9:6 Oran */
+            aspect-ratio: 6 / 9;
             background: var(--surface);
-            border-radius: 20px;
+            border-radius: 15px;
             border: 1px solid #333;
             padding: 15px;
             display: flex;
@@ -82,143 +127,121 @@
             justify-content: space-between;
         }
 
-        .card-title { font-size: 13px; font-weight: bold; }
-        
-        /* Progress ve Buton */
-        .bar-bg { height: 4px; background: #333; border-radius: 2px; margin: 8px 0; overflow: hidden; }
-        .bar-fill { height: 100%; width: 0%; background: var(--accent); transition: 0.3s; }
-        .btn-mini { 
-            width: 100%; background: var(--accent); border: none; 
-            padding: 6px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;
-        }
-
-        /* Shorts Görünümü (Dikey Tam Ekran Kartlar) */
-        .shorts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .short-item { 
-            aspect-ratio: 9/16; background: #222; border-radius: 12px; 
-            position: relative; overflow: hidden; display: flex; align-items: flex-end; padding: 10px;
-        }
-        .short-item::after { content: "▶"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; font-size: 30px; }
-
-        /* Alt Navigasyon Bar */
+        /* --- ALT NAV --- */
         .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 70px;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid #333;
+            height: 75px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid #222;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            z-index: 100;
         }
 
-        .nav-item {
+        .nav-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text-dim);
             font-size: 10px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 20px; margin-bottom: 4px; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn span { font-size: 20px; margin-bottom: 4px; }
 
         /* Modal */
         .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
-            display: none; justify-content: center; align-items: center; z-index: 1000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
         }
-        .modal img { width: 90%; border-radius: 15px; border: 2px solid var(--accent); }
+        .modal img { width: 85%; border-radius: 15px; border: 2px solid var(--accent); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header>
-        <div class="logo">PDFSimpson</div>
-    </header>
-
-    <div class="content-area">
+<div class="app-shell">
+    
+    <div class="main-view">
         
-        <div id="home" class="page active">
-            <h3 style="color: var(--accent);">🔥 Trend Yayınlar</h3>
-            <div class="horizontal-list">
-                <div class="card-9-6">
-                    <div class="card-title">Eğitim Vadisi TYT-3</div>
-                    <div class="progress-box">
-                        <div class="bar-bg"><div class="bar-fill" id="b1"></div></div>
-                        <button class="btn-mini" onclick="add(1)">ONAYLA</button>
-                    </div>
-                </div>
-                <div class="card-9-6">
-                    <div class="card-title">Matematik Analiz</div>
-                    <div class="progress-box">
-                        <div class="bar-bg"><div class="bar-fill" id="b2"></div></div>
-                        <button class="btn-mini" onclick="add(2)">ONAYLA</button>
-                    </div>
-                </div>
-            </div>
-            <div style="background: #111; padding: 20px; border-radius: 15px; margin-top: 20px;">
-                <h4>Duyuru</h4>
-                <p style="font-size: 12px; color: #aaa;">Yeni yayınlanan Eğitim Vadisi denemeleri "Yayınlar" sekmesine eklendi!</p>
+        <div id="home" class="page active" style="padding:20px;">
+            <h2 style="color:var(--accent)">PDFSimpson</h2>
+            <div style="background:var(--surface); padding:20px; border-radius:20px; border-left:4px solid var(--accent);">
+                <small>HOŞ GELDİN</small>
+                <p>Eğitim Vadisi TYT-3 Denemesi erişime açıldı!</p>
             </div>
         </div>
 
         <div id="pdfs" class="page">
-            <h3>📂 Tüm PDF Dosyaları</h3>
-            <div class="shorts-grid">
-                <div class="card-9-6" style="flex: none; width: 100%; height: 250px;">
-                    <div class="card-title">Kitapçık A</div>
-                    <button class="btn-mini" onclick="add(3)">KİLİDİ AÇ</button>
+            <div class="pdf-grid">
+                <div class="card-9-6">
+                    <small>DİKEY PDF</small>
+                    <div style="font-weight:bold">Eğitim Vadisi TYT-3</div>
+                    <button onclick="unlock(1)" style="background:var(--accent); border:none; border-radius:8px; padding:10px; font-weight:900;">ONAYLA (0/10)</button>
                 </div>
-                <div class="card-9-6" style="flex: none; width: 100%; height: 250px;">
-                    <div class="card-title">Kitapçık B</div>
-                    <button class="btn-mini" onclick="add(4)">KİLİDİ AÇ</button>
+                <div class="card-9-6">
+                    <small>DİKEY PDF</small>
+                    <div style="font-weight:bold">Matematik Analiz</div>
+                    <button onclick="unlock(2)" style="background:var(--accent); border:none; border-radius:8px; padding:10px; font-weight:900;">ONAYLA (0/10)</button>
                 </div>
             </div>
         </div>
 
         <div id="shorts" class="page">
-            <h3>📱 Eğitim Shorts</h3>
-            <div class="shorts-grid">
-                <div class="short-item"><span style="font-size: 10px;">Hızlı Geometri</span></div>
-                <div class="short-item"><span style="font-size: 10px;">Paragraf Taktiği</span></div>
-                <div class="short-item"><span style="font-size: 10px;">Tarih Kodlama</span></div>
-                <div class="short-item"><span style="font-size: 10px;">Biyoloji Notları</span></div>
+            <div class="short-video">
+                <div class="short-ui">
+                    <b>@HocamAnlatıyor</b>
+                    <p>Türev 1 dakikada biter! #shorts</p>
+                </div>
+                <div class="short-actions">
+                    <span>❤️</span><small>12K</small>
+                    <span>💬</span><small>450</small>
+                    <span>🔄</span><small>90</small>
+                </div>
             </div>
-        </div>
+            <div class="short-video" style="background: linear-gradient(to bottom, #1a0033, #000);">
+                <div class="short-ui">
+                    <b>@PDFSimpson</b>
+                    <p>TYT-3 Cevap Anahtarı Nasıl Açılır?</p>
+                </div>
+                <div class="short-actions">
+                    <span>❤️</span><small>5K</small>
+                    <span>💬</span><small>120</small>
+                    <span>🔄</span><small>22</small>
+                </div>
+            </div>
+            </div>
 
-        <div id="yayinlar" class="page">
-            <h3>📚 Anlaşmalı Yayınlar</h3>
-            <div style="padding: 15px; border-bottom: 1px solid #333;">Eğitim Vadisi Yayınları</div>
-            <div style="padding: 15px; border-bottom: 1px solid #333;">Limit Yayınları</div>
-            <div style="padding: 15px; border-bottom: 1px solid #333;">Karekök Yayınları</div>
+        <div id="yayinlar" class="page" style="padding:20px;">
+            <h3>🔴 Canlı Yayınlar</h3>
+            
+            <div class="live-card">
+                <div class="live-badge">CANLI</div>
+                <div style="height:100%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05)">
+                    <span>▶️ Oynatıcı Bekleniyor...</span>
+                </div>
+            </div>
+            <div style="margin-bottom:30px;">
+                <b>TYT Matematik Soru Çözümü</b>
+                <div style="font-size:12px; color:var(--text-dim)">Eğitim Vadisi Yayınları - 1.2K İzleyici</div>
+            </div>
+
+            <div class="live-card">
+                <div style="height:100%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05)">
+                    <span>📼 Tekrar İzle</span>
+                </div>
+            </div>
+            <b>Geometri Kampı 12. Gün</b>
+            <div style="font-size:12px; color:var(--text-dim)">2 gün önce yayınlandı</div>
         </div>
 
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchPage('home', this)">
-            <span class="nav-icon">🏠</span>
-            <span>Ana Sayfa</span>
-        </div>
-        <div class="nav-item" onclick="switchPage('pdfs', this)">
-            <span class="nav-icon">📄</span>
-            <span>PDF'ler</span>
-        </div>
-        <div class="nav-item" onclick="switchPage('shorts', this)">
-            <span class="nav-icon">⚡</span>
-            <span>Shorts</span>
-        </div>
-        <div class="nav-item" onclick="switchPage('yayinlar', this)">
-            <span class="nav-icon">📖</span>
-            <span>Yayınlar</span>
-        </div>
+        <div class="nav-btn active" onclick="nav('home', this)"><span>🏠</span>Ev</div>
+        <div class="nav-btn" onclick="nav('pdfs', this)"><span>📄</span>PDF</div>
+        <div class="nav-btn" onclick="nav('shorts', this)"><span>⚡</span>Shorts</div>
+        <div class="nav-btn" onclick="nav('yayinlar', this)"><span>🔴</span>Canlı</div>
     </div>
 </div>
 
@@ -227,27 +250,25 @@
 </div>
 
 <script>
-    const state = { 1:0, 2:0, 3:0, 4:0 };
+    let clicks = { 1:0, 2:0 };
 
-    function switchPage(pageId, el) {
-        // Sayfa değiştir
+    function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        
-        // Navigasyon aktif stilini değiştir
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
+        
+        // Shorts sekmesine geçilince sayfa başına odakla
+        if(id === 'shorts') document.getElementById('shorts').scrollTop = 0;
     }
 
-    function add(id) {
-        if(state[id] < 10) {
-            state[id]++;
-            const fill = document.getElementById('b'+id);
-            if(fill) fill.style.width = (state[id] * 10) + '%';
-            
-            if(state[id] === 10) {
-                document.getElementById('modal').style.display = 'flex';
-            }
+    function unlock(id) {
+        clicks[id]++;
+        event.target.innerText = `ONAYLA (${clicks[id]}/10)`;
+        if(clicks[id] >= 10) {
+            document.getElementById('modal').style.display = 'flex';
+            clicks[id] = 0;
+            event.target.innerText = `ONAYLA (0/10)`;
         }
     }
 </script>
