@@ -3,28 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Dinamik Keşfet</title>
+    <title>YouTube Pro - Kanal Destekli</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .video-card img { aspect-ratio: 16 / 9; border-radius: 12px; transition: 0.2s ease-in-out; width: 100%; object-fit: cover; }
+        .video-card img { aspect-ratio: 16 / 9; border-radius: 12px; transition: 0.2s; width: 100%; object-fit: cover; }
         .video-card:hover img { border-radius: 0px; transform: scale(1.02); }
         .sidebar-item { transition: 0.2s; cursor: pointer; display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; color: #aaa; }
         .sidebar-item:hover { background: #272727; color: white; }
         .active-tab { background: #272727; color: white; font-weight: bold; border-left: 4px solid red; }
-        #shortsContainer { height: calc(100vh - 56px); scroll-snap-type: y mandatory; overflow-y: scroll; background: #000; }
-        .short-item { height: calc(100vh - 56px); scroll-snap-align: start; display: flex; justify-content: center; align-items: center; position: relative; }
-        .short-frame { height: 90%; aspect-ratio: 9/16; background: #111; border-radius: 16px; overflow: hidden; border: 1px solid #333; }
+        .channel-circle { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <nav class="fixed top-0 w-full bg-[#0f0f0f] flex items-center justify-between px-4 h-14 z-[100] border-b border-[#272727]">
         <div class="flex items-center gap-4">
-            <button class="p-2 hover:bg-[#272727] rounded-full">☰</button>
+            <button class="p-2 hover:bg-[#272727] rounded-full text-white">☰</button>
             <div class="flex items-center gap-1 cursor-pointer" onclick="goHome()">
                 <span class="text-red-600 text-3xl font-bold">▶</span>
                 <span class="text-xl font-bold tracking-tighter">YouTube</span>
@@ -37,7 +35,7 @@
             </div>
             <button onclick="executeSearch()" class="bg-[#222222] border border-[#303030] border-l-0 px-5 py-2 rounded-r-full hover:bg-[#272727]">🔍</button>
         </div>
-        <div class="w-8 h-8 bg-purple-700 rounded-full flex items-center justify-center text-xs ml-4">TR</div>
+        <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs ml-4">TR</div>
     </nav>
 
     <div class="flex pt-14">
@@ -45,25 +43,33 @@
             <div onclick="goHome()" id="tab-home" class="sidebar-item active-tab">🏠 <span>Ana Sayfa</span></div>
             <div onclick="showShorts()" id="tab-shorts" class="sidebar-item">🎞️ <span>Shorts</span></div>
             <hr class="border-[#272727] my-3">
-            <div onclick="fetchVideos('Trend Videolar Türkiye')" id="tab-trending" class="sidebar-item">🔥 <span>Trendler</span></div>
-            <div onclick="fetchVideos('Türkçe Müzik Yeni')" id="tab-music" class="sidebar-item">🎵 <span>Müzik</span></div>
-            <div onclick="fetchVideos('Oyun Videoları Türkçe')" id="tab-gaming" class="sidebar-item">🎮 <span>Oyun</span></div>
-            <div onclick="fetchVideos('Haber Bülteni Türkiye')" id="tab-news" class="sidebar-item">📰 <span>Haberler</span></div>
-            <div onclick="fetchVideos('Teknoloji İnceleme')" id="tab-tech" class="sidebar-item">💻 <span>Teknoloji</span></div>
+            <div onclick="fetchVideos('Trendler')" id="tab-trending" class="sidebar-item">🔥 <span>Trendler</span></div>
+            <div onclick="fetchVideos('Oyun')" id="tab-gaming" class="sidebar-item">🎮 <span>Oyun</span></div>
+            <div onclick="fetchVideos('Müzik')" id="tab-music" class="sidebar-item">🎵 <span>Müzik</span></div>
         </aside>
 
         <main class="flex-1 sm:ml-20 lg:ml-64">
+            <div id="channelResult" class="hidden p-6 border-b border-[#272727] flex items-center gap-10 bg-[#121212]"></div>
+            
             <div id="homeGrid" class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10"></div>
 
             <div id="watchPage" class="hidden p-4 lg:p-8">
                 <div class="flex flex-col lg:flex-row gap-6 max-w-[1700px] mx-auto">
                     <div class="flex-1">
-                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black shadow-2xl">
-                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/95 flex items-center justify-center text-xl animate-pulse text-white">Reklam İzleniyor...</div>
+                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black">
+                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/95 flex items-center justify-center text-xl animate-pulse text-white">Reklam...</div>
                             <iframe id="videoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </div>
                         <h1 id="vTitle" class="text-2xl font-bold mt-5"></h1>
-                        <p id="vChannel" class="text-gray-400 mt-2 font-medium"></p>
+                        
+                        <div id="channelDetail" class="flex items-center gap-4 mt-4 p-4 bg-[#1a1a1a] rounded-xl">
+                            <img id="cThumb" src="" class="w-12 h-12 rounded-full">
+                            <div class="flex-1">
+                                <p id="vChannel" class="font-bold text-lg"></p>
+                                <p class="text-xs text-gray-400">1.5 Mn Abone</p>
+                            </div>
+                            <button class="bg-white text-black px-5 py-2 rounded-full font-bold text-sm">Abone Ol</button>
+                        </div>
                     </div>
                     <div id="vNext" class="w-full lg:w-[400px] flex flex-col gap-4"></div>
                 </div>
@@ -81,7 +87,6 @@
             if(window.showAdexora) window.showAdexora().then(callback).catch(callback); else callback();
         }
 
-        // Shuffle Algoritması: Videoları her seferinde karıştırır
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -90,51 +95,58 @@
             return array;
         }
 
-        function resetView(activeTabId) {
+        function resetView() {
             document.getElementById('homeGrid').classList.add('hidden');
             document.getElementById('watchPage').classList.add('hidden');
             document.getElementById('shortsPage').classList.add('hidden');
+            document.getElementById('channelResult').classList.add('hidden');
             document.getElementById('videoPlayer').src = "";
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active-tab'));
-            if(activeTabId) document.getElementById(activeTabId).classList.add('active-tab');
             clearInterval(adInterval);
             clearInterval(timeTracker);
         }
 
         function goHome() {
-            resetView('tab-home');
+            resetView();
             document.getElementById('homeGrid').classList.remove('hidden');
-            fetchVideos("Türkiye karışık popüler videolar");
+            fetchVideos("Türkiye popüler");
         }
 
-        function executeSearch() {
+        // KANALLARI VE VİDEOLARI BİRLİKTE ARA
+        async function executeSearch() {
             const q = document.getElementById('searchInput').value;
             if(!q) return;
             resetView();
             document.getElementById('homeGrid').classList.remove('hidden');
-            fetchVideos(q + " uzun video");
+
+            // 1. Kanalları Ara
+            const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${q}&type=channel&key=${API_KEY}`);
+            const channelData = await channelRes.json();
+            
+            if(channelData.items.length > 0) {
+                const chan = channelData.items[0].snippet;
+                const chanResDiv = document.getElementById('channelResult');
+                chanResDiv.classList.remove('hidden');
+                chanResDiv.innerHTML = `
+                    <img src="${chan.thumbnails.high.url}" class="channel-circle">
+                    <div>
+                        <h2 class="text-2xl font-bold">${chan.title} ✅</h2>
+                        <p class="text-gray-400 text-sm mt-1">${chan.description.substring(0, 100)}...</p>
+                        <button class="mt-3 bg-red-600 text-white px-6 py-2 rounded-full font-bold text-sm">KANALA GİT</button>
+                    </div>
+                `;
+            }
+
+            // 2. Videoları Getir
+            fetchVideos(q);
         }
 
         async function fetchVideos(q) {
-            // Menüden tıklandığında aktif görseli güncellemek için
-            const tabs = {
-                'Trend Videolar Türkiye': 'tab-trending',
-                'Türkçe Müzik Yeni': 'tab-music',
-                'Oyun Videoları Türkçe': 'tab-gaming',
-                'Haber Bülteni Türkiye': 'tab-news',
-                'Teknoloji İnceleme': 'tab-tech'
-            };
-            if(tabs[q]) resetView(tabs[q]);
-            document.getElementById('homeGrid').classList.remove('hidden');
-
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=${q}&regionCode=TR&type=video&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&q=${q}&regionCode=TR&type=video&key=${API_KEY}`);
             const data = await res.json();
-            
-            // KARMIŞIK (RANDOM) SIRALAMA BURADA YAPILIYOR
-            const shuffledVideos = shuffle(data.items);
+            const items = shuffle(data.items);
 
-            document.getElementById('homeGrid').innerHTML = shuffledVideos.map(v => `
-                <div class="video-card cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}')">
+            document.getElementById('homeGrid').innerHTML = items.map(v => `
+                <div class="video-card cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.high.url}')">
                     <img src="${v.snippet.thumbnails.high.url}">
                     <div class="flex gap-3 mt-3">
                         <div class="w-10 h-10 bg-gray-800 rounded-full flex-shrink-0"></div>
@@ -147,22 +159,25 @@
             `).join('');
         }
 
-        async function openVideo(id, title, channel) {
+        async function openVideo(id, title, channel, thumb) {
             resetView();
             activeVideoId = id;
             playedSeconds = 0;
             document.getElementById('watchPage').classList.remove('hidden');
             document.getElementById('vTitle').innerText = decodeURIComponent(title);
             document.getElementById('vChannel').innerText = channel;
+            document.getElementById('cThumb').src = thumb; // Geçici logo
+            
             setPlayer(0);
             startAdSystem();
 
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${title}&type=video&key=${API_KEY}`);
+            // Öneriler
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${channel}&type=video&key=${API_KEY}`);
             const data = await res.json();
             document.getElementById('vNext').innerHTML = data.items.map(v => `
-                <div class="flex gap-2 cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}')">
+                <div class="flex gap-2 cursor-pointer" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.medium.url}')">
                     <img src="${v.snippet.thumbnails.medium.url}" class="w-40 h-24 rounded-lg object-cover">
-                    <div class="flex-1 text-xs font-bold line-clamp-2">${v.snippet.title}</div>
+                    <div class="flex-1 text-xs font-bold">${v.snippet.title}</div>
                 </div>
             `).join('');
         }
@@ -182,23 +197,19 @@
         }
 
         async function showShorts() {
-            resetView('tab-shorts');
+            resetView();
             document.getElementById('shortsPage').classList.remove('hidden');
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=%23shorts+türkiye&type=video&videoDuration=short&key=${API_KEY}`);
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=%23shorts+türkiye&type=video&videoDuration=short&key=${API_KEY}`);
             const data = await res.json();
             const container = document.getElementById('shortsContainer');
             container.innerHTML = data.items.map(s => `<div class="short-item" data-id="${s.id.videoId}"><div class="short-frame" id="sh-${s.id.videoId}"></div></div>`).join('');
             
-            let sc = 0;
             const obs = new IntersectionObserver(entries => {
                 entries.forEach(e => {
                     const id = e.target.getAttribute('data-id');
                     const el = document.getElementById(`sh-${id}`);
-                    if(e.isIntersecting) {
-                        sc++;
-                        const play = () => el.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}" frameborder="0" allow="autoplay"></iframe>`;
-                        if(sc % 3 === 0) runAd(play); else play();
-                    } else el.innerHTML = "";
+                    if(e.isIntersecting) el.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${id}?autoplay=1&controls=0&loop=1&playlist=${id}" frameborder="0" allow="autoplay"></iframe>`;
+                    else el.innerHTML = "";
                 });
             }, {threshold: 0.8});
             document.querySelectorAll('.short-item').forEach(i => obs.observe(i));
