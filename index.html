@@ -3,254 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | Dijital Kütüphane</title>
+    <title>PDFSimpson WebApp</title>
     <style>
         :root {
-            --bg: #0c0c0e;
-            --card: #18181b;
-            --accent: #ffdf00;
-            --text: #ffffff;
-            --text-dim: #a1a1aa;
+            --bg: #000000;
+            --surface: #121212;
+            --accent: #ffdf00; /* Simpson Yellow */
+            --text-main: #ffffff;
+            --text-secondary: #a1a1aa;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
             margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Dikey Konteynır (Telefon Görünümü) */
+        .app-container {
+            width: 100%;
+            max-width: 480px; /* Maksimum telefon genişliği */
+            background: var(--bg);
+            min-height: 100vh;
+            border-left: 1px solid #27272a;
+            border-right: 1px solid #27272a;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
 
-        /* Üst Header */
-        .navbar {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #27272a;
-            padding-bottom: 15px;
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
         }
 
-        .logo { font-size: 24px; font-weight: 900; color: var(--accent); }
-
-        /* En Çok İndirilen Alanı */
-        .trending-section {
-            width: 100%;
-            max-width: 800px;
-            background: linear-gradient(90deg, #1e1e20, #121214);
-            padding: 20px;
-            border-radius: 20px;
-            border-left: 5px solid var(--accent);
-            margin-bottom: 40px;
-        }
-
-        .trending-title {
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
             color: var(--accent);
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 5px;
+            letter-spacing: -1px;
         }
 
-        /* Kart Konteynırı */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 25px;
-            width: 100%;
-            max-width: 800px;
-        }
-
-        /* 9:6 Kart Tasarımı */
-        .pdf-card {
-            background: var(--card);
-            aspect-ratio: 6 / 9; /* 9:6 Bot Boyutu */
-            border-radius: 18px;
-            border: 1px solid #27272a;
+        /* Öne Çıkan Alanı */
+        .featured-banner {
+            background: linear-gradient(135deg, #1e1e1e 0%, #000000 100%);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
             position: relative;
+        }
+
+        .featured-label {
+            background: var(--accent);
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 5px;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+        }
+
+        /* 9:6 Dikey Kartlar Listesi */
+        .content-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-9-6 {
+            background: var(--surface);
+            width: 100%;
+            aspect-ratio: 6 / 9; /* Dikey Oran */
+            border-radius: 24px;
+            border: 1px solid #27272a;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            padding: 15px;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            transition: transform 0.2s;
         }
 
-        .pdf-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-        }
+        .card-9-6:active { transform: scale(0.98); }
 
-        .card-img-placeholder {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 60%;
+        .card-preview {
+            flex: 1;
             background: linear-gradient(to bottom, #27272a, transparent);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 60px;
         }
 
-        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 10px; }
+        .card-details {
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
 
-        /* Kart İlerleme */
-        .card-progress-bar {
+        .card-title { font-weight: 700; font-size: 18px; margin-bottom: 5px; }
+        .card-sub { color: var(--text-secondary); font-size: 13px; margin-bottom: 15px; }
+
+        /* Progress ve Buton */
+        .progress-container {
             height: 6px;
-            background: #000;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            background: #27272a;
+            border-radius: 3px;
+            margin-bottom: 15px;
             overflow: hidden;
         }
 
-        .fill {
+        .progress-bar {
             height: 100%;
             width: 0%;
             background: var(--accent);
             box-shadow: 0 0 10px var(--accent);
-            transition: width 0.3s ease;
+            transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .unlock-btn {
+        .onay-btn {
+            width: 100%;
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 14px;
             cursor: pointer;
-            width: 100%;
+            text-transform: uppercase;
         }
 
-        .unlock-btn:active { transform: scale(0.95); }
-
-        /* Modal / Pencere */
-        .overlay {
+        /* Modal (Tam Ekran Pencere) */
+        .modal-overlay {
             position: fixed;
-            inset: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(10px);
+            padding: 20px;
         }
 
-        .modal {
-            background: #000;
-            border: 2px solid var(--accent);
+        .modal-box {
+            background: var(--surface);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
             padding: 10px;
-            border-radius: 20px;
-            max-width: 90%;
             position: relative;
+            border: 1px solid var(--accent);
         }
 
-        .modal img { max-width: 100%; border-radius: 10px; }
+        .modal-box img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+        }
 
         .close-btn {
             position: absolute;
             top: -15px; right: -15px;
             background: var(--accent);
-            width: 30px; height: 30px;
+            width: 35px; height: 35px;
             border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            cursor: pointer; color: #000; font-weight: bold;
+            font-weight: bold; cursor: pointer; color: #000;
         }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
+<div class="app-container">
+    <header>
         <div class="logo">PDFSimpson</div>
-        <div style="font-size: 12px; color: var(--text-dim);">V3.0 Premium</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">WEB PORTAL v4.0</div>
+    </header>
+
+    <div class="featured-banner">
+        <span class="featured-label">TRENDING</span>
+        <div style="font-weight: 800; font-size: 16px;">Eğitim Vadisi TYT-3 Deneme</div>
+        <div style="color: var(--text-secondary); font-size: 12px;">En çok indirilen dikey içerik</div>
     </div>
 
-    <div class="trending-section">
-        <div class="trending-title">🔥 EN ÇOK İNDİRİLEN PDF</div>
-        <div style="font-size: 18px; font-weight: 800;">Eğitim Vadisi TYT-3 Deneme Serisi</div>
-        <div style="font-size: 12px; color: var(--text-dim); margin-top: 5px;">Toplam 450.000+ İndirme</div>
-    </div>
-
-    <div class="grid-container">
+    <div class="content-scroll">
         
-        <div class="pdf-card">
-            <div class="card-img-placeholder">📚</div>
-            <div class="card-title">Eğitim Vadisi TYT-3 Ca</div>
-            <div style="font-size: 11px; margin-bottom: 5px;" id="text-1">Onay: 0 / 10</div>
-            <div class="card-progress-bar"><div class="fill" id="bar-1"></div></div>
-            <button class="unlock-btn" onclick="addProgress(1)">ONAYLA</button>
+        <div class="card-9-6">
+            <div class="card-preview">📄</div>
+            <div class="card-details">
+                <div class="card-title">TYT-3 Soru Kitapçığı</div>
+                <div class="card-sub">Eğitim Vadisi Özel Serisi</div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                    <span>Onay Durumu</span>
+                    <span id="text-1" style="color: var(--accent);">0 / 10</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="bar-1"></div>
+                </div>
+                <button class="onay-btn" onclick="addClick(1)">Onayla & İzle</button>
+            </div>
         </div>
 
-        <div class="pdf-card">
-            <div class="card-img-placeholder">📝</div>
-            <div class="card-title">TYT Matematik Analiz</div>
-            <div style="font-size: 11px; margin-bottom: 5px;" id="text-2">Onay: 0 / 10</div>
-            <div class="card-progress-bar"><div class="fill" id="bar-2"></div></div>
-            <button class="unlock-btn" onclick="addProgress(2)">ONAYLA</button>
-        </div>
-
-        <div class="pdf-card">
-            <div class="card-img-placeholder">🔍</div>
-            <div class="card-title">Cevap Anahtarı V1</div>
-            <div style="font-size: 11px; margin-bottom: 5px;" id="text-3">Onay: 0 / 10</div>
-            <div class="card-progress-bar"><div class="fill" id="bar-3"></div></div>
-            <button class="unlock-btn" onclick="addProgress(3)">ONAYLA</button>
-        </div>
-
-        <div class="pdf-card">
-            <div class="card-img-placeholder">📁</div>
-            <div class="card-title">Geometri Özel Not</div>
-            <div style="font-size: 11px; margin-bottom: 5px;" id="text-4">Onay: 0 / 10</div>
-            <div class="card-progress-bar"><div class="fill" id="bar-4"></div></div>
-            <button class="unlock-btn" onclick="addProgress(4)">ONAYLA</button>
+        <div class="card-9-6">
+            <div class="card-preview">🔑</div>
+            <div class="card-details">
+                <div class="card-title">Cevap Anahtarı</div>
+                <div class="card-sub">Anında Erişim</div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                    <span>Onay Durumu</span>
+                    <span id="text-2" style="color: var(--accent);">0 / 10</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="bar-2"></div>
+                </div>
+                <button class="onay-btn" onclick="addClick(2)">Onayla & İzle</button>
+            </div>
         </div>
 
     </div>
+</div>
 
-    <div class="overlay" id="viewer">
-        <div class="modal">
-            <div class="close-btn" onclick="closeViewer()">✕</div>
-            <img src="egitimvadisi.jpg" alt="İçerik">
-        </div>
+<div class="modal-overlay" id="modal">
+    <div class="modal-box">
+        <div class="close-btn" onclick="closeModal()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Eğitim Vadisi Görsel">
     </div>
+</div>
 
-    <script>
-        // Her kartın ilerlemesini tutan obje
-        const progressData = {
-            1: 0, 2: 0, 3: 0, 4: 0
-        };
-        const goal = 10;
+<script>
+    const data = { 1: 0, 2: 0 };
+    const max = 10;
 
-        function addProgress(id) {
-            if (progressData[id] < goal) {
-                progressData[id]++;
-                
-                // UI Güncelleme
-                const bar = document.getElementById(`bar-${id}`);
-                const text = document.getElementById(`text-${id}`);
-                
-                const percent = (progressData[id] / goal) * 100;
-                bar.style.width = percent + '%';
-                text.innerText = `Onay: ${progressData[id]} / ${goal}`;
+    function addClick(id) {
+        if (data[id] < max) {
+            data[id]++;
+            const percent = (data[id] / max) * 100;
+            
+            document.getElementById(`bar-${id}`).style.width = percent + '%';
+            document.getElementById(`text-${id}`).innerText = `${data[id]} / ${max}`;
 
-                if (progressData[id] === goal) {
-                    openViewer();
-                }
+            if (data[id] === max) {
+                setTimeout(() => {
+                    document.getElementById('modal').style.display = 'flex';
+                }, 200);
             }
         }
+    }
 
-        function openViewer() {
-            document.getElementById('viewer').style.display = 'flex';
-        }
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+</script>
 
-        function closeViewer() {
-            document.getElementById('viewer').style.display = 'none';
-        }
-    </script>
 </body>
 </html>
