@@ -3,84 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Türkiye Gündemi</title>
+    <title>Siyah Akış | 2026 Gündem</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #0a0f1e;
-            --card: #161e31;
-            --text: #ffffff;
-            --accent: #e11d48; /* Haber kırmızısı */
-            --admin: #8b5cf6;
-            --border: #2d3748;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --accent: #ef4444;
+            --admin: #a855f7;
+            --info: #38bdf8;
+            --border: #334155;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding-bottom: 30px;
+            padding-bottom: 20px;
         }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 10px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
 
-        /* Admin Paneli */
+        /* Admin Paneli (Sadece ID: 8392479231 için) */
         #admin-panel {
             display: none;
             background: #1e1b4b;
-            border: 1px dashed var(--admin);
+            border: 2px solid var(--admin);
             border-radius: 12px;
             padding: 15px;
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
 
         input, textarea {
             width: 100%; background: #0f172a; border: 1px solid var(--border);
-            color: white; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+            color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;
             box-sizing: border-box;
         }
 
         .btn-add {
             width: 100%; background: var(--admin); color: white;
-            border: none; padding: 10px; border-radius: 8px; cursor: pointer;
+            border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
         }
 
         /* Haber Kartı */
         .news-card {
             background: var(--card);
-            border-radius: 12px;
-            margin-bottom: 15px;
+            border-radius: 16px;
             overflow: hidden;
-            border-left: 4px solid var(--accent);
-            animation: fadeIn 0.4s ease;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            animation: slideUp 0.4s ease-out;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } }
 
         .news-img { width: 100%; height: 180px; object-fit: cover; }
-        .news-info { padding: 12px; }
-        .category { font-size: 10px; background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .news-title { font-size: 1rem; font-weight: bold; margin: 8px 0; line-height: 1.4; }
-        .news-footer { font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between; }
+        .news-body { padding: 15px; }
+        .tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
+        .tag.snow { background: var(--info); color: white; }
+        .tag.eco { background: #10b981; color: white; }
+        .tag.flash { background: var(--accent); color: white; }
 
-        #live-indicator { text-align: center; color: var(--accent); font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        .news-title { font-size: 1.1rem; font-weight: 700; margin: 5px 0 10px 0; line-height: 1.4; }
+        .news-meta { font-size: 0.8rem; color: #94a3b8; display: flex; justify-content: space-between; }
+        
+        #status-bar { text-align: center; color: var(--info); font-size: 11px; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header style="padding: 15px 0; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
-        <h1 style="margin:0; font-size: 1.4rem; color: var(--accent);">SON DAKİKA 2026</h1>
-        <div id="live-indicator">● CANLI HABER AKIŞI</div>
+    <header style="padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
+        <h1 style="margin:0; font-size: 1.3rem;">HABER <span style="color:var(--accent)">MERKEZİ</span></h1>
+        <div id="status-bar">● CANLI AKIŞ: 07.01.2026 GÜNDEMİ</div>
     </header>
 
     <div id="admin-panel">
-        <h4 style="margin:0 0 10px 0;">🛠 Admin İçerik Girişi</h4>
+        <h3 style="margin:0 0 10px 0; color:var(--admin); font-size: 14px;">🛠 Admin Paneli (ID: 8392479231)</h3>
         <input type="text" id="h-title" placeholder="Haber Başlığı">
         <input type="text" id="h-img" placeholder="Görsel URL">
-        <textarea id="h-content" placeholder="Detaylar..."></textarea>
-        <button class="btn-add" onclick="manualAdd()">Sisteme Enjekte Et</button>
+        <textarea id="h-content" placeholder="Haber detaylarını buraya yaz..."></textarea>
+        <button class="btn-add" onclick="manualAdd()">HABERİ YAYINLA</button>
     </div>
 
     <div id="news-container"></div>
@@ -90,27 +95,38 @@
     const ADMIN_ID = 8392479231;
     const container = document.getElementById('news-container');
 
-    // 2026 Gerçekçi Gündem Havuzu
-    const tkgundem = [
-        { cat: "EKONOMİ", title: "2026 Asgari Ücret Netleşti: Komisyon 32.500 TL Olarak Belirledi!", img: "https://picsum.photos/seed/money/500/300" },
-        { cat: "SİYASET", title: "Ankara'da Hareketli Saatler: Yeni Seçim Yasası Meclis'e Sunuldu.", img: "https://picsum.photos/seed/politics/500/300" },
-        { cat: "AKARYAKIT", title: "Benzine Gece Yarısı Dev Zam: Litre Fiyatı 60 TL Sınırını Geçti!", img: "https://picsum.photos/seed/fuel/500/300" },
-        { cat: "DIŞ POLİTİKA", title: "Türkiye ve Yunanistan Arasında Yeni Ege Protokolü İmzalandı.", img: "https://picsum.photos/seed/flag/500/300" },
-        { cat: "TEKNOLOJİ", title: "TOGG'un Yeni Sedan Modeli 2026 İçin İlk Kez Görücüye Çıktı.", img: "https://picsum.photos/seed/togg/500/300" },
-        { cat: "GÜNCEL", title: "Emekli Maaşlarına Ek Zam Yolda mı? Bakanlıktan İlk Açıklama Geldi.", img: "https://picsum.photos/seed/work/500/300" },
-        { cat: "SPOR", title: "Milli Takım 2026 Dünya Kupası Elemelerinde Liderliğini Korudu.", img: "https://picsum.photos/seed/football/500/300" }
+    // 2026 Gerçek Haber Havuzu
+    const fixedNews = [
+        { 
+            tag: "eco", 
+            tagText: "EKONOMİ", 
+            title: "2026 Asgari Ücret Netleşti: Net 28.075 TL Olarak Açıklandı!", 
+            img: "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=500&q=80" 
+        },
+        { 
+            tag: "snow", 
+            tagText: "KAR TATİLİ", 
+            title: "7 Ocak 2026: Yarın Okullar Tatil mi? Gümüşhane ve Kastamonu'da Gözler Valilikte!", 
+            img: "https://images.unsplash.com/photo-1478265409131-1f65c88f965c?auto=format&fit=crop&w=500&q=80" 
+        },
+        { 
+            tag: "flash", 
+            tagText: "SON DAKİKA", 
+            title: "Benzine 2.45 TL Zam: 2026'nın İlk Büyük Akaryakıt Artışı Gece Yarısı Devreye Giriyor.", 
+            img: "https://images.unsplash.com/photo-1564504144026-c2251a378033?auto=format&fit=crop&w=500&q=80" 
+        }
     ];
 
-    function createCard(cat, title, img, time) {
+    function createCard(tag, tagText, title, img, time) {
         const card = document.createElement('div');
         card.className = 'news-card';
         card.innerHTML = `
             <img src="${img}" class="news-img">
-            <div class="news-info">
-                <span class="category">${cat}</span>
+            <div class="news-body">
+                <span class="tag ${tag}">${tagText}</span>
                 <h2 class="news-title">${title}</h2>
-                <div class="news-footer">
-                    <span>📍 Ajans Haber</span>
+                <div class="news-meta">
+                    <span>Ajans Haber</span>
                     <span>${time}</span>
                 </div>
             </div>
@@ -126,28 +142,29 @@
             if (tg.initDataUnsafe?.user?.id === ADMIN_ID) {
                 document.getElementById('admin-panel').style.display = 'block';
             }
-        } catch (e) { console.log("Lütfen Telegram üzerinden açın."); }
+        } catch (e) { console.log("Telegram dışı erişim."); }
     }
 
     function manualAdd() {
         const t = document.getElementById('h-title').value;
         const i = document.getElementById('h-img').value || "https://picsum.photos/seed/admin/500/300";
         if(!t) return;
-        createCard("ÖZEL HABER", t, i, "Şimdi");
+        createCard("flash", "FLAŞ", t, i, "Şimdi");
         document.getElementById('h-title').value = "";
     }
 
+    // Otomatik Haber Simülasyonu
     function autoAdd() {
-        const h = tkgundem[Math.floor(Math.random() * tkgundem.length)];
-        const clock = new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
-        createCard(h.cat, h.title, h.img, clock);
+        const h = fixedNews[Math.floor(Math.random() * fixedNews.length)];
+        const now = new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+        createCard(h.tag, h.tagText, h.title, h.img, now);
     }
 
+    // Başlangıç
     checkAdmin();
-    // İlk etapta 3 tane yükle
-    for(let i=0; i<3; i++) { autoAdd(); }
-    
-    // Her 20 saniyede bir yeni haber
+    fixedNews.forEach(n => createCard(n.tag, n.tagText, n.title, n.img, "08:30")); // İlk açılışta ana haberleri yükle
+
+    // Her 20 saniyede bir gündem güncelle
     setInterval(autoAdd, 20000);
 
 </script>
