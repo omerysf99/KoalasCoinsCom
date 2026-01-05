@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Pro - Kanal Sayfası Destekli</title>
+    <title>YouTube Pro - Kesintisiz Akış</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://adexora.com/cdn/ads.js?id=1624"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -11,11 +11,10 @@
         body { font-family: 'Roboto', sans-serif; background-color: #0f0f0f; color: white; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .video-card img { aspect-ratio: 16 / 9; border-radius: 12px; transition: 0.2s; width: 100%; object-fit: cover; cursor: pointer; }
-        .video-card:hover img { border-radius: 0px; transform: scale(1.02); }
-        .sidebar-item { transition: 0.2s; cursor: pointer; display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; color: #aaa; }
+        .video-card:hover img { border-radius: 0px; transform: scale(1.01); }
+        .active-tab { background: #272727; border-left: 4px solid red; font-weight: bold; }
+        .sidebar-item { display: flex; align-items: center; gap: 20px; padding: 12px; border-radius: 10px; color: #aaa; cursor: pointer; transition: 0.2s; }
         .sidebar-item:hover { background: #272727; color: white; }
-        .active-tab { background: #272727; color: white; font-weight: bold; border-left: 4px solid red; }
-        .channel-banner { height: 200px; width: 100%; background: linear-gradient(90deg, #1e1e1e, #333); border-radius: 15px; background-size: cover; background-position: center; }
     </style>
 </head>
 <body>
@@ -28,14 +27,13 @@
                 <span class="text-xl font-bold tracking-tighter">YouTube</span>
             </div>
         </div>
-
-        <div class="flex items-center flex-1 max-w-[700px] ml-10">
+        <div class="flex items-center flex-1 max-w-[600px] mx-4">
             <div class="flex w-full items-center bg-[#121212] border border-[#303030] rounded-l-full px-4 py-1.5 focus-within:border-blue-500">
-                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full outline-none text-white px-2">
+                <input id="searchInput" type="text" placeholder="Ara" class="bg-transparent w-full outline-none text-white text-sm">
             </div>
             <button onclick="executeSearch()" class="bg-[#222222] border border-[#303030] border-l-0 px-5 py-2 rounded-r-full hover:bg-[#272727]">🔍</button>
         </div>
-        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs ml-4">TR</div>
+        <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-xs font-bold">TR</div>
     </nav>
 
     <div class="flex pt-14">
@@ -43,46 +41,41 @@
             <div onclick="goHome()" id="tab-home" class="sidebar-item active-tab">🏠 <span>Ana Sayfa</span></div>
             <div onclick="showShorts()" id="tab-shorts" class="sidebar-item">🎞️ <span>Shorts</span></div>
             <hr class="border-[#272727] my-3">
-            <div onclick="fetchVideos('Trendler')" class="sidebar-item">🔥 <span>Trendler</span></div>
+            <div onclick="fetchVideos('Trend')" class="sidebar-item">🔥 <span>Trendler</span></div>
             <div onclick="fetchVideos('Oyun')" class="sidebar-item">🎮 <span>Oyun</span></div>
-            <div onclick="fetchVideos('Müzik')" class="sidebar-item">🎵 <span>Müzik</span></div>
         </aside>
 
         <main class="flex-1 sm:ml-20 lg:ml-64 min-h-screen">
-            
             <div id="channelPage" class="hidden p-6">
-                <div class="channel-banner mb-6" id="chanBanner"></div>
-                <div class="flex items-center gap-6 px-4">
-                    <img id="chanImg" src="" class="w-32 h-32 rounded-full border-4 border-[#0f0f0f] -mt-12 bg-gray-800">
+                <div class="flex items-center gap-6 px-4 py-10 border-b border-[#272727]">
+                    <img id="chanImg" src="" class="w-32 h-32 rounded-full bg-gray-800">
                     <div class="flex-1">
-                        <h1 id="chanName" class="text-3xl font-bold">Kanal Adı</h1>
-                        <p id="chanHandle" class="text-gray-400 mt-1">@kanal_nick • 1.2 Mn Abone</p>
-                        <p id="chanDesc" class="text-sm text-gray-500 mt-2 max-w-2xl"></p>
+                        <h1 id="chanName" class="text-3xl font-bold"></h1>
+                        <p id="chanHandle" class="text-gray-400 mt-1"></p>
                     </div>
                     <button class="bg-white text-black px-8 py-2.5 rounded-full font-bold">Abone Ol</button>
                 </div>
-                <div class="border-b border-[#272727] mt-8 mb-6">
-                    <span class="inline-block px-4 py-3 border-b-2 border-white font-bold">Videolar</span>
-                </div>
-                <div id="chanVideos" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                <div id="chanVideos" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8"></div>
             </div>
 
-            <div id="searchHeader" class="hidden p-6 bg-[#121212] border-b border-[#272727] flex items-center gap-8"></div>
             <div id="homeGrid" class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10"></div>
 
             <div id="watchPage" class="hidden p-4 lg:p-8">
                 <div class="flex flex-col lg:flex-row gap-6 max-w-[1700px] mx-auto">
                     <div class="flex-1">
-                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black">
-                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/95 flex items-center justify-center text-xl animate-pulse text-white">Reklam...</div>
+                        <div class="aspect-video relative rounded-2xl overflow-hidden bg-black border border-[#272727]">
+                            <div id="adOverlay" class="absolute inset-0 z-20 hidden bg-black/98 flex flex-col items-center justify-center">
+                                <span class="text-white text-xl font-bold animate-pulse">REKLAM YAYINDA</span>
+                                <span class="text-gray-400 text-xs mt-2">Video kaldığı yerden (hassas saniye) devam edecek...</span>
+                            </div>
                             <iframe id="videoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </div>
                         <h1 id="vTitle" class="text-2xl font-bold mt-5 leading-tight"></h1>
-                        <div id="videoMeta" class="flex items-center gap-4 mt-6 p-4 bg-[#1a1a1a] rounded-xl cursor-pointer hover:bg-[#222] transition">
-                            <img id="vChanImg" src="" class="w-12 h-12 rounded-full">
+                        <div id="videoMeta" class="flex items-center gap-4 mt-6 p-4 bg-[#1a1a1a] rounded-xl cursor-pointer hover:bg-[#222]">
+                            <img id="vChanImg" src="" class="w-12 h-12 rounded-full bg-gray-700">
                             <div class="flex-1">
                                 <p id="vChanName" class="font-bold text-lg"></p>
-                                <p class="text-xs text-gray-400">Tıklayıp Kanala Git</p>
+                                <p class="text-xs text-gray-400 font-medium">Kanala Git</p>
                             </div>
                             <button class="bg-white text-black px-6 py-2 rounded-full font-bold">Abone Ol</button>
                         </div>
@@ -90,86 +83,70 @@
                     <div id="vNext" class="w-full lg:w-[400px] flex flex-col gap-4"></div>
                 </div>
             </div>
-
-            <div id="shortsPage" class="hidden h-[calc(100vh-56px)]"><div id="shortsContainer" class="no-scrollbar"></div></div>
+            <div id="shortsPage" class="hidden"><div id="shortsContainer" class="no-scrollbar"></div></div>
         </main>
     </div>
 
     <script>
         const API_KEY = 'AIzaSyDkaygARzpXfIXlozjyppLdXsPoE-mq1gg';
-        let activeVideoId = "", currentChanId = "";
+        let adInterval, timeTracker;
+        let playedSeconds = 0; // Küsüratlı saniye takibi
+        let activeVideoId = "";
 
-        // Görünümleri Temizle
+        // REKLAM SİSTEMİ - HASSAS SENKRONİZASYON
+        function runAd(callback) {
+            if(window.showAdexora) window.showAdexora().then(callback).catch(callback); else callback();
+        }
+
+        function setPlayer(s) {
+            // Saniyeyi tam sayıya yuvarlayarak YouTube'a gönderiyoruz
+            const startSec = Math.floor(s);
+            document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${activeVideoId}?autoplay=1&start=${startSec}`;
+        }
+
+        function startAdSystem() {
+            // Saniye takibini çok daha hassas yapıyoruz (100ms)
+            timeTracker = setInterval(() => {
+                playedSeconds += 0.1;
+            }, 100);
+
+            adInterval = setInterval(() => {
+                // Reklam başladığı an sayacı dondur ve tam saniyeyi kaydet
+                const freezeSecond = playedSeconds; 
+                clearInterval(timeTracker); 
+                
+                document.getElementById('adOverlay').classList.remove('hidden');
+                document.getElementById('videoPlayer').src = ""; // Videoyu durdur
+
+                runAd(() => {
+                    document.getElementById('adOverlay').classList.add('hidden');
+                    // Reklam bittiğinde tam dondurulan saniyeden başlat
+                    playedSeconds = freezeSecond; 
+                    setPlayer(playedSeconds);
+                    
+                    // Takibi yeniden başlat
+                    timeTracker = setInterval(() => { playedSeconds += 0.1; }, 100);
+                });
+            }, 60000); // Her 60 saniyede bir reklam
+        }
+
         function resetView() {
             document.getElementById('homeGrid').classList.add('hidden');
             document.getElementById('watchPage').classList.add('hidden');
             document.getElementById('shortsPage').classList.add('hidden');
             document.getElementById('channelPage').classList.add('hidden');
-            document.getElementById('searchHeader').classList.add('hidden');
             document.getElementById('videoPlayer').src = "";
+            clearInterval(adInterval);
+            clearInterval(timeTracker);
+            playedSeconds = 0;
             window.scrollTo(0, 0);
         }
 
-        // Ana Sayfa
+        // --- DİĞER FONKSİYONLAR (KANAL, ARAMA, LİSTELEME) ---
         function goHome() {
             resetView();
             document.getElementById('homeGrid').classList.remove('hidden');
-            fetchVideos("Türkiye trendleri");
-        }
-
-        // KANALA GİT FONKSİYONU
-        async function openChannel(channelName) {
-            resetView();
-            const chanPage = document.getElementById('channelPage');
-            chanPage.classList.remove('hidden');
-
-            // Kanal Bilgilerini Çek
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${channelName}&type=channel&key=${API_KEY}`);
-            const data = await res.json();
-            
-            if(data.items.length > 0) {
-                const chan = data.items[0];
-                document.getElementById('chanName').innerText = chan.snippet.title;
-                document.getElementById('chanImg').src = chan.snippet.thumbnails.high.url;
-                document.getElementById('chanHandle').innerText = "@" + chan.snippet.title.toLowerCase().replace(/\s/g, "") + " • 1.2 Mn Abone";
-                document.getElementById('chanDesc').innerText = chan.snippet.description;
-                
-                // Kanalın Videolarını Yükle
-                const vRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&channelId=${chan.id.channelId}&order=date&type=video&key=${API_KEY}`);
-                const vData = await vRes.json();
-                document.getElementById('chanVideos').innerHTML = vData.items.map(v => `
-                    <div class="video-card group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.high.url}')">
-                        <img src="${v.snippet.thumbnails.high.url}">
-                        <h3 class="font-bold text-sm mt-3 line-clamp-2">${v.snippet.title}</h3>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Arama Motoru
-        async function executeSearch() {
-            const q = document.getElementById('searchInput').value;
-            if(!q) return;
-            resetView();
-            document.getElementById('homeGrid').classList.remove('hidden');
-
-            // Kanal Başlığı (Eğer kanal varsa)
-            const cRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${q}&type=channel&key=${API_KEY}`);
-            const cData = await cRes.json();
-            if(cData.items.length > 0) {
-                const head = document.getElementById('searchHeader');
-                const chan = cData.items[0].snippet;
-                head.classList.remove('hidden');
-                head.innerHTML = `
-                    <img src="${chan.thumbnails.high.url}" class="w-24 h-24 rounded-full">
-                    <div>
-                        <h2 class="text-2xl font-bold cursor-pointer hover:underline" onclick="openChannel('${chan.title}')">${chan.title} ✅</h2>
-                        <p class="text-gray-400 mt-1">${chan.description.substring(0, 100)}...</p>
-                        <button onclick="openChannel('${chan.title}')" class="mt-3 bg-red-600 px-6 py-2 rounded-full font-bold text-sm">KANALA GİT</button>
-                    </div>
-                `;
-            }
-            fetchVideos(q);
+            fetchVideos("Türkiye popüler uzun videolar");
         }
 
         async function fetchVideos(q) {
@@ -180,7 +157,7 @@
                     <img src="${v.snippet.thumbnails.high.url}" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.high.url}')">
                     <div class="flex gap-3 mt-3">
                         <div class="w-10 h-10 bg-gray-800 rounded-full flex-shrink-0 cursor-pointer" onclick="openChannel('${v.snippet.channelTitle}')"></div>
-                        <div>
+                        <div class="flex-1">
                             <h3 class="font-bold text-sm line-clamp-2 cursor-pointer" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.high.url}')">${v.snippet.title}</h3>
                             <p class="text-xs text-gray-400 mt-1 cursor-pointer hover:text-white" onclick="openChannel('${v.snippet.channelTitle}')">${v.snippet.channelTitle}</p>
                         </div>
@@ -198,20 +175,50 @@
             document.getElementById('vChanImg').src = thumb;
             document.getElementById('videoMeta').onclick = () => openChannel(channel);
             
-            document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            setPlayer(0);
+            startAdSystem();
 
-            // Öneriler
             const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${channel}&type=video&key=${API_KEY}`);
             const data = await res.json();
             document.getElementById('vNext').innerHTML = data.items.map(v => `
-                <div class="flex gap-2 cursor-pointer group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.medium.url}')">
+                <div class="flex gap-2 cursor-pointer" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.medium.url}')">
                     <img src="${v.snippet.thumbnails.medium.url}" class="w-40 h-24 rounded-lg object-cover">
                     <div class="flex-1 text-xs font-bold line-clamp-2">${v.snippet.title}</div>
                 </div>
             `).join('');
         }
 
-        // Shorts ve diğer temel fonksiyonlar aynı kalıyor...
+        async function openChannel(name) {
+            resetView();
+            const cPage = document.getElementById('channelPage');
+            cPage.classList.remove('hidden');
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${name}&type=channel&key=${API_KEY}`);
+            const data = await res.json();
+            if(data.items.length > 0) {
+                const chan = data.items[0];
+                document.getElementById('chanName').innerText = chan.snippet.title;
+                document.getElementById('chanImg').src = chan.snippet.thumbnails.high.url;
+                document.getElementById('chanHandle').innerText = "@" + chan.snippet.title.toLowerCase().replace(/\s/g, "");
+                
+                const vRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&channelId=${chan.id.channelId}&order=date&type=video&key=${API_KEY}`);
+                const vData = await vRes.json();
+                document.getElementById('chanVideos').innerHTML = vData.items.map(v => `
+                    <div class="video-card group" onclick="openVideo('${v.id.videoId}', '${encodeURIComponent(v.snippet.title)}', '${v.snippet.channelTitle}', '${v.snippet.thumbnails.high.url}')">
+                        <img src="${v.snippet.thumbnails.high.url}">
+                        <h3 class="font-bold text-sm mt-3 line-clamp-2">${v.snippet.title}</h3>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function executeSearch() {
+            const q = document.getElementById('searchInput').value;
+            if(!q) return;
+            resetView();
+            document.getElementById('homeGrid').classList.remove('hidden');
+            fetchVideos(q);
+        }
+
         document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') executeSearch(); });
         goHome();
     </script>
