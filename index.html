@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | Direkt İndir</title>
+    <title>PDFSimpson | Dropbox V14</title>
     <style>
         :root {
             --bg: #000000;
             --surface: #121212;
             --accent: #FFD700;
             --text: #ffffff;
-            --text-dim: #888888;
-            --success: #28a745;
+            --db-blue: #0061ff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -26,60 +25,73 @@
         .page { display: none; height: 100%; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
 
-        /* PDF LİSTE YAPISI */
-        .pdf-item {
+        /* PDF ALANI */
+        .pdf-box {
             background: var(--surface);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
+            padding: 25px;
+            border-radius: 20px;
             border: 1px solid #333;
+            text-align: center;
         }
 
-        .confirm-bar {
+        .confirm-btn {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             background: #1a1a1a;
             border: 1px dashed var(--accent);
             color: var(--accent);
-            text-align: center;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 10px;
-        }
-
-        /* DİREKT İNDİRME LİNKİ */
-        .download-link {
-            display: none; /* Onaydan sonra açılır */
             margin-top: 15px;
-            text-align: center;
+            font-size: 14px;
         }
 
-        .download-link a {
-            color: var(--success);
+        /* DROPBOX İNDİRME LİNKİ */
+        .dl-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .dl-link {
+            background: var(--db-blue);
+            color: white;
             text-decoration: none;
             font-weight: 900;
-            font-size: 18px;
+            padding: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 10px;
-            border: 2px solid var(--success);
-            border-radius: 10px;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 97, 255, 0.4);
         }
 
-        /* REKLAM MODAL (9:6) */
+        /* 9:6 MODAL */
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.98);
             display: none; justify-content: center; align-items: center; z-index: 10000;
         }
-        .modal-frame { width: 80%; aspect-ratio: 6 / 9; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; position: relative; }
-        .modal-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-9-6 {
+            width: 85%;
+            aspect-ratio: 6 / 9;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-9-6 img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; background: var(--accent);
+            color: #000; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; z-index: 101;
+        }
 
         /* NAV */
-        .nav-bar { height: 75px; background: #050505; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px; }
-        .nav-item { color: var(--text-dim); font-size: 10px; text-align: center; cursor: pointer; }
+        .nav { height: 75px; background: #050505; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px; }
+        .nav-item { color: #888; font-size: 10px; text-align: center; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -91,44 +103,40 @@
     <header><div class="logo">PDFSIMPSON</div></header>
 
     <div class="viewport">
-        <div id="home" class="page active">
-            <h3 style="color:var(--accent)">Hoş Geldin!</h3>
-            <p style="color:var(--text-dim)">Hızlı indirme linkleri PDF sekmesine eklendi.</p>
-        </div>
-
-        <div id="pdfs" class="page">
-            <div class="pdf-item">
-                <h4 style="margin:0;">Eğitim Vadisi TYT-3 Denemesi</h4>
-                <p style="font-size:12px; color:var(--text-dim);">Format: PDF | Boyut: 4.8 MB</p>
+        <div id="pdfs" class="page active">
+            <div class="pdf-box">
+                <h3 style="margin-top:0;">Eğitim Vadisi TYT-3</h3>
+                <p style="color:#888; font-size:13px;">Dosyayı indirmek için 10 onay tamamla.</p>
                 
-                <div class="confirm-bar" id="cBar" onclick="onayla()">
+                <div class="confirm-btn" id="confirmBtn" onclick="onayla()">
                     REKLAM ONAYLA (<span id="count">0</span>/10)
                 </div>
 
-                <div class="download-link" id="dLink">
-                    <a href="egitimvadisi.jpg" download="Egitim_Vadisi_Deneme.jpg">
-                        <span>📥</span> DİREKT İNDİR (LİNK)
+                <div class="dl-container" id="dlContainer">
+                    <a href="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&dl=1" class="dl-link">
+                        <span>📥</span> DİREKT İNDİR (DROPBOX)
                     </a>
                 </div>
             </div>
         </div>
 
-        <div id="shorts" class="page"><p style="text-align:center; padding-top:50px;">Shorts İçeriği...</p></div>
-        <div id="live" class="page"><p style="text-align:center; padding-top:50px;">Canlı Yayın...</p></div>
+        <div id="home" class="page"></div>
+        <div id="shorts" class="page"></div>
+        <div id="live" class="page"></div>
     </div>
 
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="nav('home', this)">🏠<br>Ev</div>
-        <div class="nav-item" onclick="nav('pdfs', this)">📄<br>PDF</div>
+    <nav class="nav">
+        <div class="nav-item" onclick="nav('home', this)">🏠<br>Ev</div>
+        <div class="nav-item active" onclick="nav('pdfs', this)">📄<br>PDF</div>
         <div class="nav-item" onclick="nav('shorts', this)">⚡<br>Shorts</div>
         <div class="nav-item" onclick="nav('live', this)">🔴<br>Canlı</div>
     </nav>
 </div>
 
 <div class="modal" id="adModal">
-    <div class="modal-frame">
-        <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:24px;" onclick="kapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Reklam">
+    <div class="modal-9-6">
+        <div class="close-btn" onclick="kapat()">✕</div>
+        <img src="https://www.dropbox.com/scl/fi/ln2va5abns984j15boo7g/egitimvadisi.jpg?rlkey=t7idkh81rw6f2708jeta5js2n&st=o7re44yu&raw=1" alt="Eğitim Vadisi">
     </div>
 </div>
 
@@ -154,8 +162,8 @@
 
     function kapat() {
         document.getElementById('adModal').style.display = 'none';
-        document.getElementById('cBar').style.display = 'none';
-        document.getElementById('dLink').style.display = 'block';
+        document.getElementById('confirmBtn').style.display = 'none';
+        document.getElementById('dlContainer').style.display = 'block';
     }
 </script>
 
