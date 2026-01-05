@@ -3,182 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haber Vizyon | AI Magazin & Teknoloji</title>
+    <title>Haber Oku</title>
     <style>
-        :root {
-            --dark: #0f172a;
-            --card: #1e293b;
-            --accent: #00cec9;
-            --hot: #ff7675;
-            --text: #f8fafc;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            color: #1d1d1f;
+            background: #fff;
             margin: 0;
-            padding-bottom: 50px;
+            padding: 0;
         }
 
-        /* Üst Bar */
-        .top-bar {
-            background: linear-gradient(90deg, #6c5ce7, #d63031);
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
         header {
-            padding: 30px 20px;
-            text-align: center;
-            background: #111827;
-            border-bottom: 1px solid #334155;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Öne Çıkan Trend Kartları */
-        .trend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            padding: 40px 0;
+            border-bottom: 1px solid #eee;
             margin-bottom: 40px;
         }
 
-        .trend-card {
-            background: linear-gradient(45deg, #2d3436, #000);
-            border: 2px solid var(--hot);
-            border-radius: 15px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+        h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
+        .subtitle { color: #86868b; font-size: 14px; margin-top: 5px; }
+
+        .news-list { display: flex; flex-direction: column; gap: 30px; }
+
+        .news-item {
             cursor: pointer;
-            transition: 0.3s;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f5f5f7;
+            transition: opacity 0.2s;
         }
 
-        .trend-card:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255, 118, 117, 0.4); }
+        .news-item:hover { opacity: 0.7; }
 
-        .trend-card .badge {
-            background: var(--hot);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            position: absolute;
-            top: 10px; right: 10px;
-        }
+        .news-item h2 { font-size: 20px; margin: 0 0 8px 0; color: #1d1d1f; }
+        .meta { font-size: 13px; color: #86868b; display: flex; gap: 15px; }
+        .tag-ai { color: #0066cc; font-weight: 600; }
 
-        /* Normal Haber Kartları */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #334155;
-            transition: 0.3s;
-        }
-
-        .card:hover { border-color: var(--accent); }
-
-        .card-img { width: 100%; height: 160px; object-fit: cover; }
-        .card-content { padding: 15px; }
-        .card-title { font-size: 1rem; margin: 0 0 10px 0; line-height: 1.4; color: #fff; }
-        .card-meta { font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; }
-
-        /* Modal */
-        .modal {
+        /* Detay Paneli (Siteden çıkmadan okuma) */
+        #detail-panel {
             position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: #fff;
             display: none;
+            overflow-y: auto;
             z-index: 1000;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
-        .modal-body {
-            max-width: 900px;
-            height: 80vh;
-            margin: auto;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        .detail-content { max-width: 650px; margin: 0 auto; }
+        .close-btn {
+            position: sticky; top: 0; background: #f5f5f7; border: none;
+            padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-bottom: 20px;
         }
 
-        iframe { width: 100%; flex-grow: 1; border: none; }
-
-        .close-btn { padding: 10px; background: #d63031; color: white; border: none; cursor: pointer; font-weight: bold; }
+        #detail-text { font-size: 18px; line-height: 1.8; color: #333; }
+        .loading { text-align: center; color: #86868b; padding: 50px; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">🔥 SON DAKİKA: YAPAY ZEKA DÜNYASI ÇALKALANIYOR!</div>
-
-<header>
-    <h1>HABER <span style="color:var(--accent)">AI</span></h1>
-    <p style="color:#94a3b8">Yapay Zeka Magazin & Teknoloji Haberleri</p>
-</header>
-
 <div class="container">
-    
-    <h2 style="color:var(--hot)">⚡ Gündem Sarsılıyor</h2>
-    <div class="trend-grid">
-        <div class="trend-card" onclick="openModal('https://x.com/elonmusk', 'Grok Rezilliği mi Özgürlüğü mü?')">
-            <span class="badge">TRENDING</span>
-            <h2 style="margin-top:20px;">Grok "Bikini" Krizi! 😂</h2>
-            <p>Elon Musk'ın yapay zekası Grok, görsel oluşturma kurallarını hiçe saydı. Herkese bikini giydiren o görseller interneti yıktı geçti!</p>
-            <small>Devamını Oku →</small>
-        </div>
+    <header>
+        <h1>Haberler</h1>
+        <div class="subtitle">AI Gündemi: Grok, ChatGPT ve Teknoloji</div>
+    </header>
 
-        <div class="trend-card" style="border-color: #00b894;" onclick="openModal('https://openai.com/blog', 'ChatGPT-5 Geliyor')">
-            <span class="badge" style="background:#00b894">YENİ</span>
-            <h2 style="margin-top:20px;">ChatGPT-5 Sızdı!</h2>
-            <p>OpenAI'ın yeni devrimsel modeli hakkında ilk detaylar geldi. Artık sadece cevap vermiyor, sizin yerinize iş görüşmesine giriyor!</p>
-            <small>Devamını Oku →</small>
-        </div>
-    </div>
-
-    <h2 style="color:var(--accent)">📰 Diğer Güncel Haberler</h2>
-    <div id="loader" style="text-align:center;">Haberler yükleniyor...</div>
-    <div id="news-container" class="news-grid"></div>
+    <div id="loader" class="loading">İçerik yükleniyor...</div>
+    <div id="news-container" class="news-list"></div>
 </div>
 
-<div id="newsModal" class="modal">
-    <div class="modal-body">
-        <div style="background:#eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-            <span id="modalTitle" style="color:#333; font-weight:bold;">Haber Detayı</span>
-            <button class="close-btn" onclick="closeModal()">KAPAT X</button>
-        </div>
-        <iframe id="newsFrame"></iframe>
+<div id="detail-panel">
+    <div class="detail-content">
+        <button class="close-btn" onclick="closeDetail()">← Geri Dön</button>
+        <h1 id="detail-title"></h1>
+        <div id="detail-meta" class="meta" style="margin: 20px 0;"></div>
+        <hr style="border: 0; border-top: 1px solid #eee;">
+        <div id="detail-text">İçerik hazırlanıyor...</div>
     </div>
 </div>
 
 <script>
-    function openModal(url, title) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('newsFrame').src = url;
-        document.getElementById('newsModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('newsModal').style.display = 'none';
-        document.getElementById('newsFrame').src = '';
-    }
+    // Özel El Yapımı Haberler (Senin istediğin konular)
+    const manualNews = [
+        {
+            title: "Grok Yapay Zekası Herkese Bikini Giydiriyor: Elon Musk'tan Açıklama Geldi",
+            source: "Trend Teknoloji",
+            date: new Date(),
+            content: "Elon Musk'ın X platformuna entegre ettiği Grok AI, görsel oluşturma özelliklerinde sınırlamaları kaldırdı. İnternet dünyası, Grok tarafından oluşturulan ve ünlü isimlere bikini giydiren görsellerle çalkalanıyor. Kullanıcılar bu 'sansürsüz' yaklaşımı hem eğlenceli buluyor hem de etik tartışmaları başlatıyor.",
+            category: "GÜNCEL"
+        },
+        {
+            title: "ChatGPT-5 Sızıntıları: Artık Sizin Yerine Karar Verebiliyor",
+            source: "AI News",
+            date: new Date(Date.now() - 3600000),
+            content: "OpenAI'ın beklenen yeni modeli ChatGPT-5 hakkında sızan bilgilere göre, model artık sadece bir sohbet botu değil, bir 'eylem ajanı' gibi çalışacak. Maillerinizi okuyup yerinize cevap yazabilecek ve programınızı yönetebilecek.",
+            category: "TEKNOLOJİ"
+        }
+    ];
 
     async function getNews() {
         const rssUrl = encodeURIComponent('https://news.google.com/rss/search?q=yapay+zeka&hl=tr&gl=TR&ceid=TR:tr');
@@ -187,30 +109,63 @@
         try {
             const res = await fetch(apiUrl);
             const data = await res.json();
-            const container = document.getElementById('news-container');
-            document.getElementById('loader').style.display = 'none';
-
-            data.items.slice(0, 12).forEach(item => {
-                const source = item.title.split(' - ').pop();
-                const title = item.title.split(' - ')[0];
-                const time = new Date(item.pubDate).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
-
-                container.innerHTML += `
-                    <div class="card" onclick="openModal('${item.link}', '${title}')">
-                        <img src="https://picsum.photos/seed/${Math.random()}/400/200" class="card-img">
-                        <div class="card-content">
-                            <h3 class="card-title">${title}</h3>
-                            <div class="card-meta">
-                                <span>📍 ${source}</span>
-                                <span>🕒 ${time}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+            renderNews(data.items);
         } catch (e) {
-            console.log("Hata oluştu");
+            renderNews([]);
         }
+    }
+
+    function renderNews(apiItems) {
+        const container = document.getElementById('news-container');
+        document.getElementById('loader').style.display = 'none';
+
+        // Önce senin istediğin özel haberleri ekle
+        manualNews.forEach(item => {
+            container.innerHTML += createItemHTML(item.title, item.source, 'Az önce', item.content, item.category);
+        });
+
+        // Sonra API'den gelenleri ekle
+        apiItems.slice(0, 10).forEach(item => {
+            const source = item.title.split(' - ').pop();
+            const title = item.title.split(' - ')[0];
+            const time = timeAgo(item.pubDate);
+            // API'den gelen içeriğin özeti genelde HTML formatındadır, temizleyelim
+            const summary = item.description.replace(/<[^>]*>?/gm, '').substring(0, 200) + "...";
+            
+            container.innerHTML += createItemHTML(title, source, time, summary, "HABER");
+        });
+    }
+
+    function createItemHTML(title, source, time, content, cat) {
+        return `
+            <div class="news-item" onclick="showDetail('${title.replace(/'/g, "\\'")}', '${source}', '${content.replace(/'/g, "\\'")}')">
+                <div class="meta"><span class="tag-ai">${cat}</span> • <span>${source}</span></div>
+                <h2>${title}</h2>
+                <div class="meta">${time}</div>
+            </div>
+        `;
+    }
+
+    function showDetail(title, source, content) {
+        document.getElementById('detail-title').innerText = title;
+        document.getElementById('detail-meta').innerText = source + " tarafından yayınlandı";
+        document.getElementById('detail-text').innerText = content;
+        document.getElementById('detail-panel').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+        document.getElementById('detail-panel').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function timeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        let interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " saat önce";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " dakika önce";
+        return "Şimdi";
     }
 
     window.onload = getNews;
