@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFSimpson | 9:6 Premium</title>
+    <title>PDFSimpson | Full App V8</title>
     <style>
         :root {
             --bg: #000000;
-            --surface: #121212;
-            --accent: #FFD700; /* Simpson Sarısı */
+            --surface: #111111;
+            --accent: #FFD700;
+            --live: #FF0000;
             --text: #ffffff;
+            --text-dim: #777777;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
@@ -26,138 +30,184 @@
         .app-shell {
             width: 100%;
             max-width: 450px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            border-left: 1px solid #222;
-            border-right: 1px solid #222;
+            position: relative;
         }
 
-        header { padding: 25px; text-align: center; }
-        .logo { font-size: 26px; font-weight: 900; color: var(--accent); }
+        /* Üst Logo */
+        header { padding: 20px; text-align: center; background: var(--bg); z-index: 10; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
 
-        .content { flex: 1; padding: 20px; }
+        /* Sayfa Alanları */
+        .viewport { flex: 1; overflow-y: auto; position: relative; }
+        .page { display: none; height: 100%; padding: 20px; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Ana Sayfadaki Dikey Kart */
-        .main-card {
+        /* --- PDF KARTI (9:6) --- */
+        .pdf-grid { display: flex; flex-direction: column; gap: 20px; }
+        .card-9-6 {
             width: 100%;
             aspect-ratio: 6 / 9;
             background: var(--surface);
             border-radius: 25px;
             border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 20px;
-        }
-
-        .onay-btn {
-            width: 80%;
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 15px;
-            border-radius: 15px;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        /* --- ÖZEL 9:6 REKLAM PENCERESİ --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.96);
-            display: none; /* JS ile açılır */
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-9-6-frame {
-            width: 85%; /* Ekran genişliğine göre */
-            max-width: 350px;
-            aspect-ratio: 6 / 9; /* TAM 9:6 FORMATI */
-            background: #1a1a1a;
-            border: 2px solid var(--accent);
-            border-radius: 20px;
-            position: relative;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
-            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .card-content {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.95));
         }
 
-        @keyframes zoomIn {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        /* --- SHORTS (SONSUZ KAYDIRMA) --- */
+        #shorts { padding: 0; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .short-item {
+            height: 100%; width: 100%; scroll-snap-align: start;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(45deg, #050505, #111);
+            position: relative;
         }
 
-        .modal-9-6-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Görseli 9:6 kutusuna tam oturtur */
+        /* --- CANLI YAYIN (16:9) --- */
+        .live-item {
+            width: 100%; aspect-ratio: 16 / 9; background: #1a1a1a;
+            border-radius: 15px; border: 1px solid var(--live);
+            position: relative; margin-bottom: 15px;
+        }
+        .live-tag {
+            position: absolute; top: 10px; left: 10px; background: var(--live);
+            padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;
         }
 
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--accent);
-            color: #000;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 100;
+        /* --- BUTONLAR --- */
+        .action-btn {
+            width: 100%; background: var(--accent); color: #000;
+            border: none; padding: 12px; border-radius: 12px;
+            font-weight: 900; cursor: pointer;
         }
+
+        /* --- ÖZEL 9:6 GÖRSEL PENCERESİ --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999; backdrop-filter: blur(10px);
+        }
+        .modal-frame-9-6 {
+            width: 85%; aspect-ratio: 6 / 9; background: #1a1a1a;
+            border: 2px solid var(--accent); border-radius: 20px;
+            position: relative; overflow: hidden;
+        }
+        .modal-frame-9-6 img { width: 100%; height: 100%; object-fit: cover; }
+        .close-x {
+            position: absolute; top: 15px; right: 15px; background: var(--accent);
+            color: #000; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; z-index: 100;
+        }
+
+        /* --- ALT NAV --- */
+        .bottom-nav {
+            height: 75px; background: #050505; border-top: 1px solid #222;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: 10px;
+        }
+        .nav-link {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-dim); font-size: 10px; cursor: pointer;
+        }
+        .nav-link.active { color: var(--accent); }
+        .nav-link i { font-size: 20px; margin-bottom: 4px; font-style: normal; }
     </style>
 </head>
 <body>
 
 <div class="app-shell">
     <header><div class="logo">PDFSimpson</div></header>
-    
-    <div class="content">
-        <div class="main-card">
-            <span style="font-size: 60px; margin-bottom: 20px;">📄</span>
-            <h3 style="margin-bottom: 10px;">Eğitim Vadisi TYT-3</h3>
-            <p style="font-size: 12px; color: #777; margin-bottom: 30px;">Görseli açmak için 10 onay gerekli.</p>
-            <button class="onay-btn" onclick="hit()">ONAYLA (<span id="count">0</span>/10)</button>
+
+    <div class="viewport">
+        <div id="home" class="page active">
+            <h3>Hoş Geldin! 👋</h3>
+            <div style="background: #1a1a1a; padding: 20px; border-radius: 20px;">
+                <p>Eğitim Vadisi TYT-3 Denemesi yayınlandı. PDF sekmesine göz at!</p>
+            </div>
         </div>
+
+        <div id="pdfs" class="page">
+            <div class="pdf-grid">
+                <div class="card-9-6">
+                    <div style="height:100%; display:flex; align-items:center; justify-content:center; font-size:60px;">📄</div>
+                    <div class="card-content">
+                        <div style="font-weight:bold; margin-bottom:10px;">Eğitim Vadisi TYT-3</div>
+                        <button class="action-btn" onclick="onayla()">ONAYLA (<span id="c">0</span>/10)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shorts" class="page">
+            <div class="short-item">
+                <div style="text-align:center;">
+                    <b>@HocamAnlatıyor</b><p>Sonsuz Scroll Video 1</p>
+                </div>
+            </div>
+            <div class="short-item" style="background:#0a0a0a;">
+                <div style="text-align:center;">
+                    <b>@PDFSimpson</b><p>Sonsuz Scroll Video 2</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="yayin" class="page">
+            <div class="live-item">
+                <div class="live-tag">CANLI</div>
+            </div>
+            <b>Matematik Canlı Soru Çözümü</b>
+            <p style="color:var(--text-dim); font-size:12px;">1,2K kişi izliyor</p>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-link active" onclick="nav('home', this)"><i>🏠</i>Ev</div>
+        <div class="nav-link" onclick="nav('pdfs', this)"><i>📄</i>PDF</div>
+        <div class="nav-link" onclick="nav('shorts', this)"><i>⚡</i>Shorts</div>
+        <div class="nav-link" onclick="nav('yayin', this)"><i>🔴</i>Canlı</div>
     </div>
 </div>
 
-<div class="modal-overlay" id="reklamPenceresi">
-    <div class="modal-9-6-frame">
-        <div class="close-btn" onclick="kapat()">✕</div>
-        <img src="egitimvadisi.jpg" alt="Reklam Görseli">
+<div class="modal-overlay" id="modal">
+    <div class="modal-frame-9-6">
+        <div class="close-x" onclick="kapat()">✕</div>
+        <img src="egitimvadisi.jpg" alt="Açılan PDF Görseli">
     </div>
 </div>
 
 <script>
     let n = 0;
-    function hit() {
-        if (n < 10) {
+
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function onayla() {
+        if(n < 10) {
             n++;
-            document.getElementById('count').innerText = n;
-            if (n === 10) {
-                setTimeout(() => {
-                    document.getElementById('reklamPenceresi').style.display = 'flex';
-                }, 200);
+            document.getElementById('c').innerText = n;
+            if(n === 10) {
+                document.getElementById('modal').style.display = 'flex';
             }
         }
     }
 
     function kapat() {
-        document.getElementById('reklamPenceresi').style.display = 'none';
-        n = 0; // İstersen sıfırla
-        document.getElementById('count').innerText = n;
+        document.getElementById('modal').style.display = 'none';
+        n = 0;
+        document.getElementById('c').innerText = n;
     }
 </script>
 
