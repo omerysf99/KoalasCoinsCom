@@ -6,17 +6,16 @@
     <title>Eğitim Vadisi - Premium Dashboard</title>
     <style>
         :root {
-            --bg: #0a0a0c;
-            --card: #16161a;
+            --bg: #050505;
+            --card: #121214;
             --accent: #00f2ff;
-            --accent-glow: rgba(0, 242, 255, 0.3);
-            --text: #e1e1e6;
-            --text-muted: #8d8d99;
-            --overlay: rgba(0, 0, 0, 0.9);
+            --accent-glow: rgba(0, 242, 255, 0.4);
+            --text: #ffffff;
+            --text-muted: #a1a1aa;
         }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             display: flex;
@@ -24,143 +23,113 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Modal açıldığında kaydırmayı önlemek için */
+            overflow: hidden;
         }
 
         .dashboard {
             background: var(--card);
-            width: 100%;
-            max-width: 450px;
-            padding: 32px;
-            border-radius: 24px;
-            border: 1px solid #29292e;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 { 
-            font-size: 22px; 
-            background: linear-gradient(90deg, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            width: 350px;
+            padding: 24px;
+            border-radius: 32px;
+            border: 1px solid #27272a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
             text-align: center;
         }
 
-        /* İçerik Listesi */
-        .content-list {
-            background: #1f1f23;
-            border-radius: 16px;
-            padding: 10px 16px;
-            margin: 20px 0;
+        .header h1 { 
+            font-size: 20px; 
+            margin: 10px 0;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .item {
+        /* 9:6 Oranlı Buton Tasarımı */
+        .btn-container {
             display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .action-btn {
+            width: 120px; /* Genişlik 6 birim */
+            height: 180px; /* Yükseklik 9 birim (9:6 Oranı) */
+            background: linear-gradient(145deg, #1e1e20, #121214);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #29292e;
-        }
-        .item:last-child { border: none; }
-        .icon { color: var(--accent); font-size: 18px; }
-
-        /* İlerleme Çubuğu */
-        .progress-box {
-            background: rgba(0,0,0,0.3);
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid #29292e;
-        }
-
-        .bar-bg {
-            height: 10px;
-            background: #29292e;
-            border-radius: 5px;
-            margin: 15px 0;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            position: relative;
             overflow: hidden;
         }
 
+        .action-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .btn-icon { font-size: 40px; margin-bottom: 10px; }
+        .btn-text { 
+            font-size: 12px; 
+            font-weight: 800; 
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Progress Bar */
+        .progress-section { margin-top: 20px; }
+        .bar-bg {
+            height: 6px;
+            background: #27272a;
+            border-radius: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
         .bar-fill {
             height: 100%;
             width: 0%;
             background: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transition: width 0.3s ease-out;
+            box-shadow: 0 0 15px var(--accent);
+            transition: width 0.3s ease;
         }
 
-        .counter {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 14px;
-        }
+        .counter { font-size: 18px; font-weight: 900; }
 
-        /* Buton */
-        .action-btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            background: var(--accent);
-            color: #000;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* MODAL (Pencere) */
+        /* Modal / Pencere */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--overlay);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
         }
-
         .modal-content {
-            background: var(--card);
-            padding: 20px;
+            background: #000;
+            padding: 10px;
             border-radius: 20px;
+            border: 1px solid var(--accent);
             max-width: 90%;
-            max-height: 90vh;
-            border: 2px solid var(--accent);
-            text-align: center;
             position: relative;
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-content img {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .close-btn {
+        .modal-content img { width: 100%; border-radius: 15px; display: block; }
+        .close-modal {
             position: absolute;
-            top: -15px;
-            right: -15px;
+            top: -15px; right: -15px;
             background: var(--accent);
             color: #000;
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-weight: bold;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; font-weight: bold;
         }
     </style>
 </head>
@@ -168,69 +137,54 @@
 
 <div class="dashboard">
     <div class="header">
+        <span style="font-size: 30px;">🔓</span>
         <h1>Eğitim Vadisi TYT-3 Ca</h1>
-        <p style="text-align:center; color:var(--text-muted); font-size:13px;">Dijital Deneme Paketi</p>
+        <p style="color: var(--text-muted); font-size: 12px;">Görseli açmak için butona 10 kez dokun</p>
     </div>
 
-    <div class="content-list">
-        <div class="item"><span class="icon">📁</span> <span>TYT-3 Soru Kitapçığı</span></div>
-        <div class="item"><span class="icon">🔑</span> <span>Cevap Anahtarı</span></div>
-        <div class="item"><span class="icon">🏆</span> <span>Sıralama Listesi</span></div>
+    <div class="btn-container">
+        <button class="action-btn" onclick="addStep()">
+            <div class="btn-icon">⚡</div>
+            <div class="btn-text">ONAYLA</div>
+            <div style="font-size: 9px; color:#555; margin-top:5px;">9:6 RATIO</div>
+        </button>
     </div>
 
-    <div class="progress-box">
-        <div class="counter">
-            <span>Görev Tamamlama</span>
-            <span id="countText" style="color:var(--accent)">0 / 10</span>
-        </div>
+    <div class="progress-section">
+        <div class="counter" id="countText">0 / 10</div>
         <div class="bar-bg">
-            <div id="progressBar" class="bar-fill"></div>
+            <div class="bar-fill" id="progressBar"></div>
         </div>
-        <button class="action-btn" onclick="addProgress()">⚡ REKLAMI ONAYLA</button>
     </div>
 </div>
 
 <div class="modal-overlay" id="imageModal">
     <div class="modal-content">
-        <div class="close-btn" onclick="closeModal()">✕</div>
-        <h2 style="margin-top:0; color:var(--accent);">Erişim Başarılı!</h2>
-        <p style="font-size:14px;">Eğitim Vadisi TYT-3 Ca Görseli:</p>
+        <div class="close-modal" onclick="closeModal()">✕</div>
         <img src="egitimvadisi.jpg" alt="Eğitim Vadisi TYT-3 Ca">
-        <br>
-        <button class="action-btn" style="margin-top:20px; width:auto; padding:10px 30px;" onclick="closeModal()">Kapat</button>
     </div>
 </div>
 
 <script>
-    let currentProgress = 0;
-    const totalSteps = 10;
+    let steps = 0;
+    const total = 10;
 
-    function addProgress() {
-        if (currentProgress < totalSteps) {
-            currentProgress++;
-            updateUI();
+    function addStep() {
+        if (steps < total) {
+            steps++;
+            document.getElementById('progressBar').style.width = (steps/total)*100 + '%';
+            document.getElementById('countText').innerText = `${steps} / ${total}`;
             
-            if (currentProgress === totalSteps) {
-                showImage();
+            if (steps === total) {
+                setTimeout(() => {
+                    document.getElementById('imageModal').style.display = 'flex';
+                }, 300);
             }
         }
     }
 
-    function updateUI() {
-        const percent = (currentProgress / totalSteps) * 100;
-        document.getElementById('progressBar').style.width = percent + '%';
-        document.getElementById('countText').innerText = `${currentProgress} / ${totalSteps}`;
-    }
-
-    function showImage() {
-        document.getElementById('imageModal').style.display = 'flex';
-    }
-
     function closeModal() {
         document.getElementById('imageModal').style.display = 'none';
-        // İstersen sıfırlayabilirsin:
-        // currentProgress = 0;
-        // updateUI();
     }
 </script>
 
