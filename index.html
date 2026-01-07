@@ -15,8 +15,9 @@
         :root { 
             --bg: #4c3ba5; 
             --accent: #fbc02d; 
-            --white: #ffffff;
+            --accent-dark: #c49000;
             --purple-light: #6a53cf;
+            --white: #ffffff;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Fredoka', sans-serif; -webkit-user-select:none; }
@@ -31,104 +32,120 @@
 
         #app { width:100%; max-width:450px; height:100vh; margin:auto; position:relative; display:flex; flex-direction:column; }
 
-        /* Üst Bakiye Kısmı */
-        .top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .coin-box { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
-        .coin-icon { width: 24px; height: 24px; background: gold; border-radius: 50%; box-shadow: inset 0 0 5px orange; }
-        .top-icons { display: flex; gap: 10px; }
-        .round-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4c3ba5; font-weight: bold; }
+        /* Üst Panel (Header) */
+        .top-bar { padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 10; }
+        .coin-status { background: rgba(0,0,0,0.4); padding: 8px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .coin-img { width: 30px; height: 30px; background: linear-gradient(gold, orange); border-radius: 50%; box-shadow: 0 0 10px orange; }
+        .top-icons { display: flex; gap: 8px; }
+        .icon-btn { width: 35px; height: 35px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4c3ba5; font-size: 1.2rem; box-shadow: 0 4px 0 var(--accent-dark); }
 
-        /* Görsel Alanı */
-        .hero-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .pet-image { width: 100%; max-width: 280px; margin-bottom: 10px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
-        .hero-title { font-size: 2.2rem; font-weight: 900; line-height: 1; color: white; text-shadow: 2px 4px 0px #322675; margin-bottom: 20px; }
+        /* Ana İçerik */
+        .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 100px; }
+        .pet-group { width: 85%; max-width: 320px; margin-bottom: 15px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4)); }
+        .main-title { font-size: 2.5rem; font-weight: 700; color: white; line-height: 0.9; text-shadow: 0 4px 0 #322675; margin-bottom: 10px; }
+        .mining-val { font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: 25px; letter-spacing: 1px; }
 
         /* Butonlar */
-        .btn-container { width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 0 40px; }
-        .main-btn { 
+        .action-area { width: 100%; padding: 0 40px; display: flex; flex-direction: column; gap: 15px; }
+        .btn-main { 
             background: linear-gradient(to bottom, #fdd835, #fbc02d);
-            border: none; border-radius: 18px; padding: 18px; color: #4c3ba5;
-            font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
-            box-shadow: 0 6px 0 #c49000, 0 10px 20px rgba(0,0,0,0.2);
-            cursor: pointer; transition: 0.1s;
+            border: none; border-radius: 20px; padding: 20px; color: #4c3ba5;
+            font-size: 1.3rem; font-weight: 700; text-transform: uppercase;
+            box-shadow: 0 8px 0 var(--accent-dark); cursor: pointer;
         }
-        .main-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #c49000; }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--accent-dark); }
         
-        .sub-btn {
+        .btn-sub {
             background: linear-gradient(to bottom, #fbc02d, #f9a825);
-            border: none; border-radius: 18px; padding: 12px; color: #4c3ba5;
-            font-size: 0.9rem; font-weight: 800; text-transform: uppercase;
-            box-shadow: 0 4px 0 #9e7500;
+            border: none; border-radius: 20px; padding: 12px; color: #4c3ba5;
+            font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
+            box-shadow: 0 6px 0 #9e7500;
         }
 
-        /* Alt Menü */
+        /* Navigasyon (Tab Bar) */
         nav { 
-            height: 80px; background: var(--purple-light); border-radius: 40px 40px 0 0;
+            position: absolute; bottom: 0; width: 100%; height: 90px; 
+            background: var(--purple-light); border-radius: 40px 40px 0 0;
             display: flex; justify-content: space-around; align-items: center; padding: 0 10px;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.7; transition: 0.3s; color: white; text-decoration: none; font-size: 0.7rem; }
-        .nav-item.active { opacity: 1; transform: translateY(-5px); }
-        .center-nav { width: 70px; height: 70px; background: var(--accent); border-radius: 50%; margin-top: -40px; border: 8px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: white; text-decoration: none; opacity: 0.6; font-size: 0.7rem; font-weight: 700; }
+        .nav-link.active { opacity: 1; transform: translateY(-3px); }
+        .nav-center { 
+            width: 75px; height: 75px; background: var(--accent); border-radius: 50%; 
+            margin-top: -50px; border: 8px solid var(--bg); display: flex; 
+            align-items: center; justify-content: center; font-size: 2rem; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
 
-        /* Admin & Ghost Mode */
-        #ghost-bar { display:none; background: #ff4757; text-align: center; font-size: 0.7rem; padding: 4px; font-weight: bold; }
-        .view { display: none; flex: 1; padding: 20px; overflow-y: auto; }
+        /* Views & Modals */
+        .view { display: none; flex: 1; padding: 25px; overflow-y: auto; padding-bottom: 110px; }
         .view.active { display: flex; flex-direction: column; }
-        .glass-card { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 10px; }
+        .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        
+        #ghost-tag { display:none; background: #ff4757; text-align: center; font-size: 0.6rem; padding: 5px; font-weight: bold; position: sticky; top:0; z-index: 100; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="ghost-bar" onclick="exitGhost()">GHOST MODE: <span id="g-user"></span> (ÇIK)</div>
+    <div id="ghost-tag" onclick="exitGhost()">İZLEME MODU AKTİF (ÇIKMAK İÇİN TIKLA)</div>
     
     <div class="top-bar">
-        <div class="coin-box">
-            <div class="coin-icon"></div>
+        <div class="coin-status">
+            <div class="coin-img"></div>
             <div>
-                <div id="h-pi" style="font-weight:bold; font-size: 0.9rem;">0.00</div>
-                <div style="font-size:0.6rem; opacity:0.8;">$ <span id="h-usd">0.00</span></div>
+                <div id="h-pi" style="font-weight:700;">0.00</div>
+                <div style="font-size:0.6rem; opacity:0.7;">$ <span id="h-usd">0.00</span></div>
             </div>
         </div>
         <div class="top-icons">
-            <div class="round-icon">f</div>
-            <div class="round-icon">🎁</div>
-            <div class="round-icon">🔔</div>
+            <div class="icon-btn">f</div>
+            <div class="icon-btn">🎁</div>
+            <div class="icon-btn">🔔</div>
         </div>
     </div>
 
     <div id="v-home" class="view active">
-        <div class="hero-section">
-            <img src="https://via.placeholder.com/300x300/4c3ba5/ffffff?text=FANTASTIC+PETS" class="pet-image" id="fan-obj">
-            <h1 class="hero-title">YOUR<br>FANTASTIC PET</h1>
-            <p id="m-val" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">0.00000000</p>
+        <div class="hero">
+            <img src="https://i.ibb.co/LkhYhH3/pets.png" class="pet-group" id="pet-img" onerror="this.src='https://via.placeholder.com/300x200/4c3ba5/ffffff?text=YOUR+PETS'">
+            <h1 class="main-title">YOUR<br>FANTASTIC PET</h1>
+            <p id="m-val" class="mining-val">0.00000000</p>
             
-            <div class="btn-container">
-                <button class="main-btn" onclick="claim()">PLAY / CLAIM</button>
-                <button class="sub-btn" id="btn-ad" onclick="watchAd()">NIGHT SESSION<br><small>DOUBLE YOUR EARNINGS</small></button>
+            <div class="action-area">
+                <button class="btn-main" onclick="claim()">PLAY / CLAIM</button>
+                <button class="btn-sub" onclick="watchAd()">NIGHT SESSION<br><small style="font-size:0.5rem; display:block;">DOUBLE YOUR EARNINGS</small></button>
             </div>
         </div>
     </div>
 
-    <div id="v-admin" class="view">
-        <h2 style="margin-bottom:15px;">ADMIN PANEL</h2>
-        <div class="glass-card" style="background:var(--accent); color:#000;" onclick="addAdminBonus()">
-            <b>👑 KURUCU ÖZEL: +500 PI EKLE</b>
+    <div id="v-wallet" class="view">
+        <h2 style="margin-bottom:20px;">CÜZDAN</h2>
+        <div class="card">
+            <input type="text" id="w-addr" placeholder="Pi Cüzdan Adresi" style="width:100%; padding:12px; border-radius:10px; border:none; margin-bottom:10px;">
+            <input type="number" id="w-amt" placeholder="Miktar" style="width:100%; padding:12px; border-radius:10px; border:none; margin-bottom:15px;">
+            <button class="btn-main" style="padding:12px; font-size:1rem;" onclick="sendWithdraw()">TALEBİ GÖNDER</button>
         </div>
-        <div id="adm-users"></div>
+    </div>
+
+    <div id="v-admin" class="view">
+        <h2 style="color:var(--accent); margin-bottom:20px;">COMMAND CENTER</h2>
+        <div class="card" style="background:var(--accent); color: #4c3ba5; text-align:center;" onclick="addAdminBonus()">
+            <b style="font-size:1.1rem;">👑 HESABIMA 500 PI EKLE</b>
+        </div>
+        <div id="adm-user-list"></div>
     </div>
 
     <nav>
-        <div class="nav-item" onclick="tab('v-friends')">👥<br>Friends</div>
-        <div class="nav-item" onclick="tab('v-earn')">🎁<br>Tasks</div>
-        <div class="center-nav" onclick="tab('v-home')">🐾</div>
-        <div class="nav-item" onclick="tab('v-wallet')">💳<br>Wallet</div>
-        <div id="adm-nav" class="nav-item" style="display:none;" onclick="tab('v-admin')">⚙️<br>Admin</div>
+        <div class="nav-link" onclick="tab('v-friends')"><span>👥</span><br>Friends</div>
+        <div class="nav-link" onclick="tab('v-earn')"><span>🎁</span><br>Tasks</div>
+        <div class="nav-center" onclick="tab('v-home')">🐾</div>
+        <div class="nav-link" onclick="tab('v-wallet')"><span>💳</span><br>Wallet</div>
+        <div id="adm-tab" class="nav-link" style="display:none;" onclick="tab('v-admin')"><span>⚙️</span><br>Admin</div>
     </nav>
 </div>
 
 <script>
-    // Firebase ve TG ID Ayarları
+    // --- FIREBASE & SISTEM AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyApwj-8tB4qxqe8yJ9uP7XuKfEdT2lwYv4",
         authDomain: "fonix-b4de6.firebaseapp.com",
@@ -140,11 +157,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
-    const MY_ID = "8392479231";
-    
-    let realUid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "dev_test";
+    const MY_ID = "8392479231"; // Sen
+
+    let realUid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "dev_user";
     let activeUid = realUid;
-    let uData = { pi:0, uncl:0, username: tg.initDataUnsafe?.user?.username || "Guest" };
+    let uData = { pi: 0, uncl: 0, username: tg.initDataUnsafe?.user?.username || "Guest" };
     let fuel = 30;
 
     function init() {
@@ -153,26 +170,26 @@
             else { db.collection("users").doc(activeUid).set(uData); }
         });
 
-        if(realUid === MY_ID) document.getElementById('adm-nav').style.display = 'flex';
+        if(realUid === MY_ID) document.getElementById('adm-tab').style.display = 'flex';
         
+        // Madencilik Döngüsü
         setInterval(() => {
             if(fuel > 0) {
                 fuel--;
-                uData.uncl += 0.0002; // Pet Edition'da biraz daha hızlı
+                uData.uncl += 0.00025; // Pet hızı
                 document.getElementById('m-val').innerText = uData.uncl.toFixed(8);
-                if(fuel <= 0) document.getElementById('btn-ad').style.animation = "pulse 1s infinite";
             }
         }, 1000);
     }
 
     function updateUI() {
         document.getElementById('h-pi').innerText = uData.pi.toFixed(2);
-        document.getElementById('h-usd').innerText = (uData.pi * 31.4).toFixed(2);
+        document.getElementById('h-usd').innerText = (uData.pi * 3.14).toFixed(2);
+        
         if(activeUid !== realUid) {
-            document.getElementById('ghost-bar').style.display = 'block';
-            document.getElementById('g-user').innerText = uData.username;
+            document.getElementById('ghost-tag').style.display = 'block';
         } else {
-            document.getElementById('ghost-bar').style.display = 'none';
+            document.getElementById('ghost-tag').style.display = 'none';
         }
     }
 
@@ -191,10 +208,11 @@
         });
     }
 
+    // --- ADMIN ---
     async function addAdminBonus() {
         if(realUid === MY_ID) {
             await db.collection("users").doc(MY_ID).update({ pi: firebase.firestore.FieldValue.increment(500) });
-            alert("500 PI Eklendi!");
+            alert("500 PI Yüklendi!");
         }
     }
 
@@ -205,10 +223,11 @@
     }
 
     async function loadAdmin() {
-        const snap = await db.collection("users").limit(20).get();
-        const div = document.getElementById('adm-users'); div.innerHTML = "";
+        const snap = await db.collection("users").orderBy("pi", "desc").limit(20).get();
+        const list = document.getElementById('adm-user-list');
+        list.innerHTML = "";
         snap.forEach(doc => {
-            div.innerHTML += `<div class="glass-card" onclick="ghostMode('${doc.id}')">@${doc.data().username} - ${doc.data().pi.toFixed(2)} PI</div>`;
+            list.innerHTML += `<div class="card" onclick="ghostMode('${doc.id}')">@${doc.data().username} | ${doc.data().pi.toFixed(2)} PI</div>`;
         });
     }
 
