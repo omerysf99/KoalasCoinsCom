@@ -2,141 +2,220 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON Otomatik Mining</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PI NEBULA - PET EDITION</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .glass-card { background: white; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        :root { 
+            --bg: #4c3ba5; 
+            --accent: #fbc02d; 
+            --white: #ffffff;
+            --purple-light: #6a53cf;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Fredoka', sans-serif; -webkit-user-select:none; }
         
-        .ton-logo-container {
-            width: 180px; height: 180px; margin: 20px auto;
-            background: radial-gradient(circle, #0088cc 0%, #005580 100%);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px rgba(0, 136, 204, 0.3); position: relative;
+        body { 
+            background: var(--bg); 
+            color: white; 
+            overflow: hidden; 
+            height: 100vh;
+            background-image: radial-gradient(circle at 50% 50%, #5e48c2 0%, #4c3ba5 100%);
         }
-        .ton-symbol { font-size: 80px; color: white; font-weight: bold; }
+
+        #app { width:100%; max-width:450px; height:100vh; margin:auto; position:relative; display:flex; flex-direction:column; }
+
+        /* Üst Bakiye Kısmı */
+        .top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .coin-box { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
+        .coin-icon { width: 24px; height: 24px; background: gold; border-radius: 50%; box-shadow: inset 0 0 5px orange; }
+        .top-icons { display: flex; gap: 10px; }
+        .round-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4c3ba5; font-weight: bold; }
+
+        /* Görsel Alanı */
+        .hero-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .pet-image { width: 100%; max-width: 280px; margin-bottom: 10px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
+        .hero-title { font-size: 2.2rem; font-weight: 900; line-height: 1; color: white; text-shadow: 2px 4px 0px #322675; margin-bottom: 20px; }
+
+        /* Butonlar */
+        .btn-container { width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 0 40px; }
+        .main-btn { 
+            background: linear-gradient(to bottom, #fdd835, #fbc02d);
+            border: none; border-radius: 18px; padding: 18px; color: #4c3ba5;
+            font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 6px 0 #c49000, 0 10px 20px rgba(0,0,0,0.2);
+            cursor: pointer; transition: 0.1s;
+        }
+        .main-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #c49000; }
         
-        /* Reklam Geçiş Ekranı */
-        #adOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column;
-            align-items: center; justify-content: center; color: white;
+        .sub-btn {
+            background: linear-gradient(to bottom, #fbc02d, #f9a825);
+            border: none; border-radius: 18px; padding: 12px; color: #4c3ba5;
+            font-size: 0.9rem; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 4px 0 #9e7500;
         }
-        .loader {
-            border: 5px solid #f3f3f3; border-top: 5px solid #0088cc;
-            border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+
+        /* Alt Menü */
+        nav { 
+            height: 80px; background: var(--purple-light); border-radius: 40px 40px 0 0;
+            display: flex; justify-content: space-around; align-items: center; padding: 0 10px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.7; transition: 0.3s; color: white; text-decoration: none; font-size: 0.7rem; }
+        .nav-item.active { opacity: 1; transform: translateY(-5px); }
+        .center-nav { width: 70px; height: 70px; background: var(--accent); border-radius: 50%; margin-top: -40px; border: 8px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+        /* Admin & Ghost Mode */
+        #ghost-bar { display:none; background: #ff4757; text-align: center; font-size: 0.7rem; padding: 4px; font-weight: bold; }
+        .view { display: none; flex: 1; padding: 20px; overflow-y: auto; }
+        .view.active { display: flex; flex-direction: column; }
+        .glass-card { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 10px; }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen">
+<body>
 
-    <div id="adOverlay">
-        <div class="loader mb-4"></div>
-        <h2 class="text-xl font-bold">REKLAM İZLENİYOR...</h2>
-        <p class="text-gray-400 text-sm mt-2">Madencilik birazdan devam edecek</p>
+<div id="app">
+    <div id="ghost-bar" onclick="exitGhost()">GHOST MODE: <span id="g-user"></span> (ÇIK)</div>
+    
+    <div class="top-bar">
+        <div class="coin-box">
+            <div class="coin-icon"></div>
+            <div>
+                <div id="h-pi" style="font-weight:bold; font-size: 0.9rem;">0.00</div>
+                <div style="font-size:0.6rem; opacity:0.8;">$ <span id="h-usd">0.00</span></div>
+            </div>
+        </div>
+        <div class="top-icons">
+            <div class="round-icon">f</div>
+            <div class="round-icon">🎁</div>
+            <div class="round-icon">🔔</div>
+        </div>
     </div>
 
-    <div class="w-full max-w-md p-4 space-y-4">
+    <div id="v-home" class="view active">
+        <div class="hero-section">
+            <img src="https://via.placeholder.com/300x300/4c3ba5/ffffff?text=FANTASTIC+PETS" class="pet-image" id="fan-obj">
+            <h1 class="hero-title">YOUR<br>FANTASTIC PET</h1>
+            <p id="m-val" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">0.00000000</p>
+            
+            <div class="btn-container">
+                <button class="main-btn" onclick="claim()">PLAY / CLAIM</button>
+                <button class="sub-btn" id="btn-ad" onclick="watchAd()">NIGHT SESSION<br><small>DOUBLE YOUR EARNINGS</small></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="v-admin" class="view">
+        <h2 style="margin-bottom:15px;">ADMIN PANEL</h2>
+        <div class="glass-card" style="background:var(--accent); color:#000;" onclick="addAdminBonus()">
+            <b>👑 KURUCU ÖZEL: +500 PI EKLE</b>
+        </div>
+        <div id="adm-users"></div>
+    </div>
+
+    <nav>
+        <div class="nav-item" onclick="tab('v-friends')">👥<br>Friends</div>
+        <div class="nav-item" onclick="tab('v-earn')">🎁<br>Tasks</div>
+        <div class="center-nav" onclick="tab('v-home')">🐾</div>
+        <div class="nav-item" onclick="tab('v-wallet')">💳<br>Wallet</div>
+        <div id="adm-nav" class="nav-item" style="display:none;" onclick="tab('v-admin')">⚙️<br>Admin</div>
+    </nav>
+</div>
+
+<script>
+    // Firebase ve TG ID Ayarları
+    const firebaseConfig = {
+        apiKey: "AIzaSyApwj-8tB4qxqe8yJ9uP7XuKfEdT2lwYv4",
+        authDomain: "fonix-b4de6.firebaseapp.com",
+        projectId: "fonix-b4de6",
+        storageBucket: "fonix-b4de6.firebasestorage.app",
+        messagingSenderId: "20899545652",
+        appId: "1:20899545652:web:f32ef599f0c8d3deaec061"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const tg = window.Telegram.WebApp;
+    const MY_ID = "8392479231";
+    
+    let realUid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "dev_test";
+    let activeUid = realUid;
+    let uData = { pi:0, uncl:0, username: tg.initDataUnsafe?.user?.username || "Guest" };
+    let fuel = 30;
+
+    function init() {
+        db.collection("users").doc(activeUid).onSnapshot(doc => {
+            if(doc.exists) { uData = doc.data(); updateUI(); }
+            else { db.collection("users").doc(activeUid).set(uData); }
+        });
+
+        if(realUid === MY_ID) document.getElementById('adm-nav').style.display = 'flex';
         
-        <div class="glass-card p-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-sky-500 p-2.5 rounded-full text-white"><i class="fas fa-gem"></i></div>
-                <div>
-                    <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Баланс</p>
-                    <p id="totalTon" class="font-bold text-gray-800 text-lg">0.0000 TON</p>
-                </div>
-            </div>
-            <button class="bg-gray-100 p-2.5 rounded-xl text-gray-600"><i class="fas fa-wallet"></i></button>
-        </div>
-
-        <div class="glass-card p-8 text-center">
-            <div class="ton-logo-container">
-                <div class="ton-symbol"><i class="fa-solid fa-diamond"></i></div>
-            </div>
-
-            <div class="mt-6">
-                <h1 id="miningCounter" class="text-3xl font-black text-gray-800 tracking-tighter">0.00000000 TON</h1>
-                <p class="text-sm text-yellow-500 font-bold mt-1">76.88 GH/s <i class="fas fa-bolt"></i></p>
-            </div>
-
-            <div class="mt-4 py-2 px-6 bg-blue-50 rounded-full inline-block border border-blue-100">
-                <span id="timerDisplay" class="text-blue-600 font-bold text-sm">KALAN SÜRE: 01:00</span>
-            </div>
-
-            <div class="flex flex-col space-y-3 mt-8">
-                <button onclick="collectMining()" class="w-full bg-sky-500 hover:bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-sky-200 transition-all active:scale-95">
-                    ЗАБРАТЬ (TOPLA)
-                </button>
-                <div class="text-[10px] text-gray-400 font-medium">SÜRE BİTİNCE OTOMATİK REKLAM İZLENİR</div>
-            </div>
-        </div>
-
-        <div class="glass-card p-4 flex justify-around text-gray-300">
-            <i class="fas fa-wallet text-xl"></i>
-            <i class="fas fa-users text-xl"></i>
-            <i class="fas fa-铺 text-xl text-sky-500"></i>
-            <i class="fas fa-chart-pie text-xl"></i>
-            <i class="fas fa-cog text-xl"></i>
-        </div>
-    </div>
-
-    <script>
-        let currentMining = 0.0;
-        let totalBalance = 0.0;
-        let timeLeft = 60; // 60 saniye
-        let isMining = true;
-
-        const miningDisplay = document.getElementById('miningCounter');
-        const totalDisplay = document.getElementById('totalTon');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const adOverlay = document.getElementById('adOverlay');
-
-        // Ana Döngü
-        const mainLogic = setInterval(() => {
-            if (isMining) {
-                if (timeLeft > 0) {
-                    // Saniyede 0.00005 TON kazanç
-                    currentMining += 0.00005;
-                    miningDisplay.innerText = currentMining.toFixed(8) + " TON";
-                    
-                    timeLeft--;
-                    updateTimerUI();
-                } else {
-                    triggerAutoAd();
-                }
+        setInterval(() => {
+            if(fuel > 0) {
+                fuel--;
+                uData.uncl += 0.0002; // Pet Edition'da biraz daha hızlı
+                document.getElementById('m-val').innerText = uData.uncl.toFixed(8);
+                if(fuel <= 0) document.getElementById('btn-ad').style.animation = "pulse 1s infinite";
             }
         }, 1000);
+    }
 
-        function updateTimerUI() {
-            let mins = Math.floor(timeLeft / 60);
-            let secs = timeLeft % 60;
-            timerDisplay.innerText = `KALAN SÜRE: ${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    function updateUI() {
+        document.getElementById('h-pi').innerText = uData.pi.toFixed(2);
+        document.getElementById('h-usd').innerText = (uData.pi * 31.4).toFixed(2);
+        if(activeUid !== realUid) {
+            document.getElementById('ghost-bar').style.display = 'block';
+            document.getElementById('g-user').innerText = uData.username;
+        } else {
+            document.getElementById('ghost-bar').style.display = 'none';
         }
+    }
 
-        function triggerAutoAd() {
-            isMining = false;
-            adOverlay.style.display = 'flex'; // Reklam ekranını göster
-            
-            // 5 saniye "reklam izleniyor" simülasyonu
-            setTimeout(() => {
-                adOverlay.style.display = 'none';
-                timeLeft = 60; // Süreyi yenile
-                isMining = true;
-                updateTimerUI();
-            }, 5000); 
-        }
+    function watchAd() {
+        try {
+            new AdexiumWidget({wid: '620cb288-d63c-4ae9-a76a-e821f15a2a4b', adFormat: 'interstitial'}).autoMode();
+            fuel = 30;
+        } catch(e) { fuel = 30; }
+    }
 
-        function collectMining() {
-            if(currentMining > 0) {
-                totalBalance += currentMining;
-                totalDisplay.innerText = totalBalance.toFixed(4) + " TON";
-                currentMining = 0;
-                miningDisplay.innerText = "0.00000000 TON";
-            }
+    function claim() {
+        if(uData.uncl < 0.001 || activeUid !== realUid) return;
+        db.collection("users").doc(realUid).update({
+            pi: firebase.firestore.FieldValue.increment(uData.uncl),
+            uncl: 0
+        });
+    }
+
+    async function addAdminBonus() {
+        if(realUid === MY_ID) {
+            await db.collection("users").doc(MY_ID).update({ pi: firebase.firestore.FieldValue.increment(500) });
+            alert("500 PI Eklendi!");
         }
-    </script>
+    }
+
+    function tab(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'v-admin') loadAdmin();
+    }
+
+    async function loadAdmin() {
+        const snap = await db.collection("users").limit(20).get();
+        const div = document.getElementById('adm-users'); div.innerHTML = "";
+        snap.forEach(doc => {
+            div.innerHTML += `<div class="glass-card" onclick="ghostMode('${doc.id}')">@${doc.data().username} - ${doc.data().pi.toFixed(2)} PI</div>`;
+        });
+    }
+
+    function ghostMode(id) { activeUid = id; tab('v-home'); init(); }
+    function exitGhost() { activeUid = realUid; init(); }
+
+    window.onload = init;
+</script>
 </body>
 </html>
