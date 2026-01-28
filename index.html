@@ -173,7 +173,7 @@
             </div>
         </div>
         <div class="flex gap-2">
-            <!-- Admin Paneli Butonu: Sadece eşleşen ID'ler için görünür hale getirilecek -->
+            <!-- Admin Paneli Butonu: ID eşleşirse görünür -->
             <button id="admin-trigger" onclick="toggleAdminModal(true)" class="hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-cyan-50 transition-colors">
                 <i class="fas fa-user-shield"></i>
             </button>
@@ -225,7 +225,7 @@
                         <i class="fas fa-lock text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-black text-gray-800">Admin Erişimi</h3>
-                    <p class="text-gray-400 text-sm">Sadece yetkili ID'ler erişebilir.</p>
+                    <p id="admin-info-text" class="text-gray-400 text-sm">Sadece yetkili ID'ler erişebilir.</p>
                 </div>
                 <div class="space-y-4">
                     <input type="password" id="admin-pass-input" class="w-full bg-gray-50 border-2 border-transparent focus:border-cyan-500 focus:bg-white p-4 rounded-2xl text-center text-xl outline-none transition-all" placeholder="••••••">
@@ -287,8 +287,8 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'playcentr-67140';
         
-        // SİZİN TELEGRAM ID'NİZ
-        const ADMIN_TELEGRAM_ID = 8392479231;
+        // ADMIN TELEGRAM ID
+        const ADMIN_TELEGRAM_ID = "8392479231";
 
         let state = {
             user: null,
@@ -306,14 +306,26 @@
             tg.ready();
             tg.expand();
             
+            // Debugging: Giriş verilerini kontrol et
+            console.log("TG Init Data:", tg.initDataUnsafe);
+
             if (tg.initDataUnsafe?.user) {
                 state.tgUser = tg.initDataUnsafe.user;
                 document.getElementById('tg-username').innerText = state.tgUser.first_name;
                 
-                // Güvenlik: Sadece sizin ID'niz butonu görebilir
-                if (Number(state.tgUser.id) === ADMIN_TELEGRAM_ID) {
+                const currentId = String(state.tgUser.id);
+                console.log("Mevcut User ID:", currentId);
+
+                // Katı ID kontrolü
+                if (currentId === ADMIN_TELEGRAM_ID) {
                     document.getElementById('admin-trigger').classList.remove('hidden');
+                } else {
+                    console.warn("Admin ID eşleşmedi. Beklenen:", ADMIN_TELEGRAM_ID, "Gelen:", currentId);
                 }
+            } else {
+                // Eğer Telegram'dan veri gelmiyorsa (Tarayıcıda test ediliyorsa)
+                console.log("Telegram kullanıcı verisi bulunamadı. Buton gizli kalacak.");
+                document.getElementById('admin-info-text').innerText = "Telegram üzerinden yetkili giriş yapın.";
             }
 
             try {
@@ -369,6 +381,8 @@
             const select = document.getElementById('game-category-select');
             const adminCatList = document.getElementById('admin-cat-list');
             
+            if (!container) return;
+
             const currentActive = state.selectedCategory;
             let html = `<button onclick="window.changeCategory('all')" class="category-pill ${currentActive === 'all' ? 'active' : ''}">Hepsi</button>`;
             
@@ -386,13 +400,15 @@
                 `;
             });
 
-            if(container) container.innerHTML = html;
+            container.innerHTML = html;
             if(select) select.innerHTML = selectHtml;
             if(adminCatList) adminCatList.innerHTML = adminHtml;
         }
 
         function renderGames() {
             const container = document.getElementById('game-list');
+            if (!container) return;
+
             const filtered = state.selectedCategory === 'all' 
                 ? state.games 
                 : state.games.filter(g => g.category === state.selectedCategory);
@@ -419,6 +435,8 @@
         function renderBanner() {
             const track = document.getElementById('banner-track');
             const nav = document.getElementById('banner-nav');
+            if (!track || !nav) return;
+
             const bannerGames = state.games.filter(g => g.inBanner);
 
             if (bannerGames.length === 0) {
@@ -438,7 +456,7 @@
                 <div class="h-1.5 rounded-full ${i === state.currentSlide ? 'w-6 bg-cyan-500' : 'w-1.5 bg-white/40'}"></div>
             `).join('');
             
-            if(track) track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
+            track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
         }
 
         // --- WINDOW ACTIONS ---
@@ -454,20 +472,18 @@
         };
 
         window.toggleAdminModal = (show) => {
-            // Güvenlik Kontrolü: Eğer butona bir şekilde basılırsa, ID kontrolünü tekrar yap
-            if (show && state.tgUser && Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) {
+            if (show && state.tgUser && String(state.tgUser.id) !== ADMIN_TELEGRAM_ID) {
                 showToast("Bu bölüme erişim yetkiniz yok.");
                 return;
             }
             
             const modal = document.getElementById('admin-modal');
             modal.style.display = show ? 'flex' : 'none';
-            modal.style.opacity = show ? '1' : '0';
+            setTimeout(() => { modal.style.opacity = show ? '1' : '0'; }, 10);
         };
 
         window.handleAdminLogin = () => {
-            // İkinci bir güvenlik katmanı olarak ID kontrolü
-            if (state.tgUser && Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) {
+            if (state.tgUser && String(state.tgUser.id) !== ADMIN_TELEGRAM_ID) {
                 showToast("Erişim Reddedildi!");
                 return;
             }
@@ -490,7 +506,7 @@
         };
 
         window.apiAddCategory = async () => {
-            if (!state.user || Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) return;
+            if (!state.user || String(state.tgUser?.id) !== ADMIN_TELEGRAM_ID) return;
             const input = document.getElementById('new-cat-input');
             const name = input.value.trim();
             if (!name || state.categories.includes(name)) return;
@@ -501,13 +517,13 @@
         };
 
         window.apiDeleteCategory = async (name) => {
-            if (!state.user || Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) return;
+            if (!state.user || String(state.tgUser?.id) !== ADMIN_TELEGRAM_ID) return;
             const newCats = state.categories.filter(c => c !== name);
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
         };
 
         window.apiAddGame = async () => {
-            if (!state.user || Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) return;
+            if (!state.user || String(state.tgUser?.id) !== ADMIN_TELEGRAM_ID) return;
             const name = document.getElementById('game-name').value;
             const category = document.getElementById('game-category-select').value;
             const link = document.getElementById('game-link').value;
@@ -523,12 +539,13 @@
         };
 
         window.apiDeleteGame = async (id) => {
-            if (!state.user || Number(state.tgUser.id) !== ADMIN_TELEGRAM_ID) return;
+            if (!state.user || String(state.tgUser?.id) !== ADMIN_TELEGRAM_ID) return;
             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
         };
 
         function renderAdminDashboard() {
             const list = document.getElementById('admin-game-list');
+            if (!list) return;
             list.innerHTML = state.games.map(game => `
                 <div class="flex items-center justify-between bg-white p-3 rounded-xl border">
                     <span class="text-xs font-bold">${game.name}</span>
