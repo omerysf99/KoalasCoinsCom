@@ -3,56 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Apps Center</title>
+    <title>Chalpus Game Store</title>
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --tg-theme-bg-color: #0e1621;
-            --tg-theme-secondary-bg-color: #17212b;
-            --tg-theme-text-color: #ffffff;
-            --tg-theme-hint-color: #708499;
-            --tg-theme-button-color: #2481cc;
-        }
         body {
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            font-family: sans-serif;
-            margin: 0; padding: 16px;
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        .section-title {
-            font-size: 18px; font-weight: bold;
-            margin: 20px 0 12px 0;
-            display: flex; justify-content: space-between;
+        .banner-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
         }
-        .app-item {
-            display: flex; align-items: center;
-            background: var(--tg-theme-secondary-bg-color);
-            padding: 12px; border-radius: 12px;
-            margin-bottom: 10px;
+        .banner-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding-bottom: 10px;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        .app-icon { width: 48px; height: 48px; border-radius: 10px; margin-right: 12px; }
-        .app-details { flex: 1; }
-        .app-name { font-weight: bold; font-size: 15px; }
-        .app-desc { color: var(--tg-theme-hint-color); font-size: 12px; margin-top: 4px; }
-        .open-btn {
-            background: var(--tg-theme-button-color);
-            color: #fff; border: none;
-            padding: 6px 18px; border-radius: 20px;
-            font-weight: bold; cursor: pointer; text-decoration: none;
+        .banner-container::-webkit-scrollbar { display: none; }
+        .banner-card {
+            min-width: 90%;
+            scroll-snap-align: center;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            height: 180px;
+            flex-shrink: 0;
         }
-        #loading { text-align: center; margin-top: 50px; color: var(--tg-theme-hint-color); }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .btn-start {
+            background-color: #00bad4;
+            transition: all 0.2s;
+        }
+        .btn-start:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        .dot-indicator {
+            width: 6px;
+            height: 6px;
+            background: #d1d5db;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .dot-active {
+            background: #00bad4;
+            width: 16px;
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-    <div class="section-title">Trending This Week <span>&rsaquo;</span></div>
-    <div id="app-list"><div id="loading">Uygulamalar yükleniyor...</div></div>
+    <!-- Header Area -->
+    <div class="glass-header py-2 mb-4 flex justify-between items-center">
+        <div>
+            <h1 id="welcome-text" class="text-lg font-bold text-gray-800">Merhaba!</h1>
+        </div>
+        <div class="flex gap-2">
+            <button class="p-2 bg-gray-100 rounded-full relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+            <div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg border">
+                <span class="text-xl">🇹🇷</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Banner (Carousel) -->
+    <div class="banner-wrapper">
+        <div class="banner-container mb-2" id="banner-list">
+            <!-- Banners will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- Dots for Banner -->
+    <div class="flex justify-center gap-1 mb-6" id="banner-dots">
+        <!-- Dots will be loaded here -->
+    </div>
+
+    <!-- Section Title -->
+    <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">Yeni Oyunlar</h2>
+        <span class="text-cyan-500 text-sm font-semibold">Tümü &rsaquo;</span>
+    </div>
+
+    <!-- Games List -->
+    <div id="game-list" class="space-y-4 pb-10">
+        <!-- Loading State -->
+        <div class="animate-pulse flex space-x-4">
+            <div class="rounded-2xl bg-gray-200 h-16 w-16"></div>
+            <div class="flex-1 space-y-3 py-1">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Senin paylaştığın Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBbA61N0ztsdRxEjwMUS0YKXXfXV4DMEVQ",
             authDomain: "playcentr-67140.firebaseapp.com",
@@ -65,48 +134,126 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 1. Kullanıcı Bilgilerini Al ve Kaydet
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Uygulamayı tam ekran yap
-        
-        const userData = tg.initDataUnsafe?.user;
-        if (userData) {
-            // Kullanıcıyı veritabanına kaydet/güncelle
-            const userRef = doc(db, "users", userData.id.toString());
-            setDoc(userRef, {
-                username: userData.username || "Bilinmiyor",
-                first_name: userData.first_name,
-                last_seen: serverTimestamp(),
-                isAdmin: userData.id.toString() === "8392479231" // Admin kontrolü
-            }, { merge: true });
+        tg.expand();
+        const user = tg.initDataUnsafe?.user;
+
+        const welcomeText = document.getElementById('welcome-text');
+        const gameList = document.getElementById('game-list');
+        const bannerList = document.getElementById('banner-list');
+        const bannerDots = document.getElementById('banner-dots');
+
+        let autoSlideInterval;
+
+        async function initApp() {
+            if (user) {
+                welcomeText.innerText = `Merhaba! ${user.first_name}`;
+                try {
+                    await setDoc(doc(db, "users", user.id.toString()), {
+                        first_name: user.first_name,
+                        username: user.username || "",
+                        last_active: serverTimestamp(),
+                        isAdmin: user.id.toString() === "8392479231"
+                    }, { merge: true });
+                } catch (e) { console.error(e); }
+            } else {
+                welcomeText.innerText = "Merhaba! Misafir";
+            }
+            loadContent();
         }
 
-        // 2. Uygulama Listesini Firestore'dan Çek
-        async function fetchApps() {
-            const container = document.getElementById('app-list');
+        async function loadContent() {
             try {
-                const querySnapshot = await getDocs(collection(db, "apps"));
-                container.innerHTML = '';
+                const gamesSnapshot = await getDocs(collection(db, "apps"));
+                let gamesData = [];
+                gamesSnapshot.forEach((doc) => { gamesData.push(doc.data()); });
+
+                if (gamesData.length === 0) {
+                    gamesData = [
+                        { name: "CowHub", description: "Moo ~ Moo ~ Moo ~", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=cow", link: "https://t.me/cowhub_bot", banner: "https://picsum.photos/seed/cow/800/400" },
+                        { name: "Egg Factory", description: "Daha fazla yumurta alın.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=egg", link: "#", banner: "https://picsum.photos/seed/egg/800/400" },
+                        { name: "Banana Town", description: "Kazanmak için dokunun.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=banana", link: "#", banner: "https://picsum.photos/seed/banana/800/400" },
+                        { name: "Plant TON", description: "Çiftçiliği eğlenceli hale getirin.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=plant", link: "#" },
+                        { name: "Dogs", description: "Popüler meme coin oyunu.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=dog", link: "#" },
+                        { name: "Getgems", description: "NFT dünyasına girin.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=gem", link: "#" },
+                        { name: "Duckygram", description: "Özel ördek koleksiyonu.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=duck", link: "#" },
+                        { name: "8 Bit World", description: "Retro dünyada macera.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=8bit", link: "#" },
+                        { name: "Max Indie", description: "No-code uygulama platformu.", icon: "https://api.dicebear.com/7.x/bottts/svg?seed=max", link: "#" }
+                    ];
+                }
+
+                gameList.innerHTML = '';
+                bannerList.innerHTML = '';
+                bannerDots.innerHTML = '';
                 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    container.innerHTML += `
-                        <div class="app-item">
-                            <img src="${data.icon || 'https://via.placeholder.com/50'}" class="app-icon">
-                            <div class="app-details">
-                                <div class="app-name">${data.name}</div>
-                                <div class="app-desc">${data.description}</div>
+                gamesData.forEach((game, index) => {
+                    // List Item
+                    gameList.innerHTML += `
+                        <div class="flex items-center justify-between bg-white p-2 rounded-2xl border border-transparent active:border-cyan-100 transition-all">
+                            <div class="flex items-center gap-3">
+                                <img src="${game.icon}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50 shadow-sm border">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-base">${game.name}</h3>
+                                    <p class="text-xs text-gray-400 line-clamp-1">${game.description}</p>
+                                </div>
                             </div>
-                            <a href="${data.link}" target="_blank" class="open-btn">Open</a>
+                            <button onclick="window.open('${game.link}', '_blank')" class="btn-start text-white px-5 py-2 rounded-xl font-bold text-sm min-w-[90px]">
+                                ${game.name === 'CowHub' ? 'Start' : 'Başlangıç'}
+                            </button>
                         </div>
                     `;
+
+                    // Banner Item (Top 4)
+                    if (index < 4) {
+                        bannerList.innerHTML += `
+                            <div class="banner-card shadow-md" onclick="window.open('${game.link}', '_blank')">
+                                <img src="${game.banner || 'https://picsum.photos/seed/'+index+'/800/400'}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
+                                    <span class="bg-cyan-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold w-fit mb-1 uppercase tracking-wider">Editor's Choice</span>
+                                    <h4 class="text-white font-bold text-xl">${game.name}</h4>
+                                </div>
+                            </div>
+                        `;
+                        bannerDots.innerHTML += `<div class="dot-indicator ${index === 0 ? 'dot-active' : ''}"></div>`;
+                    }
                 });
-            } catch (error) {
-                container.innerHTML = "Veriler yüklenemedi: " + error.message;
+
+                startAutoSlide();
+
+            } catch (e) {
+                gameList.innerHTML = `<p class="text-center text-gray-400 py-10">Yükleme sırasında bir hata oluştu.</p>`;
             }
         }
 
-        fetchApps();
+        function startAutoSlide() {
+            const container = bannerList;
+            const dots = bannerDots.querySelectorAll('.dot-indicator');
+            let currentIndex = 0;
+            const total = dots.length;
+
+            if (total === 0) return;
+
+            // Update dots on manual scroll
+            container.addEventListener('scroll', () => {
+                const index = Math.round(container.scrollLeft / (container.clientWidth * 0.9));
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('dot-active', i === index);
+                });
+                currentIndex = index;
+            });
+
+            // Auto slide every 3 seconds
+            autoSlideInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % total;
+                const scrollAmount = currentIndex * (container.scrollWidth / total);
+                container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+            }, 3000);
+
+            // Stop auto slide on touch
+            container.addEventListener('touchstart', () => clearInterval(autoSlideInterval));
+        }
+
+        initApp();
     </script>
 </body>
 </html>
