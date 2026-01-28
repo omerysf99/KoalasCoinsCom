@@ -2,228 +2,535 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Game Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PlayCentr Telegram Game Portal v2.1</title>
+    
+    <!-- Harici Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
     <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #333333;
+            --tg-theme-button-color: #00bcd4;
+            --tg-theme-button-text-color: #ffffff;
+            --primary-cyan: #00bcd4;
+            --secondary-cyan: #00acc1;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #ffffff;
-            color: #333;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
-        .btn-blue {
-            background-color: #00bcd4;
+
+        ::-webkit-scrollbar { width: 0; height: 0; }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-cyan));
             color: white;
-            padding: 8px 20px;
-            border-radius: 12px;
+            padding: 10px 24px;
+            border-radius: 14px;
             font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.25);
+            border: none;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.94) translateY(2px);
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+        }
+
+        .banner-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .banner-overlay {
+            background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+        }
+
+        .category-pill {
+            padding: 8px 20px;
+            border-radius: 100px;
             font-size: 13px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.1);
+            font-weight: 600;
+            white-space: nowrap;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
         }
-        .btn-blue:active {
-            transform: scale(0.92);
+
+        .category-pill.active {
+            background: var(--primary-cyan);
+            color: white;
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
         }
-        .admin-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(8px);
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         .game-card {
-            background: #fff;
-            transition: all 0.2s;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid #f8fafc;
+        }
+
+        .game-card:hover {
+            background: #f8fafc;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 30px;
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
 <body class="max-w-md mx-auto pb-24">
 
-    <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-50">
+    <div id="toast" class="animate__animated">Bildirim mesajı</div>
+
+    <header class="glass-header sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-cyan-100">GP</div>
-            <span class="font-bold text-gray-800" id="user-display-name">Hoş Geldiniz</span>
+            <div class="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center text-white shadow-lg rotate-3">
+                <i class="fas fa-gamepad text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Hoş Geldin</h1>
+                <span id="tg-username" class="font-black text-gray-800 text-lg">Ziyaretçi</span>
+            </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="openAdmin()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-cyan-500 transition">
-                <i class="fas fa-cog"></i>
+        <div class="flex gap-2">
+            <button id="admin-trigger" onclick="toggleAdminModal(true)" class="hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-cyan-50 transition-colors">
+                <i class="fas fa-user-shield"></i>
+            </button>
+            <button class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-gray-50">
+                <i class="fas fa-search"></i>
             </button>
         </div>
     </header>
 
-    <div class="px-5 mt-6">
-        <!-- Banner -->
-        <div class="mb-10 animate-fade-in">
-            <div class="relative rounded-[2rem] overflow-hidden shadow-xl border border-gray-100">
-                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-48 object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
-                    <span class="text-white font-black text-xl tracking-tight">Öne Çıkanlar</span>
-                    <p class="text-gray-300 text-xs mt-1">En popüler oyunları hemen keşfet.</p>
+    <main class="px-5 space-y-8 mt-6">
+        <section class="banner-container shadow-2xl animate__animated animate__fadeIn">
+            <div id="banner-track" class="flex transition-transform duration-500 ease-out h-full"></div>
+            <div id="banner-nav" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5"></div>
+        </section>
+
+        <section class="flex gap-3 overflow-x-auto no-scrollbar py-2" id="category-scroller">
+            <button onclick="changeCategory('all')" class="category-pill active" id="cat-all">Hepsi</button>
+        </section>
+
+        <section>
+            <div class="flex items-end justify-between mb-6">
+                <div>
+                    <h2 id="current-category-name" class="text-2xl font-black text-gray-900 leading-none">Keşfet</h2>
+                    <p class="text-gray-400 text-xs mt-1 font-medium">Popüler ve Yeni Oyunlar</p>
+                </div>
+                <div class="flex items-center gap-2 text-cyan-500 text-xs font-bold uppercase tracking-wider">
+                    <span id="game-count">0</span> Oyun
                 </div>
             </div>
-        </div>
 
-        <!-- Yeni Oyunlar Listesi -->
-        <div class="mb-10">
-            <h2 class="text-xl font-black text-gray-800 uppercase italic tracking-tighter mb-6">Oyun Listesi</h2>
-            <div id="games-container" class="space-y-6">
-                <!-- Oyunlar Buraya Gelecek -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Paneli Modalı -->
-    <div id="adminPanel" class="admin-modal">
-        <div class="bg-white w-11/12 max-w-sm rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div id="loginSection">
-                <h2 class="text-xl font-black text-center mb-6">Admin Girişi</h2>
-                <input id="adminPass" type="password" class="w-full border-2 border-gray-100 p-4 rounded-2xl mb-4 text-center text-xl outline-none focus:border-cyan-500" placeholder="Şifre">
-                <button onclick="checkPass()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black">GİRİŞ</button>
-                <button onclick="closeAdmin()" class="w-full py-3 text-gray-400 text-sm mt-2">Vazgeç</button>
-            </div>
-
-            <div id="manageSection" class="hidden">
-                <h2 class="text-xl font-black mb-4">Oyun Yönetimi</h2>
-                
-                <div class="space-y-3 mb-6">
-                    <input id="addName" class="w-full border p-3 rounded-xl text-sm" placeholder="Oyun Adı">
-                    <input id="addDesc" class="w-full border p-3 rounded-xl text-sm" placeholder="Açıklama">
-                    <input id="addEmoji" class="w-full border p-3 rounded-xl text-sm" placeholder="Emoji (Örn: 🎮)">
-                    <input id="addLink" class="w-full border p-3 rounded-xl text-sm" placeholder="Link (t.me/...)">
-                    <button onclick="addNewGame()" class="w-full bg-cyan-500 text-white py-3 rounded-xl font-bold">EKLE</button>
-                </div>
-
-                <div class="border-t pt-4">
-                    <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase">Mevcut Oyunlar</h3>
-                    <div id="admin-game-list" class="space-y-2">
-                        <!-- Silme listesi -->
+            <div id="game-list" class="grid grid-cols-1 gap-4">
+                <div class="game-card flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl skeleton"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 w-1/2 skeleton rounded"></div>
+                        <div class="h-3 w-3/4 skeleton rounded"></div>
                     </div>
                 </div>
-                <button onclick="logoutAdmin()" class="w-full mt-6 py-2 text-red-400 text-xs font-bold">ÇIKIŞ YAP</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="admin-modal" class="modal-overlay flex items-center justify-center p-6" onclick="closeAdminOutside(event)">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div id="admin-auth-view">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-cyan-100 text-cyan-500 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800">Admin Erişimi</h3>
+                    <p class="text-gray-400 text-sm">Devam etmek için şifrenizi girin.</p>
+                </div>
+                <div class="space-y-4">
+                    <input type="password" id="admin-pass-input" class="w-full bg-gray-50 border-2 border-transparent focus:border-cyan-500 focus:bg-white p-4 rounded-2xl text-center text-xl outline-none transition-all" placeholder="••••••">
+                    <button onclick="handleAdminLogin()" class="w-full btn-primary py-4 text-lg">GİRİŞ YAP</button>
+                    <button onclick="toggleAdminModal(false)" class="w-full text-gray-400 font-bold text-sm">İptal</button>
+                </div>
+            </div>
+
+            <div id="admin-dashboard-view" class="hidden h-[70vh] flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black">Yönetim Masası</h3>
+                    <button onclick="logoutAdmin()" class="text-red-500 text-sm font-bold">Çıkış</button>
+                </div>
+                <div class="overflow-y-auto space-y-6 flex-1 pr-2 no-scrollbar">
+                    <div class="bg-gray-50 p-4 rounded-2xl">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Kategori Yönetimi</label>
+                        <div class="flex gap-2">
+                            <input id="new-cat-input" class="flex-1 p-3 rounded-xl border text-sm" placeholder="Kategori adı...">
+                            <button onclick="apiAddCategory()" class="bg-cyan-500 text-white w-12 rounded-xl"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div id="admin-cat-list" class="flex flex-wrap gap-2 mt-3"></div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-2xl space-y-3">
+                        <label class="block text-xs font-bold text-gray-400 uppercase">Yeni Oyun Ekle</label>
+                        <input id="game-name" class="w-full p-3 rounded-xl border text-sm" placeholder="Oyun İsmi">
+                        <textarea id="game-desc" class="w-full p-3 rounded-xl border text-sm" placeholder="Kısa açıklama..."></textarea>
+                        <select id="game-category-select" class="w-full p-3 rounded-xl border text-sm bg-white"></select>
+                        <input id="game-link" class="w-full p-3 rounded-xl border text-sm" placeholder="Oyun Linki (t.me/...)">
+                        <input id="game-image" class="w-full p-3 rounded-xl border text-sm" placeholder="Resim URL (Opsiyonel)">
+                        <div class="flex items-center gap-3 p-1">
+                            <input type="checkbox" id="game-banner-check" class="w-5 h-5 accent-cyan-500">
+                            <label for="game-banner-check" class="text-sm font-bold text-gray-600">Öne Çıkar (Banner)</label>
+                        </div>
+                        <button onclick="apiAddGame()" class="w-full btn-primary mt-2">SİSTEME EKLE</button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-3">Mevcut Oyunlar</label>
+                        <div id="admin-game-list" class="space-y-2"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        let isAdmin = false;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getFirestore, doc, setDoc, onSnapshot, collection, 
+            deleteDoc, addDoc, query, where, getDoc 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Başlangıç Verileri
-        let defaultGames = [
-            { id: 1, name: "Egg Factory", desc: "Çiftliğini kur ve üret.", emoji: "🥚", link: "https://t.me/egg_factory_bot" },
-            { id: 2, name: "Gold Rush", desc: "Altın madenciliği macerası.", emoji: "⛏️", link: "https://t.me/gold_rush_bot" },
-            { id: 3, name: "Pixel Quest", desc: "Retro dünyayı keşfet.", emoji: "👾", link: "https://t.me/pixel_quest_bot" }
-        ];
+        // Global Değişkenler
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'playcentr-67140';
+        const ADMIN_TELEGRAM_ID = 8392479231;
 
-        let games = JSON.parse(localStorage.getItem('myCustomGames')) || defaultGames;
+        let state = {
+            user: null,
+            games: [],
+            categories: [],
+            selectedCategory: 'all',
+            currentSlide: 0,
+            isAdminAuthenticated: false
+        };
 
-        function initApp() {
+        // --- AUTH & INIT ---
+        async function init() {
+            const tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
             
-            const user = tg.initDataUnsafe?.user;
-            if(user) document.getElementById('user-display-name').innerText = user.first_name;
-            
-            renderGames();
-        }
+            if (tg.initDataUnsafe?.user) {
+                document.getElementById('tg-username').innerText = tg.initDataUnsafe.user.first_name;
+                if (tg.initDataUnsafe.user.id === ADMIN_TELEGRAM_ID) {
+                    document.getElementById('admin-trigger').classList.remove('hidden');
+                }
+            }
 
-        function renderGames() {
-            const container = document.getElementById('games-container');
-            const adminList = document.getElementById('admin-game-list');
-            container.innerHTML = '';
-            adminList.innerHTML = '';
+            // Auth Akışı (KURAL 3 Uygulaması)
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    // Not: Firebase Console'da Anonymous Auth açık olmalıdır.
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth Hatası:", e);
+                showToast("Bağlantı hatası: " + e.code);
+            }
 
-            games.forEach(game => {
-                // Ana Sayfa Kartı
-                container.innerHTML += `
-                    <div class="flex items-center justify-between p-2 rounded-2xl game-card animate-fade-in">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl border border-gray-100">${game.emoji}</div>
-                            <div>
-                                <h3 class="font-black text-gray-800 text-sm uppercase tracking-tight">${game.name}</h3>
-                                <p class="text-gray-400 text-[11px] leading-tight">${game.desc}</p>
-                            </div>
-                        </div>
-                        <button onclick="window.open('${game.link}', '_blank')" class="btn-blue">BAŞLA</button>
-                    </div>
-                `;
-
-                // Admin Silme Kartı
-                adminList.innerHTML += `
-                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
-                        <span class="text-xs font-bold">${game.emoji} ${game.name}</span>
-                        <button onclick="deleteGame(${game.id})" class="text-red-500 text-xs uppercase font-black">SİL</button>
-                    </div>
-                `;
+            onAuthStateChanged(auth, (user) => {
+                state.user = user;
+                if (user) startSync();
             });
         }
 
-        // Admin Fonksiyonları
-        function openAdmin() { document.getElementById('adminPanel').style.display = 'flex'; }
-        function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+        // --- VERİ TAKİBİ ---
+        function startSync() {
+            if (!state.user) return;
 
-        function checkPass() {
-            if(document.getElementById('adminPass').value === '123456') {
-                isAdmin = true;
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('manageSection').classList.remove('hidden');
-            } else {
-                tg.showAlert('Hatalı Şifre!');
-            }
+            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main');
+
+            onSnapshot(gamesRef, (snapshot) => {
+                state.games = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderUI();
+            }, err => console.error("Firestore Games Error:", err));
+
+            onSnapshot(configRef, async (docSnap) => {
+                if (docSnap.exists()) {
+                    state.categories = docSnap.data().categories || [];
+                } else {
+                    const defaultCats = ["Aksiyon", "Bulmaca", "Klasik", "Spor"];
+                    await setDoc(configRef, { categories: defaultCats });
+                }
+                renderUI();
+            }, err => console.error("Firestore Config Error:", err));
         }
 
-        function logoutAdmin() {
-            isAdmin = false;
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('manageSection').classList.add('hidden');
-            closeAdmin();
-        }
-
-        function addNewGame() {
-            const name = document.getElementById('addName').value;
-            const desc = document.getElementById('addDesc').value;
-            const emoji = document.getElementById('addEmoji').value || '🎮';
-            const link = document.getElementById('addLink').value;
-
-            if(!name || !link) return tg.showAlert('İsim ve Link zorunludur!');
-
-            const newGame = { id: Date.now(), name, desc, emoji, link };
-            games.push(newGame);
-            saveData();
-            
-            // Temizle
-            document.getElementById('addName').value = '';
-            document.getElementById('addDesc').value = '';
-            document.getElementById('addEmoji').value = '';
-            document.getElementById('addLink').value = '';
-        }
-
-        function deleteGame(id) {
-            games = games.filter(g => g.id !== id);
-            saveData();
-        }
-
-        function saveData() {
-            localStorage.setItem('myCustomGames', JSON.stringify(games));
+        // --- RENDER FONKSİYONLARI ---
+        function renderUI() {
+            renderCategories();
             renderGames();
+            renderBanner();
+            if (state.isAdminAuthenticated) renderAdminDashboard();
         }
 
-        window.onload = initApp;
+        function renderCategories() {
+            const container = document.getElementById('category-scroller');
+            const select = document.getElementById('game-category-select');
+            const adminCatList = document.getElementById('admin-cat-list');
+            
+            const currentActive = state.selectedCategory;
+            let html = `<button onclick="window.changeCategory('all')" class="category-pill ${currentActive === 'all' ? 'active' : ''}">Hepsi</button>`;
+            
+            let selectHtml = `<option value="">Kategori Seçin</option>`;
+            let adminHtml = ``;
+
+            state.categories.forEach(cat => {
+                html += `<button onclick="window.changeCategory('${cat}')" class="category-pill ${currentActive === cat ? 'active' : ''}">${cat}</button>`;
+                selectHtml += `<option value="${cat}">${cat}</option>`;
+                adminHtml += `
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-gray-100">
+                        ${cat}
+                        <button onclick="window.apiDeleteCategory('${cat}')" class="text-red-400 hover:text-red-600">×</button>
+                    </div>
+                `;
+            });
+
+            if(container) container.innerHTML = html;
+            if(select) select.innerHTML = selectHtml;
+            if(adminCatList) adminCatList.innerHTML = adminHtml;
+        }
+
+        function renderGames() {
+            const container = document.getElementById('game-list');
+            const filtered = state.selectedCategory === 'all' 
+                ? state.games 
+                : state.games.filter(g => g.category === state.selectedCategory);
+
+            document.getElementById('game-count').innerText = filtered.length;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center py-10 text-gray-400">Henüz oyun yok.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(game => `
+                <div class="game-card flex items-center gap-4 animate__animated animate__fadeInUp">
+                    <img src="${game.image || 'https://via.placeholder.com/64?text=Game'}" class="w-16 h-16 rounded-2xl object-cover shadow-sm bg-gray-100">
+                    <div class="flex-1">
+                        <h3 class="font-black text-gray-800 text-sm uppercase">${game.name}</h3>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase">${game.category}</p>
+                    </div>
+                    <button onclick="window.openGame('${game.link}')" class="btn-primary !py-2 !px-5 !text-xs">OYNA</button>
+                </div>
+            `).join('');
+        }
+
+        function renderBanner() {
+            const track = document.getElementById('banner-track');
+            const nav = document.getElementById('banner-nav');
+            const bannerGames = state.games.filter(g => g.inBanner);
+
+            if (bannerGames.length === 0) {
+                track.innerHTML = `<div class="banner-slide flex items-center justify-center bg-gray-900 text-white">PLAYCENTR PORTAL</div>`;
+                return;
+            }
+
+            track.innerHTML = bannerGames.map(game => `
+                <div class="banner-slide" style="background-image: url('${game.image || ''}')">
+                    <div class="banner-overlay absolute inset-0 flex flex-col justify-end p-6">
+                        <h3 class="text-white text-2xl font-black">${game.name}</h3>
+                    </div>
+                </div>
+            `).join('');
+
+            nav.innerHTML = bannerGames.map((_, i) => `
+                <div class="h-1.5 rounded-full ${i === state.currentSlide ? 'w-6 bg-cyan-500' : 'w-1.5 bg-white/40'}"></div>
+            `).join('');
+            
+            if(track) track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
+        }
+
+        // --- WINDOW ACTIONS ---
+        window.changeCategory = (cat) => {
+            state.selectedCategory = cat;
+            document.getElementById('current-category-name').innerText = cat === 'all' ? 'Keşfet' : cat;
+            renderUI();
+        };
+
+        window.openGame = (link) => {
+            const tg = window.Telegram.WebApp;
+            tg.openTelegramLink(link.startsWith('http') ? link : `https://${link}`);
+        };
+
+        window.toggleAdminModal = (show) => {
+            const modal = document.getElementById('admin-modal');
+            modal.style.display = show ? 'flex' : 'none';
+            modal.style.opacity = show ? '1' : '0';
+        };
+
+        window.handleAdminLogin = () => {
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === "123456") {
+                state.isAdminAuthenticated = true;
+                document.getElementById('admin-auth-view').classList.add('hidden');
+                document.getElementById('admin-dashboard-view').classList.remove('hidden');
+                renderUI();
+            } else {
+                showToast("Hatalı şifre!");
+            }
+        };
+
+        window.logoutAdmin = () => {
+            state.isAdminAuthenticated = false;
+            document.getElementById('admin-auth-view').classList.remove('hidden');
+            document.getElementById('admin-dashboard-view').classList.add('hidden');
+        };
+
+        window.apiAddCategory = async () => {
+            if (!state.user) return;
+            const input = document.getElementById('new-cat-input');
+            const name = input.value.trim();
+            if (!name || state.categories.includes(name)) return;
+            
+            const newCats = [...state.categories, name];
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
+            input.value = '';
+        };
+
+        window.apiDeleteCategory = async (name) => {
+            if (!state.user) return;
+            const newCats = state.categories.filter(c => c !== name);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
+        };
+
+        window.apiAddGame = async () => {
+            if (!state.user) return;
+            const name = document.getElementById('game-name').value;
+            const category = document.getElementById('game-category-select').value;
+            const link = document.getElementById('game-link').value;
+            const image = document.getElementById('game-image').value;
+            const inBanner = document.getElementById('game-banner-check').checked;
+
+            if (!name || !link || !category) return showToast("Eksik bilgi!");
+
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
+                name, category, link, image, inBanner, createdAt: Date.now()
+            });
+            showToast("Eklendi!");
+        };
+
+        window.apiDeleteGame = async (id) => {
+            if (!state.user) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
+        };
+
+        function renderAdminDashboard() {
+            const list = document.getElementById('admin-game-list');
+            list.innerHTML = state.games.map(game => `v
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border">
+                    <span class="text-xs font-bold">${game.name}</span>
+                    <button onclick="window.apiDeleteGame('${game.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        window.closeAdminOutside = (e) => {
+            if (e.target.id === 'admin-modal') toggleAdminModal(false);
+        };
+
+        init();
     </script>
 </body>
 </html>
