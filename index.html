@@ -3,250 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PI NEBULA ULTRA</title>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Montserrat:wght@900&display=swap" rel="stylesheet">
-    
+    <title>Telegram Game Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --bg-deep: #2c1a74; 
-            --bg-light: #4c3ba5; 
-            --accent: #fbc02d; 
-            --accent-dark: #f9a825;
-            --white: #ffffff;
-            --glass: rgba(255, 255, 255, 0.12);
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Fredoka', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--bg-deep); 
-            color: white; 
-            overflow: hidden; 
-            height: 100vh;
-            background-image: radial-gradient(circle at 50% 20%, #5e48c2 0%, #2c1a74 100%);
+        .btn-blue {
+            background-color: #00bcd4;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
         }
-
-        #app { width:100%; max-width:450px; height:100vh; margin:auto; position:relative; display:flex; flex-direction:column; }
-
-        /* Üst Header - Modern & Minimal */
-        .top-nav { padding: 25px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
-        .score-container { 
-            background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 30px; 
-            display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
-        .pi-coin { width: 28px; height: 28px; background: linear-gradient(135deg, #fbc02d, #ffeb3b); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4c3ba5; font-weight: 900; box-shadow: 0 0 10px var(--accent); }
-
-        /* Ana Alan */
-        .main-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .pet-wrapper { position: relative; width: 220px; height: 220px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        
-        .pet-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); }
-        .title-text { font-size: 2.6rem; font-weight: 700; line-height: 0.85; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .mining-display { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; color: var(--accent); margin-bottom: 30px; letter-spacing: 1px; }
-
-        /* Butonlar - Tam Resimdeki Stil */
-        .action-box { width: 100%; padding: 0 45px; display: flex; flex-direction: column; gap: 14px; }
-        .btn-main { 
-            background: linear-gradient(to bottom, #ffee58, #fbc02d);
-            border: none; border-radius: 24px; padding: 20px; color: #2c1a74;
-            font-size: 1.4rem; font-weight: 700; text-transform: uppercase;
-            box-shadow: 0 8px 0 #9e7500; cursor: pointer; transition: 0.1s;
+        /* Gizli içerik sınıfı */
+        .owner-only {
+            display: none;
         }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 4px 0 #9e7500; }
-        
-        .btn-night {
-            background: linear-gradient(to bottom, #fbc02d, #f9a825);
-            border: none; border-radius: 24px; padding: 14px; color: #2c1a74;
-            font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
-            box-shadow: 0 5px 0 #8c6a00;
-        }
-
-        /* Alt Navigasyon - Cam Efekti */
-        .bottom-nav { 
-            height: 95px; background: rgba(106, 83, 207, 0.4); backdrop-filter: blur(20px);
-            border-radius: 40px 40px 0 0; display: flex; justify-content: space-around; 
-            align-items: center; border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        .nav-link { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0.5; color: white; font-size: 0.75rem; font-weight: 600; }
-        .nav-link.active { opacity: 1; color: var(--accent); }
-        .paw-btn { 
-            width: 76px; height: 76px; background: var(--accent); border-radius: 50%; 
-            margin-top: -55px; border: 8px solid var(--bg-deep); display: flex; 
-            align-items: center; justify-content: center; font-size: 2.2rem; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        }
-
-        /* Views */
-        .view { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 110px; }
-        .view.active { display: flex; flex-direction: column; }
-        .glass-card { background: var(--glass); padding: 20px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
-        
-        #ghost-banner { display:none; background: #ff1744; text-align: center; padding: 6px; font-weight: bold; font-size: 0.7rem; position: sticky; top: 0; z-index: 999; }
     </style>
 </head>
-<body>
+<body class="max-w-md mx-auto pb-20">
 
-<div id="app">
-    <div id="ghost-banner" onclick="exitGhost()">SPECTATING: <span id="g-name"></span> (CLOSE)</div>
-    
-    <div class="top-nav">
-        <div class="score-container">
-            <div class="pi-coin">π</div>
-            <div>
-                <div id="h-pi" style="font-weight:700; font-size: 1.1rem;">0.00</div>
-                <div style="font-size:0.6rem; opacity:0.6; margin-top:-2px;">EST. $ <span id="h-usd">0.00</span></div>
-            </div>
+    <!-- Header -->
+    <header class="flex items-center justify-between p-4 bg-white sticky top-0 z-50 border-b border-gray-50">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-chevron-left text-gray-400"></i>
+            <span class="font-medium text-gray-700" id="user-name">Yükleniyor...</span>
         </div>
-        <div style="display:flex; gap:10px;">
-            <div class="score-container" style="padding: 8px 12px;"><span id="fuel-timer">30</span>s ⚡</div>
+        <div class="flex items-center gap-4">
+            <button onclick="openAdmin()" class="text-gray-300">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
-    </div>
+    </header>
 
-    <div id="v-home" class="view active">
-        <div class="main-stage">
-            <div class="pet-wrapper">
-                <img src="https://i.ibb.co/LkhYhH3/pets.png" class="pet-img" onerror="this.src='https://via.placeholder.com/300x300/4c3ba5/ffffff?text=PET'">
-            </div>
-            <h1 class="title-text">YOUR<br>FANTASTIC PET</h1>
-            <p id="m-val" class="mining-display">0.00000000</p>
-            
-            <div class="action-box">
-                <button class="btn-main" onclick="handleClaim()">PLAY / CLAIM</button>
-                <button class="btn-night" onclick="startNight()">NIGHT SESSION<br><small style="font-size:0.6rem; display:block; opacity:0.8;">Double your speed</small></button>
-            </div>
-        </div>
-    </div>
-
-    <div id="v-wallet" class="view">
-        <h2 style="margin-bottom:20px; font-weight:700;">WALLET</h2>
-        <div class="glass-card">
-            <p style="font-size:0.8rem; margin-bottom:10px; opacity:0.7;">Recipient Address</p>
-            <input type="text" id="w-addr" placeholder="G..." style="width:100%; padding:15px; border-radius:15px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:white; margin-bottom:15px; outline:none;">
-            <p style="font-size:0.8rem; margin-bottom:10px; opacity:0.7;">Amount (PI)</p>
-            <input type="number" id="w-amt" placeholder="Min 500" style="width:100%; padding:15px; border-radius:15px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:white; margin-bottom:20px; outline:none;">
-            <button class="btn-main" style="padding:15px; font-size:1.1rem;" onclick="processWithdraw()">SEND REQUEST</button>
-        </div>
-    </div>
-
-    <div id="v-admin" class="view">
-        <h2 style="color:var(--accent); margin-bottom:20px;">SYSTEM ADMIN</h2>
-        <div class="glass-card" style="background:var(--accent); color:#2c1a74; text-align:center;" onclick="addAdminBonus()">
-            <b style="font-size:1.1rem;">👑 ADD 500 PI TO MY ACCOUNT</b>
-        </div>
-        <div id="adm-list"></div>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-link" onclick="tab('v-friends', this)">👥<br>Friends</div>
-        <div class="nav-link" onclick="tab('v-earn', this)">🎁<br>Tasks</div>
-        <div class="paw-btn" onclick="tab('v-home', this)">🐾</div>
-        <div class="nav-link" onclick="tab('v-wallet', this)">💳<br>Wallet</div>
-        <div id="adm-tab" class="nav-link" style="display:none;" onclick="tab('v-admin', this)">⚙️<br>Admin</div>
-    </div>
-</div>
-
-<script>
-    // --- FIREBASE & APP CONFIG ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyApwj-8tB4qxqe8yJ9uP7XuKfEdT2lwYv4",
-        authDomain: "fonix-b4de6.firebaseapp.com",
-        projectId: "fonix-b4de6",
-        storageBucket: "fonix-b4de6.firebasestorage.app",
-        messagingSenderId: "20899545652",
-        appId: "1:20899545652:web:f32ef599f0c8d3deaec061"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const tg = window.Telegram.WebApp;
-    const ADMIN_ID = "8392479231";
-
-    let realUid = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "dev_test";
-    let activeUid = realUid;
-    let uData = { pi: 0, uncl: 0, username: tg.initDataUnsafe?.user?.username || "Guest" };
-    let fuel = 30;
-
-    function init() {
-        tg.expand();
-        db.collection("users").doc(activeUid).onSnapshot(doc => {
-            if(doc.exists) { uData = doc.data(); updateUI(); }
-            else { db.collection("users").doc(activeUid).set(uData); }
-        });
-
-        if(realUid === ADMIN_ID) document.getElementById('adm-tab').style.display = 'flex';
+    <!-- SADECE SAHİBİNE GÖZÜKECEK ALAN -->
+    <div id="private-content" class="owner-only px-4 mt-4">
         
-        setInterval(() => {
-            if(fuel > 0) {
-                fuel--;
-                uData.uncl += 0.00035;
-                document.getElementById('m-val').innerText = uData.uncl.toFixed(8);
-                document.getElementById('fuel-timer').innerText = fuel;
+        <!-- Banner Alanı -->
+        <div class="mb-6">
+            <h2 class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Öne Çıkan</h2>
+            <div class="relative rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-44 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4">
+                    <span class="text-white font-bold text-lg">Cyber Strike 2077</span>
+                    <p class="text-gray-200 text-xs">Yeni nesil savaş deneyimi başladı.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yeni Oyunlar Sekmesi -->
+        <div class="mb-8">
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-xl font-bold">Yeni Oyunlar</h2>
+                <span class="text-cyan-500 text-sm font-medium">Tümünü Gör</span>
+            </div>
+            
+            <div id="games-container" class="space-y-6">
+                <!-- Dinamik Oyunlar -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- YETKİSİZ KULLANICI MESAJI -->
+    <div id="access-denied" class="hidden flex flex-col items-center justify-center h-[70vh] px-10 text-center">
+        <i class="fas fa-user-shield text-6xl text-gray-200 mb-4"></i>
+        <h2 class="text-xl font-bold text-gray-400">Erişim Kısıtlı</h2>
+        <p class="text-gray-400 text-sm mt-2">Bu uygulamadaki içerikler sadece yöneticiye özeldir.</p>
+    </div>
+
+    <!-- Admin Paneli -->
+    <div id="adminPanel" class="admin-modal">
+        <div class="bg-white w-11/12 max-w-sm rounded-2xl p-6">
+            <h2 class="text-xl font-bold mb-4">Yönetici Girişi</h2>
+            <input id="adminPass" type="password" class="w-full border p-3 rounded-xl mb-4 text-center" placeholder="Şifre (123456)">
+            <div class="flex gap-2">
+                <button onclick="closeAdmin()" class="flex-1 py-3 text-gray-500">Kapat</button>
+                <button onclick="checkPass()" class="flex-1 bg-cyan-500 text-white py-3 rounded-xl font-bold">Giriş Yap</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OWNER_ID = 8392479231; // Senin ID'n
+        const tg = window.Telegram.WebApp;
+
+        // Varsayılan Oyun Verileri
+        let games = [
+            { id: 1, name: "Pixel Quest", desc: "Retro macera seni bekliyor", emoji: "👾", link: "#" },
+            { id: 2, name: "Galactic Miner", desc: "TON madenciliği simülatörü", emoji: "🚀", link: "#" },
+            { id: 3, name: "Neon Runner", desc: "Hızlı refleks, yüksek puan", emoji: "🏃", link: "#" }
+        ];
+
+        function initApp() {
+            tg.expand(); // Ekranı tam boy yap
+            
+            const user = tg.initDataUnsafe?.user;
+            const currentUserId = user?.id;
+            const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : "Misafir";
+            
+            document.getElementById('user-name').innerText = userName;
+
+            // ID Kontrolü
+            if (currentUserId === OWNER_ID) {
+                document.getElementById('private-content').style.display = 'block';
+                renderGames();
+            } else {
+                document.getElementById('access-denied').classList.remove('hidden');
             }
-        }, 1000);
-    }
-
-    function updateUI() {
-        document.getElementById('h-pi').innerText = uData.pi.toFixed(2);
-        document.getElementById('h-usd').innerText = (uData.pi * 3.14).toFixed(2);
-        if(activeUid !== realUid) {
-            document.getElementById('ghost-banner').style.display = 'block';
-            document.getElementById('g-name').innerText = uData.username;
-        } else {
-            document.getElementById('ghost-banner').style.display = 'none';
         }
-    }
 
-    function startNight() {
-        try {
-            new AdexiumWidget({wid: '620cb288-d63c-4ae9-a76a-e821f15a2a4b', adFormat: 'interstitial'}).autoMode();
-            fuel = 30;
-        } catch(e) { fuel = 30; }
-    }
-
-    function handleClaim() {
-        if(activeUid !== realUid || uData.uncl < 0.001) return;
-        db.collection("users").doc(realUid).update({
-            pi: firebase.firestore.FieldValue.increment(uData.uncl),
-            uncl: 0
-        });
-    }
-
-    // --- ADMIN PANEL ---
-    async function addAdminBonus() {
-        if(realUid === ADMIN_ID) {
-            await db.collection("users").doc(ADMIN_ID).update({ pi: firebase.firestore.FieldValue.increment(500) });
-            alert("500 PI Added, Boss!");
+        function renderGames() {
+            const container = document.getElementById('games-container');
+            if (localStorage.getItem('tgGames')) {
+                games = JSON.parse(localStorage.getItem('tgGames'));
+            }
+            
+            container.innerHTML = '';
+            games.forEach(game => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between animate-fade-in">
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">${game.emoji}</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">${game.name}</h3>
+                                <p class="text-gray-400 text-xs">${game.desc}</p>
+                            </div>
+                        </div>
+                        <button onclick="window.location.href='${game.link}'" class="btn-blue">Başlangıç</button>
+                    </div>
+                `;
+            });
         }
-    }
 
-    function tab(id, el) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'v-admin') loadAdmin();
-    }
+        // Admin Modalı Fonksiyonları
+        function openAdmin() { document.getElementById('adminPanel').style.display = 'flex'; }
+        function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+        
+        function checkPass() {
+            if(document.getElementById('adminPass').value === '123456') {
+                alert('Yönetici yetkisi aktif. (Buradan oyun ekleme/silme fonksiyonlarını daha sonra geliştirebilirsin)');
+                closeAdmin();
+            } else {
+                alert('Hatalı şifre!');
+            }
+        }
 
-    async function loadAdmin() {
-        const snap = await db.collection("users").orderBy("pi", "desc").limit(30).get();
-        const list = document.getElementById('adm-list'); list.innerHTML = "";
-        snap.forEach(doc => {
-            list.innerHTML += `
-                <div class="glass-card" onclick="ghostMode('${doc.id}')" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>@${doc.data().username}</span>
-                    <b style="color:var(--accent)">${doc.data().pi.toFixed(2)} PI</b>
-                </div>`;
-        });
-    }
-
-    function ghostMode(id) { activeUid = id; tab('v-home'); init(); }
-    function exitGhost() { activeUid = realUid; init(); }
-
-    window.onload = init;
-</script>
+        // Uygulamayı başlat
+        window.onload = initApp;
+    </script>
 </body>
 </html>
