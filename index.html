@@ -511,7 +511,7 @@
 
         function renderAdminDashboard() {
             const list = document.getElementById('admin-game-list');
-            list.innerHTML = state.games.map(game => `v
+            list.innerHTML = state.games.map(game => `
                 <div class="flex items-center justify-between bg-white p-3 rounded-xl border">
                     <span class="text-xs font-bold">${game.name}</span>
                     <button onclick="window.apiDeleteGame('${game.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
