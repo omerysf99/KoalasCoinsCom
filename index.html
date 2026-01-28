@@ -13,159 +13,213 @@
             background-color: #ffffff;
             color: #333;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
         .btn-blue {
             background-color: #00bcd4;
             color: white;
-            padding: 6px 16px;
-            border-radius: 8px;
+            padding: 8px 20px;
+            border-radius: 10px;
             font-weight: 600;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-blue:active {
+            transform: scale(0.95);
+            opacity: 0.9;
         }
         .admin-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
-        /* Gizli içerik sınıfı */
         .owner-only {
-            display: none;
+            display: none; /* Varsayılan olarak gizli, JS ile açılacak */
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="max-w-md mx-auto pb-20">
+<body class="max-w-md mx-auto pb-24">
 
     <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-white sticky top-0 z-50 border-b border-gray-50">
-        <div class="flex items-center gap-2">
-            <i class="fas fa-chevron-left text-gray-400"></i>
-            <span class="font-medium text-gray-700" id="user-name">Yükleniyor...</span>
+    <header class="flex items-center justify-between p-4 bg-white sticky top-0 z-50 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-bars text-gray-400 text-lg"></i>
+            <span class="font-bold text-gray-800" id="user-display-name">Yükleniyor...</span>
         </div>
-        <div class="flex items-center gap-4">
-            <button onclick="openAdmin()" class="text-gray-300">
-                <i class="fas fa-cog"></i>
+        <div class="flex items-center gap-3">
+            <button onclick="openAdmin()" class="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-cyan-500 transition">
+                <i class="fas fa-cog text-xl"></i>
             </button>
+            <div class="bg-gray-100 p-2 rounded-full px-4 flex items-center gap-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-xs font-bold text-gray-500 uppercase">Live</span>
+            </div>
         </div>
     </header>
 
-    <!-- SADECE SAHİBİNE GÖZÜKECEK ALAN -->
-    <div id="private-content" class="owner-only px-4 mt-4">
+    <!-- SAHİBİNE ÖZEL İÇERİK -->
+    <div id="private-content" class="owner-only px-4 mt-6 animate-fade-in">
         
-        <!-- Banner Alanı -->
-        <div class="mb-6">
-            <h2 class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Öne Çıkan</h2>
-            <div class="relative rounded-2xl overflow-hidden shadow-lg border border-gray-100">
-                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-44 object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4">
-                    <span class="text-white font-bold text-lg">Cyber Strike 2077</span>
-                    <p class="text-gray-200 text-xs">Yeni nesil savaş deneyimi başladı.</p>
+        <!-- Üst Selamlama -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-black text-gray-900">Portalım 🚀</h1>
+                <p class="text-gray-400 text-sm">Sana özel seçilmiş oyunlar</p>
+            </div>
+            <span class="text-3xl">🇹🇷</span>
+        </div>
+
+        <!-- Banner Alanı (Öne Çıkan Oyun) -->
+        <div class="mb-8">
+            <h2 class="text-[10px] font-black text-cyan-500 mb-2 uppercase tracking-[0.2em]">Haftanın Favorisi</h2>
+            <div class="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-100 border border-gray-100 group">
+                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-52 object-cover group-hover:scale-105 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-cyan-500 text-[10px] text-white font-bold px-2 py-0.5 rounded uppercase">Premium</span>
+                        <span class="text-yellow-400 text-xs"><i class="fas fa-star"></i> 4.9</span>
+                    </div>
+                    <span class="text-white font-black text-2xl tracking-tight">Cyber Strike 2077</span>
+                    <p class="text-gray-300 text-xs mt-1">Geleceğin dünyasında hayatta kal.</p>
                 </div>
             </div>
         </div>
 
         <!-- Yeni Oyunlar Sekmesi -->
-        <div class="mb-8">
-            <div class="flex justify-between items-end mb-4">
-                <h2 class="text-xl font-bold">Yeni Oyunlar</h2>
-                <span class="text-cyan-500 text-sm font-medium">Tümünü Gör</span>
+        <div class="mb-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black text-gray-800 italic uppercase">Yeni Oyunlar</h2>
+                <div class="h-[2px] flex-grow mx-4 bg-gray-100"></div>
+                <i class="fas fa-fire text-orange-500"></i>
             </div>
             
             <div id="games-container" class="space-y-6">
-                <!-- Dinamik Oyunlar -->
+                <!-- Oyunlar buraya renderGames() ile gelecek -->
             </div>
         </div>
 
     </div>
 
-    <!-- YETKİSİZ KULLANICI MESAJI -->
-    <div id="access-denied" class="hidden flex flex-col items-center justify-center h-[70vh] px-10 text-center">
-        <i class="fas fa-user-shield text-6xl text-gray-200 mb-4"></i>
-        <h2 class="text-xl font-bold text-gray-400">Erişim Kısıtlı</h2>
-        <p class="text-gray-400 text-sm mt-2">Bu uygulamadaki içerikler sadece yöneticiye özeldir.</p>
+    <!-- ERİŞİM REDDEDİLDİ MESAJI -->
+    <div id="access-denied" class="hidden flex flex-col items-center justify-center h-[80vh] px-10 text-center animate-fade-in">
+        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-gray-100">
+            <i class="fas fa-shield-alt text-4xl text-gray-200"></i>
+        </div>
+        <h2 class="text-2xl font-black text-gray-300 uppercase tracking-tighter">Erişim Reddedildi</h2>
+        <p class="text-gray-400 text-sm mt-4 leading-relaxed">
+            Üzgünüz, bu uygulama sadece <br> 
+            <span class="font-bold text-cyan-500 underline">yönetici ID'sine</span> özeldir.
+        </p>
+        <button onclick="tg.close()" class="mt-8 text-xs font-bold text-gray-300 uppercase tracking-widest border-b border-gray-200 pb-1">Uygulamadan Çık</button>
     </div>
 
-    <!-- Admin Paneli -->
+    <!-- Admin Paneli (Şifreli Giriş) -->
     <div id="adminPanel" class="admin-modal">
-        <div class="bg-white w-11/12 max-w-sm rounded-2xl p-6">
-            <h2 class="text-xl font-bold mb-4">Yönetici Girişi</h2>
-            <input id="adminPass" type="password" class="w-full border p-3 rounded-xl mb-4 text-center" placeholder="Şifre (123456)">
-            <div class="flex gap-2">
-                <button onclick="closeAdmin()" class="flex-1 py-3 text-gray-500">Kapat</button>
-                <button onclick="checkPass()" class="flex-1 bg-cyan-500 text-white py-3 rounded-xl font-bold">Giriş Yap</button>
+        <div class="bg-white w-10/12 max-w-sm rounded-[2rem] p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-fingerprint text-3xl text-cyan-500"></i>
+                </div>
+                <h2 class="text-xl font-black text-gray-800">Admin Girişi</h2>
+                <p class="text-gray-400 text-xs mt-1">Yönetim ayarları için şifre gereklidir.</p>
+            </div>
+            
+            <input id="adminPass" type="password" class="w-full border-2 border-gray-100 p-4 rounded-2xl mb-4 text-center text-xl tracking-[0.5em] focus:border-cyan-500 outline-none transition" placeholder="••••••">
+            
+            <div class="flex flex-col gap-3">
+                <button onclick="checkPass()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-cyan-100">ONAYLA</button>
+                <button onclick="closeAdmin()" class="w-full py-2 text-gray-400 font-bold text-sm">İptal Et</button>
             </div>
         </div>
     </div>
 
     <script>
-        const OWNER_ID = 8392479231; // Senin ID'n
+        // --- AYARLAR ---
+        const OWNER_ID = 8392479231; // Sadece senin ID'n
         const tg = window.Telegram.WebApp;
 
-        // Varsayılan Oyun Verileri
+        // --- VARSAYILAN OYUNLAR ---
         let games = [
-            { id: 1, name: "Pixel Quest", desc: "Retro macera seni bekliyor", emoji: "👾", link: "#" },
-            { id: 2, name: "Galactic Miner", desc: "TON madenciliği simülatörü", emoji: "🚀", link: "#" },
-            { id: 3, name: "Neon Runner", desc: "Hızlı refleks, yüksek puan", emoji: "🏃", link: "#" }
+            { id: 1, name: "Pixel Quest", desc: "Retro dünyada kaybolun", emoji: "👾", link: "https://t.me/pixel_quest_bot" },
+            { id: 2, name: "Galactic Miner", desc: "Değerli taşları topla", emoji: "💎", link: "https://t.me/miner_bot" },
+            { id: 3, name: "Neon Runner", desc: "Hız her şeydir", emoji: "⚡", link: "https://t.me/runner_bot" },
+            { id: 4, name: "CowHub", desc: "Çiftliğini büyüt", emoji: "🐄", link: "https://t.me/cowhub_bot" }
         ];
 
         function initApp() {
-            tg.expand(); // Ekranı tam boy yap
+            tg.ready();
+            tg.expand();
+            
+            // Telegram Tema Renklerini Uygula
+            document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
             
             const user = tg.initDataUnsafe?.user;
             const currentUserId = user?.id;
-            const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : "Misafir";
+            const userName = user ? user.first_name : "Misafir";
             
-            document.getElementById('user-name').innerText = userName;
+            document.getElementById('user-display-name').innerText = "Hoş geldin, " + userName;
 
-            // ID Kontrolü
+            // ID KONTROLÜ (Sadece OWNER_ID ise içerik açılır)
             if (currentUserId === OWNER_ID) {
                 document.getElementById('private-content').style.display = 'block';
                 renderGames();
             } else {
+                // Eğer ID eşleşmiyorsa hata ekranını göster
                 document.getElementById('access-denied').classList.remove('hidden');
             }
         }
 
         function renderGames() {
             const container = document.getElementById('games-container');
-            if (localStorage.getItem('tgGames')) {
-                games = JSON.parse(localStorage.getItem('tgGames'));
+            // Eğer daha önce admin panelinden oyun eklendiyse onları al
+            if (localStorage.getItem('tgGamesData')) {
+                games = JSON.parse(localStorage.getItem('tgGamesData'));
             }
             
             container.innerHTML = '';
-            games.forEach(game => {
+            games.forEach((game, index) => {
                 container.innerHTML += `
-                    <div class="flex items-center justify-between animate-fade-in">
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">${game.emoji}</div>
+                    <div class="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">${game.emoji}</div>
                             <div>
-                                <h3 class="font-bold text-gray-800">${game.name}</h3>
-                                <p class="text-gray-400 text-xs">${game.desc}</p>
+                                <h3 class="font-black text-gray-800 text-sm italic uppercase">${game.name}</h3>
+                                <p class="text-gray-400 text-[11px] font-medium leading-tight">${game.desc}</p>
                             </div>
                         </div>
-                        <button onclick="window.location.href='${game.link}'" class="btn-blue">Başlangıç</button>
+                        <button onclick="window.open('${game.link}', '_blank')" class="btn-blue shadow-md shadow-cyan-100">GİT</button>
                     </div>
                 `;
             });
         }
 
-        // Admin Modalı Fonksiyonları
+        // Admin Fonksiyonları
         function openAdmin() { document.getElementById('adminPanel').style.display = 'flex'; }
         function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
         
         function checkPass() {
-            if(document.getElementById('adminPass').value === '123456') {
-                alert('Yönetici yetkisi aktif. (Buradan oyun ekleme/silme fonksiyonlarını daha sonra geliştirebilirsin)');
+            const input = document.getElementById('adminPass').value;
+            if(input === '123456') {
+                tg.showAlert('Yönetici Onaylandı! Oyun ekleme/çıkarma özellikleri bu sürümde statik listeye bağlıdır.');
                 closeAdmin();
             } else {
-                alert('Hatalı şifre!');
+                tg.showAlert('Hatalı şifre denemesi!');
             }
         }
 
-        // Uygulamayı başlat
+        // Başlat
         window.onload = initApp;
     </script>
 </body>
