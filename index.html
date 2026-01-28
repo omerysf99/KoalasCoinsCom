@@ -173,7 +173,6 @@
             </div>
         </div>
         <div class="flex gap-2">
-            <!-- Admin Paneli Butonu: 'hidden' sınıfı eklendi, sadece yetkiliye görünecek -->
             <button id="admin-trigger" onclick="toggleAdminModal(true)" class="hidden w-10 h-10 rounded-full flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-cyan-50 transition-colors">
                 <i class="fas fa-user-shield"></i>
             </button>
@@ -280,14 +279,12 @@
             getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Global Değişkenler
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'playcentr-67140';
         
-        // ADMIN TELEGRAM ID - SADECE SENİN GÖRMEN İÇİN
         const ADMIN_TELEGRAM_ID = "8392479231";
 
         let state = {
@@ -300,28 +297,24 @@
             isAdminAuthenticated: false
         };
 
-        // --- AUTH & INIT ---
         async function init() {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
-            
-            // Telegram verisini kontrol et
-            if (tg.initDataUnsafe?.user) {
-                state.tgUser = tg.initDataUnsafe.user;
-                document.getElementById('tg-username').innerText = state.tgUser.first_name;
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                tg.ready();
+                tg.expand();
                 
-                // CRITICAL: ID Kontrolü buraya geri eklendi
-                const currentId = String(state.tgUser.id);
-                if (currentId === ADMIN_TELEGRAM_ID) {
-                    document.getElementById('admin-trigger').classList.remove('hidden');
+                if (tg.initDataUnsafe?.user) {
+                    state.tgUser = tg.initDataUnsafe.user;
+                    document.getElementById('tg-username').innerText = state.tgUser.first_name || 'Ziyaretçi';
+                    
+                    if (String(state.tgUser.id) === ADMIN_TELEGRAM_ID) {
+                        document.getElementById('admin-trigger').classList.remove('hidden');
+                    }
                 }
-            } else {
-                // Tarayıcı testleri için (ID kontrolü yapılamadığı durumlarda buton gizli kalır)
-                console.log("Kullanıcı verisi yok veya yetkisiz erişim.");
             }
 
             try {
+                // Auth işlemini bekle ve güvenli hale getir
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -329,39 +322,47 @@
                 }
             } catch (e) {
                 console.error("Auth Hatası:", e);
-                showToast("Bağlantı hatası");
             }
 
             onAuthStateChanged(auth, (user) => {
                 state.user = user;
-                if (user) startSync();
+                if (user) {
+                    startSync();
+                } else {
+                    showToast("Oturum açılamadı.");
+                }
             });
         }
 
-        // --- VERİ TAKİBİ ---
         function startSync() {
             if (!state.user) return;
 
             const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
             const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main');
 
+            // Hata yakalamalı listenerlar
             onSnapshot(gamesRef, (snapshot) => {
                 state.games = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderUI();
-            }, err => console.error(err));
+            }, err => {
+                console.error("Firestore Games Error:", err);
+            });
 
             onSnapshot(configRef, async (docSnap) => {
                 if (docSnap.exists()) {
                     state.categories = docSnap.data().categories || [];
                 } else {
-                    const defaultCats = ["Aksiyon", "Bulmaca", "Klasik", "Spor"];
-                    await setDoc(configRef, { categories: defaultCats });
+                    // Veri yoksa admin tarafından oluşturulana kadar bekler veya default set eder
+                    try {
+                        await setDoc(configRef, { categories: ["Aksiyon", "Bulmaca", "Klasik", "Spor"] });
+                    } catch(e) { console.warn("Config set yetkisi yok (Normal kullanıcı)"); }
                 }
                 renderUI();
-            }, err => console.error(err));
+            }, err => {
+                console.error("Firestore Config Error:", err);
+            });
         }
 
-        // --- RENDER FONKSİYONLARI ---
         function renderUI() {
             renderCategories();
             renderGames();
@@ -431,6 +432,7 @@
 
             if (bannerGames.length === 0) {
                 track.innerHTML = `<div class="banner-slide flex items-center justify-center bg-gray-900 text-white font-black">PLAYCENTR PORTAL</div>`;
+                nav.innerHTML = '';
                 return;
             }
 
@@ -449,7 +451,6 @@
             track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
         }
 
-        // --- WINDOW ACTIONS ---
         window.changeCategory = (cat) => {
             state.selectedCategory = cat;
             document.getElementById('current-category-name').innerText = cat === 'all' ? 'Keşfet' : cat;
@@ -457,19 +458,31 @@
         };
 
         window.openGame = (link) => {
-            const tg = window.Telegram.WebApp;
-            tg.openTelegramLink(link.startsWith('http') ? link : `https://${link}`);
+            if(!link) return;
+            const tg = window.Telegram?.WebApp;
+            const fullLink = link.startsWith('http') ? link : `https://${link}`;
+            if (tg) {
+                tg.openTelegramLink(fullLink);
+            } else {
+                window.open(fullLink, '_blank');
+            }
         };
 
         window.toggleAdminModal = (show) => {
-            // Güvenlik: Eğer ID admin değilse modali hiç açma
-            if (show && state.tgUser && String(state.tgUser.id) !== ADMIN_TELEGRAM_ID) {
-                showToast("Bu bölüme erişim yetkiniz yok.");
-                return;
-            }
             const modal = document.getElementById('admin-modal');
-            modal.style.display = show ? 'flex' : 'none';
-            setTimeout(() => { modal.style.opacity = show ? '1' : '0'; }, 10);
+            if (show) {
+                // Sıkı ID Kontrolü
+                const userId = state.tgUser ? String(state.tgUser.id) : null;
+                if (userId !== ADMIN_TELEGRAM_ID) {
+                    showToast("Yetkisiz Erişim!");
+                    return;
+                }
+                modal.style.display = 'flex';
+                setTimeout(() => { modal.style.opacity = '1'; }, 10);
+            } else {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            }
         };
 
         window.handleAdminLogin = () => {
@@ -488,6 +501,7 @@
             state.isAdminAuthenticated = false;
             document.getElementById('admin-auth-view').classList.remove('hidden');
             document.getElementById('admin-dashboard-view').classList.add('hidden');
+            document.getElementById('admin-pass-input').value = '';
         };
 
         window.apiAddCategory = async () => {
@@ -496,15 +510,19 @@
             const name = input.value.trim();
             if (!name || state.categories.includes(name)) return;
             
-            const newCats = [...state.categories, name];
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
-            input.value = '';
+            try {
+                const newCats = [...state.categories, name];
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
+                input.value = '';
+            } catch(e) { showToast("Hata oluştu."); }
         };
 
         window.apiDeleteCategory = async (name) => {
             if (!state.user || !state.isAdminAuthenticated) return;
-            const newCats = state.categories.filter(c => c !== name);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
+            try {
+                const newCats = state.categories.filter(c => c !== name);
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main'), { categories: newCats });
+            } catch(e) { showToast("Hata oluştu."); }
         };
 
         window.apiAddGame = async () => {
@@ -517,24 +535,31 @@
 
             if (!name || !link || !category) return showToast("Eksik bilgi!");
 
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
-                name, category, link, image, inBanner, createdAt: Date.now()
-            });
-            showToast("Eklendi!");
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
+                    name, category, link, image, inBanner, createdAt: Date.now()
+                });
+                showToast("Eklendi!");
+                // Formu temizle
+                document.getElementById('game-name').value = '';
+                document.getElementById('game-link').value = '';
+            } catch(e) { showToast("Hata!"); }
         };
 
         window.apiDeleteGame = async (id) => {
             if (!state.user || !state.isAdminAuthenticated) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
+            } catch(e) { showToast("Silinemedi."); }
         };
 
         function renderAdminDashboard() {
             const list = document.getElementById('admin-game-list');
             if (!list) return;
             list.innerHTML = state.games.map(game => `
-                <div class="flex items-center justify-between bg-white p-3 rounded-xl border">
-                    <span class="text-xs font-bold">${game.name}</span>
-                    <button onclick="window.apiDeleteGame('${game.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border mb-2">
+                    <span class="text-xs font-bold text-gray-700">${game.name}</span>
+                    <button onclick="window.apiDeleteGame('${game.id}')" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
                 </div>
             `).join('');
         }
@@ -543,12 +568,28 @@
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
+            toast.classList.add('animate__fadeInUp');
+            setTimeout(() => {
+                toast.classList.replace('animate__fadeInUp', 'animate__fadeOutDown');
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    toast.classList.remove('animate__fadeOutDown');
+                }, 500);
+            }, 3000);
         }
 
         window.closeAdminOutside = (e) => {
-            if (e.target.id === 'admin-modal') toggleAdminModal(false);
+            if (e.target.id === 'admin-modal') window.toggleAdminModal(false);
         };
+
+        // Otomatik banner kaydırma
+        setInterval(() => {
+            const bannerGames = state.games.filter(g => g.inBanner);
+            if (bannerGames.length > 1) {
+                state.currentSlide = (state.currentSlide + 1) % bannerGames.length;
+                renderBanner();
+            }
+        }, 5000);
 
         init();
     </script>
