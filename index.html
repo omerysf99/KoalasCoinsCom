@@ -78,6 +78,38 @@
             width: 16px;
             border-radius: 10px;
         }
+        /* Admin Panel Styles */
+        #admin-panel {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+            z-index: 100;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+        #admin-panel.open {
+            transform: translateY(0);
+        }
+        .admin-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 90;
+        }
     </style>
 </head>
 <body class="p-4">
@@ -133,7 +165,7 @@
         </div>
 
         <!-- Games List -->
-        <div id="game-list" class="space-y-4 pb-10">
+        <div id="game-list" class="space-y-4 pb-24">
             <!-- Loading State -->
             <div class="animate-pulse flex space-x-4">
                 <div class="rounded-2xl bg-gray-200 h-16 w-16"></div>
@@ -145,9 +177,33 @@
         </div>
     </div>
 
+    <!-- Admin UI -->
+    <button id="admin-toggle-btn" class="admin-toggle" onclick="toggleAdminPanel()">
+        Admin Paneli
+    </button>
+
+    <div id="admin-panel">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Yeni Oyun Ekle</h2>
+            <button onclick="toggleAdminPanel()" class="text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <input type="text" id="admin-game-name" placeholder="Oyun Adı" class="w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all">
+            <input type="text" id="admin-game-desc" placeholder="Açıklama" class="w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all">
+            <input type="text" id="admin-game-link" placeholder="T.me Linki" class="w-full p-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-cyan-500 transition-all">
+            <button onclick="addGame()" class="w-full bg-cyan-500 text-white p-4 rounded-xl font-bold shadow-lg shadow-cyan-200 active:scale-95 transition-all">
+                Sisteme Kaydet
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBbA61N0ztsdRxEjwMUS0YKXXfXV4DMEVQ",
@@ -163,6 +219,7 @@
 
         const tg = window.Telegram.WebApp;
         const user = tg.initDataUnsafe?.user;
+        const ADMIN_ID = "8392479231";
 
         const welcomeText = document.getElementById('welcome-text');
         const gameList = document.getElementById('game-list');
@@ -170,12 +227,12 @@
         const bannerDots = document.getElementById('banner-dots');
         const mainContent = document.getElementById('main-content');
         const accessDenied = document.getElementById('access-denied');
+        const adminBtn = document.getElementById('admin-toggle-btn');
+        const adminPanel = document.getElementById('admin-panel');
 
         let autoSlideInterval;
 
-        // Security Check: Only allow Telegram WebApp environment
         function checkPlatform() {
-            // Check if Telegram platform info exists
             if (!tg.platform || tg.platform === 'unknown') {
                 mainContent.style.display = 'none';
                 accessDenied.style.display = 'flex';
@@ -191,18 +248,55 @@
             
             if (user) {
                 welcomeText.innerText = `Merhaba! ${user.first_name}`;
+                
+                // Admin check
+                if (user.id.toString() === ADMIN_ID) {
+                    adminBtn.style.display = 'block';
+                }
+
                 try {
                     await setDoc(doc(db, "users", user.id.toString()), {
                         first_name: user.first_name,
                         username: user.username || "",
                         last_active: serverTimestamp(),
-                        isAdmin: user.id.toString() === "8392479231"
+                        isAdmin: user.id.toString() === ADMIN_ID
                     }, { merge: true });
                 } catch (e) { console.error(e); }
             } else {
                 welcomeText.innerText = "Merhaba! Misafir";
             }
             loadContent();
+        }
+
+        window.toggleAdminPanel = function() {
+            adminPanel.classList.toggle('open');
+            adminPanel.style.display = 'block';
+        }
+
+        window.addGame = async function() {
+            const name = document.getElementById('admin-game-name').value;
+            const desc = document.getElementById('admin-game-desc').value;
+            const link = document.getElementById('admin-game-link').value;
+
+            if(!name || !link) return tg.showAlert("Lütfen gerekli alanları doldurun.");
+
+            try {
+                tg.MainButton.setText("Ekleniyor...").show();
+                await addDoc(collection(db, "apps"), {
+                    name,
+                    description: desc,
+                    link,
+                    icon: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`,
+                    created_at: serverTimestamp()
+                });
+                tg.MainButton.hide();
+                tg.showAlert("Oyun başarıyla eklendi!");
+                toggleAdminPanel();
+                loadContent(); // Refresh list
+            } catch (e) {
+                tg.showAlert("Hata oluştu: " + e.message);
+                tg.MainButton.hide();
+            }
         }
 
         async function loadContent() {
@@ -282,6 +376,7 @@
                 currentIndex = index;
             });
 
+            if(autoSlideInterval) clearInterval(autoSlideInterval);
             autoSlideInterval = setInterval(() => {
                 currentIndex = (currentIndex + 1) % total;
                 const scrollAmount = currentIndex * (container.scrollWidth / total);
