@@ -19,187 +19,155 @@
             background-color: #00bcd4;
             color: white;
             padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.1);
         }
         .btn-blue:active {
-            transform: scale(0.95);
-            opacity: 0.9;
+            transform: scale(0.92);
         }
         .admin-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .owner-only {
-            display: none; /* Varsayılan olarak gizli, JS ile açılacak */
+            backdrop-filter: blur(8px);
         }
         .animate-fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.4s ease-out forwards;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .game-card {
+            background: #fff;
+            transition: all 0.2s;
         }
     </style>
 </head>
 <body class="max-w-md mx-auto pb-24">
 
     <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-white sticky top-0 z-50 border-b border-gray-100">
+    <header class="flex items-center justify-between p-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-50">
         <div class="flex items-center gap-3">
-            <i class="fas fa-bars text-gray-400 text-lg"></i>
-            <span class="font-bold text-gray-800" id="user-display-name">Yükleniyor...</span>
+            <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-cyan-100">GP</div>
+            <span class="font-bold text-gray-800" id="user-display-name">Hoş Geldiniz</span>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="openAdmin()" class="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-cyan-500 transition">
-                <i class="fas fa-cog text-xl"></i>
+        <div class="flex items-center gap-2">
+            <button onclick="openAdmin()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-cyan-500 transition">
+                <i class="fas fa-cog"></i>
             </button>
-            <div class="bg-gray-100 p-2 rounded-full px-4 flex items-center gap-2">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-xs font-bold text-gray-500 uppercase">Live</span>
-            </div>
         </div>
     </header>
 
-    <!-- SAHİBİNE ÖZEL İÇERİK -->
-    <div id="private-content" class="owner-only px-4 mt-6 animate-fade-in">
-        
-        <!-- Üst Selamlama -->
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-2xl font-black text-gray-900">Portalım 🚀</h1>
-                <p class="text-gray-400 text-sm">Sana özel seçilmiş oyunlar</p>
-            </div>
-            <span class="text-3xl">🇹🇷</span>
-        </div>
-
-        <!-- Banner Alanı (Öne Çıkan Oyun) -->
-        <div class="mb-8">
-            <h2 class="text-[10px] font-black text-cyan-500 mb-2 uppercase tracking-[0.2em]">Haftanın Favorisi</h2>
-            <div class="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-100 border border-gray-100 group">
-                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-52 object-cover group-hover:scale-105 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-cyan-500 text-[10px] text-white font-bold px-2 py-0.5 rounded uppercase">Premium</span>
-                        <span class="text-yellow-400 text-xs"><i class="fas fa-star"></i> 4.9</span>
-                    </div>
-                    <span class="text-white font-black text-2xl tracking-tight">Cyber Strike 2077</span>
-                    <p class="text-gray-300 text-xs mt-1">Geleceğin dünyasında hayatta kal.</p>
+    <div class="px-5 mt-6">
+        <!-- Banner -->
+        <div class="mb-10 animate-fade-in">
+            <div class="relative rounded-[2rem] overflow-hidden shadow-xl border border-gray-100">
+                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" class="w-full h-48 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
+                    <span class="text-white font-black text-xl tracking-tight">Öne Çıkanlar</span>
+                    <p class="text-gray-300 text-xs mt-1">En popüler oyunları hemen keşfet.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Yeni Oyunlar Sekmesi -->
+        <!-- Yeni Oyunlar Listesi -->
         <div class="mb-10">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-gray-800 italic uppercase">Yeni Oyunlar</h2>
-                <div class="h-[2px] flex-grow mx-4 bg-gray-100"></div>
-                <i class="fas fa-fire text-orange-500"></i>
-            </div>
-            
+            <h2 class="text-xl font-black text-gray-800 uppercase italic tracking-tighter mb-6">Oyun Listesi</h2>
             <div id="games-container" class="space-y-6">
-                <!-- Oyunlar buraya renderGames() ile gelecek -->
+                <!-- Oyunlar Buraya Gelecek -->
             </div>
         </div>
-
     </div>
 
-    <!-- ERİŞİM REDDEDİLDİ MESAJI -->
-    <div id="access-denied" class="hidden flex flex-col items-center justify-center h-[80vh] px-10 text-center animate-fade-in">
-        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-gray-100">
-            <i class="fas fa-shield-alt text-4xl text-gray-200"></i>
-        </div>
-        <h2 class="text-2xl font-black text-gray-300 uppercase tracking-tighter">Erişim Reddedildi</h2>
-        <p class="text-gray-400 text-sm mt-4 leading-relaxed">
-            Üzgünüz, bu uygulama sadece <br> 
-            <span class="font-bold text-cyan-500 underline">yönetici ID'sine</span> özeldir.
-        </p>
-        <button onclick="tg.close()" class="mt-8 text-xs font-bold text-gray-300 uppercase tracking-widest border-b border-gray-200 pb-1">Uygulamadan Çık</button>
-    </div>
-
-    <!-- Admin Paneli (Şifreli Giriş) -->
+    <!-- Admin Paneli Modalı -->
     <div id="adminPanel" class="admin-modal">
-        <div class="bg-white w-10/12 max-w-sm rounded-[2rem] p-8 shadow-2xl">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-fingerprint text-3xl text-cyan-500"></i>
-                </div>
-                <h2 class="text-xl font-black text-gray-800">Admin Girişi</h2>
-                <p class="text-gray-400 text-xs mt-1">Yönetim ayarları için şifre gereklidir.</p>
+        <div class="bg-white w-11/12 max-w-sm rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div id="loginSection">
+                <h2 class="text-xl font-black text-center mb-6">Admin Girişi</h2>
+                <input id="adminPass" type="password" class="w-full border-2 border-gray-100 p-4 rounded-2xl mb-4 text-center text-xl outline-none focus:border-cyan-500" placeholder="Şifre">
+                <button onclick="checkPass()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black">GİRİŞ</button>
+                <button onclick="closeAdmin()" class="w-full py-3 text-gray-400 text-sm mt-2">Vazgeç</button>
             </div>
-            
-            <input id="adminPass" type="password" class="w-full border-2 border-gray-100 p-4 rounded-2xl mb-4 text-center text-xl tracking-[0.5em] focus:border-cyan-500 outline-none transition" placeholder="••••••">
-            
-            <div class="flex flex-col gap-3">
-                <button onclick="checkPass()" class="w-full bg-cyan-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-cyan-100">ONAYLA</button>
-                <button onclick="closeAdmin()" class="w-full py-2 text-gray-400 font-bold text-sm">İptal Et</button>
+
+            <div id="manageSection" class="hidden">
+                <h2 class="text-xl font-black mb-4">Oyun Yönetimi</h2>
+                
+                <div class="space-y-3 mb-6">
+                    <input id="addName" class="w-full border p-3 rounded-xl text-sm" placeholder="Oyun Adı">
+                    <input id="addDesc" class="w-full border p-3 rounded-xl text-sm" placeholder="Açıklama">
+                    <input id="addEmoji" class="w-full border p-3 rounded-xl text-sm" placeholder="Emoji (Örn: 🎮)">
+                    <input id="addLink" class="w-full border p-3 rounded-xl text-sm" placeholder="Link (t.me/...)">
+                    <button onclick="addNewGame()" class="w-full bg-cyan-500 text-white py-3 rounded-xl font-bold">EKLE</button>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase">Mevcut Oyunlar</h3>
+                    <div id="admin-game-list" class="space-y-2">
+                        <!-- Silme listesi -->
+                    </div>
+                </div>
+                <button onclick="logoutAdmin()" class="w-full mt-6 py-2 text-red-400 text-xs font-bold">ÇIKIŞ YAP</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- AYARLAR ---
-        const OWNER_ID = 8392479231; // Sadece senin ID'n
         const tg = window.Telegram.WebApp;
+        let isAdmin = false;
 
-        // --- VARSAYILAN OYUNLAR ---
-        let games = [
-            { id: 1, name: "Pixel Quest", desc: "Retro dünyada kaybolun", emoji: "👾", link: "https://t.me/pixel_quest_bot" },
-            { id: 2, name: "Galactic Miner", desc: "Değerli taşları topla", emoji: "💎", link: "https://t.me/miner_bot" },
-            { id: 3, name: "Neon Runner", desc: "Hız her şeydir", emoji: "⚡", link: "https://t.me/runner_bot" },
-            { id: 4, name: "CowHub", desc: "Çiftliğini büyüt", emoji: "🐄", link: "https://t.me/cowhub_bot" }
+        // Başlangıç Verileri
+        let defaultGames = [
+            { id: 1, name: "Egg Factory", desc: "Çiftliğini kur ve üret.", emoji: "🥚", link: "https://t.me/egg_factory_bot" },
+            { id: 2, name: "Gold Rush", desc: "Altın madenciliği macerası.", emoji: "⛏️", link: "https://t.me/gold_rush_bot" },
+            { id: 3, name: "Pixel Quest", desc: "Retro dünyayı keşfet.", emoji: "👾", link: "https://t.me/pixel_quest_bot" }
         ];
+
+        let games = JSON.parse(localStorage.getItem('myCustomGames')) || defaultGames;
 
         function initApp() {
             tg.ready();
             tg.expand();
             
-            // Telegram Tema Renklerini Uygula
-            document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
-            
             const user = tg.initDataUnsafe?.user;
-            const currentUserId = user?.id;
-            const userName = user ? user.first_name : "Misafir";
+            if(user) document.getElementById('user-display-name').innerText = user.first_name;
             
-            document.getElementById('user-display-name').innerText = "Hoş geldin, " + userName;
-
-            // ID KONTROLÜ (Sadece OWNER_ID ise içerik açılır)
-            if (currentUserId === OWNER_ID) {
-                document.getElementById('private-content').style.display = 'block';
-                renderGames();
-            } else {
-                // Eğer ID eşleşmiyorsa hata ekranını göster
-                document.getElementById('access-denied').classList.remove('hidden');
-            }
+            renderGames();
         }
 
         function renderGames() {
             const container = document.getElementById('games-container');
-            // Eğer daha önce admin panelinden oyun eklendiyse onları al
-            if (localStorage.getItem('tgGamesData')) {
-                games = JSON.parse(localStorage.getItem('tgGamesData'));
-            }
-            
+            const adminList = document.getElementById('admin-game-list');
             container.innerHTML = '';
-            games.forEach((game, index) => {
+            adminList.innerHTML = '';
+
+            games.forEach(game => {
+                // Ana Sayfa Kartı
                 container.innerHTML += `
-                    <div class="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="flex items-center justify-between p-2 rounded-2xl game-card animate-fade-in">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100">${game.emoji}</div>
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl border border-gray-100">${game.emoji}</div>
                             <div>
-                                <h3 class="font-black text-gray-800 text-sm italic uppercase">${game.name}</h3>
-                                <p class="text-gray-400 text-[11px] font-medium leading-tight">${game.desc}</p>
+                                <h3 class="font-black text-gray-800 text-sm uppercase tracking-tight">${game.name}</h3>
+                                <p class="text-gray-400 text-[11px] leading-tight">${game.desc}</p>
                             </div>
                         </div>
-                        <button onclick="window.open('${game.link}', '_blank')" class="btn-blue shadow-md shadow-cyan-100">GİT</button>
+                        <button onclick="window.open('${game.link}', '_blank')" class="btn-blue">BAŞLA</button>
+                    </div>
+                `;
+
+                // Admin Silme Kartı
+                adminList.innerHTML += `
+                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                        <span class="text-xs font-bold">${game.emoji} ${game.name}</span>
+                        <button onclick="deleteGame(${game.id})" class="text-red-500 text-xs uppercase font-black">SİL</button>
                     </div>
                 `;
             });
@@ -208,18 +176,53 @@
         // Admin Fonksiyonları
         function openAdmin() { document.getElementById('adminPanel').style.display = 'flex'; }
         function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-        
+
         function checkPass() {
-            const input = document.getElementById('adminPass').value;
-            if(input === '123456') {
-                tg.showAlert('Yönetici Onaylandı! Oyun ekleme/çıkarma özellikleri bu sürümde statik listeye bağlıdır.');
-                closeAdmin();
+            if(document.getElementById('adminPass').value === '123456') {
+                isAdmin = true;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('manageSection').classList.remove('hidden');
             } else {
-                tg.showAlert('Hatalı şifre denemesi!');
+                tg.showAlert('Hatalı Şifre!');
             }
         }
 
-        // Başlat
+        function logoutAdmin() {
+            isAdmin = false;
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('manageSection').classList.add('hidden');
+            closeAdmin();
+        }
+
+        function addNewGame() {
+            const name = document.getElementById('addName').value;
+            const desc = document.getElementById('addDesc').value;
+            const emoji = document.getElementById('addEmoji').value || '🎮';
+            const link = document.getElementById('addLink').value;
+
+            if(!name || !link) return tg.showAlert('İsim ve Link zorunludur!');
+
+            const newGame = { id: Date.now(), name, desc, emoji, link };
+            games.push(newGame);
+            saveData();
+            
+            // Temizle
+            document.getElementById('addName').value = '';
+            document.getElementById('addDesc').value = '';
+            document.getElementById('addEmoji').value = '';
+            document.getElementById('addLink').value = '';
+        }
+
+        function deleteGame(id) {
+            games = games.filter(g => g.id !== id);
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('myCustomGames', JSON.stringify(games));
+            renderGames();
+        }
+
         window.onload = initApp;
     </script>
 </body>
