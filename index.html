@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chalpus Game Store Pro</title>
+    <title>Telegram Apps Center</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -24,143 +24,182 @@
             padding: 0;
         }
 
-        .custom-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .search-bar { background: var(--tg-theme-secondary-bg-color); }
-        #admin-panel { transition: transform 0.4s ease; transform: translateY(100%); }
-        #admin-panel.open { transform: translateY(0); }
-        
-        /* Oyun kartları için yükleme iskeleti efekti */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .slider-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding: 10px 0;
         }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+
+        .slider-item {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+
+        .game-card {
+            transition: all 0.2s ease;
+        }
+
+        .game-card:active {
+            transform: scale(0.98);
+        }
+
+        #admin-panel { 
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform: translateY(100%); 
+        }
+        #admin-panel.open { transform: translateY(0); }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
         }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Ana İçerik (Yükleme ekranı kaldırıldı, direkt görünür) -->
-    <div id="app-container" class="max-w-md mx-auto px-4 pt-4 transition-opacity duration-500">
+    <!-- Ana Konteyner -->
+    <div id="app-container" class="max-w-md mx-auto px-4 pt-4">
         
-        <header class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-3">
-                <div id="user-avatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-cyan-100">?</div>
-                <div>
-                    <p class="text-xs text-gray-400 font-medium">Hoş geldin,</p>
-                    <h1 id="user-name" class="font-bold text-gray-800 leading-tight">Oyuncu</h1>
-                </div>
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold tracking-tight" id="welcome-msg">Merhaba! Oyuncu</h1>
+                <span class="text-xl">🌍</span>
             </div>
-            <!-- Status Indicator -->
-            <div id="connection-status" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-yellow-100 text-yellow-600">Bağlanıyor...</div>
+            <div class="flex gap-2">
+                <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">📢</button>
+                <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">🇹🇷</button>
+            </div>
         </header>
 
-        <div class="search-bar flex items-center px-4 py-3 rounded-2xl mb-6">
-            <span class="mr-2">🔍</span>
-            <input type="text" id="search-input" placeholder="Oyun ara..." class="bg-transparent border-none outline-none w-full text-sm font-medium">
+        <!-- Öne Çıkanlar Slider -->
+        <div class="slider-container no-scrollbar" id="featured-slider">
+            <!-- Dinamik Slider İçeriği -->
         </div>
 
         <!-- Kategoriler -->
-        <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-4" id="category-list">
-            <button class="category-pill active px-5 py-2 rounded-full text-sm font-bold bg-gray-900 text-white" onclick="filterCategory('All', this)">Tümü</button>
-            <button class="category-pill px-5 py-2 rounded-full text-sm font-bold bg-gray-100" onclick="filterCategory('Aksiyon', this)">Aksiyon</button>
+        <div class="flex gap-3 overflow-x-auto no-scrollbar py-4 border-b">
+            <button class="flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-600 rounded-xl font-bold text-sm whitespace-nowrap">🎮 Games</button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm whitespace-nowrap">🏦 Finance</button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-xl font-bold text-sm whitespace-nowrap">🔄 Payments</button>
         </div>
 
-        <!-- Oyun Listesi (Başlangıçta boş veya iskelet görünebilir) -->
-        <div id="game-grid" class="grid grid-cols-1 gap-4">
-            <!-- İskelet Yükleme Görünümü -->
-            <div class="skeleton-item flex items-center justify-between p-4 bg-white border rounded-[2rem] opacity-50">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl skeleton"></div>
-                    <div class="h-4 w-24 rounded skeleton"></div>
-                </div>
+        <!-- Yeni Oyunlar Bölümü -->
+        <div class="mt-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold text-gray-900">Yeni Oyun</h2>
+                <button class="text-blue-500 text-sm font-bold">Tümü ></button>
+            </div>
+            <div id="game-list" class="space-y-6">
+                <!-- Oyunlar Buraya Gelecek -->
+            </div>
+        </div>
+
+        <!-- Sıcak Oyun Bölümü (Emoji ile) -->
+        <div class="mt-8">
+            <h2 class="text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-2">🔥 Sıcak Oyun</h2>
+            <div id="hot-game-list" class="space-y-6">
+                <!-- Sıcak Oyunlar -->
             </div>
         </div>
     </div>
 
-    <!-- Admin Butonu -->
-    <button id="admin-float-btn" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-2xl shadow-2xl items-center justify-center z-50" onclick="toggleAdminPanel(true)">⚙️</button>
+    <!-- Admin Float Button (Sadece Admin Görebilir) -->
+    <button id="admin-float-btn" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-black text-white rounded-full shadow-2xl items-center justify-center z-50 animate__animated animate__bounceIn" onclick="toggleAdminPanel(true)">
+        ⚙️
+    </button>
 
-    <!-- Admin Paneli -->
-    <div id="admin-panel" class="fixed inset-0 bg-white z-[100] flex flex-col pt-safe">
-        <div class="px-6 py-4 flex items-center justify-between border-b">
-            <h2 class="text-xl font-extrabold italic">ADMIN PANEL</h2>
-            <button onclick="toggleAdminPanel(false)" class="p-2 bg-gray-100 rounded-xl">✕</button>
+    <!-- Admin Paneli UI -->
+    <div id="admin-panel" class="fixed inset-0 bg-white z-[100] flex flex-col">
+        <div class="px-6 py-4 flex items-center justify-between border-b bg-gray-50">
+            <h2 class="text-lg font-black uppercase">Mağaza Yönetimi</h2>
+            <button onclick="toggleAdminPanel(false)" class="text-2xl">✕</button>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-6 pb-20 pt-4">
-            <div class="bg-gray-50 p-5 rounded-[2rem] space-y-4">
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="bg-blue-50 p-4 rounded-2xl space-y-3">
+                <p class="text-xs font-bold text-blue-500 uppercase tracking-widest">Yeni Oyun Ekle</p>
                 <div class="flex gap-2">
-                    <div class="flex-1 h-20 border-2 border-dashed rounded-2xl flex items-center justify-center bg-white cursor-pointer" onclick="document.getElementById('icon-input').click()">
-                        <img id="icon-preview" class="hidden w-full h-full object-cover rounded-2xl">
-                        <span id="icon-hint" class="text-[10px] text-gray-400 font-bold">İKON SEÇ</span>
+                    <div class="w-16 h-16 bg-white border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer overflow-hidden" onclick="document.getElementById('icon-input').click()">
+                        <img id="preview-img" class="hidden w-full h-full object-cover">
+                        <span id="preview-label" class="text-[10px] text-gray-400 font-bold text-center">İkon<br>Seç</span>
                     </div>
-                    <input type="file" id="icon-input" class="hidden" accept="image/*" onchange="previewImage(this)">
+                    <input type="file" id="icon-input" class="hidden" accept="image/*" onchange="handleImage(this)">
+                    <div class="flex-1 space-y-2">
+                        <input type="text" id="game-name" placeholder="Oyun Adı" class="w-full p-2 border rounded-lg text-sm">
+                        <input type="text" id="game-desc" placeholder="Kısa Açıklama" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
                 </div>
-                <input type="text" id="add-name" placeholder="Oyun Adı" class="w-full p-4 rounded-xl border-none outline-none ring-1 ring-gray-200">
-                <input type="text" id="add-link" placeholder="t.me/BotLinki" class="w-full p-4 rounded-xl border-none outline-none ring-1 ring-gray-200">
-                <button onclick="createNewGame()" id="save-btn" class="w-full py-4 bg-cyan-500 text-white rounded-2xl font-black shadow-lg shadow-cyan-100">MAĞAZAYA EKLE</button>
+                <input type="text" id="game-link" placeholder="Oyun Bot Linki (t.me/...)" class="w-full p-2 border rounded-lg text-sm">
+                <div class="flex gap-2">
+                    <select id="game-type" class="flex-1 p-2 border rounded-lg text-sm">
+                        <option value="normal">Normal Liste</option>
+                        <option value="featured">Öne Çıkan (Slider)</option>
+                        <option value="hot">Sıcak Oyun</option>
+                    </select>
+                    <button onclick="saveGame()" id="save-btn" class="px-6 bg-black text-white rounded-lg font-bold text-sm">EKLE</button>
+                </div>
             </div>
-            <div id="admin-inventory" class="mt-6 space-y-3"></div>
+
+            <div id="admin-list" class="space-y-2">
+                <!-- Yönetim Listesi -->
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, serverTimestamp, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        let db, auth;
-        const tg = window.Telegram.WebApp;
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'game-store-pro-v2';
         const ADMIN_ID = "8392479231";
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'game-store-pro';
-        
+
+        let user = null;
         let allGames = [];
-        let currentIcon = "";
-        let currentUser = null;
+        let base64Icon = "";
 
-        async function startApp() {
-            try {
-                const config = JSON.parse(__firebase_config);
-                const app = initializeApp(config);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                tg.ready();
-                tg.expand();
-
-                // Auth Başlat
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        document.getElementById('connection-status').innerText = "Bağlı";
-                        document.getElementById('connection-status').className = "text-[10px] font-bold px-2 py-1 rounded-lg bg-green-100 text-green-600";
-                        setupListeners();
-                        setupUserData();
-                    }
-                });
-
-            } catch (e) {
-                console.error("Başlatma hatası:", e);
-                document.getElementById('connection-status').innerText = "Hata!";
-                document.getElementById('connection-status').className = "text-[10px] font-bold px-2 py-1 rounded-lg bg-red-100 text-red-600";
+        // Başlat
+        async function init() {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
             }
+
+            onAuthStateChanged(auth, (u) => {
+                user = u;
+                if (u) {
+                    setupTelegram();
+                    listenGames();
+                }
+            });
         }
 
-        function setupUserData() {
+        function setupTelegram() {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
             const tgUser = tg.initDataUnsafe?.user;
             if (tgUser) {
-                document.getElementById('user-name').innerText = tgUser.first_name;
-                document.getElementById('user-avatar').innerText = tgUser.first_name[0];
+                document.getElementById('welcome-msg').innerText = `Merhaba! ${tgUser.first_name}`;
                 if (tgUser.id.toString() === ADMIN_ID) {
                     document.getElementById('admin-float-btn').classList.remove('hidden');
                     document.getElementById('admin-float-btn').classList.add('flex');
@@ -168,111 +207,122 @@
             }
         }
 
-        function setupListeners() {
+        function listenGames() {
             const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
             onSnapshot(gamesRef, (snap) => {
                 allGames = [];
                 snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
-                renderGames();
-                renderAdminInventory();
-            }, (err) => {
-                console.error("Firestore hatası:", err);
+                renderUI();
             });
         }
 
-        window.createNewGame = async () => {
-            if (!currentUser) return tg.showAlert("Oturum hazır değil!");
-            const name = document.getElementById('add-name').value;
-            const link = document.getElementById('add-link').value;
-            const btn = document.getElementById('save-btn');
-            
-            if(!name || !link) return tg.showAlert("Lütfen tüm alanları doldurun!");
+        function renderUI() {
+            const slider = document.getElementById('featured-slider');
+            const mainList = document.getElementById('game-list');
+            const hotList = document.getElementById('hot-game-list');
+            const adminInv = document.getElementById('admin-list');
 
-            btn.disabled = true;
-            try {
-                const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
-                await addDoc(gamesRef, {
-                    name, 
-                    link, 
-                    icon: currentIcon || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
-                    created_at: serverTimestamp()
-                });
-                tg.showAlert("Oyun eklendi!");
-                document.getElementById('add-name').value = "";
-                document.getElementById('add-link').value = "";
-                currentIcon = "";
-                document.getElementById('icon-preview').classList.add('hidden');
-                document.getElementById('icon-hint').classList.remove('hidden');
-                toggleAdminPanel(false);
-            } catch (e) { 
-                tg.showAlert("Hata: " + e.message); 
-            } finally {
-                btn.disabled = false;
+            slider.innerHTML = "";
+            mainList.innerHTML = "";
+            hotList.innerHTML = "";
+            adminInv.innerHTML = `<h3 class="text-[10px] font-bold text-gray-400 uppercase mb-2">Mağaza Envanteri</h3>`;
+
+            allGames.forEach(g => {
+                // Slider Öğesi
+                if (g.type === 'featured') {
+                    const slide = document.createElement('div');
+                    slide.className = "slider-item bg-gray-200";
+                    slide.onclick = () => window.open(g.link, '_blank');
+                    slide.innerHTML = `<img src="${g.icon}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 left-4 text-white z-10">
+                           <span class="bg-pink-500 text-[10px] px-2 py-1 rounded font-bold uppercase">YENİ</span>
+                           <h3 class="text-xl font-black">${g.name}</h3>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>`;
+                    slider.appendChild(slide);
+                }
+
+                // Liste Kartı Oluşturucu
+                const createCard = (data) => {
+                    const div = document.createElement('div');
+                    div.className = "game-card flex items-center justify-between group";
+                    div.onclick = () => window.open(data.link, '_blank');
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${data.icon}" class="w-14 h-14 rounded-2xl object-cover shadow-sm bg-gray-50">
+                            <div>
+                                <h4 class="font-bold text-gray-900 leading-tight">${data.name}</h4>
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-1">${data.desc || ''}</p>
+                            </div>
+                        </div>
+                        <button class="bg-[#00bad4] text-white px-5 py-2 rounded-xl text-sm font-black shadow-md">
+                            ${data.type === 'hot' ? 'Başlangıç' : 'Start'}
+                        </button>
+                    `;
+                    return div;
+                };
+
+                if (g.type === 'hot') hotList.appendChild(createCard(g));
+                else if (g.type === 'normal') mainList.appendChild(createCard(g));
+
+                // Admin Inventory
+                const invItem = document.createElement('div');
+                invItem.className = "flex items-center justify-between p-3 bg-gray-50 rounded-xl";
+                invItem.innerHTML = `<span class="text-sm font-bold">${g.name} <small class="text-gray-400">(${g.type})</small></span>
+                    <button class="text-red-500 font-bold text-xs" onclick="deleteGame('${g.id}')">SİL</button>`;
+                adminInv.appendChild(invItem);
+            });
+        }
+
+        window.handleImage = (input) => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    base64Icon = e.target.result;
+                    document.getElementById('preview-img').src = base64Icon;
+                    document.getElementById('preview-img').classList.remove('hidden');
+                    document.getElementById('preview-label').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
             }
         };
 
-        window.previewImage = (input) => {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    currentIcon = e.target.result;
-                    document.getElementById('icon-preview').src = currentIcon;
-                    document.getElementById('icon-preview').classList.remove('hidden');
-                    document.getElementById('icon-hint').classList.add('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
+        window.saveGame = async () => {
+            const name = document.getElementById('game-name').value;
+            const desc = document.getElementById('game-desc').value;
+            const link = document.getElementById('game-link').value;
+            const type = document.getElementById('game-type').value;
+
+            if(!name || !link) return alert("Ad ve Link zorunludur!");
+
+            try {
+                const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+                await addDoc(gamesRef, {
+                    name, desc, link, type,
+                    icon: base64Icon || `https://api.dicebear.com/7.x/identicon/svg?seed=${name}`,
+                    created_at: serverTimestamp()
+                });
+                // Reset
+                document.getElementById('game-name').value = "";
+                document.getElementById('game-desc').value = "";
+                document.getElementById('game-link').value = "";
+                base64Icon = "";
+                document.getElementById('preview-img').classList.add('hidden');
+                document.getElementById('preview-label').classList.remove('hidden');
+                alert("Oyun mağazaya eklendi!");
+            } catch(e) { console.error(e); }
+        };
+
+        window.deleteGame = async (id) => {
+            if(confirm('Bu oyunu silmek istediğine emin misin?')) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
             }
         };
 
         window.toggleAdminPanel = (s) => document.getElementById('admin-panel').classList.toggle('open', s);
 
-        function renderGames() {
-            const grid = document.getElementById('game-grid');
-            if (!grid) return;
-            grid.innerHTML = "";
-            
-            if (allGames.length === 0) {
-                grid.innerHTML = `<p class="text-center text-gray-400 text-sm py-10 italic">Mağazada henüz oyun yok.</p>`;
-                return;
-            }
-
-            allGames.forEach(g => {
-                const card = document.createElement('div');
-                card.className = "flex items-center justify-between p-4 bg-white border rounded-[2rem] custom-shadow active:scale-95 transition-all animate__animated animate__fadeInUp";
-                card.onclick = () => window.open(g.link.startsWith('http') ? g.link : 'https://' + g.link, '_blank');
-                card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <img src="${g.icon}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50 shadow-sm">
-                        <h3 class="font-bold text-gray-800 text-lg">${g.name}</h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white shadow-lg shadow-cyan-100">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0L10 11.295l3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615l-4.695 4.502c-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335L4.516 9.163c-0.408-0.418-0.436-1.17 0-1.615z"/></svg>
-                    </div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderAdminInventory() {
-            const inv = document.getElementById('admin-inventory');
-            if (!inv) return;
-            inv.innerHTML = `<h3 class="text-xs font-bold text-gray-400 uppercase mb-3 ml-2">Mevcut Oyunlar</h3>`;
-            allGames.forEach(g => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 mb-2";
-                item.innerHTML = `
-                    <span class="text-sm font-bold text-gray-700">${g.name}</span>
-                    <button class="text-red-500 text-xs font-black px-4 py-2 bg-red-50 rounded-xl hover:bg-red-100">SİL</button>
-                `;
-                item.querySelector('button').onclick = async () => {
-                    if(confirm(`${g.name} silinsin mi?`)) {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', g.id));
-                    }
-                };
-                inv.appendChild(item);
-            });
-        }
-
-        window.addEventListener('load', startApp);
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
