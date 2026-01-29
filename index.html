@@ -24,54 +24,27 @@
             padding: 0;
         }
 
-        /* Loading Overlay */
-        #loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--tg-theme-button-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .custom-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-bar { background: var(--tg-theme-secondary-bg-color); }
         #admin-panel { transition: transform 0.4s ease; transform: translateY(100%); }
         #admin-panel.open { transform: translateY(0); }
-        .banner-container::-webkit-scrollbar { display: none; }
+        
+        /* Oyun kartları için yükleme iskeleti efekti */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Yükleme Ekranı -->
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <p class="mt-4 text-sm font-bold text-gray-400 animate-pulse">Mağaza Yükleniyor...</p>
-        <p id="error-msg" class="mt-2 text-xs text-red-500 hidden text-center px-6"></p>
-    </div>
-
-    <!-- Ban Ekranı -->
-    <div id="banned-screen" class="fixed inset-0 bg-white z-[9999] hidden flex-col items-center justify-center p-10 text-center">
-        <div class="text-6xl mb-4">🚫</div>
-        <h2 class="text-2xl font-bold">Erişim Engellendi</h2>
-    </div>
-
-    <!-- Ana İçerik -->
-    <div id="app-container" class="max-w-md mx-auto px-4 pt-4 opacity-0 transition-opacity duration-500">
+    <!-- Ana İçerik (Yükleme ekranı kaldırıldı, direkt görünür) -->
+    <div id="app-container" class="max-w-md mx-auto px-4 pt-4 transition-opacity duration-500">
         
         <header class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
@@ -81,6 +54,8 @@
                     <h1 id="user-name" class="font-bold text-gray-800 leading-tight">Oyuncu</h1>
                 </div>
             </div>
+            <!-- Status Indicator -->
+            <div id="connection-status" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-yellow-100 text-yellow-600">Bağlanıyor...</div>
         </header>
 
         <div class="search-bar flex items-center px-4 py-3 rounded-2xl mb-6">
@@ -88,21 +63,22 @@
             <input type="text" id="search-input" placeholder="Oyun ara..." class="bg-transparent border-none outline-none w-full text-sm font-medium">
         </div>
 
-        <!-- Bannerlar -->
-        <div class="relative mb-8 overflow-hidden rounded-[2rem] shadow-xl shadow-gray-100 hidden" id="banner-wrapper">
-            <div id="banner-list" class="banner-container flex overflow-x-auto scroll-smooth snap-x snap-mandatory"></div>
-            <div id="banner-dots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5"></div>
-        </div>
-
         <!-- Kategoriler -->
         <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-4" id="category-list">
-            <button class="category-pill active px-5 py-2 rounded-full text-sm font-bold bg-gray-100" onclick="filterCategory('All', this)">Tümü</button>
+            <button class="category-pill active px-5 py-2 rounded-full text-sm font-bold bg-gray-900 text-white" onclick="filterCategory('All', this)">Tümü</button>
             <button class="category-pill px-5 py-2 rounded-full text-sm font-bold bg-gray-100" onclick="filterCategory('Aksiyon', this)">Aksiyon</button>
-            <button class="category-pill px-5 py-2 rounded-full text-sm font-bold bg-gray-100" onclick="filterCategory('Bulmaca', this)">Bulmaca</button>
         </div>
 
-        <!-- Oyun Listesi -->
-        <div id="game-grid" class="grid grid-cols-1 gap-4"></div>
+        <!-- Oyun Listesi (Başlangıçta boş veya iskelet görünebilir) -->
+        <div id="game-grid" class="grid grid-cols-1 gap-4">
+            <!-- İskelet Yükleme Görünümü -->
+            <div class="skeleton-item flex items-center justify-between p-4 bg-white border rounded-[2rem] opacity-50">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl skeleton"></div>
+                    <div class="h-4 w-24 rounded skeleton"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Admin Butonu -->
@@ -120,13 +96,13 @@
                 <div class="flex gap-2">
                     <div class="flex-1 h-20 border-2 border-dashed rounded-2xl flex items-center justify-center bg-white cursor-pointer" onclick="document.getElementById('icon-input').click()">
                         <img id="icon-preview" class="hidden w-full h-full object-cover rounded-2xl">
-                        <span id="icon-hint" class="text-[10px] text-gray-400 font-bold">İKON</span>
+                        <span id="icon-hint" class="text-[10px] text-gray-400 font-bold">İKON SEÇ</span>
                     </div>
-                    <input type="file" id="icon-input" class="hidden" accept="image/*" onchange="previewImage(this, 'icon')">
+                    <input type="file" id="icon-input" class="hidden" accept="image/*" onchange="previewImage(this)">
                 </div>
                 <input type="text" id="add-name" placeholder="Oyun Adı" class="w-full p-4 rounded-xl border-none outline-none ring-1 ring-gray-200">
                 <input type="text" id="add-link" placeholder="t.me/BotLinki" class="w-full p-4 rounded-xl border-none outline-none ring-1 ring-gray-200">
-                <button onclick="createNewGame()" id="save-btn" class="w-full py-4 bg-cyan-500 text-white rounded-2xl font-black">MAĞAZAYA EKLE</button>
+                <button onclick="createNewGame()" id="save-btn" class="w-full py-4 bg-cyan-500 text-white rounded-2xl font-black shadow-lg shadow-cyan-100">MAĞAZAYA EKLE</button>
             </div>
             <div id="admin-inventory" class="mt-6 space-y-3"></div>
         </div>
@@ -134,8 +110,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, serverTimestamp, addDoc, deleteDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, serverTimestamp, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         let db, auth;
         const tg = window.Telegram.WebApp;
@@ -144,126 +120,159 @@
         
         let allGames = [];
         let currentIcon = "";
+        let currentUser = null;
 
         async function startApp() {
             try {
-                // Güvenli Firebase Yapılandırması
                 const config = JSON.parse(__firebase_config);
                 const app = initializeApp(config);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                await signInAnonymously(auth);
-                
-                const tgUser = tg.initDataUnsafe?.user;
-                if (tgUser) {
-                    document.getElementById('user-name').innerText = tgUser.first_name;
-                    document.getElementById('user-avatar').innerText = tgUser.first_name[0];
-                    if (tgUser.id.toString() === ADMIN_ID) {
-                        document.getElementById('admin-float-btn').classList.remove('hidden');
-                    }
+                tg.ready();
+                tg.expand();
+
+                // Auth Başlat
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
 
-                // Verileri Dinle
-                const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
-                onSnapshot(gamesRef, (snap) => {
-                    allGames = [];
-                    snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
-                    renderGames();
-                    renderAdminInventory();
-                    hideLoading();
-                }, (err) => {
-                    showError("Veri erişim hatası: " + err.message);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        document.getElementById('connection-status').innerText = "Bağlı";
+                        document.getElementById('connection-status').className = "text-[10px] font-bold px-2 py-1 rounded-lg bg-green-100 text-green-600";
+                        setupListeners();
+                        setupUserData();
+                    }
                 });
 
             } catch (e) {
-                showError("Yapılandırma hatası: " + e.message);
+                console.error("Başlatma hatası:", e);
+                document.getElementById('connection-status').innerText = "Hata!";
+                document.getElementById('connection-status').className = "text-[10px] font-bold px-2 py-1 rounded-lg bg-red-100 text-red-600";
             }
         }
 
-        function hideLoading() {
-            const loader = document.getElementById('loading-overlay');
-            const container = document.getElementById('app-container');
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                container.classList.remove('opacity-0');
-            }, 500);
+        function setupUserData() {
+            const tgUser = tg.initDataUnsafe?.user;
+            if (tgUser) {
+                document.getElementById('user-name').innerText = tgUser.first_name;
+                document.getElementById('user-avatar').innerText = tgUser.first_name[0];
+                if (tgUser.id.toString() === ADMIN_ID) {
+                    document.getElementById('admin-float-btn').classList.remove('hidden');
+                    document.getElementById('admin-float-btn').classList.add('flex');
+                }
+            }
         }
 
-        function showError(msg) {
-            const errEl = document.getElementById('error-msg');
-            errEl.innerText = msg;
-            errEl.classList.remove('hidden');
+        function setupListeners() {
+            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            onSnapshot(gamesRef, (snap) => {
+                allGames = [];
+                snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
+                renderGames();
+                renderAdminInventory();
+            }, (err) => {
+                console.error("Firestore hatası:", err);
+            });
         }
 
         window.createNewGame = async () => {
+            if (!currentUser) return tg.showAlert("Oturum hazır değil!");
             const name = document.getElementById('add-name').value;
             const link = document.getElementById('add-link').value;
             const btn = document.getElementById('save-btn');
-            if(!name || !link) return tg.showAlert("Eksik bilgi!");
+            
+            if(!name || !link) return tg.showAlert("Lütfen tüm alanları doldurun!");
 
             btn.disabled = true;
             try {
                 const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
                 await addDoc(gamesRef, {
-                    name, link, icon: currentIcon || `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`,
-                    clicks: 0, created_at: serverTimestamp()
+                    name, 
+                    link, 
+                    icon: currentIcon || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+                    created_at: serverTimestamp()
                 });
-                tg.showAlert("Eklendi!");
+                tg.showAlert("Oyun eklendi!");
+                document.getElementById('add-name').value = "";
+                document.getElementById('add-link').value = "";
+                currentIcon = "";
+                document.getElementById('icon-preview').classList.add('hidden');
+                document.getElementById('icon-hint').classList.remove('hidden');
                 toggleAdminPanel(false);
-            } catch (e) { tg.showAlert(e.message); }
-            btn.disabled = false;
+            } catch (e) { 
+                tg.showAlert("Hata: " + e.message); 
+            } finally {
+                btn.disabled = false;
+            }
         };
 
-        window.previewImage = (input, type) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentIcon = e.target.result;
-                document.getElementById('icon-preview').src = currentIcon;
-                document.getElementById('icon-preview').classList.remove('hidden');
-                document.getElementById('icon-hint').classList.add('hidden');
-            };
-            reader.readAsDataURL(input.files[0]);
+        window.previewImage = (input) => {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentIcon = e.target.result;
+                    document.getElementById('icon-preview').src = currentIcon;
+                    document.getElementById('icon-preview').classList.remove('hidden');
+                    document.getElementById('icon-hint').classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         };
 
         window.toggleAdminPanel = (s) => document.getElementById('admin-panel').classList.toggle('open', s);
 
         function renderGames() {
             const grid = document.getElementById('game-grid');
+            if (!grid) return;
             grid.innerHTML = "";
+            
+            if (allGames.length === 0) {
+                grid.innerHTML = `<p class="text-center text-gray-400 text-sm py-10 italic">Mağazada henüz oyun yok.</p>`;
+                return;
+            }
+
             allGames.forEach(g => {
-                grid.innerHTML += `
-                    <div class="flex items-center justify-between p-4 bg-white border rounded-[2rem] custom-shadow" onclick="window.open('${g.link}', '_blank')">
-                        <div class="flex items-center gap-4">
-                            <img src="${g.icon}" class="w-16 h-16 rounded-2xl object-cover">
-                            <h3 class="font-bold text-gray-800">${g.name}</h3>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-500 font-bold">▶</div>
+                const card = document.createElement('div');
+                card.className = "flex items-center justify-between p-4 bg-white border rounded-[2rem] custom-shadow active:scale-95 transition-all animate__animated animate__fadeInUp";
+                card.onclick = () => window.open(g.link.startsWith('http') ? g.link : 'https://' + g.link, '_blank');
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <img src="${g.icon}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50 shadow-sm">
+                        <h3 class="font-bold text-gray-800 text-lg">${g.name}</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white shadow-lg shadow-cyan-100">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0L10 11.295l3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615l-4.695 4.502c-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335L4.516 9.163c-0.408-0.418-0.436-1.17 0-1.615z"/></svg>
                     </div>`;
+                grid.appendChild(card);
             });
         }
 
         function renderAdminInventory() {
             const inv = document.getElementById('admin-inventory');
-            inv.innerHTML = "";
+            if (!inv) return;
+            inv.innerHTML = `<h3 class="text-xs font-bold text-gray-400 uppercase mb-3 ml-2">Mevcut Oyunlar</h3>`;
             allGames.forEach(g => {
-                inv.innerHTML += `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                        <span class="text-sm font-bold">${g.name}</span>
-                        <button onclick="deleteDoc(doc(db, 'artifacts', '${appId}', 'public', 'data', 'games', '${g.id}'))" class="text-red-500 text-xs">Kaldır</button>
-                    </div>`;
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 mb-2";
+                item.innerHTML = `
+                    <span class="text-sm font-bold text-gray-700">${g.name}</span>
+                    <button class="text-red-500 text-xs font-black px-4 py-2 bg-red-50 rounded-xl hover:bg-red-100">SİL</button>
+                `;
+                item.querySelector('button').onclick = async () => {
+                    if(confirm(`${g.name} silinsin mi?`)) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', g.id));
+                    }
+                };
+                inv.appendChild(item);
             });
         }
 
-        // 5 Saniye içinde yüklenmezse hata göster (Zaman aşımı kontrolü)
-        setTimeout(() => {
-            if (!document.getElementById('loading-overlay').classList.contains('hidden')) {
-                showError("Bağlantı zaman aşımına uğradı. Lütfen internetinizi kontrol edin.");
-            }
-        }, 8000);
-
-        window.addEventListener('DOMContentLoaded', startApp);
+        window.addEventListener('load', startApp);
     </script>
 </body>
 </html>
