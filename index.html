@@ -10,9 +10,8 @@
     <style>
         :root {
             --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #222222;
-            --tg-theme-button-color: #00bad4;
-            --tg-theme-secondary-bg-color: #f4f4f5;
+            --tg-theme-text-color: #000000;
+            --tg-theme-secondary-bg-color: #f4f4f7;
         }
 
         body {
@@ -22,6 +21,7 @@
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -36,20 +36,25 @@
         }
 
         .slider-item {
-            flex: 0 0 85%;
+            flex: 0 0 88%;
             scroll-snap-align: center;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
             position: relative;
             aspect-ratio: 16/9;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            background: #f8f8f8;
         }
 
         .game-card {
             transition: all 0.2s ease;
+            background: transparent;
+            border-radius: 20px;
         }
 
         .game-card:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
+            opacity: 0.8;
         }
 
         #admin-panel { 
@@ -58,124 +63,166 @@
         }
         #admin-panel.open { transform: translateY(0); }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+        .category-pill {
+            border-radius: 14px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .badge-premium {
+            background: #0088cc;
+            color: #ffffff;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+
+        .badge-choice {
+            background: #fff9c4;
+            color: #fbc02d;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 800;
             display: inline-block;
-            margin-right: 4px;
+            margin-top: 4px;
+            border: 1px solid #fff176;
+        }
+
+        .btn-open {
+            background: #f0f3f5;
+            color: #0088cc;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 6px 18px;
+            border-radius: 20px;
         }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Ana Konteyner -->
-    <div id="app-container" class="max-w-md mx-auto px-4 pt-4">
+    <!-- Ana Uygulama Arayüzü -->
+    <div id="app-container" class="max-w-md mx-auto px-5 pt-4">
         
-        <!-- Header -->
-        <header class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-                <h1 class="text-xl font-bold tracking-tight" id="welcome-msg">Merhaba! Oyuncu</h1>
-                <span class="text-xl">🌍</span>
-            </div>
+        <!-- Üst Başlık -->
+        <header class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-black tracking-tight" id="welcome-msg">Merhaba! 👋</h1>
             <div class="flex gap-2">
                 <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">📢</button>
-                <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">🇹🇷</button>
+                <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xs">TR</button>
             </div>
         </header>
 
-        <!-- Öne Çıkanlar Slider -->
-        <div class="slider-container no-scrollbar" id="featured-slider">
-            <!-- Dinamik Slider İçeriği -->
+        <!-- Öne Çıkanlar Kaydırıcısı -->
+        <div class="slider-container no-scrollbar mb-4" id="featured-slider">
+            <!-- Oyunlar buraya dinamik eklenir -->
         </div>
 
-        <!-- Kategoriler -->
-        <div class="flex gap-3 overflow-x-auto no-scrollbar py-4 border-b">
-            <button class="flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-600 rounded-xl font-bold text-sm whitespace-nowrap">🎮 Games</button>
-            <button class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm whitespace-nowrap">🏦 Finance</button>
-            <button class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-xl font-bold text-sm whitespace-nowrap">🔄 Payments</button>
+        <!-- Kategori Butonları -->
+        <div class="flex gap-3 overflow-x-auto no-scrollbar py-2 mb-4">
+            <button class="category-pill bg-pink-50 text-pink-600">🎮 Games</button>
+            <button class="category-pill bg-blue-50 text-blue-600">🏦 Finance</button>
+            <button class="category-pill bg-green-50 text-green-600">🔄 Payments</button>
         </div>
 
-        <!-- Yeni Oyunlar Bölümü -->
-        <div class="mt-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-extrabold text-gray-900">Yeni Oyun</h2>
-                <button class="text-blue-500 text-sm font-bold">Tümü ></button>
+        <!-- Trend Olanlar Bölümü -->
+        <div class="mt-4">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-black">Trending This Week <span class="text-gray-300 font-light ml-1">›</span></h2>
             </div>
-            <div id="game-list" class="space-y-6">
-                <!-- Oyunlar Buraya Gelecek -->
+            <div id="trending-list" class="space-y-6">
+                <!-- Trend listesi -->
             </div>
         </div>
 
-        <!-- Sıcak Oyun Bölümü (Emoji ile) -->
-        <div class="mt-8">
-            <h2 class="text-lg font-extrabold text-gray-900 mb-4 flex items-center gap-2">🔥 Sıcak Oyun</h2>
-            <div id="hot-game-list" class="space-y-6">
-                <!-- Sıcak Oyunlar -->
+        <!-- Yeni Uygulamalar Bölümü -->
+        <div class="mt-10">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-black">New <span class="text-gray-300 font-light ml-1">›</span></h2>
+            </div>
+            <div id="new-list" class="space-y-6">
+                <!-- Yeni listesi -->
             </div>
         </div>
     </div>
 
-    <!-- Admin Float Button (Sadece Admin Görebilir) -->
-    <button id="admin-float-btn" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-black text-white rounded-full shadow-2xl items-center justify-center z-50 animate__animated animate__bounceIn" onclick="toggleAdminPanel(true)">
+    <!-- Admin Düzenleme Butonu (Sadece Admin) -->
+    <button id="admin-float-btn" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-black text-white rounded-full shadow-2xl items-center justify-center z-50" onclick="toggleAdminPanel(true)">
         ⚙️
     </button>
 
-    <!-- Admin Paneli UI -->
+    <!-- Admin Yönetim Paneli -->
     <div id="admin-panel" class="fixed inset-0 bg-white z-[100] flex flex-col">
-        <div class="px-6 py-4 flex items-center justify-between border-b bg-gray-50">
-            <h2 class="text-lg font-black uppercase">Mağaza Yönetimi</h2>
-            <button onclick="toggleAdminPanel(false)" class="text-2xl">✕</button>
+        <div class="px-6 py-4 flex items-center justify-between border-b">
+            <h2 class="text-lg font-black uppercase tracking-tight">Mağaza Yönetimi</h2>
+            <button onclick="toggleAdminPanel(false)" class="text-2xl text-gray-400">✕</button>
         </div>
 
         <div class="flex-1 overflow-y-auto p-6 space-y-4">
-            <div class="bg-blue-50 p-4 rounded-2xl space-y-3">
-                <p class="text-xs font-bold text-blue-500 uppercase tracking-widest">Yeni Oyun Ekle</p>
-                <div class="flex gap-2">
-                    <div class="w-16 h-16 bg-white border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer overflow-hidden" onclick="document.getElementById('icon-input').click()">
+            <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100 space-y-4">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Yeni Uygulama Ekle</p>
+                <div class="flex gap-4">
+                    <div class="w-20 h-20 bg-white border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center cursor-pointer overflow-hidden" onclick="document.getElementById('icon-input').click()">
                         <img id="preview-img" class="hidden w-full h-full object-cover">
-                        <span id="preview-label" class="text-[10px] text-gray-400 font-bold text-center">İkon<br>Seç</span>
+                        <span id="preview-label" class="text-[10px] text-gray-400 font-bold text-center">İkon</span>
                     </div>
                     <input type="file" id="icon-input" class="hidden" accept="image/*" onchange="handleImage(this)">
                     <div class="flex-1 space-y-2">
-                        <input type="text" id="game-name" placeholder="Oyun Adı" class="w-full p-2 border rounded-lg text-sm">
-                        <input type="text" id="game-desc" placeholder="Kısa Açıklama" class="w-full p-2 border rounded-lg text-sm">
+                        <input type="text" id="game-name" placeholder="Uygulama Adı" class="w-full p-3 bg-white border border-gray-100 rounded-xl text-sm outline-none">
+                        <input type="text" id="game-desc" placeholder="Kısa Açıklama" class="w-full p-3 bg-white border border-gray-100 rounded-xl text-sm outline-none">
                     </div>
                 </div>
-                <input type="text" id="game-link" placeholder="Oyun Bot Linki (t.me/...)" class="w-full p-2 border rounded-lg text-sm">
+                <input type="text" id="game-link" placeholder="t.me/botlinki" class="w-full p-3 bg-white border border-gray-100 rounded-xl text-sm outline-none">
                 <div class="flex gap-2">
-                    <select id="game-type" class="flex-1 p-2 border rounded-lg text-sm">
-                        <option value="normal">Normal Liste</option>
+                    <select id="game-type" class="flex-1 p-3 bg-white border border-gray-100 rounded-xl text-sm outline-none">
                         <option value="featured">Öne Çıkan (Slider)</option>
-                        <option value="hot">Sıcak Oyun</option>
+                        <option value="trending">Trend (Trending)</option>
+                        <option value="new">Yeni (New)</option>
                     </select>
-                    <button onclick="saveGame()" id="save-btn" class="px-6 bg-black text-white rounded-lg font-bold text-sm">EKLE</button>
+                    <button onclick="saveGame()" id="save-btn" class="px-8 bg-blue-500 text-white rounded-xl font-black text-sm">EKLE</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="is-editors-choice" class="w-4 h-4">
+                    <label for="is-editors-choice" class="text-xs font-bold text-gray-500">Editörün Seçimi Rozeti</label>
                 </div>
             </div>
 
-            <div id="admin-list" class="space-y-2">
-                <!-- Yönetim Listesi -->
+            <div id="admin-list" class="space-y-3 pt-4">
+                <!-- Mevcut uygulama listesi -->
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, addDoc, deleteDoc, serverTimestamp, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'game-store-pro-v2';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tg-store-white';
         const ADMIN_ID = "8392479231";
 
         let user = null;
         let allGames = [];
         let base64Icon = "";
 
-        // Başlat
+        // Varsayılan Test Verileri
+        const dummyData = [
+            { name: "Dogs", desc: "Telegram'ın en yerel meme coin'i.", type: "trending", icon: "https://api.dicebear.com/7.x/identicon/svg?seed=dogs", link: "https://t.me/dogshouse_bot", editorsChoice: true },
+            { name: "Getgems", desc: "TON üzerindeki en büyük NFT pazarı.", type: "trending", icon: "https://api.dicebear.com/7.x/identicon/svg?seed=gems", link: "https://t.me/getgems", editorsChoice: false },
+            { name: "8Bit", desc: "Klasik retro oyun deneyimi.", type: "new", icon: "https://api.dicebear.com/7.x/identicon/svg?seed=8bit", link: "https://t.me/bit_game_bot", editorsChoice: false },
+            { name: "Duckygram", desc: "Eğlen ve kazan!", type: "featured", icon: "https://api.dicebear.com/7.x/identicon/svg?seed=ducky", link: "https://t.me/duckygram_bot", editorsChoice: true }
+        ];
+
         async function init() {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
@@ -183,23 +230,35 @@
                 await signInAnonymously(auth);
             }
 
-            onAuthStateChanged(auth, (u) => {
+            onAuthStateChanged(auth, async (u) => {
                 user = u;
                 if (u) {
                     setupTelegram();
+                    await seedInitialData();
                     listenGames();
                 }
             });
+        }
+
+        async function seedInitialData() {
+            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            const snap = await getDocs(query(gamesRef, limit(1)));
+            if (snap.empty) {
+                for (const g of dummyData) {
+                    await addDoc(gamesRef, { ...g, created_at: serverTimestamp() });
+                }
+            }
         }
 
         function setupTelegram() {
             const tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
+            tg.headerColor = "#ffffff";
             
             const tgUser = tg.initDataUnsafe?.user;
             if (tgUser) {
-                document.getElementById('welcome-msg').innerText = `Merhaba! ${tgUser.first_name}`;
+                document.getElementById('welcome-msg').innerText = `Merhaba! ${tgUser.first_name} 👋`;
                 if (tgUser.id.toString() === ADMIN_ID) {
                     document.getElementById('admin-float-btn').classList.remove('hidden');
                     document.getElementById('admin-float-btn').classList.add('flex');
@@ -218,65 +277,69 @@
 
         function renderUI() {
             const slider = document.getElementById('featured-slider');
-            const mainList = document.getElementById('game-list');
-            const hotList = document.getElementById('hot-game-list');
+            const trendingList = document.getElementById('trending-list');
+            const newList = document.getElementById('new-list');
             const adminInv = document.getElementById('admin-list');
 
             slider.innerHTML = "";
-            mainList.innerHTML = "";
-            hotList.innerHTML = "";
-            adminInv.innerHTML = `<h3 class="text-[10px] font-bold text-gray-400 uppercase mb-2">Mağaza Envanteri</h3>`;
+            trendingList.innerHTML = "";
+            newList.innerHTML = "";
+            adminInv.innerHTML = `<h3 class="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">Mevcut Envanter</h3>`;
 
             allGames.forEach(g => {
-                // Slider Öğesi
                 if (g.type === 'featured') {
                     const slide = document.createElement('div');
-                    slide.className = "slider-item bg-gray-200";
+                    slide.className = "slider-item";
                     slide.onclick = () => window.open(g.link, '_blank');
-                    slide.innerHTML = `<img src="${g.icon}" class="w-full h-full object-cover">
-                        <div class="absolute bottom-4 left-4 text-white z-10">
-                           <span class="bg-pink-500 text-[10px] px-2 py-1 rounded font-bold uppercase">YENİ</span>
-                           <h3 class="text-xl font-black">${g.name}</h3>
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>`;
+                    slide.innerHTML = `
+                        <img src="${g.icon}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div class="absolute bottom-5 left-5 right-5 flex items-end justify-between text-white">
+                           <div class="flex-1">
+                                <span class="badge-premium mb-2 inline-block">PREMIUM</span>
+                                <h3 class="text-2xl font-black leading-tight">${g.name}</h3>
+                                <p class="text-xs text-white/80 line-clamp-1">${g.desc}</p>
+                           </div>
+                           <button class="bg-white text-black px-5 py-2 rounded-xl text-xs font-black">Aç</button>
+                        </div>`;
                     slider.appendChild(slide);
                 }
 
-                // Liste Kartı Oluşturucu
-                const createCard = (data) => {
+                const createRow = (data) => {
                     const div = document.createElement('div');
-                    div.className = "game-card flex items-center justify-between group";
+                    div.className = "game-card flex items-center justify-between";
                     div.onclick = () => window.open(data.link, '_blank');
                     div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <img src="${data.icon}" class="w-14 h-14 rounded-2xl object-cover shadow-sm bg-gray-50">
+                        <div class="flex items-center gap-4">
+                            <img src="${data.icon}" class="w-16 h-16 rounded-2xl object-cover shadow-sm bg-gray-50 border border-gray-100">
                             <div>
-                                <h4 class="font-bold text-gray-900 leading-tight">${data.name}</h4>
-                                <p class="text-xs text-gray-500 mt-1 line-clamp-1">${data.desc || ''}</p>
+                                <h4 class="font-black text-gray-900 leading-tight">${data.name}</h4>
+                                ${data.editorsChoice ? '<span class="badge-choice">EDITORS\' CHOICE</span>' : ''}
+                                <p class="text-[12px] text-gray-400 mt-1 line-clamp-1">${data.desc || ''}</p>
                             </div>
                         </div>
-                        <button class="bg-[#00bad4] text-white px-5 py-2 rounded-xl text-sm font-black shadow-md">
-                            ${data.type === 'hot' ? 'Başlangıç' : 'Start'}
-                        </button>
+                        <button class="btn-open">Aç</button>
                     `;
                     return div;
                 };
 
-                if (g.type === 'hot') hotList.appendChild(createCard(g));
-                else if (g.type === 'normal') mainList.appendChild(createCard(g));
+                if (g.type === 'trending') trendingList.appendChild(createRow(g));
+                if (g.type === 'new') newList.appendChild(createRow(g));
 
-                // Admin Inventory
                 const invItem = document.createElement('div');
-                invItem.className = "flex items-center justify-between p-3 bg-gray-50 rounded-xl";
-                invItem.innerHTML = `<span class="text-sm font-bold">${g.name} <small class="text-gray-400">(${g.type})</small></span>
-                    <button class="text-red-500 font-bold text-xs" onclick="deleteGame('${g.id}')">SİL</button>`;
+                invItem.className = "flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100";
+                invItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${g.icon}" class="w-8 h-8 rounded-lg">
+                        <span class="text-sm font-bold text-gray-700">${g.name} <small class="text-gray-400">(${g.type})</small></span>
+                    </div>
+                    <button class="text-red-500 font-black text-xs px-3 py-1 bg-red-50 rounded-lg" onclick="deleteGame('${g.id}')">SİL</button>`;
                 adminInv.appendChild(invItem);
             });
         }
 
         window.handleImage = (input) => {
-            const file = input.files[0];
-            if (file) {
+            if (input.files?.[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     base64Icon = e.target.result;
@@ -284,7 +347,7 @@
                     document.getElementById('preview-img').classList.remove('hidden');
                     document.getElementById('preview-label').classList.add('hidden');
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(input.files[0]);
             }
         };
 
@@ -293,29 +356,31 @@
             const desc = document.getElementById('game-desc').value;
             const link = document.getElementById('game-link').value;
             const type = document.getElementById('game-type').value;
+            const editorsChoice = document.getElementById('is-editors-choice').checked;
 
-            if(!name || !link) return alert("Ad ve Link zorunludur!");
+            if(!name || !link) return;
 
             try {
                 const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
                 await addDoc(gamesRef, {
-                    name, desc, link, type,
+                    name, desc, link, type, editorsChoice,
                     icon: base64Icon || `https://api.dicebear.com/7.x/identicon/svg?seed=${name}`,
                     created_at: serverTimestamp()
                 });
-                // Reset
+                
                 document.getElementById('game-name').value = "";
                 document.getElementById('game-desc').value = "";
                 document.getElementById('game-link').value = "";
+                document.getElementById('is-editors-choice').checked = false;
                 base64Icon = "";
                 document.getElementById('preview-img').classList.add('hidden');
                 document.getElementById('preview-label').classList.remove('hidden');
-                alert("Oyun mağazaya eklendi!");
+                toggleAdminPanel(false);
             } catch(e) { console.error(e); }
         };
 
         window.deleteGame = async (id) => {
-            if(confirm('Bu oyunu silmek istediğine emin misin?')) {
+            if(confirm('Silmek istediğinize emin misiniz?')) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
             }
         };
