@@ -88,13 +88,18 @@
 
     <!-- Oyun Listeleri -->
     <section class="px-5 mt-10">
-        <h3 class="text-xl font-bold mb-5">Yeni Oyunlar</h3>
+        <h3 class="text-xl font-bold mb-5 flex items-center gap-2">✨ Yeni Oyunlar</h3>
         <div id="new-games-list" class="space-y-6"></div>
     </section>
 
     <section class="px-5 mt-12 mb-10">
         <h3 class="text-xl font-bold mb-5 flex items-center gap-2">🔥 Popüler Oyunlar</h3>
         <div id="hot-games-list" class="space-y-6"></div>
+    </section>
+
+    <section class="px-5 mt-12 mb-10">
+        <h3 class="text-xl font-bold mb-5 flex items-center gap-2">🧩 Zeka & Strateji</h3>
+        <div id="logic-games-list" class="space-y-6"></div>
     </section>
 
     <!-- ADMIN GİRİŞ MODAL -->
@@ -158,9 +163,6 @@
         let currentHeroIndex = 0;
         let isAdmin = false;
 
-        // DÜZELTME: Firestore doc() segment sayısı her zaman çift olmalıdır.
-        // artifacts (coll) -> {appId} (doc) -> public (coll) -> data (doc) -> gameSettings (coll) -> settings (doc)
-        // Ya da daha basiti:
         const getSettingsDocRef = () => doc(db, 'artifacts', appId, 'public', 'data', 'gameSettings', 'settings');
 
         async function init() {
@@ -185,7 +187,7 @@
                             setupDefaultData();
                         }
                     }, (error) => {
-                        console.error("Firestore Segment Hatası Giderildi. Mevcut Hata:", error);
+                        console.error("Firestore Hatası:", error);
                     });
                 }
             });
@@ -195,11 +197,18 @@
             const defaultData = {
                 hero: [
                     { name: "Süper Yarış", desc: "Hızın sınırlarını zorla!", icon: "🏎️", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800", link: "#" },
-                    { name: "Uzay Yolu", desc: "Yıldızlar arası keşif.", icon: "🚀", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800", link: "#" }
+                    { name: "Uzay Yolu", desc: "Yıldızlar arası keşif.", icon: "🚀", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800", link: "#" },
+                    { name: "Cyber Ninja", desc: "Geleceğin savaşçısı ol.", icon: "🥷", img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800", link: "#" }
                 ],
                 others: [
                     { name: "Maden Avcısı", desc: "Altınları topla, zengin ol!", icon: "💰", link: "#", category: "new" },
-                    { name: "Meyve Bahçesi", desc: "Hasat zamanı geldi.", icon: "🍎", link: "#", category: "hot" }
+                    { name: "Hızlı Penaltı", desc: "Şampiyonluk golünü at.", icon: "⚽", link: "#", category: "new" },
+                    { name: "Neon Koşu", desc: "Engellerden kaç, rekor kır.", icon: "🏃", link: "#", category: "new" },
+                    { name: "Meyve Bahçesi", desc: "Hasat zamanı geldi.", icon: "🍎", link: "#", category: "hot" },
+                    { name: "Savaş Alanı", desc: "Takımını zafere taşı.", icon: "🔫", link: "#", category: "hot" },
+                    { name: "Drift Kralı", desc: "Virajları ustaca dön.", icon: "🚗", link: "#", category: "hot" },
+                    { name: "Blok Bulmaca", desc: "Zihnini zorlayan şekiller.", icon: "🧱", link: "#", category: "logic" },
+                    { name: "Sudoku Master", desc: "Sayıların dünyasına gir.", icon: "🔢", link: "#", category: "logic" }
                 ]
             };
             try {
@@ -238,9 +247,13 @@
         function renderLists() {
             const newList = document.getElementById('new-games-list');
             const hotList = document.getElementById('hot-games-list');
-            if(!newList || !hotList) return;
+            const logicList = document.getElementById('logic-games-list');
+            
+            if(!newList || !hotList || !logicList) return;
+            
             newList.innerHTML = '';
             hotList.innerHTML = '';
+            logicList.innerHTML = '';
 
             if(!gamesData.others) return;
             gamesData.others.forEach(game => {
@@ -255,8 +268,10 @@
                         </div>
                         <button onclick="window.location.href='${game.link}'" class="bg-[#00C2FF] text-white px-5 py-2 rounded-xl font-bold text-sm shadow-sm active:opacity-80">Oyna</button>
                     </div>`;
+                
                 if(game.category === 'new') newList.innerHTML += html;
-                else hotList.innerHTML += html;
+                else if(game.category === 'hot') hotList.innerHTML += html;
+                else if(game.category === 'logic') logicList.innerHTML += html;
             });
         }
 
@@ -296,6 +311,14 @@
         }
 
         function createAdminInputGroup(type, index, game) {
+            const categories = type === 'others' ? `
+                <select class="w-full bg-white/5 p-2 rounded-lg text-xs admin-field text-gray-400" data-type="${type}" data-idx="${index}" data-key="category">
+                    <option value="new" ${game.category === 'new' ? 'selected' : ''}>Yeni</option>
+                    <option value="hot" ${game.category === 'hot' ? 'selected' : ''}>Popüler</option>
+                    <option value="logic" ${game.category === 'logic' ? 'selected' : ''}>Zeka</option>
+                </select>
+            ` : '';
+
             return `
                 <div class="bg-[#1E1E1E] p-4 rounded-[24px] space-y-3 border border-white/5 mb-4">
                     <div class="flex gap-2">
@@ -304,6 +327,7 @@
                     </div>
                     <input type="text" value="${game.desc}" class="w-full bg-white/5 p-2 rounded-lg text-xs admin-field" data-type="${type}" data-idx="${index}" data-key="desc">
                     <input type="text" value="${game.link}" class="w-full bg-white/5 p-2 rounded-lg text-xs admin-field text-blue-400" data-type="${type}" data-idx="${index}" data-key="link">
+                    ${categories}
                     ${type === 'hero' ? `<input type="text" value="${game.img}" class="w-full bg-white/5 p-2 rounded-lg text-xs admin-field text-gray-400" data-type="${type}" data-idx="${index}" data-key="img">` : ''}
                 </div>`;
         }
