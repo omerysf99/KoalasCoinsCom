@@ -84,7 +84,7 @@
     <div id="banned-screen" class="fixed inset-0 bg-white z-[9999] hidden flex-col items-center justify-center p-10 text-center">
         <div class="text-6xl mb-4">🚫</div>
         <h2 class="text-2xl font-bold">Erişim Engellendi</h2>
-        <p class="text-gray-500 mt-2">Topluluk kurallarını ihlal ettiğiniz için erişiminiz kalıcı olarak kısıtlanmıştır.</p>
+        <p class="text-gray-500 mt-2">Erişiminiz kısıtlanmıştır.</p>
     </div>
 
     <!-- Main Content -->
@@ -101,11 +101,6 @@
                     <h1 id="user-name" class="font-bold text-gray-800 leading-tight">Oyuncu</h1>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="tg.showAlert('Yakında: Başarımlar ve Puanlar!')" class="p-2 bg-gray-50 rounded-xl border border-gray-100">
-                    🏆
-                </button>
-            </div>
         </header>
 
         <!-- Search Area -->
@@ -115,10 +110,8 @@
         </div>
 
         <!-- Banner Carousel -->
-        <div class="relative mb-8 overflow-hidden rounded-[2rem] shadow-xl shadow-gray-100">
-            <div id="banner-list" class="banner-container flex overflow-x-auto scroll-smooth snap-x snap-mandatory">
-                <!-- Banners dynamic -->
-            </div>
+        <div class="relative mb-8 overflow-hidden rounded-[2rem] shadow-xl shadow-gray-100 hidden" id="banner-wrapper">
+            <div id="banner-list" class="banner-container flex overflow-x-auto scroll-smooth snap-x snap-mandatory"></div>
             <div id="banner-dots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5"></div>
         </div>
 
@@ -132,11 +125,9 @@
 
         <!-- Games Grid -->
         <div id="game-grid" class="grid grid-cols-1 gap-4">
-            <!-- Skeleton items -->
             <div class="loader-skeleton h-24 rounded-3xl w-full"></div>
             <div class="loader-skeleton h-24 rounded-3xl w-full"></div>
         </div>
-
     </div>
 
     <!-- Admin Float Button -->
@@ -144,25 +135,22 @@
         ⚙️
     </button>
 
-    <!-- Admin Panel (Slide-up) -->
+    <!-- Admin Panel -->
     <div id="admin-panel" class="fixed inset-0 bg-white z-[100] flex flex-col pt-safe">
         <div class="px-6 py-4 flex items-center justify-between border-b">
-            <h2 class="text-xl font-extrabold italic">ADMIN PANEL <span class="text-cyan-500">v2.0</span></h2>
+            <h2 class="text-xl font-extrabold italic">ADMIN PANEL <span class="text-cyan-500">PRO</span></h2>
             <button onclick="toggleAdminPanel(false)" class="p-2 bg-gray-100 rounded-xl">✕</button>
         </div>
 
-        <!-- Admin Navigation -->
         <div class="flex p-4 gap-2">
             <button onclick="adminTab('games')" class="admin-nav-btn flex-1 py-3 rounded-2xl bg-gray-900 text-white font-bold text-sm">Oyunlar</button>
             <button onclick="adminTab('users')" class="admin-nav-btn flex-1 py-3 rounded-2xl bg-gray-100 text-gray-500 font-bold text-sm">Kullanıcılar</button>
-            <button onclick="adminTab('stats')" class="admin-nav-btn flex-1 py-3 rounded-2xl bg-gray-100 text-gray-500 font-bold text-sm">Analiz</button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-6 pb-20">
-            <!-- Admin: Games Content -->
-            <div id="admin-games-content" class="space-y-6">
+            <div id="admin-games-content" class="space-y-6 pt-4">
                 <div class="bg-gray-50 p-5 rounded-[2rem] space-y-4">
-                    <h3 class="font-bold text-sm text-gray-400 uppercase tracking-widest">Yeni Oyun Yayınla</h3>
+                    <h3 class="font-bold text-xs text-gray-400 uppercase tracking-widest">Yeni Oyun Yayınla</h3>
                     
                     <div class="flex gap-4 items-end">
                         <div class="flex-1">
@@ -175,7 +163,7 @@
                         <div class="flex-[2]">
                              <div class="h-20 border-2 border-dashed rounded-2xl flex items-center justify-center cursor-pointer overflow-hidden bg-white" onclick="document.getElementById('banner-input').click()">
                                 <img id="banner-preview" class="hidden w-full h-full object-cover">
-                                <span id="banner-hint" class="text-[10px] text-gray-400 font-bold">BANNER (GENİŞ)</span>
+                                <span id="banner-hint" class="text-[10px] text-gray-400 font-bold">BANNER (OPSİYONEL)</span>
                              </div>
                              <input type="file" id="banner-input" class="hidden" accept="image/*" onchange="previewImage(this, 'banner')">
                         </div>
@@ -195,122 +183,155 @@
                     </button>
                 </div>
 
-                <div id="admin-inventory" class="space-y-3">
-                    <!-- Dynamic inventory -->
-                </div>
+                <div id="admin-inventory" class="space-y-3"></div>
             </div>
 
-            <!-- Admin: Users Content -->
-            <div id="admin-users-content" class="hidden space-y-3">
+            <div id="admin-users-content" class="hidden space-y-3 pt-4">
                 <div id="admin-user-list"></div>
-            </div>
-
-            <!-- Admin: Stats Content -->
-            <div id="admin-stats-content" class="hidden">
-                <div class="grid grid-cols-2 gap-4" id="stats-grid">
-                    <!-- Stats summary -->
-                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, serverTimestamp, addDoc, deleteDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, serverTimestamp, addDoc, deleteDoc, updateDoc, increment, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBbA61N0ztsdRxEjwMUS0YKXXfXV4DMEVQ",
-            authDomain: "playcentr-67140.firebaseapp.com",
-            projectId: "playcentr-67140",
-            storageBucket: "playcentr-67140.firebasestorage.app",
-            messagingSenderId: "306761978239",
-            appId: "1:306761978239:web:17d4e797da09fa0b49ca4a"
-        };
-
+        // Global Veriler
+        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'game-store-pro';
         const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe?.user;
         const ADMIN_ID = "8392479231";
 
+        let user = null;
         let allGames = [];
         let currentIcon = "";
         let currentBanner = "";
         let activeCategory = "All";
 
-        async function bootstrap() {
-            tg.expand();
-            tg.ready();
+        // Firebase Auth & Init
+        async function init() {
+            try {
+                await signInAnonymously(auth);
+                onAuthStateChanged(auth, (u) => {
+                    user = u;
+                    if (user) setupApp();
+                });
+            } catch (e) {
+                console.error("Auth Error", e);
+            }
+        }
 
-            if (user) {
-                document.getElementById('user-name').innerText = user.first_name;
-                document.getElementById('user-avatar').innerText = user.first_name[0];
+        async function setupApp() {
+            const tgUser = tg.initDataUnsafe?.user;
+            
+            if (tgUser) {
+                document.getElementById('user-name').innerText = tgUser.first_name;
+                document.getElementById('user-avatar').innerText = tgUser.first_name[0];
                 
-                if (user.id.toString() === ADMIN_ID) {
+                if (tgUser.id.toString() === ADMIN_ID) {
                     document.getElementById('admin-float-btn').classList.replace('hidden', 'flex');
                 }
 
-                const uRef = doc(db, "users", user.id.toString());
+                // Kullanıcı kaydı ve ban kontrolü
+                const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', tgUser.id.toString());
                 const uSnap = await getDoc(uRef);
                 
                 if (uSnap.exists() && uSnap.data().isBanned) {
+                    document.getElementById('app-container').classList.add('hidden');
                     document.getElementById('banned-screen').classList.remove('hidden');
                     return;
                 }
 
                 await setDoc(uRef, {
-                    first_name: user.first_name,
-                    username: user.username || "",
+                    first_name: tgUser.first_name,
+                    username: tgUser.username || "",
                     last_seen: serverTimestamp()
                 }, { merge: true });
             }
 
-            // Real-time Listeners
-            onSnapshot(collection(db, "apps"), (snap) => {
+            // Oyunları Dinle
+            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            onSnapshot(gamesRef, (snap) => {
                 allGames = [];
                 snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
                 renderGames();
-                renderAdminInventory();
                 renderBanners();
-                renderStats();
-            });
+                renderAdminInventory();
+            }, (err) => console.error("Firestore Error:", err));
 
-            if (user?.id.toString() === ADMIN_ID) {
-                onSnapshot(collection(db, "users"), (snap) => {
+            // Kullanıcıları Dinle (Admin ise)
+            if (tgUser?.id.toString() === ADMIN_ID) {
+                const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+                onSnapshot(usersRef, (snap) => {
                     const users = [];
                     snap.forEach(d => users.push({ id: d.id, ...d.data() }));
                     renderAdminUsers(users);
                 });
             }
-
-            // Search Logic
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                renderGames(e.target.value);
-            });
         }
 
-        window.toggleAdminPanel = (show) => {
-            const panel = document.getElementById('admin-panel');
-            show ? panel.classList.add('open') : panel.classList.remove('open');
-        };
+        // Oyun Ekleme Fonksiyonu (GÜNCELLENDİ)
+        window.createNewGame = async () => {
+            const name = document.getElementById('add-name').value.trim();
+            const category = document.getElementById('add-category').value;
+            const link = document.getElementById('add-link').value.trim();
+            const btn = document.getElementById('save-btn');
 
-        window.adminTab = (tab) => {
-            ['games', 'users', 'stats'].forEach(t => {
-                document.getElementById(`admin-${t}-content`).classList.toggle('hidden', t !== tab);
-            });
-            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-                const isActive = btn.innerText.toLowerCase().includes(tab.substring(0,2));
-                btn.classList.toggle('bg-gray-900', isActive);
-                btn.classList.toggle('text-white', isActive);
-                btn.classList.toggle('bg-gray-100', !isActive);
-                btn.classList.toggle('text-gray-500', !isActive);
-            });
+            if (!name || !link) {
+                tg.showAlert("Lütfen isim ve link alanlarını doldurun.");
+                return;
+            }
+
+            btn.innerText = "YAYINLANIYOR...";
+            btn.disabled = true;
+
+            try {
+                const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+                await addDoc(gamesRef, {
+                    name,
+                    category,
+                    link,
+                    icon: currentIcon || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+                    banner: currentBanner || "",
+                    clicks: 0,
+                    created_at: serverTimestamp()
+                });
+
+                tg.showAlert("Başarıyla Eklendi!");
+                
+                // Formu Temizle
+                document.getElementById('add-name').value = "";
+                document.getElementById('add-link').value = "";
+                currentIcon = ""; currentBanner = "";
+                document.getElementById('icon-preview').classList.add('hidden');
+                document.getElementById('banner-preview').classList.add('hidden');
+                document.getElementById('icon-hint').classList.remove('hidden');
+                document.getElementById('banner-hint').classList.remove('hidden');
+                
+                toggleAdminPanel(false);
+            } catch (e) {
+                console.error("Save Error:", e);
+                tg.showAlert("Ekleme başarısız: " + e.message);
+            } finally {
+                btn.innerText = "MAĞAZAYA EKLE";
+                btn.disabled = false;
+            }
         };
 
         window.previewImage = (input, type) => {
             const file = input.files[0];
             if (!file) return;
+            
+            // Boyut kontrolü (Firestore döküman limiti 1MB)
+            if (file.size > 800000) {
+                tg.showAlert("Görsel çok büyük! Lütfen daha küçük bir dosya seçin (Max 800KB).");
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64 = e.target.result;
@@ -329,44 +350,26 @@
             reader.readAsDataURL(file);
         };
 
-        window.createNewGame = async () => {
-            const name = document.getElementById('add-name').value;
-            const category = document.getElementById('add-category').value;
-            const link = document.getElementById('add-link').value;
-            const btn = document.getElementById('save-btn');
-
-            if (!name || !link) return tg.showAlert("Lütfen isim ve link alanlarını doldurun.");
-
-            btn.innerText = "YAYINLANIYOR...";
-            btn.disabled = true;
-
-            try {
-                await addDoc(collection(db, "apps"), {
-                    name,
-                    category,
-                    link,
-                    icon: currentIcon || `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`,
-                    banner: currentBanner,
-                    clicks: 0,
-                    created_at: serverTimestamp()
-                });
-                tg.showAlert("Oyun Mağazaya Eklendi!");
-                document.getElementById('add-name').value = "";
-                document.getElementById('add-link').value = "";
-                currentIcon = ""; currentBanner = "";
-                document.querySelectorAll('#admin-panel img').forEach(i => i.classList.add('hidden'));
-                document.querySelectorAll('#admin-panel span').forEach(s => s.classList.remove('hidden'));
-            } catch (e) {
-                tg.showAlert("Hata: " + e.message);
-            } finally {
-                btn.innerText = "MAĞAZAYA EKLE";
-                btn.disabled = false;
-            }
+        window.toggleAdminPanel = (show) => {
+            const panel = document.getElementById('admin-panel');
+            show ? panel.classList.add('open') : panel.classList.remove('open');
         };
 
-        window.playGame = async (id, link) => {
-            await updateDoc(doc(db, "apps", id), { clicks: increment(1) });
-            window.open(link, '_blank');
+        window.adminTab = (tab) => {
+            document.getElementById('admin-games-content').classList.toggle('hidden', tab !== 'games');
+            document.getElementById('admin-users-content').classList.toggle('hidden', tab !== 'users');
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                const isActive = btn.innerText.toLowerCase().includes(tab.substring(0,2));
+                btn.className = isActive ? 'admin-nav-btn flex-1 py-3 rounded-2xl bg-gray-900 text-white font-bold text-sm' : 'admin-nav-btn flex-1 py-3 rounded-2xl bg-gray-100 text-gray-500 font-bold text-sm';
+            });
+        };
+
+        window.playGame = async (gameId, link) => {
+            try {
+                const gRef = doc(db, 'artifacts', appId, 'public', 'data', 'games', gameId);
+                updateDoc(gRef, { clicks: increment(1) });
+                window.open(link.startsWith('http') ? link : 'https://' + link, '_blank');
+            } catch (e) { console.error(e); }
         };
 
         window.filterCategory = (cat, btn) => {
@@ -376,21 +379,14 @@
             renderGames();
         };
 
-        function renderGames(searchQuery = "") {
+        function renderGames(queryStr = "") {
             const grid = document.getElementById('game-grid');
             grid.innerHTML = "";
-            
             const filtered = allGames.filter(g => {
-                const matchesSearch = g.name.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchesCat = activeCategory === "All" || g.category === activeCategory;
-                return matchesSearch && matchesCat;
+                const mSearch = g.name.toLowerCase().includes(queryStr.toLowerCase());
+                const mCat = activeCategory === "All" || g.category === activeCategory;
+                return mSearch && mCat;
             });
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="text-center py-10 text-gray-400 font-medium">Oyun bulunamadı...</div>`;
-                return;
-            }
-
             filtered.forEach(g => {
                 grid.innerHTML += `
                     <div class="game-card flex items-center justify-between p-4 bg-white border border-gray-100 rounded-[2rem] custom-shadow" onclick="playGame('${g.id}', '${g.link}')">
@@ -401,27 +397,21 @@
                                 <p class="text-[10px] font-bold text-cyan-500 uppercase tracking-tighter">${g.category || 'Klasik'}</p>
                             </div>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600">
-                            ▶
-                        </div>
-                    </div>
-                `;
+                        <div class="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600">▶</div>
+                    </div>`;
             });
         }
 
         function renderBanners() {
+            const wrapper = document.getElementById('banner-wrapper');
             const list = document.getElementById('banner-list');
             const dots = document.getElementById('banner-dots');
-            list.innerHTML = ""; dots.innerHTML = "";
-            
             const bannerGames = allGames.filter(g => g.banner).slice(0, 5);
             
-            if (bannerGames.length === 0) {
-                document.querySelector('.relative.mb-8').style.display = 'none';
-                return;
-            }
-            document.querySelector('.relative.mb-8').style.display = 'block';
-
+            if (bannerGames.length === 0) { wrapper.classList.add('hidden'); return; }
+            wrapper.classList.remove('hidden');
+            list.innerHTML = ""; dots.innerHTML = "";
+            
             bannerGames.forEach((g, i) => {
                 list.innerHTML += `
                     <div class="min-w-full snap-center h-48 relative cursor-pointer" onclick="playGame('${g.id}', '${g.link}')">
@@ -429,15 +419,14 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
                             <h4 class="text-white font-black text-2xl uppercase italic">${g.name}</h4>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 dots.innerHTML += `<div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-white w-6' : 'bg-white/40'} transition-all"></div>`;
             });
         }
 
         function renderAdminInventory() {
             const inv = document.getElementById('admin-inventory');
-            inv.innerHTML = `<h3 class="font-bold text-sm text-gray-400 uppercase tracking-widest mt-8">Mağaza Stokları</h3>`;
+            inv.innerHTML = `<h3 class="font-bold text-xs text-gray-400 uppercase tracking-widest mt-8">Mağaza Yönetimi</h3>`;
             allGames.forEach(g => {
                 inv.innerHTML += `
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
@@ -445,12 +434,11 @@
                             <img src="${g.icon}" class="w-10 h-10 rounded-lg">
                             <div>
                                 <div class="font-bold">${g.name}</div>
-                                <div class="text-[10px] text-gray-400">${g.clicks || 0} tıklama</div>
+                                <div class="text-[10px] text-gray-400">${g.clicks || 0} tık</div>
                             </div>
                         </div>
-                        <button onclick="deleteDoc(doc(db, 'apps', '${g.id}'))" class="text-red-500 font-bold text-xs bg-red-50 px-3 py-2 rounded-lg">Kaldır</button>
-                    </div>
-                `;
+                        <button onclick="deleteDoc(doc(db, 'artifacts', '${appId}', 'public', 'data', 'games', '${g.id}'))" class="text-red-500 font-bold text-xs bg-red-50 px-3 py-2 rounded-lg">Kaldır</button>
+                    </div>`;
             });
         }
 
@@ -466,31 +454,17 @@
                             <div class="text-xs text-gray-400">@${u.username || 'n/a'}</div>
                         </div>
                         ${u.id !== ADMIN_ID ? `
-                            <button onclick="updateDoc(doc(db, 'users', '${u.id}'), {isBanned: ${!banned}})" class="px-4 py-2 rounded-xl text-xs font-bold ${banned ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}">
+                            <button onclick="updateDoc(doc(db, 'artifacts', '${appId}', 'public', 'data', 'users', '${u.id}'), {isBanned: ${!banned}})" class="px-4 py-2 rounded-xl text-xs font-bold ${banned ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}">
                                 ${banned ? 'AÇ' : 'BAN'}
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
+                            </button>` : ''}
+                    </div>`;
             });
         }
 
-        function renderStats() {
-            const grid = document.getElementById('stats-grid');
-            const totalClicks = allGames.reduce((acc, g) => acc + (g.clicks || 0), 0);
-            grid.innerHTML = `
-                <div class="bg-cyan-50 p-6 rounded-3xl">
-                    <div class="text-xs text-cyan-600 font-bold uppercase">Toplam Oyun</div>
-                    <div class="text-3xl font-black">${allGames.length}</div>
-                </div>
-                <div class="bg-gray-900 p-6 rounded-3xl text-white">
-                    <div class="text-xs text-gray-400 font-bold uppercase">Toplam Tık</div>
-                    <div class="text-3xl font-black">${totalClicks}</div>
-                </div>
-            `;
-        }
+        // Arama Dinleyicisi
+        document.getElementById('search-input').addEventListener('input', (e) => renderGames(e.target.value));
 
-        bootstrap();
+        init();
     </script>
 </body>
 </html>
